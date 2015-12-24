@@ -1,5 +1,7 @@
 package com.tqmall.search.common.cache;
 
+import com.tqmall.search.common.param.NotifyChangeParam;
+
 /**
  * Created by xing on 15/12/22.
  * slave机器接收变化的数据,并处理之

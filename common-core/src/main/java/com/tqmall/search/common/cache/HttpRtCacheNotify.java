@@ -1,5 +1,7 @@
 package com.tqmall.search.common.cache;
 
+import com.tqmall.search.common.param.NotifyChangeParam;
+
 import java.util.List;
 
 /**

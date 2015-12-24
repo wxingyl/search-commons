@@ -30,7 +30,8 @@ public interface RtCacheMasterHandle<K, V> {
     /**
      * @param key 需要更新的key
      * @param newVal 最新val,如果newVal == null, 意味着删除操作
+     * @return 是否已经处理
      */
-    void onMasterHandle(K key, V newVal);
+    boolean onMasterHandle(K key, V newVal);
 
 }

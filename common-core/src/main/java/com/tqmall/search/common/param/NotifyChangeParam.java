@@ -1,7 +1,5 @@
-package com.tqmall.search.common.cache;
+package com.tqmall.search.common.param;
 
-
-import com.tqmall.search.common.param.Param;
 
 import java.io.Serializable;
 import java.util.List;

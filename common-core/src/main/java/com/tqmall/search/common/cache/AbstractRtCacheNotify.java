@@ -1,6 +1,8 @@
 package com.tqmall.search.common.cache;
 
 import com.google.common.base.Supplier;
+import com.tqmall.search.common.param.NotifyChangeParam;
+import com.tqmall.search.common.param.SlaveRegisterParam;
 import com.tqmall.search.common.utils.RwLock;
 
 import java.util.ArrayList;
@@ -51,9 +53,9 @@ public abstract class AbstractRtCacheNotify implements RtCacheNotify {
     public void notify(RtCacheSlaveHandle slaveCache, List<String> keys) {
         if (keys == null || keys.isEmpty()) return;
         final NotifyChangeParam param = new NotifyChangeParam();
-        param.setCacheKey(RtCacheManagers.getCacheHandleKey(slaveCache));
+        param.setCacheKey(RtCacheManager.getCacheHandleKey(slaveCache));
         param.setKeys(keys);
-        final String cacheKey = RtCacheManagers.getCacheHandleKey(slaveCache);
+        final String cacheKey = RtCacheManager.getCacheHandleKey(slaveCache);
         cacheHostLock.readOp(new RwLock.Op<Map<String, List<String>>>() {
             @Override
             public void op(Map<String, List<String>> input) {

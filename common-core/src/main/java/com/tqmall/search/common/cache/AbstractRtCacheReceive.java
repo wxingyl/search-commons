@@ -1,5 +1,7 @@
 package com.tqmall.search.common.cache;
 
+import com.tqmall.search.common.param.NotifyChangeParam;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,13 +18,14 @@ public abstract class AbstractRtCacheReceive implements RtCacheReceive {
 
     @Override
     public void registerHandler(RtCacheSlaveHandle slaveCache) {
-        cacheHandlerMap.put(RtCacheManagers.getCacheHandleKey(slaveCache), slaveCache);
+        cacheHandlerMap.put(RtCacheManager.getCacheHandleKey(slaveCache), slaveCache);
     }
 
     @Override
     public void receive(NotifyChangeParam param) {
+        if (param.getKeys() == null || param.getKeys().isEmpty()) return;
         RtCacheSlaveHandle slaveCache = cacheHandlerMap.get(param.getCacheKey());
-        if (slaveCache != null) {
+        if (slaveCache != null && slaveCache.initialized()) {
             slaveCache.onSlaveHandle(param.getKeys());
         }
     }

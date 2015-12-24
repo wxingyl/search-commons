@@ -1,5 +1,7 @@
 package com.tqmall.search.common.cache;
 
+import com.tqmall.search.common.param.SlaveRegisterParam;
+
 import java.util.List;
 
 /**
