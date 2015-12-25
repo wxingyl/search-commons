@@ -9,17 +9,17 @@ import java.math.BigDecimal;
 public abstract class StrValueConverts {
 
     @SuppressWarnings("unchecked")
-    public static <T> StrValueConvert<T> getConvert(Class<T> cls) {
+    public static <T extends Comparable<T> > ComparableStrValueConvert<T> getConvert(Class<T> cls) {
         if (cls == Integer.class || cls == Integer.TYPE) {
-            return (StrValueConvert<T>) IntStrValueConvert.INSTANCE;
+            return (ComparableStrValueConvert) IntStrValueConvert.INSTANCE;
         } else if (cls == String.class) {
-            return (StrValueConvert<T>) StringStrValueConvert.INSTANCE;
+            return (ComparableStrValueConvert) StringStrValueConvert.INSTANCE;
         } else if (cls == Long.class || cls == Long.TYPE) {
-            return (StrValueConvert<T>) LongStrValueConvert.INSTANCE;
+            return (ComparableStrValueConvert) LongStrValueConvert.INSTANCE;
         } else if (cls == Double.class || cls == Double.TYPE) {
-            return (StrValueConvert<T>) DoubleStrValueConvert.INSTANCE;
+            return (ComparableStrValueConvert) DoubleStrValueConvert.INSTANCE;
         } else if (cls == BigDecimal.class) {
-            return (StrValueConvert<T>) BigDecimalStrValueConvert.INSTANCE;
+            return (ComparableStrValueConvert) BigDecimalStrValueConvert.INSTANCE;
         } else {
             return null;
         }
@@ -53,7 +53,7 @@ public abstract class StrValueConverts {
         return BigDecimalStrValueConvert.INSTANCE.convert(input);
     }
 
-    static abstract class AbstractStrValueConvert<T extends Comparable<T>> implements StrValueConvert<T> {
+    public static abstract class AbstractCmpStrValueConvert<T extends Comparable<T>> implements ComparableStrValueConvert<T> {
 
         protected abstract T innerConvert(String s);
 
@@ -75,7 +75,7 @@ public abstract class StrValueConverts {
         }
     }
 
-    static class StringStrValueConvert extends AbstractStrValueConvert<String> {
+    static class StringStrValueConvert extends AbstractCmpStrValueConvert<String> {
 
         final static StringStrValueConvert INSTANCE = new StringStrValueConvert();
 
@@ -90,7 +90,7 @@ public abstract class StrValueConverts {
         }
     }
 
-    static class IntStrValueConvert extends AbstractStrValueConvert<Integer> {
+    static class IntStrValueConvert extends AbstractCmpStrValueConvert<Integer> {
 
         final static IntStrValueConvert INSTANCE = new IntStrValueConvert();
 
@@ -106,7 +106,7 @@ public abstract class StrValueConverts {
 
     }
 
-    static class LongStrValueConvert extends AbstractStrValueConvert<Long> {
+    static class LongStrValueConvert extends AbstractCmpStrValueConvert<Long> {
 
         final static LongStrValueConvert INSTANCE = new LongStrValueConvert();
 
@@ -122,7 +122,7 @@ public abstract class StrValueConverts {
 
     }
 
-    static class DoubleStrValueConvert extends AbstractStrValueConvert<Double> {
+    static class DoubleStrValueConvert extends AbstractCmpStrValueConvert<Double> {
 
         final static DoubleStrValueConvert INSTANCE = new DoubleStrValueConvert();
 
@@ -139,7 +139,7 @@ public abstract class StrValueConverts {
         }
     }
 
-    static class BigDecimalStrValueConvert extends AbstractStrValueConvert<BigDecimal> {
+    static class BigDecimalStrValueConvert extends AbstractCmpStrValueConvert<BigDecimal> {
 
         final static BigDecimalStrValueConvert INSTANCE = new BigDecimalStrValueConvert();
 
