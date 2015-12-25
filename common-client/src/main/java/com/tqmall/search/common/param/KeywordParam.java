@@ -5,6 +5,8 @@ package com.tqmall.search.common.param;
  * 具有关键字查询的参数, 所有的查询接口, 都支持分页的
  */
 public class KeywordParam extends PageParam {
+
+    private static final long serialVersionUID = 5696545921852498737L;
     /**
      * 关键字为trim之后的值
      */

@@ -14,7 +14,7 @@ public interface RtCacheNotify {
      * 记录slave机器的注册请求,这个很有可能同时有多个进来,需要考虑多线程
      * @param param slave机器注册感兴趣的cache
      */
-    void recordSlaveRegister(SlaveRegisterParam param);
+    void handleSlaveRegister(SlaveRegisterParam param);
 
     /**
      * master 机器通知给slave, 哪些key更改了

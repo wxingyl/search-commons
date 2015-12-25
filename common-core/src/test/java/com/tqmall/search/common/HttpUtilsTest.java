@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.tqmall.search.common.utils.HttpUtils;
 import com.tqmall.search.common.utils.JsonUtils;
 import com.tqmall.search.common.utils.StrValueConvert;
+import lombok.Data;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -47,6 +48,7 @@ public class HttpUtilsTest {
         Assert.assertTrue(tinyUrl.getStatus() == 0);
     }
 
+    @Data
     static class TinyUrl {
 
         private String tinyurl;
@@ -57,46 +59,5 @@ public class HttpUtilsTest {
 
         private String err_msg;
 
-        public String getErr_msg() {
-            return err_msg;
-        }
-
-        public String getLongurl() {
-            return longurl;
-        }
-
-        public Integer getStatus() {
-            return status;
-        }
-
-        public String getTinyurl() {
-            return tinyurl;
-        }
-
-        public void setErr_msg(String err_msg) {
-            this.err_msg = err_msg;
-        }
-
-        public void setLongurl(String longurl) {
-            this.longurl = longurl;
-        }
-
-        public void setStatus(Integer status) {
-            this.status = status;
-        }
-
-        public void setTinyurl(String tinyurl) {
-            this.tinyurl = tinyurl;
-        }
-
-        @Override
-        public String toString() {
-            return "TinyUrl{" +
-                    "err_msg='" + err_msg + '\'' +
-                    ", tinyurl='" + tinyurl + '\'' +
-                    ", status=" + status +
-                    ", longurl='" + longurl + '\'' +
-                    '}';
-        }
     }
 }

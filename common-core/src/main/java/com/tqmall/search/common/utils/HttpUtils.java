@@ -8,9 +8,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -18,7 +16,7 @@ import java.util.Objects;
 /**
  * Created by xing on 15/12/24.
  * Http 请求工具类
- * 该类的请求是通过Java的基本方法实现,没有考虑多请求下频繁建立网络连接的情况
+ * 该类的请求是通过Java的基本方法实现,没有考虑多请求下频繁建立网络连接的情况, 如果需要, 那就直接搞Apache HttpClient
  */
 public abstract class HttpUtils {
 
@@ -27,6 +25,23 @@ public abstract class HttpUtils {
     public static final String METHOD_GET = "GET";
 
     public static final String METHOD_POST = "POST";
+
+    public static final String METHOD_PUT = "PUT";
+
+    public static final String METHOD_DELETE = "DELETE";
+
+    public static final String LOCAL_IP;
+
+    static {
+        String ip;
+        try {
+            ip = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            log.error("获取本地Ip失败", e);
+            ip = null;
+        }
+        LOCAL_IP = ip;
+    }
 
     public static URL buildURL(String host, String path) {
         return buildURL(host, path, "");
@@ -116,6 +131,27 @@ public abstract class HttpUtils {
         return new PostRequest();
     }
 
+    public static RequestBase build(String method) {
+        method = method.toUpperCase();
+        RequestBase request;
+        switch (method) {
+            case METHOD_GET:
+                request = new GetRequest();
+                break;
+            case METHOD_POST:
+                request = new PostRequest();
+                break;
+            case METHOD_PUT:
+                request = new PutRequest();
+                break;
+            case METHOD_DELETE:
+                request = new DeleteRequest();
+                break;
+            default:
+                throw new IllegalArgumentException("nonsupport for Http method: " + method);
+        }
+        return request;
+    }
     /**
      * Http请求的一些配置
      */
@@ -183,6 +219,7 @@ public abstract class HttpUtils {
         public RequestBase() {
             addHeader("Accept", "application/json,charset=UTF-8");
             addHeader("Connection", "keep-alive");
+            addHeader("Request Method", getMethod());
         }
 
         public abstract String getMethod();
@@ -313,4 +350,25 @@ public abstract class HttpUtils {
             }
         }
     }
+
+    /**
+     * 跟Post没啥区别了,就是个Method Name区分
+     */
+    public static class PutRequest extends PostRequest {
+        @Override
+        public String getMethod() {
+            return METHOD_PUT;
+        }
+    }
+
+    /**
+     * 跟Post没啥区别了,就是个Method Name区分
+     */
+    public static class DeleteRequest extends PostRequest {
+        @Override
+        public String getMethod() {
+            return METHOD_DELETE;
+        }
+    }
+
 }

@@ -1,13 +1,12 @@
 package com.tqmall.search.common.result;
 
-import java.io.Serializable;
 import java.util.Collection;
 
 /**
  * Created by xing on 15/12/4.
  * 分页参数返回
  */
-public class PageResult<T> extends Result<Collection<T>> implements Serializable {
+public class PageResult<T> extends Result<Collection<T>> {
 
     private static final long serialVersionUID = -640667405378706383L;
 

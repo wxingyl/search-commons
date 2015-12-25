@@ -1,12 +1,14 @@
 package com.tqmall.search.common.cache;
 
 import com.google.common.base.Supplier;
+import com.google.common.collect.Maps;
 import com.tqmall.search.common.param.NotifyChangeParam;
 import com.tqmall.search.common.param.SlaveRegisterParam;
 import com.tqmall.search.common.utils.RwLock;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,35 +16,37 @@ import java.util.Map;
  * Created by xing on 15/12/23.
  * abstract RtCacheNotify
  */
-public abstract class AbstractRtCacheNotify implements RtCacheNotify {
+public abstract class AbstractRtCacheNotify<T extends AbstractSlaveRegisterInfo> implements RtCacheNotify {
 
     /**
-     * key: cache key, value: slave host list
+     * key: cache key, value: {@link Pair#getLeft()} is slaveHost, {@link Pair#getRight()} is urlPath
      */
-    private RwLock<Map<String, List<String>>> cacheHostLock = RwLock.build(new Supplier<Map<String, List<String>>>() {
+    private RwLock<Map<String, List<T>>> slaveHostLock = RwLock.build(new Supplier<Map<String, List<T>>>() {
         @Override
-        public Map<String, List<String>> get() {
-            return new HashMap<>();
+        public Map<String, List<T>> get() {
+            return Maps.newHashMap();
         }
     });
 
-    protected abstract void runNotifyTask(NotifyChangeParam param, List<String> slaveHosts);
+    protected abstract T createSlaveInfo(SlaveRegisterParam param);
+
+    protected abstract void runNotifyTask(NotifyChangeParam param, List<T> slaveHosts);
 
     @Override
-    public void recordSlaveRegister(final SlaveRegisterParam param) {
-        final String slaveHost = param.getSlaveHost();
-        if (slaveHost == null || slaveHost.isEmpty() ||
+    public void handleSlaveRegister(final SlaveRegisterParam param) {
+        if (StringUtils.isEmpty(param.getSlaveHost()) ||
                 param.getInterestCache() == null || param.getInterestCache().isEmpty()) return;
-        cacheHostLock.writeOp(new RwLock.Op<Map<String, List<String>>>() {
+        slaveHostLock.writeOp(new RwLock.Op<Map<String, List<T>>>() {
             @Override
-            public void op(Map<String, List<String>> input) {
+            public void op(Map<String, List<T>> input) {
                 for (String cache : param.getInterestCache()) {
-                    List<String> slaveHosts = input.get(cache);
+                    List<T> slaveHosts = input.get(cache);
                     if (slaveHosts == null) {
                         input.put(cache, slaveHosts = new ArrayList<>());
                     }
-                    if (!slaveHosts.contains(slaveHost)) {
-                        slaveHosts.add(slaveHost);
+                    T info = createSlaveInfo(param);
+                    if (info != null && !slaveHosts.contains(info)) {
+                        slaveHosts.add(info);
                     }
                 }
             }
@@ -56,11 +60,11 @@ public abstract class AbstractRtCacheNotify implements RtCacheNotify {
         param.setCacheKey(RtCacheManager.getCacheHandleKey(slaveCache));
         param.setKeys(keys);
         final String cacheKey = RtCacheManager.getCacheHandleKey(slaveCache);
-        cacheHostLock.readOp(new RwLock.Op<Map<String, List<String>>>() {
+        slaveHostLock.readOp(new RwLock.Op<Map<String, List<T>>>() {
             @Override
-            public void op(Map<String, List<String>> input) {
-                List<String> slaveHosts = input.get(cacheKey);
-                if (slaveHosts == null) return;
+            public void op(Map<String, List<T>> input) {
+                List<T> slaveHosts = input.get(cacheKey);
+                if (slaveHosts == null || slaveHosts.isEmpty()) return;
                 runNotifyTask(param, slaveHosts);
             }
         });
