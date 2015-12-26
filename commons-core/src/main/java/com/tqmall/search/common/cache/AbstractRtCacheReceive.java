@@ -13,8 +13,9 @@ public abstract class AbstractRtCacheReceive implements RtCacheReceive {
 
     /**
      * 本地机器注册的cache对象,这些对象对应着处理slave变化通知
+     * key: cache的名称,即cacheKey; value: 对应的RtCacheSlaveHandle对象实例
      */
-    private Map<String, RtCacheSlaveHandle> cacheHandlerMap = new HashMap<>();
+    protected final Map<String, RtCacheSlaveHandle> cacheHandlerMap = new HashMap<>();
 
     @Override
     public void registerHandler(RtCacheSlaveHandle slaveCache) {
