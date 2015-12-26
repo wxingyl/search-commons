@@ -2,8 +2,6 @@ package com.tqmall.search.common;
 
 import com.google.common.collect.Maps;
 import com.tqmall.search.common.utils.HttpUtils;
-import com.tqmall.search.common.utils.JsonUtils;
-import com.tqmall.search.common.utils.StrValueConvert;
 import lombok.Data;
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,12 +36,7 @@ public class HttpUtilsTest {
         TinyUrl tinyUrl = HttpUtils.buildPost().setBody("url=http://help.baidu.com/question?prod_en=webmaster", false)
                 .setUrl(HttpUtils.buildURL("dwz.cn", "create.php"))
                 .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-                .request(new StrValueConvert<TinyUrl>() {
-                    @Override
-                    public TinyUrl convert(String input) {
-                        return JsonUtils.jsonStrToObj(input, TinyUrl.class);
-                    }
-                });
+                .request(HttpUtils.jsonStrValueConvert(TinyUrl.class));
         System.out.println(tinyUrl);
         Assert.assertTrue(tinyUrl.getStatus() == 0);
     }

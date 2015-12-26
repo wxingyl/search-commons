@@ -22,13 +22,13 @@ public abstract class HttpUtils {
 
     private static final Logger log = LoggerFactory.getLogger(HttpUtils.class);
 
-    public static final String METHOD_GET = "GET";
+    public static final String GET_METHOD = "GET";
 
-    public static final String METHOD_POST = "POST";
+    public static final String POST_METHOD = "POST";
 
-    public static final String METHOD_PUT = "PUT";
+    public static final String PUT_METHOD = "PUT";
 
-    public static final String METHOD_DELETE = "DELETE";
+    public static final String DELETE_METHOD = "DELETE";
 
     public static final String LOCAL_IP;
 
@@ -41,6 +41,19 @@ public abstract class HttpUtils {
             ip = null;
         }
         LOCAL_IP = ip;
+    }
+
+
+    /**
+     * 构建一个StrValueConvert对象, 输入Json字符串, 根据Class对象, 通过Json转换得到该实例
+     */
+    public static <T> StrValueConvert<T> jsonStrValueConvert(final Class<T> cls) {
+        return new StrValueConvert<T>() {
+            @Override
+            public T convert(String input) {
+                return JsonUtils.jsonStrToObj(input, cls);
+            }
+        };
     }
 
     public static URL buildURL(String host, String path) {
@@ -115,6 +128,14 @@ public abstract class HttpUtils {
     }
 
     /**
+     * 默认的http post请求, 以json格式发送数据, 并且返回结果通过Json解析
+     * @param body 可以为null
+     */
+    public static <T> T requestPost(URL url, Object body, Class<T> cls) {
+        return requestPost(url, body, jsonStrValueConvert(cls));
+    }
+
+    /**
      * 默认的http post请求, 以json格式发送数据
      * @param body 可以为null
      */
@@ -135,16 +156,16 @@ public abstract class HttpUtils {
         method = method.toUpperCase();
         RequestBase request;
         switch (method) {
-            case METHOD_GET:
+            case GET_METHOD:
                 request = new GetRequest();
                 break;
-            case METHOD_POST:
+            case POST_METHOD:
                 request = new PostRequest();
                 break;
-            case METHOD_PUT:
+            case PUT_METHOD:
                 request = new PutRequest();
                 break;
-            case METHOD_DELETE:
+            case DELETE_METHOD:
                 request = new DeleteRequest();
                 break;
             default:
@@ -245,6 +266,15 @@ public abstract class HttpUtils {
             return this;
         }
 
+        public RequestBase addHeader(Map<String, String> handers) {
+            if (handers != null && !handers.isEmpty()) {
+                for (Map.Entry<String, String> e : handers.entrySet()) {
+                    addHeader(e.getKey(), e.getValue());
+                }
+            }
+            return this;
+        }
+
         /**
          * 如果value 为null,则删除name对应的header
          *
@@ -286,7 +316,14 @@ public abstract class HttpUtils {
                         response.append(line);
                     }
                 }
-                return convert.convert(response.toString());
+                if (convert == null) {
+                    if (requestLogSwitch) {
+                        log.info("Http请求结果: " + response.toString());
+                    }
+                    return null;
+                } else {
+                    return convert.convert(response.toString());
+                }
             } catch (IOException e) {
                 //填充log
                 log.error("Http请求" + url + ", Method: " + getMethod());
@@ -299,7 +336,7 @@ public abstract class HttpUtils {
 
         @Override
         public String getMethod() {
-            return METHOD_GET;
+            return GET_METHOD;
         }
 
         @Override
@@ -309,20 +346,18 @@ public abstract class HttpUtils {
         }
     }
 
-    public static class PostRequest extends RequestBase {
+    /**
+     * 请求中带Body的Http Method
+     */
+    public static abstract class HandleBodyRequest extends RequestBase {
 
         private String body;
-
-        @Override
-        public String getMethod() {
-            return METHOD_POST;
-        }
 
         /**
          * @param body 实体内容
          * @param isJson 是否为json数据,如果是,则添加Content-Type头
          */
-        public PostRequest setBody(Object body, boolean isJson) {
+        public HandleBodyRequest setBody(Object body, boolean isJson) {
             if (body == null) {
                 this.body = null;
             } else {
@@ -351,23 +386,32 @@ public abstract class HttpUtils {
         }
     }
 
+    public static class PostRequest extends HandleBodyRequest {
+
+        @Override
+        public String getMethod() {
+            return POST_METHOD;
+        }
+
+    }
+
     /**
      * 跟Post没啥区别了,就是个Method Name区分
      */
-    public static class PutRequest extends PostRequest {
+    public static class PutRequest extends HandleBodyRequest {
         @Override
         public String getMethod() {
-            return METHOD_PUT;
+            return PUT_METHOD;
         }
     }
 
     /**
      * 跟Post没啥区别了,就是个Method Name区分
      */
-    public static class DeleteRequest extends PostRequest {
+    public static class DeleteRequest extends HandleBodyRequest {
         @Override
         public String getMethod() {
-            return METHOD_DELETE;
+            return DELETE_METHOD;
         }
     }
 

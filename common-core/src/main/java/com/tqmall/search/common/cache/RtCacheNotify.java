@@ -1,6 +1,7 @@
 package com.tqmall.search.common.cache;
 
 import com.tqmall.search.common.param.SlaveRegisterParam;
+import com.tqmall.search.common.result.MapResult;
 
 import java.util.List;
 
@@ -13,8 +14,9 @@ public interface RtCacheNotify {
     /**
      * 记录slave机器的注册请求,这个很有可能同时有多个进来,需要考虑多线程
      * @param param slave机器注册感兴趣的cache
+     * @return 标识注册是否成功
      */
-    void handleSlaveRegister(SlaveRegisterParam param);
+    MapResult handleSlaveRegister(SlaveRegisterParam param);
 
     /**
      * master 机器通知给slave, 哪些key更改了
