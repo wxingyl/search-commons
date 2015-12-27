@@ -129,6 +129,7 @@ public abstract class HttpUtils {
 
     /**
      * 默认的http post请求, 以json格式发送数据, 并且返回结果通过Json解析
+     *
      * @param body 可以为null
      */
     public static <T> T requestPost(URL url, Object body, Class<T> cls) {
@@ -137,6 +138,7 @@ public abstract class HttpUtils {
 
     /**
      * 默认的http post请求, 以json格式发送数据
+     *
      * @param body 可以为null
      */
     public static <T> T requestPost(URL url, Object body, StrValueConvert<T> convert) {
@@ -153,7 +155,7 @@ public abstract class HttpUtils {
     }
 
     public static RequestBase build(String method) {
-        method = method.toUpperCase();
+        //HTTP 1.1 Method 是区分大小写的,所以这儿不做小写的处理
         RequestBase request;
         switch (method) {
             case GET_METHOD:
@@ -173,6 +175,7 @@ public abstract class HttpUtils {
         }
         return request;
     }
+
     /**
      * Http请求的一些配置
      */
@@ -240,12 +243,11 @@ public abstract class HttpUtils {
         public RequestBase() {
             addHeader("Accept", "application/json,charset=UTF-8");
             addHeader("Connection", "keep-alive");
-            addHeader("Request Method", getMethod());
         }
 
         public abstract String getMethod();
 
-        protected abstract void doURLConnection(URLConnection urlConnection) throws IOException;
+        protected abstract void doHttpURLConnection(HttpURLConnection httpUrlConnection) throws IOException;
 
         public RequestBase setUrl(URL url) {
             Objects.requireNonNull(url);
@@ -266,9 +268,9 @@ public abstract class HttpUtils {
             return this;
         }
 
-        public RequestBase addHeader(Map<String, String> handers) {
-            if (handers != null && !handers.isEmpty()) {
-                for (Map.Entry<String, String> e : handers.entrySet()) {
+        public RequestBase addHeader(Map<String, String> headers) {
+            if (headers != null && !headers.isEmpty()) {
+                for (Map.Entry<String, String> e : headers.entrySet()) {
                     addHeader(e.getKey(), e.getValue());
                 }
             }
@@ -278,12 +280,12 @@ public abstract class HttpUtils {
         /**
          * 如果value 为null,则删除name对应的header
          *
-         * @param name 大小写做了处理
+         * @param name HTTP 1.1 Header 头的name大小写不区分,所以我们全部转为小写
          */
         public RequestBase addHeader(String name, String value) {
             Objects.requireNonNull(name);
-            if (Character.isLowerCase(name.charAt(0))) {
-                name = Character.toUpperCase(name.charAt(0)) + name.substring(1);
+            if (!StringUtils.isAllLowerCase(name)) {
+                name = name.toLowerCase();
             }
             if (value == null) {
                 headerMap.remove(name);
@@ -299,18 +301,20 @@ public abstract class HttpUtils {
                 if (requestLogSwitch) {
                     log.info("Http请求, url: " + url + ", Method: " + getMethod());
                 }
-                URLConnection connection = url.openConnection();
+                //都是使用的http协议调用,所以可以直接强转
+                HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+                httpConnection.setRequestMethod(getMethod());
                 for (Map.Entry<String, String> e : headerMap.entrySet()) {
-                    connection.addRequestProperty(e.getKey(), e.getValue());
+                    httpConnection.addRequestProperty(e.getKey(), e.getValue());
                 }
                 final Config localConfig = config == null ? Config.DEFAULT : config;
-                connection.setConnectTimeout(localConfig.getConnectTimeout());
-                connection.setReadTimeout(localConfig.getReadTimeout());
-                doURLConnection(connection);
+                httpConnection.setConnectTimeout(localConfig.getConnectTimeout());
+                httpConnection.setReadTimeout(localConfig.getReadTimeout());
+                doHttpURLConnection(httpConnection);
                 //默认1024大小,返回结果数据还是比较多的一把情况下
                 StringBuilder response = new StringBuilder(localConfig.getReadBufferSize());
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(
-                        connection.getInputStream(), localConfig.getCharsetName()))) {
+                        httpConnection.getInputStream(), localConfig.getCharsetName()))) {
                     String line;
                     while ((line = in.readLine()) != null) {
                         response.append(line);
@@ -326,7 +330,7 @@ public abstract class HttpUtils {
                 }
             } catch (IOException e) {
                 //填充log
-                log.error("Http请求" + url + ", Method: " + getMethod());
+                log.error("Http请求" + url + ", Method: " + getMethod(), e);
                 return null;
             }
         }
@@ -340,9 +344,9 @@ public abstract class HttpUtils {
         }
 
         @Override
-        protected void doURLConnection(URLConnection urlConnection) throws IOException {
-            urlConnection.setDoInput(true);
-            urlConnection.connect();
+        protected void doHttpURLConnection(HttpURLConnection httpUrlConnection) throws IOException {
+            httpUrlConnection.setDoInput(true);
+            httpUrlConnection.connect();
         }
     }
 
@@ -354,7 +358,7 @@ public abstract class HttpUtils {
         private String body;
 
         /**
-         * @param body 实体内容
+         * @param body   实体内容
          * @param isJson 是否为json数据,如果是,则添加Content-Type头
          */
         public HandleBodyRequest setBody(Object body, boolean isJson) {
@@ -374,11 +378,11 @@ public abstract class HttpUtils {
         }
 
         @Override
-        protected void doURLConnection(URLConnection urlConnection) throws IOException {
-            urlConnection.setDoOutput(true);
-            urlConnection.setDoInput(true);
+        protected void doHttpURLConnection(HttpURLConnection httpUrlConnection) throws IOException {
+            httpUrlConnection.setDoOutput(true);
             if (body != null) {
-                try (PrintWriter out = new PrintWriter(urlConnection.getOutputStream())) {
+                //其会自动掉用httpUrlConnection.connect()方法
+                try (PrintWriter out = new PrintWriter(httpUrlConnection.getOutputStream())) {
                     out.print(body);
                     out.flush();
                 }
