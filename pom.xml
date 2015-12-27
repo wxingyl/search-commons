@@ -13,7 +13,6 @@
     <modules>
         <module>commons-client</module>
         <module>commons-core</module>
-        <module>commons-util</module>
     </modules>
 
     <dependencies>

@@ -257,7 +257,7 @@ public abstract class HttpUtils {
         }
 
         /**
-         * @param config 为null则使用默认配置{@link com.tqmall.search.common.utils.HttpUtils.Config#DEFAULT}
+         * @param config 为null则使用默认配置{@link Config#DEFAULT}
          */
         public RequestBase setConfig(Config config) {
             this.config = config;
