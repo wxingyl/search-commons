@@ -35,48 +35,103 @@ public final class ResultUtils {
         }
     };
 
+    /**
+     * 将一个Result对应输出
+     */
+    public static String resultToString(Result result) {
+        return "Result: succeed = " + result.isSucceed() + ", code = " + result.getCode() + ", message = " + result.getMessage()
+                + (result instanceof PageResult ? (", total = " + ((PageResult) result).getTotal()) : "")
+                + ", data = " + result.getData().toString();
+    }
+
+    /**
+     * 构建成功的, 拥有返回数据的{@link Result}对象
+     * @param data 返回数据
+     * @param <T> 返回数据对应的类型
+     * @return 成功的, 拥有返回数据的{@link Result}对象
+     */
     public static <T> Result<T> result(T data) {
         return new Result<>(data);
     }
 
+    /**
+     * 构建错误的{@link Result}对象
+     * @param errorCode 错误码
+     * @param <T> 没有意义, 只是为了调用的时候少点警告而已
+     * @return 错误的{@link Result}对象
+     */
     @SuppressWarnings("unchecked")
     public static <T> Result<T> result(ErrorCode errorCode) {
         return wrapError(errorCode, RESULT_BUILD);
     }
 
+    /**
+     * 构建错误的{@link Result}对象, 错误Message中有参数
+     * @param errorCode 错误码
+     * @param <T> 没有意义, 只是为了调用的时候少点警告而已
+     * @return 错误的{@link Result}对象
+     */
     @SuppressWarnings("unchecked")
     public static <T> Result<T> result(ErrorCode errorCode, Object... args) {
         return wrapError(errorCode, RESULT_BUILD, args);
     }
 
+    /**
+     * @see #result(Object)
+     * @return PageResult类型
+     */
     public static <T> PageResult<T> pageResult(Collection<T> data, long total) {
         return new PageResult<>(data, total);
     }
 
+    /**
+     * @see #result(ErrorCode)
+     * @return PageResult类型
+     */
     @SuppressWarnings("unchecked")
     public static <T> PageResult<T> pageResult(ErrorCode errorCode) {
         return wrapError(errorCode, PAGE_RESULT_BUILD);
     }
 
+    /**
+     * @see #result(ErrorCode, Object...)
+     * @return PageResult类型
+     */
     @SuppressWarnings("unchecked")
     public static <T> PageResult<T> pageResult(ErrorCode errorCode, Object... args) {
         return wrapError(errorCode, PAGE_RESULT_BUILD, args);
     }
 
+    /**
+     * @see #result(Object)
+     * @return MapResult类型
+     */
     public static MapResult mapResult() {
         return new MapResult();
     }
 
+    /**
+     * @see #result(Object)
+     * @return MapResult类型
+     */
     public static MapResult mapResult(String key, Object val) {
         MapResult mapResult = new MapResult();
         mapResult.put(key, val);
         return mapResult;
     }
 
+    /**
+     * @see #result(ErrorCode)
+     * @return MapResult类型
+     */
     public static MapResult mapResult(ErrorCode errorCode) {
         return wrapError(errorCode, MAP_RESULT_BUILD);
     }
 
+    /**
+     * @see #result(ErrorCode, Object...)
+     * @return MapResult类型
+     */
     public static MapResult mapResult(ErrorCode errorCode, Object... args) {
         return wrapError(errorCode, MAP_RESULT_BUILD, args);
     }

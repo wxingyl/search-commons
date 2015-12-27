@@ -2,8 +2,10 @@ package com.tqmall.search.common.cache;
 
 import com.google.common.collect.Lists;
 import com.tqmall.search.common.param.HttpSlaveRegisterParam;
+import com.tqmall.search.common.result.MapResult;
+import com.tqmall.search.common.result.ResultUtils;
 import com.tqmall.search.common.utils.HttpUtils;
-import com.tqmall.search.common.utils.StrValueConverts;
+import com.tqmall.search.common.utils.ResultJsonConverts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,11 +22,11 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive {
     private Integer port;
 
     /**
-     * slave机器接收
+     * slave机器接收urlPath, 该值为默认值
      */
     private String notifyChangePath = "/cache/notify_change";
     /**
-     * slave机器注册cache的路径
+     * slave机器注册cache的路径, 该值为默认值
      */
     private String registerPath = "/cache/register";
 
@@ -38,10 +40,10 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive {
         param.setSlaveHost(HttpUtils.LOCAL_IP + ':' + port);
         param.setUrlPath(notifyChangePath);
         param.setInterestCache(Lists.newArrayList(cacheHandlerMap.keySet()));
-        String ret = HttpUtils.requestPost(HttpUtils.buildURL(masterHost, registerPath),
-                param, StrValueConverts.getConvert(String.class));
-        log.info("注册master: " + masterHost + " 完成,返回结果: " + ret);
-        return true;
+        MapResult mapResult = HttpUtils.requestPost(HttpUtils.buildURL(masterHost, registerPath),
+                param, ResultJsonConverts.mapResultConvert());
+        log.info("注册master: " + masterHost + " 完成,返回结果: " + ResultUtils.resultToString(mapResult));
+        return mapResult.isSucceed();
     }
 
     public void setPort(Integer port) {
@@ -57,4 +59,5 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive {
     public void setRegisterPath(String registerPath) {
         this.registerPath = registerPath;
     }
+
 }

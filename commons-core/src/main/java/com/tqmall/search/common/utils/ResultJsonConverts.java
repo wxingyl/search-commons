@@ -58,7 +58,7 @@ public abstract class ResultJsonConverts {
         };
     }
 
-    public final static StrValueConvert<MapResult> MAP_RESULT_CONVERT = new StrValueConvert<MapResult>() {
+    private final static StrValueConvert<MapResult> MAP_RESULT_CONVERT = new StrValueConvert<MapResult>() {
         @SuppressWarnings("unchecked")
         @Override
         public MapResult convert(String input) {
