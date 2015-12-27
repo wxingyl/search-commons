@@ -1,12 +1,15 @@
 package com.tqmall.search.common;
 
 import com.google.common.collect.Maps;
+import com.tqmall.search.common.result.Result;
 import com.tqmall.search.common.utils.HttpUtils;
+import com.tqmall.search.common.utils.ResultJsonConvert;
 import lombok.Data;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -52,5 +55,13 @@ public class HttpUtilsTest {
 
         private String err_msg;
 
+    }
+
+    @Test
+    public void httpJsonHandleTest() {
+//        Map<String, Object> map = Maps.newHashMap();
+        Result<HashMap> result = HttpUtils.requestGet(HttpUtils.buildURL("http://114.215.169.216:8180", "/elasticsearch/category/search"),
+                new ResultJsonConvert<>(HashMap.class));
+        System.out.println(result);
     }
 }

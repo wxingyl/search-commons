@@ -11,15 +11,17 @@ public interface RtCacheReceive {
     /**
      * 本地机器cache 对象注册
      * 请求调用,都是单个单个调用,不用考虑多线程问题
+     * @return 注册是否成功
      */
-    void registerHandler(RtCacheSlaveHandle slaveCache);
+    boolean registerHandler(RtCacheSlaveHandle slaveCache);
 
     /**
      * 向master机器注册当前机器receive
-     * @param masterHost master主机机器
+     * @param masterHost master主机机器, 如果是Http注册,需要端口号
      * 请求调用,不用考虑多线程问题
+     * @return 注册是否成功
      */
-    void registerMaster(String masterHost);
+    boolean registerMaster(String masterHost);
 
     /**
      * 处理接收到的变化

@@ -18,8 +18,9 @@ public abstract class AbstractRtCacheReceive implements RtCacheReceive {
     protected final Map<String, RtCacheSlaveHandle> cacheHandlerMap = new HashMap<>();
 
     @Override
-    public void registerHandler(RtCacheSlaveHandle slaveCache) {
+    public boolean registerHandler(RtCacheSlaveHandle slaveCache) {
         cacheHandlerMap.put(RtCacheManager.getCacheHandleKey(slaveCache), slaveCache);
+        return true;
     }
 
     @Override

@@ -56,6 +56,8 @@ public abstract class HttpUtils {
         };
     }
 
+
+
     public static URL buildURL(String host, String path) {
         return buildURL(host, path, "");
     }
@@ -241,7 +243,6 @@ public abstract class HttpUtils {
          * 默认都为长连接, 以json接收数据
          */
         public RequestBase() {
-            addHeader("Accept", "application/json,charset=UTF-8");
             addHeader("Connection", "keep-alive");
         }
 
