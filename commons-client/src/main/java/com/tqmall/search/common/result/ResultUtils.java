@@ -147,6 +147,10 @@ public final class ResultUtils {
         return build.errorBuild(errorCode);
     }
 
+    /**
+     * error message中带有参数的构造
+     * @see #wrapError(ErrorCode, ResultBuild)
+     */
     public static <T extends Result> T wrapError(final ErrorCode errorCode, ResultBuild<T> build, Object... args) {
         if (args.length == 0) {
             return build.errorBuild(errorCode);
@@ -166,6 +170,10 @@ public final class ResultUtils {
         }
     }
 
+    /**
+     * 构造Result返回类型接口定义, 可以自定义Result类型
+     * @param <T> 具体的Result类型
+     */
     interface ResultBuild<T extends Result> {
 
         T errorBuild(ErrorCode errorCode);
