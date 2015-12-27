@@ -54,12 +54,12 @@ public final class ResultUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Result<T> pageResult(ErrorCode errorCode) {
+    public static <T> PageResult<T> pageResult(ErrorCode errorCode) {
         return wrapError(errorCode, PAGE_RESULT_BUILD);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Result<T> pageResult(ErrorCode errorCode, Object... args) {
+    public static <T> PageResult<T> pageResult(ErrorCode errorCode, Object... args) {
         return wrapError(errorCode, PAGE_RESULT_BUILD, args);
     }
 
@@ -81,6 +81,13 @@ public final class ResultUtils {
         return wrapError(errorCode, MAP_RESULT_BUILD, args);
     }
 
+    /**
+     * 留给外部接口自定义使用
+     * @param errorCode 具体的errorCode
+     * @param build Result构造自定义
+     * @param <T> 具体的Result类型
+     * @return 构造的Result
+     */
     public static <T extends Result> T wrapError(ErrorCode errorCode, ResultBuild<T> build) {
         return build.errorBuild(errorCode);
     }

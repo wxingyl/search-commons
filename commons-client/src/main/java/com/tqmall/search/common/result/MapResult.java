@@ -27,4 +27,8 @@ public class MapResult extends Result<Map<String, Object>> {
         getData().put(key, val);
     }
 
+    public void putAll(Map<String, Object> map) {
+        getData().putAll(map);
+    }
+
 }
