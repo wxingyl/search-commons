@@ -65,7 +65,7 @@ public class HttpUtilsTest {
     }
 
     @Data
-    public static class CategoryEntry {
+    static class CategoryEntry {
 
         private Integer id;
 

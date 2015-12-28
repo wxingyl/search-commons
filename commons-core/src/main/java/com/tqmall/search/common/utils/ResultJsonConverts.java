@@ -160,7 +160,7 @@ public abstract class ResultJsonConverts {
         return simpleResult;
     }
 
-    public final static class JsonSimpleResult implements ErrorCode {
+    final static class JsonSimpleResult implements ErrorCode {
 
         private String code;
 
