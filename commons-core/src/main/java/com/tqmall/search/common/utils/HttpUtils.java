@@ -140,7 +140,6 @@ public abstract class HttpUtils {
 
     /**
      * 默认的http post请求, 以json格式发送数据
-     *
      * @param body 可以为null
      */
     public static <T> T requestPost(URL url, Object body, StrValueConvert<T> convert) {
@@ -296,6 +295,9 @@ public abstract class HttpUtils {
             return this;
         }
 
+        /**
+         * @param convert 如果为null, 返回结果为null
+         */
         public <T> T request(StrValueConvert<T> convert) {
             Objects.requireNonNull(url);
             try {

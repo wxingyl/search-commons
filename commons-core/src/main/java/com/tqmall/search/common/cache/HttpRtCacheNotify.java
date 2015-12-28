@@ -76,6 +76,7 @@ public class HttpRtCacheNotify extends AbstractRtCacheNotify<HttpSlaveRegisterIn
     }
 
     private void runNotifyRequest(HttpUtils.RequestBase requestBase, String slaveHost) {
+        //这儿用String做转换,基本上是万能的
         String ret = requestBase.request(StrValueConverts.getConvert(String.class));
         log.info("给slave机器: " + slaveHost + "推送缓存变化keys执行完成, 返回结果: " + ret);
     }

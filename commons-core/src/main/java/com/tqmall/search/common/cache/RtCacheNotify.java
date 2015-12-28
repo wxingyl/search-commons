@@ -20,9 +20,11 @@ public interface RtCacheNotify {
 
     /**
      * master 机器通知给slave, 哪些key更改了
+     * 调用salveHost的通知接口的返回结构,建议都以{@link com.tqmall.search.common.result.MapResult}返回,
+     * 这样好处理,兼容性好点, 提供的默认{@link HttpRtCacheNotify} 实现就是这样做的, 当然你可以自定义实现
      * @param keys 统一用String标识
      * 发送通知,无需考虑多线程
      */
-    void notify(RtCacheSlaveHandle slaveCache, List<String> keys);
+    boolean notify(RtCacheSlaveHandle slaveCache, List<String> keys);
 
 }

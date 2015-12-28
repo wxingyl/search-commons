@@ -70,8 +70,8 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveRegisterInfo>
     }
 
     @Override
-    public void notify(RtCacheSlaveHandle slaveCache, List<String> keys) {
-        if (keys == null || keys.isEmpty()) return;
+    public boolean notify(RtCacheSlaveHandle slaveCache, List<String> keys) {
+        if (keys == null || keys.isEmpty()) return false;
         final NotifyChangeParam param = new NotifyChangeParam();
         param.setCacheKey(RtCacheManager.getCacheHandleKey(slaveCache));
         param.setKeys(keys);
@@ -85,6 +85,7 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveRegisterInfo>
                 runNotifyTask(param, slaveHosts);
             }
         });
+        return true;
     }
 
 }
