@@ -19,11 +19,12 @@ public interface RtCacheReceive {
      * 向master机器注册当前机器receive
      * 调用masterHost的注册接口的返回结构,建议都以{@link com.tqmall.search.common.result.MapResult}返回,
      * 这样好处理,兼容性好点, 提供的默认{@link HttpRtCacheReceive} 实现就是这样做的, 当然你可以自定义实现
-     * @param masterHost master主机机器, 如果是Http注册,需要端口号
+     * @param masterIp master主机ip
+     * @param masterPort 端口号, 如果是Http注册,需要
      * 请求调用,不用考虑多线程问题
      * @return 注册是否成功
      */
-    boolean registerMaster(String masterHost);
+    boolean registerMaster(String masterIp, int masterPort);
 
     /**
      * 处理接收到的变化

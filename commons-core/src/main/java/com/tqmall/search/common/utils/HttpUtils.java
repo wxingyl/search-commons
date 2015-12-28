@@ -1,5 +1,8 @@
 package com.tqmall.search.common.utils;
 
+import com.tqmall.search.common.result.MapResult;
+import com.tqmall.search.common.result.PageResult;
+import com.tqmall.search.common.result.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,6 +124,28 @@ public abstract class HttpUtils {
         return getRequest.setUrl(url).request(StrValueConverts.getConvert(String.class));
     }
 
+
+    /**
+     * 默认的http get请求, 以json格式发送数据, 返回结果为{@link Result}格式
+     */
+    public static <T> Result<T> requestGetResult(URL url, Class<T> cls) {
+        return requestGet(url, ResultJsonConverts.resultConvert(cls));
+    }
+
+    /**
+     * 默认的http get请求, 以json格式发送数据, 返回结果为{@link PageResult}格式
+     */
+    public static <T> PageResult<T> requestGetPageResult(URL url, Class<T> cls) {
+        return requestGet(url, ResultJsonConverts.pageResultConvert(cls));
+    }
+
+    /**
+     * 默认的http get请求, 以json格式发送数据, 返回结果为{@link MapResult}格式
+     */
+    public static MapResult requestGetMapResult(URL url) {
+        return requestGet(url, ResultJsonConverts.mapResultConvert());
+    }
+
     /**
      * 默认的http get请求
      */
@@ -129,15 +154,30 @@ public abstract class HttpUtils {
         return getRequest.setUrl(url).request(convert);
     }
 
+
     /**
-     * 默认的http post请求, 以json格式发送数据, 并且返回结果通过Json解析
-     *
+     * 默认的http post请求, 以json格式发送数据, 返回结果为{@link Result}格式
      * @param body 可以为null
      */
-    public static <T> T requestPost(URL url, Object body, Class<T> cls) {
-        return requestPost(url, body, jsonStrValueConvert(cls));
+    public static <T> Result<T> requestPostResult(URL url, Object body, Class<T> cls) {
+        return requestPost(url, body, ResultJsonConverts.resultConvert(cls));
     }
 
+    /**
+     * 默认的http post请求, 以json格式发送数据, 返回结果为{@link PageResult}格式
+     * @param body 可以为null
+     */
+    public static <T> PageResult<T> requestPostPageResult(URL url, Object body, Class<T> cls) {
+        return requestPost(url, body, ResultJsonConverts.pageResultConvert(cls));
+    }
+
+    /**
+     * 默认的http post请求, 以json格式发送数据, 返回结果为{@link MapResult}格式
+     * @param body 可以为null
+     */
+    public static MapResult requestPostMapResult(URL url, Object body) {
+        return requestPost(url, body, ResultJsonConverts.mapResultConvert());
+    }
     /**
      * 默认的http post请求, 以json格式发送数据
      * @param body 可以为null

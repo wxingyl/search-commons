@@ -3,7 +3,6 @@ package com.tqmall.search.common;
 import com.google.common.collect.Maps;
 import com.tqmall.search.common.result.PageResult;
 import com.tqmall.search.common.utils.HttpUtils;
-import com.tqmall.search.common.utils.ResultJsonConverts;
 import lombok.Data;
 import org.junit.Assert;
 import org.junit.Test;
@@ -59,8 +58,8 @@ public class HttpUtilsTest {
 
     @Test
     public void httpJsonHandleTest() {
-        PageResult<CategoryEntry> result = HttpUtils.requestGet(HttpUtils.buildURL("http://114.215.169.216:8180", "/elasticsearch/category/search"),
-                ResultJsonConverts.pageResultConvert(CategoryEntry.class));
+        PageResult<CategoryEntry> result = HttpUtils.requestGetPageResult(HttpUtils.buildURL("http://114.215.169.216:8180",
+                "/elasticsearch/category/search"), CategoryEntry.class);
         Assert.assertTrue(result.isSucceed());
     }
 

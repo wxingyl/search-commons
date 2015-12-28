@@ -28,21 +28,21 @@ public abstract class StrValueConverts {
     /**
      * @return can not null, have error will return {@link IntStrValueConvert#defaultValue()}
      */
-    public static Integer intConvert(String input) {
+    public static int intConvert(String input) {
         return IntStrValueConvert.INSTANCE.convert(input);
     }
 
     /**
      * @return can not null, have error will return {@link LongStrValueConvert#defaultValue()}
      */
-    public static Long longConvert(String input) {
+    public static long longConvert(String input) {
         return LongStrValueConvert.INSTANCE.convert(input);
     }
 
     /**
      * @return can not null, have error will return {@link DoubleStrValueConvert#defaultValue()}
      */
-    public static Double doubleConvert(String input) {
+    public static double doubleConvert(String input) {
         return DoubleStrValueConvert.INSTANCE.convert(input);
     }
 

@@ -40,16 +40,18 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive {
      */
     private String registerPath = "cache/handle/register";
 
+
     @Override
-    public boolean registerMaster(String masterHost) {
-        //本地机器就没有必要注册了
-        if (cacheHandlerMap.isEmpty() || masterHost.contains(HttpUtils.LOCAL_IP)) return false;
+    public boolean registerMaster(String masterIp, int masterPort) {
+        //本地机器这儿不能搞, 因为同一台机器, 不同端口, 就没折了
+        if (cacheHandlerMap.isEmpty()) return false;
         Objects.requireNonNull(port, "unknown local port");
         HttpSlaveRegisterParam param = new HttpSlaveRegisterParam();
         param.setMethod(HttpUtils.POST_METHOD);
         param.setSlaveHost(HttpUtils.LOCAL_IP + ':' + port);
         param.setUrlPath(buildFullUrlPath(notifyChangePath));
         param.setInterestCache(Lists.newArrayList(cacheHandlerMap.keySet()));
+        String masterHost =  masterIp + ':' + masterPort;
         MapResult mapResult = HttpUtils.requestPost(HttpUtils.buildURL(masterHost, buildFullUrlPath(registerPath)),
                 param, ResultJsonConverts.mapResultConvert());
         log.info("注册master: " + masterHost + " 完成,返回结果: " + ResultUtils.resultToString(mapResult));
@@ -97,4 +99,5 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive {
     private String buildFullUrlPath(String urlPath) {
         return contextPath == null ? urlPath : (contextPath + '/' + urlPath);
     }
+
 }

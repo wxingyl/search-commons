@@ -109,7 +109,7 @@ public abstract class ResultJsonConverts {
         return retList;
     }
 
-    public static JsonSimpleResult parseData(String json) {
+    private static JsonSimpleResult parseData(String json) {
         int dataIndex = json.indexOf("\"data\"");
         if (dataIndex < 0) {
             throw new ResultJsonParseException("Can not find data field");
