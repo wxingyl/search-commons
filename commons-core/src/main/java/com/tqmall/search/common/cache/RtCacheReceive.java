@@ -12,11 +12,10 @@ public interface RtCacheReceive {
     /**
      * 本地机器cache 对象注册
      * 请求调用,都是单个单个调用,不用考虑多线程问题
-     * @param masterIp master主机ip
-     * @param masterPort master主机端口号
+     * @param masterHost master主机host信息
      * @return 注册是否成功
      */
-    boolean registerHandler(RtCacheSlaveHandle handler, String masterIp, int masterPort);
+    boolean registerHandler(RtCacheSlaveHandle handler, RtCacheSlaveHandle.HostInfo masterHost);
 
     /**
      * 向master机器注册当前机器receive, 调用该方法建议异步调用, 比如http等调用还是挺耗时的

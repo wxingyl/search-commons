@@ -22,4 +22,14 @@ public interface RtCacheSlaveHandle {
      */
     boolean onSlaveHandle(List<String> keys);
 
+    /**
+     * 获取master应用的host信息, 分开定义原因是省去校验ip:port格式
+     */
+    interface HostInfo {
+
+        String getIp();
+
+        int getPort();
+    }
+
 }

@@ -41,16 +41,17 @@ public abstract class AbstractRtCacheReceive<T extends SlaveHandleInfo> implemen
     protected abstract boolean doMasterRegister(int localPort, String masterHost, List<T> handleInfo);
 
     @Override
-    public final boolean registerHandler(RtCacheSlaveHandle handler, String masterIp, int masterPort) {
+    public final boolean registerHandler(RtCacheSlaveHandle handler, RtCacheSlaveHandle.HostInfo masterHost) {
         Objects.requireNonNull(handler);
-        if (StringUtils.isEmpty(masterIp)) {
+        Objects.requireNonNull(masterHost);
+        if (StringUtils.isEmpty(masterHost.getIp())) {
             throw new IllegalArgumentException("masterIp is empty");
         }
         //这而判断个<= 80, 误杀那就算你倒霉,谁让你没事干的用系统端口, 本身就是找死
-        if (masterPort <= 80) {
-            throw new IllegalArgumentException("masterPort " + masterPort + " is invalid");
+        if (masterHost.getPort() <= 80) {
+            throw new IllegalArgumentException("masterPort " + masterHost.getPort() + " is invalid");
         }
-        T info = initSlaveHandleInfo(handler, masterIp + ':' + masterPort);
+        T info = initSlaveHandleInfo(handler, masterHost.getIp() + ':' + masterHost.getPort());
         if (info == null) {
             return false;
         } else {

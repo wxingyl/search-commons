@@ -13,6 +13,10 @@ import java.util.Map;
  */
 public abstract class IntRtSyncStrongCache<T> extends AbstractRtSyncStrongCache<Integer, T> {
 
+    public IntRtSyncStrongCache(HostInfo masterHost) {
+        super(masterHost);
+    }
+
     @Override
     protected final StrValueConvert<Integer> getKeyValueConvert() {
         return StrValueConverts.getConvert(Integer.TYPE);
