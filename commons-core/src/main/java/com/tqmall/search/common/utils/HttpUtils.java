@@ -212,7 +212,7 @@ public abstract class HttpUtils {
                 request = new DeleteRequest();
                 break;
             default:
-                throw new IllegalArgumentException("nonsupport for Http method: " + method);
+                throw new IllegalArgumentException("Nonsupport for http method: " + method);
         }
         return request;
     }
