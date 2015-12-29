@@ -1,40 +1,103 @@
 package com.tqmall.search.common.cache;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.tqmall.search.common.param.NotifyChangeParam;
+import com.tqmall.search.common.utils.HttpUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by xing on 15/12/23.
  * AbstractRtCacheReceive
  */
-public abstract class AbstractRtCacheReceive implements RtCacheReceive {
+public abstract class AbstractRtCacheReceive<T extends SlaveHandleInfo> implements RtCacheReceive {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractRtCacheReceive.class);
 
     /**
      * 本地机器注册的cache对象,这些对象对应着处理slave变化通知
-     * key: cache的名称,即cacheKey; value: 对应的RtCacheSlaveHandle对象实例
      */
-    protected final Map<String, RtCacheSlaveHandle> cacheHandlerMap = new HashMap<>();
+    private final Map<String, T> handleInfoMap = new HashMap<>();
+
+    /**
+     * 实例化{@link T}对象实例
+     * 该函数为默认实现
+     * @param masterHost 根据格式为ip:port组装的结果
+     * @return 返回null, 则标识不进行注册
+     */
+    protected abstract T initSlaveHandleInfo(RtCacheSlaveHandle handler, String masterHost);
+
+    /**
+     * 执行具体的master register
+     * @return 注册是否成功
+     */
+    protected abstract boolean doMasterRegister(int localPort, String masterHost, List<T> handleInfo);
 
     @Override
-    public boolean registerHandler(RtCacheSlaveHandle slaveCache) {
-        cacheHandlerMap.put(RtCacheManager.getCacheHandleKey(slaveCache), slaveCache);
-        return true;
+    public final boolean registerHandler(RtCacheSlaveHandle handler, String masterIp, int masterPort) {
+        Objects.requireNonNull(handler);
+        if (StringUtils.isEmpty(masterIp)) {
+            throw new IllegalArgumentException("masterIp is empty");
+        }
+        //这而判断个<= 80, 误杀那就算你倒霉,谁让你没事干的用系统端口, 本身就是找死
+        if (masterPort <= 80) {
+            throw new IllegalArgumentException("masterPort " + masterPort + " is invalid");
+        }
+        T info = initSlaveHandleInfo(handler, masterIp + ':' + masterPort);
+        if (info == null) {
+            return false;
+        } else {
+            handleInfoMap.put(info.getCacheKey(), info);
+            return true;
+        }
+    }
+
+    @Override
+    public boolean registerMaster(int localPort) {
+        String localHost = HttpUtils.LOCAL_IP + ':' + localPort;
+        Map<String, List<T>> group = Maps.newHashMap();
+        //先根据masterHost分组, 同时讲masterHost跟localHost相同的过滤掉
+        for (T info : handleInfoMap.values()) {
+            String masterHost = info.getMasterHost();
+            if (masterHost.equals(localHost)) continue;
+            List<T> list = group.get(masterHost);
+            if (list == null) {
+                group.put(masterHost, list = Lists.newArrayList());
+            }
+            list.add(info);
+        }
+        boolean noFailed = true;
+        for (Map.Entry<String, List<T>> e : group.entrySet()) {
+            if (!doMasterRegister(localPort, e.getKey(), e.getValue())) {
+                noFailed = false;
+                log.error("向masterHost: " + e.getKey() + " 注册本地cache: " + e.getValue() + "通知失败");
+            }
+        }
+        return noFailed;
     }
 
     @Override
     public boolean receive(NotifyChangeParam param) {
         log.info("接收到变化通知, cacheKey: " + param.getCacheKey() + ", keys: " + param.getKeys());
         if (param.getKeys() == null || param.getKeys().isEmpty()) return false;
-        RtCacheSlaveHandle slaveCache = cacheHandlerMap.get(param.getCacheKey());
-        if (slaveCache != null && slaveCache.initialized()) {
-            slaveCache.onSlaveHandle(param.getKeys());
+        T handleInfo = handleInfoMap.get(param.getCacheKey());
+        //为null表示发错了
+        if (handleInfo == null) return false;
+        if (handleInfo.getHandler().initialized()) {
+            handleInfo.getHandler().onSlaveHandle(param.getKeys());
         }
         return true;
     }
+
+    protected Map<String, T> getHandleInfoMap() {
+        return handleInfoMap;
+    }
+
 }

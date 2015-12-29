@@ -18,8 +18,8 @@ public abstract class AbstractRtSyncStrongCache<K, V> extends AbstractRtStrongCa
 
     private List<K> updateKeyRecordList = new ArrayList<>();
 
-    public AbstractRtSyncStrongCache() {
-        getRtCacheManager().getReceive().registerHandler(this);
+    public AbstractRtSyncStrongCache(String masterIp, int masterPort) {
+        getRtCacheManager().getReceive().registerHandler(this, masterIp, masterPort);
     }
 
     /**

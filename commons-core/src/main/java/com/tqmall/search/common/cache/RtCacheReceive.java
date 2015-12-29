@@ -5,26 +5,27 @@ import com.tqmall.search.common.param.NotifyChangeParam;
 /**
  * Created by xing on 15/12/22.
  * slave机器接收变化的数据,并处理之
+ * 多台机器,多个应用之间[也就是多个Tomcat实例之间]通过ip:port来做区分,这也是为什么很多函数里面需要port的原因
  */
 public interface RtCacheReceive {
 
     /**
      * 本地机器cache 对象注册
      * 请求调用,都是单个单个调用,不用考虑多线程问题
+     * @param masterIp master主机ip
+     * @param masterPort master主机端口号
      * @return 注册是否成功
      */
-    boolean registerHandler(RtCacheSlaveHandle slaveCache);
+    boolean registerHandler(RtCacheSlaveHandle handler, String masterIp, int masterPort);
 
     /**
-     * 向master机器注册当前机器receive
+     * 向master机器注册当前机器receive, 调用该方法建议异步调用, 比如http等调用还是挺耗时的
      * 调用masterHost的注册接口的返回结构,建议都以{@link com.tqmall.search.common.result.MapResult}返回,
      * 这样好处理,兼容性好点, 提供的默认{@link HttpRtCacheReceive} 实现就是这样做的, 当然你可以自定义实现
-     * @param masterIp master主机ip
-     * @param masterPort 端口号, 如果是Http注册,需要
-     * 请求调用,不用考虑多线程问题
+     * @param localPort 端口号, 该端口用来标识本地应用
      * @return 注册是否成功
      */
-    boolean registerMaster(String masterIp, int masterPort);
+    boolean registerMaster(int localPort);
 
     /**
      * 处理接收到的变化

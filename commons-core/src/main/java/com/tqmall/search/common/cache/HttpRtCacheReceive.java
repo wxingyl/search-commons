@@ -10,21 +10,16 @@ import com.tqmall.search.common.utils.ResultJsonConverts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
  * Created by xing on 15/12/23.
  * http implement RtCacheReceive
  */
-public class HttpRtCacheReceive extends AbstractRtCacheReceive {
+public class HttpRtCacheReceive extends AbstractRtCacheReceive<SlaveHandleInfo> {
 
     private final static Logger log = LoggerFactory.getLogger(HttpRtCacheReceive.class);
-
-    /**
-     * 本应用响应Http服务的端口号, 该值必须设定, 不做默认值处理
-     * 该field, 包括下面的3个都是用来注册本地slave机器用的
-     */
-    private Integer port;
 
     /**
      * 使用Tomcat时, WebApps下面存在多个context, 该值为对应的contextPath
@@ -39,28 +34,6 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive {
      * slave机器注册cache的路径, 该值为默认值
      */
     private String registerPath = "cache/handle/register";
-
-
-    @Override
-    public boolean registerMaster(String masterIp, int masterPort) {
-        //本地机器这儿不能搞, 因为同一台机器, 不同端口, 就没折了
-        if (cacheHandlerMap.isEmpty()) return false;
-        Objects.requireNonNull(port, "unknown local port");
-        HttpSlaveRegisterParam param = new HttpSlaveRegisterParam();
-        param.setMethod(HttpUtils.POST_METHOD);
-        param.setSlaveHost(HttpUtils.LOCAL_IP + ':' + port);
-        param.setUrlPath(buildFullUrlPath(notifyChangePath));
-        param.setInterestCache(Lists.newArrayList(cacheHandlerMap.keySet()));
-        String masterHost =  masterIp + ':' + masterPort;
-        MapResult mapResult = HttpUtils.requestPost(HttpUtils.buildURL(masterHost, buildFullUrlPath(registerPath)),
-                param, ResultJsonConverts.mapResultConvert());
-        log.info("注册master: " + masterHost + " 完成,返回结果: " + ResultUtils.resultToString(mapResult));
-        return mapResult.isSucceed();
-    }
-
-    public void setPort(Integer port) {
-        this.port = port;
-    }
 
     public void setNotifyChangePath(String notifyChangePath) {
         this.notifyChangePath = filterUrlPath(notifyChangePath);
@@ -98,6 +71,28 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive {
 
     private String buildFullUrlPath(String urlPath) {
         return contextPath == null ? urlPath : (contextPath + '/' + urlPath);
+    }
+
+    @Override
+    protected SlaveHandleInfo initSlaveHandleInfo(RtCacheSlaveHandle handler, String masterHost) {
+        return new SlaveHandleInfo(handler, masterHost);
+    }
+
+    @Override
+    protected boolean doMasterRegister(int localPort, String masterHost, List<SlaveHandleInfo> handleInfo) {
+        HttpSlaveRegisterParam param = new HttpSlaveRegisterParam();
+        param.setMethod(HttpUtils.POST_METHOD);
+        param.setSlaveHost(HttpUtils.LOCAL_IP + ':' + localPort);
+        param.setUrlPath(buildFullUrlPath(notifyChangePath));
+        List<String> interestCache = Lists.newArrayList();
+        for (SlaveHandleInfo info : handleInfo) {
+            interestCache.add(info.getCacheKey());
+        }
+        param.setInterestCache(interestCache);
+        MapResult mapResult = HttpUtils.requestPost(HttpUtils.buildURL(masterHost, buildFullUrlPath(registerPath)),
+                param, ResultJsonConverts.mapResultConvert());
+        log.info("注册master: " + masterHost + " 完成,返回结果: " + ResultUtils.resultToString(mapResult));
+        return mapResult.isSucceed();
     }
 
 }
