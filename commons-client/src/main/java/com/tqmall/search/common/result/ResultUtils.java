@@ -39,7 +39,7 @@ public final class ResultUtils {
      * 将一个Result对应输出
      */
     public static String resultToString(Result result) {
-        return "Result: succeed = " + result.isSucceed() + ", code = " + result.getCode() + ", message = " + result.getMessage()
+        return "Result: succeed = " + result.isSuccess() + ", code = " + result.getCode() + ", message = " + result.getMessage()
                 + (result instanceof PageResult ? (", total = " + ((PageResult) result).getTotal()) : "")
                 + ", data = " + result.getData().toString();
     }

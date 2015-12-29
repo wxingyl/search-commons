@@ -10,7 +10,7 @@ public class Result<T> implements Serializable {
 
     private static final long serialVersionUID = 7771204280803886506L;
 
-    private final boolean succeed;
+    private final boolean success;
 
     private String code;
 
@@ -23,7 +23,7 @@ public class Result<T> implements Serializable {
      * @param data  数据
      */
     public Result(T data) {
-        succeed = true;
+        success = true;
         code = "0";
         message = "";
         this.data = data;
@@ -33,7 +33,7 @@ public class Result<T> implements Serializable {
      * 失败的返回结果
      */
     public Result(ErrorCode errorCode) {
-        succeed = false;
+        success = false;
         this.code = errorCode.getCode();
         this.message = errorCode.getMessage();
     }
@@ -50,8 +50,8 @@ public class Result<T> implements Serializable {
         return message;
     }
 
-    public boolean isSucceed() {
-        return succeed;
+    public boolean isSuccess() {
+        return success;
     }
 
 }

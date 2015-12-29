@@ -60,7 +60,7 @@ public class HttpUtilsTest {
     public void httpJsonHandleTest() {
         PageResult<CategoryEntry> result = HttpUtils.requestGetPageResult(HttpUtils.buildURL("http://114.215.169.216:8180",
                 "/elasticsearch/category/search"), CategoryEntry.class);
-        Assert.assertTrue(result.isSucceed());
+        Assert.assertTrue(result.isSuccess());
     }
 
     @Data

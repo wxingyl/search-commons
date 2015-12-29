@@ -92,7 +92,7 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<SlaveHandleInfo> 
         MapResult mapResult = HttpUtils.requestPost(HttpUtils.buildURL(masterHost, buildFullUrlPath(registerPath)),
                 param, ResultJsonConverts.mapResultConvert());
         log.info("注册master: " + masterHost + " 完成,返回结果: " + ResultUtils.resultToString(mapResult));
-        return mapResult.isSucceed();
+        return mapResult.isSuccess();
     }
 
 }
