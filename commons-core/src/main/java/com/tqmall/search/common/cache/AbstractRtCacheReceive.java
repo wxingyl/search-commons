@@ -5,13 +5,11 @@ import com.google.common.collect.Maps;
 import com.tqmall.search.common.param.NotifyChangeParam;
 import com.tqmall.search.common.utils.HttpUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created by xing on 15/12/23.
@@ -29,6 +27,7 @@ public abstract class AbstractRtCacheReceive<T extends SlaveHandleInfo> implemen
     /**
      * 实例化{@link T}对象实例
      * 该函数为默认实现
+     *
      * @param masterHost 根据格式为ip:port组装的结果
      * @return 返回null, 则标识不进行注册
      */
@@ -36,6 +35,7 @@ public abstract class AbstractRtCacheReceive<T extends SlaveHandleInfo> implemen
 
     /**
      * 执行具体的master register
+     *
      * @return 注册是否成功
      */
     protected abstract boolean doMasterRegister(int localPort, String masterHost, List<T> handleInfo);
@@ -114,6 +114,28 @@ public abstract class AbstractRtCacheReceive<T extends SlaveHandleInfo> implemen
 
     @Override
     public String toString() {
-        return "RtCacheReceive{" + "allHandleInfo=" + handleInfoMap.values() + '}';
+        StringBuilder sb = new StringBuilder(512);
+        sb.append("RtCacheReceive{");
+        if (handleInfoMap.isEmpty()) {
+            sb.append("empty handle");
+        } else {
+            Map<String, Pair<Boolean, ? extends List<String>>> group = Maps.newHashMap();
+            for (T info : handleInfoMap.values()) {
+                String masterHost = info.getMasterHost();
+                Pair<Boolean, ? extends List<String>> pair = group.get(masterHost);
+                if (pair == null) {
+                    group.put(masterHost, pair = Pair.of(info.isRegisterSucceed(), new ArrayList<String>()));
+                }
+                pair.getRight().add(info.getCacheKey());
+            }
+            for (Map.Entry<String, Pair<Boolean, ? extends List<String>>> e : group.entrySet()) {
+                sb.append(e.getKey()).append("->").append("registerSucceed: ").append(e.getValue().getLeft())
+                        .append(", cacheKeys: ").append(e.getValue().getRight())
+                        .append(", ");
+            }
+            sb.delete(sb.length() - 2, sb.length());
+        }
+        sb.append('}');
+        return sb.toString();
     }
 }
