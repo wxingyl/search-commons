@@ -10,13 +10,16 @@ public class Result<T> implements Serializable {
 
     private static final long serialVersionUID = 7771204280803886506L;
 
-    private final boolean success;
+    private boolean success;
 
     private String code;
 
     private String message;
 
     private T data;
+
+    protected Result(){
+    }
 
     /**
      * 成功的返回结构
@@ -54,4 +57,19 @@ public class Result<T> implements Serializable {
         return success;
     }
 
+    protected void setCode(String code) {
+        this.code = code;
+    }
+
+    protected void setData(T data) {
+        this.data = data;
+    }
+
+    protected void setMessage(String message) {
+        this.message = message;
+    }
+
+    protected void setSuccess(boolean success) {
+        this.success = success;
+    }
 }

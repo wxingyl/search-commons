@@ -8,8 +8,9 @@ import com.tqmall.search.common.result.ErrorCode;
  */
 enum UtilsErrorCode implements ErrorCode {
 
-    JSON_RESULT_CONVERT_INVALID_OBJECT("80210101", "Json中data字段不是Object: %s"),
-    JSON_RESULT_CONVERT_INVALID_ARRAY("80210102", "Json中data字段不是数组: %s");
+    JSON_RESULT_CONVERT_INVALID_OBJECT("80210101", "Result格式Json解析, data字段不是Object: %s"),
+    JSON_RESULT_CONVERT_INVALID_ARRAY("80210102", "Result格式Json解析, data字段不是数组: %s"),
+    JSON_RESULT_PARSE_INVALID_STRING("80210103", "Json字符串不是Result格式, 无法解析: %s");
 
     private String code;
 

@@ -54,6 +54,7 @@ public abstract class HttpUtils {
         return new StrValueConvert<T>() {
             @Override
             public T convert(String input) {
+                if (input == null) return null;
                 return JsonUtils.jsonStrToObj(input, cls);
             }
         };
@@ -265,6 +266,9 @@ public abstract class HttpUtils {
         }
     }
 
+    /**
+     * 注意: 同一个该类实例对象,执行request时线程不安全的
+     */
     public static abstract class RequestBase {
 
         private Map<String, String> headerMap = new HashMap<>();
@@ -277,6 +281,11 @@ public abstract class HttpUtils {
          * 记录Http请求log, 通过{@link Logger#info(String)}记录, 默认开启
          */
         private boolean requestLogSwitch = true;
+        /**
+         * 返回结果是否成功,如果还没有请求,则为false
+         * 该值就不考虑多线程的问题了~~~~
+         */
+        private boolean responseSucceed;
 
         /**
          * 默认都为长连接, 以json接收数据
@@ -336,7 +345,18 @@ public abstract class HttpUtils {
         }
 
         /**
-         * @param convert 如果为null, 返回结果为null
+         * 请求的url通过方法{@link #setUrl(URL)}设定
+         * 请求的addHeader通过方法{@link #addHeader(Map)}或者{@link #addHeader(String, String)}设定
+         * 请求的一些其他配置通过方法{@link #setConfig(Config)}设定, 提供了默认配置{@link Config#DEFAULT}
+         * 请求时log打印通过{@link #setRequestLogSwitch(boolean)}设定, 默认是开启的
+         * @param convert 如果为null, 说明不需要返回结果, 则返回null
+         * @return 参数convert为null或者请求发生异常则返回null, 判断请求是否成功执行,可通过方法{@link #isResponseSucceed()}
+         *
+         * @see #isResponseSucceed()
+         * @see #setUrl(URL)
+         * @see #setConfig(Config)
+         * @see #setRequestLogSwitch(boolean)
+         * @see com.tqmall.search.common.utils.HttpUtils.Config#DEFAULT
          */
         public <T> T request(StrValueConvert<T> convert) {
             Objects.requireNonNull(url);
@@ -363,6 +383,7 @@ public abstract class HttpUtils {
                         response.append(line);
                     }
                 }
+                responseSucceed = true;
                 if (convert == null) {
                     if (requestLogSwitch) {
                         log.info("Http请求结果: " + response.toString());
@@ -372,10 +393,14 @@ public abstract class HttpUtils {
                     return convert.convert(response.toString());
                 }
             } catch (IOException e) {
-                //填充log
-                log.error("Http请求" + url + ", Method: " + getMethod(), e);
+                responseSucceed = false;
+                log.error("Http请求失败异常: " + url + ", Method: " + getMethod(), e);
                 return null;
             }
+        }
+
+        public boolean isResponseSucceed() {
+            return responseSucceed;
         }
     }
 

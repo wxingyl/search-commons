@@ -11,6 +11,10 @@ public class SlaveHandleInfo {
     private String masterHost;
 
     private String cacheKey;
+    /**
+     * 注册是否成功
+     */
+    private volatile boolean registerSucceed;
 
     public SlaveHandleInfo(RtCacheSlaveHandle handler, String masterHost) {
         this(RtCacheManager.getCacheHandleKey(handler), handler, masterHost);
@@ -20,6 +24,15 @@ public class SlaveHandleInfo {
         this.cacheKey = cacheKey;
         this.handler = handler;
         this.masterHost = masterHost;
+    }
+
+    public boolean isRegisterSucceed() {
+        return registerSucceed;
+    }
+
+    public void registerSucceed() {
+        if (registerSucceed) return;
+        registerSucceed = true;
     }
 
     public RtCacheSlaveHandle getHandler() {

@@ -67,21 +67,31 @@ public abstract class AbstractRtCacheReceive<T extends SlaveHandleInfo> implemen
         //先根据masterHost分组, 同时讲masterHost跟localHost相同的过滤掉
         for (T info : handleInfoMap.values()) {
             String masterHost = info.getMasterHost();
-            if (masterHost.equals(localHost)) continue;
+            if (info.isRegisterSucceed()) continue;
+            if (masterHost.equals(localHost)) {
+                info.registerSucceed();
+                log.info("注册cacheKey: " + info.getCacheKey() + ", masterHost: "
+                        + masterHost + "同localHost一样, 无需注册");
+                continue;
+            }
             List<T> list = group.get(masterHost);
             if (list == null) {
                 group.put(masterHost, list = Lists.newArrayList());
             }
             list.add(info);
         }
-        boolean noFailed = true;
+        boolean succeed = true;
         for (Map.Entry<String, List<T>> e : group.entrySet()) {
-            if (!doMasterRegister(localPort, e.getKey(), e.getValue())) {
-                noFailed = false;
-                log.error("向masterHost: " + e.getKey() + " 注册本地cache: " + e.getValue() + "通知失败");
+            if (doMasterRegister(localPort, e.getKey(), e.getValue())) {
+                for (T info : e.getValue()) {
+                    info.registerSucceed();
+                }
+            } else {
+                succeed = false;
+                log.error("向masterHost: " + e.getKey() + " 注册cache: " + e.getValue() + "失败");
             }
         }
-        return noFailed;
+        return succeed;
     }
 
     @Override

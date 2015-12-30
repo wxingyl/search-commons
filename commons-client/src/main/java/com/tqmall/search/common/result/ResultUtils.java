@@ -174,7 +174,7 @@ public final class ResultUtils {
      * 构造Result返回类型接口定义, 可以自定义Result类型
      * @param <T> 具体的Result类型
      */
-    interface ResultBuild<T extends Result> {
+    public interface ResultBuild<T extends Result> {
 
         T errorBuild(ErrorCode errorCode);
 
