@@ -49,6 +49,6 @@ public class SlaveHandleInfo {
 
     @Override
     public String toString() {
-        return "{cacheKey: " + cacheKey + ", masterHost: " + masterHost + ", handler: " + handler + '}';
+        return "{cacheKey: " + cacheKey + ", masterHost: " + masterHost + '}';
     }
 }
