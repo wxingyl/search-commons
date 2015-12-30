@@ -3,7 +3,9 @@ package com.tqmall.search.common;
 import com.google.common.collect.Maps;
 import com.tqmall.search.common.result.PageResult;
 import com.tqmall.search.common.utils.HttpUtils;
+import com.tqmall.search.common.utils.SearchStringUtils;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -76,7 +78,13 @@ public class HttpUtilsTest {
     }
 
     @Test
-    public void testInt() {
-        System.out.println(String.valueOf(Integer.MAX_VALUE));
+    public void stringArrayTrimTest() {
+        for (String s : StringUtils.split(" xing ,wang ", ',')) {
+            System.out.println("s: " + s + ", length: " + s.length());
+        }
+        for (String s : SearchStringUtils.stringArrayTrim(StringUtils.split(" xing ,wang ", ','))) {
+            Assert.assertTrue(s.length() == 4);
+        }
     }
+
 }

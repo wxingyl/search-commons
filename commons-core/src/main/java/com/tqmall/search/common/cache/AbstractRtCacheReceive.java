@@ -86,6 +86,7 @@ public abstract class AbstractRtCacheReceive<T extends SlaveHandleInfo> implemen
                 for (T info : e.getValue()) {
                     info.registerSucceed();
                 }
+                log.info("向masterHost: " + e.getKey() + " 注册cache: " + e.getValue() + "成功");
             } else {
                 succeed = false;
                 log.error("向masterHost: " + e.getKey() + " 注册cache: " + e.getValue() + "失败");
@@ -111,4 +112,8 @@ public abstract class AbstractRtCacheReceive<T extends SlaveHandleInfo> implemen
         return handleInfoMap;
     }
 
+    @Override
+    public String toString() {
+        return "RtCacheReceive{" + "allHandleInfo=" + handleInfoMap.values() + '}';
+    }
 }

@@ -41,7 +41,7 @@ public final class ResultUtils {
     public static String resultToString(Result result) {
         return "Result: succeed = " + result.isSuccess() + ", code = " + result.getCode() + ", message = " + result.getMessage()
                 + (result instanceof PageResult ? (", total = " + ((PageResult) result).getTotal()) : "")
-                + ", data = " + result.getData().toString();
+                + ", data = " + result.getData();
     }
 
     /**

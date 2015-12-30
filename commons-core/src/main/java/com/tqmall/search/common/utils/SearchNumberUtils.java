@@ -3,8 +3,8 @@ package com.tqmall.search.common.utils;
 import org.apache.commons.lang3.math.NumberUtils;
 /**
  * Created by xing on 15/12/8.
- * 一些Number相关的公共方法
- * 其实很多方法在{@link NumberUtils}中有定义, 这个只是对人家的一个补充
+ * 一些{@link Number} 相关的公共方法
+ * 其实很多方法在{@link NumberUtils}中有定义, 该类中的方法只是对人家的一点点补充
  * 另外根据{@link String}转确定类型的{@link Number}, 可以参考{@link StrValueConvert} 以及 {@link StrValueConverts}
  * 建议优先使用{@link NumberUtils}中的方法, 如果没有再用这的
  *

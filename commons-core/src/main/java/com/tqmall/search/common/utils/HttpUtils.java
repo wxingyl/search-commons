@@ -1,5 +1,6 @@
 package com.tqmall.search.common.utils;
 
+import com.tqmall.search.common.cache.RtCacheSlaveHandle;
 import com.tqmall.search.common.result.MapResult;
 import com.tqmall.search.common.result.PageResult;
 import com.tqmall.search.common.result.Result;
@@ -46,6 +47,15 @@ public abstract class HttpUtils {
         LOCAL_IP = ip;
     }
 
+    /**
+     * 两个RtCacheSlaveHandle.HostInfo 比较是否相同
+     */
+    public static boolean isEquals(RtCacheSlaveHandle.HostInfo a, RtCacheSlaveHandle.HostInfo b) {
+        if (a == b) return true;
+        else if (a == null || b == null) return false;
+        else return Objects.equals(a.getIp(), b.getIp()) && a.getPort() == b.getPort();
+    }
+
 
     /**
      * 构建一个StrValueConvert对象, 输入Json字符串, 根据Class对象, 通过Json转换得到该实例
@@ -59,7 +69,6 @@ public abstract class HttpUtils {
             }
         };
     }
-
 
 
     public static URL buildURL(String host, String path) {
@@ -158,6 +167,7 @@ public abstract class HttpUtils {
 
     /**
      * 默认的http post请求, 以json格式发送数据, 返回结果为{@link Result}格式
+     *
      * @param body 可以为null
      */
     public static <T> Result<T> requestPostResult(URL url, Object body, Class<T> cls) {
@@ -166,6 +176,7 @@ public abstract class HttpUtils {
 
     /**
      * 默认的http post请求, 以json格式发送数据, 返回结果为{@link PageResult}格式
+     *
      * @param body 可以为null
      */
     public static <T> PageResult<T> requestPostPageResult(URL url, Object body, Class<T> cls) {
@@ -174,13 +185,16 @@ public abstract class HttpUtils {
 
     /**
      * 默认的http post请求, 以json格式发送数据, 返回结果为{@link MapResult}格式
+     *
      * @param body 可以为null
      */
     public static MapResult requestPostMapResult(URL url, Object body) {
         return requestPost(url, body, ResultJsonConverts.mapResultConvert());
     }
+
     /**
      * 默认的http post请求, 以json格式发送数据
+     *
      * @param body 可以为null
      */
     public static <T> T requestPost(URL url, Object body, StrValueConvert<T> convert) {
@@ -349,9 +363,9 @@ public abstract class HttpUtils {
          * 请求的addHeader通过方法{@link #addHeader(Map)}或者{@link #addHeader(String, String)}设定
          * 请求的一些其他配置通过方法{@link #setConfig(Config)}设定, 提供了默认配置{@link Config#DEFAULT}
          * 请求时log打印通过{@link #setRequestLogSwitch(boolean)}设定, 默认是开启的
+         *
          * @param convert 如果为null, 说明不需要返回结果, 则返回null
          * @return 参数convert为null或者请求发生异常则返回null, 判断请求是否成功执行,可通过方法{@link #isResponseSucceed()}
-         *
          * @see #isResponseSucceed()
          * @see #setUrl(URL)
          * @see #setConfig(Config)
@@ -394,8 +408,9 @@ public abstract class HttpUtils {
                 }
             } catch (IOException e) {
                 responseSucceed = false;
-                log.error("Http请求失败异常: " + url + ", Method: " + getMethod(), e);
-                return null;
+                log.error("Http请求异常: " + url + ", Method: " + getMethod(), e);
+                //如果失败了, convert不为null则返回转换结果, 为null也就不需要返回结果了
+                return convert == null ? null : convert.convert(null);
             }
         }
 
