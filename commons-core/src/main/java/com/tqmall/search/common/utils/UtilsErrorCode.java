@@ -4,11 +4,13 @@ import com.tqmall.search.common.result.ErrorCode;
 
 /**
  * Created by xing on 15/12/28.
- * Utils中的ErrorCode
+ * Utils中的ErrorCode, 只在util内部使用
  */
 enum UtilsErrorCode implements ErrorCode {
+
     JSON_RESULT_CONVERT_INVALID_OBJECT("80210101", "Json中data字段不是Object: %s"),
     JSON_RESULT_CONVERT_INVALID_ARRAY("80210102", "Json中data字段不是数组: %s");
+
     private String code;
 
     private String message;

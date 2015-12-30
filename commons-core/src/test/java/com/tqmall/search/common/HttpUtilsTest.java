@@ -74,4 +74,9 @@ public class HttpUtilsTest {
 
         private List<CategoryEntry> list;
     }
+
+    @Test
+    public void testInt() {
+        System.out.println(String.valueOf(Integer.MAX_VALUE));
+    }
 }
