@@ -2,6 +2,7 @@ package com.tqmall.search.common.cache;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.tqmall.search.common.utils.HostInfo;
 import com.tqmall.search.common.utils.StrValueConvert;
 
 import java.util.ArrayList;
@@ -18,8 +19,11 @@ public abstract class AbstractRtSyncStrongCache<K, V> extends AbstractRtStrongCa
 
     private List<K> updateKeyRecordList = new ArrayList<>();
 
+    private final HostInfo masterHost;
+
     public AbstractRtSyncStrongCache(HostInfo masterHost) {
-        getRtCacheManager().getReceive().registerHandler(this, masterHost);
+        this.masterHost = masterHost;
+        getRtCacheManager().getReceive().registerHandler(this);
     }
 
     /**
@@ -113,4 +117,8 @@ public abstract class AbstractRtSyncStrongCache<K, V> extends AbstractRtStrongCa
         return true;
     }
 
+    @Override
+    public HostInfo getMasterHost() {
+        return masterHost;
+    }
 }

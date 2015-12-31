@@ -1,6 +1,5 @@
 package com.tqmall.search.common.utils;
 
-import com.tqmall.search.common.cache.RtCacheSlaveHandle;
 import com.tqmall.search.common.result.MapResult;
 import com.tqmall.search.common.result.PageResult;
 import com.tqmall.search.common.result.Result;
@@ -48,9 +47,16 @@ public abstract class HttpUtils {
     }
 
     /**
-     * 两个RtCacheSlaveHandle.HostInfo 比较是否相同
+     * 如果是jdk1.8就好了, 接口里面默认实现toString()方法
      */
-    public static boolean isEquals(RtCacheSlaveHandle.HostInfo a, RtCacheSlaveHandle.HostInfo b) {
+    public static String hostInfoToString(HostInfo hostInfo) {
+        return hostInfo.getIp() + ':' + hostInfo.getPort();
+    }
+
+    /**
+     * 两个HostInfo 比较是否相同
+     */
+    public static boolean isEquals(HostInfo a, HostInfo b) {
         if (a == b) return true;
         else if (a == null || b == null) return false;
         else return Objects.equals(a.getIp(), b.getIp()) && a.getPort() == b.getPort();

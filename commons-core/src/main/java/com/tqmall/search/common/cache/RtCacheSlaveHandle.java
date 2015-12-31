@@ -1,5 +1,7 @@
 package com.tqmall.search.common.cache;
 
+import com.tqmall.search.common.utils.HostInfo;
+
 import java.util.List;
 
 /**
@@ -7,6 +9,11 @@ import java.util.List;
  * slave机器缓存实时更新
  */
 public interface RtCacheSlaveHandle {
+
+    /**
+     * 返回该缓存所在的masterHost地址
+     */
+    HostInfo getMasterHost();
 
     /**
      * 该缓存是否已经初始化
@@ -21,15 +28,5 @@ public interface RtCacheSlaveHandle {
      * @return 看是否有改动
      */
     boolean onSlaveHandle(List<String> keys);
-
-    /**
-     * 获取master应用的host信息, 分开定义原因是省去校验ip:port格式
-     */
-    interface HostInfo {
-
-        String getIp();
-
-        int getPort();
-    }
 
 }

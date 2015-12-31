@@ -5,6 +5,7 @@ import com.tqmall.search.common.param.HttpSlaveRegisterParam;
 import com.tqmall.search.common.param.Param;
 import com.tqmall.search.common.result.MapResult;
 import com.tqmall.search.common.result.ResultUtils;
+import com.tqmall.search.common.utils.HostInfo;
 import com.tqmall.search.common.utils.HttpUtils;
 import com.tqmall.search.common.utils.ResultJsonConverts;
 import org.slf4j.Logger;
@@ -74,24 +75,24 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<SlaveHandleInfo> 
     }
 
     @Override
-    protected SlaveHandleInfo initSlaveHandleInfo(RtCacheSlaveHandle handler, String masterHost) {
+    protected SlaveHandleInfo initSlaveHandleInfo(RtCacheSlaveHandle handler, HostInfo masterHost) {
         return new SlaveHandleInfo(handler, masterHost);
     }
 
     @Override
-    protected boolean doMasterRegister(int localPort, String masterHost, List<SlaveHandleInfo> handleInfo) {
+    protected boolean doMasterRegister(HostInfo localHost, HostInfo masterHost, List<SlaveHandleInfo> handleInfo) {
         HttpSlaveRegisterParam param = new HttpSlaveRegisterParam();
         param.setMethod(HttpUtils.POST_METHOD);
-        param.setSlaveHost(HttpUtils.LOCAL_IP + ':' + localPort);
+        param.setSlaveHost(HttpUtils.hostInfoToString(localHost));
         param.setUrlPath(buildFullUrlPath(notifyChangePath));
         List<String> interestCache = Lists.newArrayList();
         for (SlaveHandleInfo info : handleInfo) {
             interestCache.add(info.getCacheKey());
         }
         param.setInterestCache(interestCache);
-        MapResult mapResult = HttpUtils.requestPost(HttpUtils.buildURL(masterHost, buildFullUrlPath(registerPath)),
-                param, ResultJsonConverts.mapResultConvert());
-        log.info("注册master: " + masterHost + " 完成,返回结果: " + ResultUtils.resultToString(mapResult));
+        MapResult mapResult = HttpUtils.requestPost(HttpUtils.buildURL(HttpUtils.hostInfoToString(masterHost),
+                buildFullUrlPath(registerPath)), param, ResultJsonConverts.mapResultConvert());
+        log.info("注册master: " + HttpUtils.hostInfoToString(masterHost) + " 完成,返回结果: " + ResultUtils.resultToString(mapResult));
         return mapResult.isSuccess();
     }
 

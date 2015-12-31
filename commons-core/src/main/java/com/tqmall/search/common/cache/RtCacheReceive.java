@@ -1,6 +1,7 @@
 package com.tqmall.search.common.cache;
 
 import com.tqmall.search.common.param.NotifyChangeParam;
+import com.tqmall.search.common.utils.HostInfo;
 
 /**
  * Created by xing on 15/12/22.
@@ -12,21 +13,20 @@ public interface RtCacheReceive {
     /**
      * 本地机器cache 对象注册, 如果重复注册则使用最新的,覆盖原先的
      * 请求调用,都是单个单个调用,不用考虑多线程问题
-     * @param masterHost master主机host信息
      * @return 注册是否成功
      */
-    boolean registerHandler(RtCacheSlaveHandle handler, RtCacheSlaveHandle.HostInfo masterHost);
+    boolean registerHandler(RtCacheSlaveHandle handler);
 
     /**
      * 向master机器注册当前机器receive, 调用该方法建议异步调用, http等调用还是挺耗时的
-     * 如果原先已经调用过该方法,并且已经成功了,那不会做重复注册, 除非调用{@link #registerHandler(RtCacheSlaveHandle, RtCacheSlaveHandle.HostInfo)}
+     * 如果原先已经调用过该方法,并且已经成功了,那不会做重复注册, 除非调用{@link #registerHandler(RtCacheSlaveHandle)}
      * 重建添加, 再调用该方法注册
      * 调用masterHost的注册接口的返回结构,建议都以{@link com.tqmall.search.common.result.MapResult}返回,这样好处理,兼容性好点,
      * 提供的默认{@link HttpRtCacheReceive} 实现就是这样做的, 当然你可以自定义实现
-     * @param localPort 端口号, 该端口用来标识本地应用
+     * @param localHost 本地地址信息
      * @return 注册是否全部都成功, 如果成功返回true, 存在失败的返回false
      */
-    boolean registerMaster(int localPort);
+    boolean registerMaster(HostInfo localHost);
 
     /**
      * 处理接收到的变化
