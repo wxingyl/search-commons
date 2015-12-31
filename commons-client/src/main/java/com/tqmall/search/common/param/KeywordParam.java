@@ -6,7 +6,7 @@ package com.tqmall.search.common.param;
  */
 public class KeywordParam extends PageParam {
 
-    private static final long serialVersionUID = 5696545921852498737L;
+    private static final long serialVersionUID = 1L;
     /**
      * 关键字为trim之后的值
      */

@@ -6,6 +6,8 @@ package com.tqmall.search.common.param;
  */
 public abstract class PageParam extends Param {
 
+    private static final long serialVersionUID = 1L;
+
     private int start;
 
     private int size = 10;

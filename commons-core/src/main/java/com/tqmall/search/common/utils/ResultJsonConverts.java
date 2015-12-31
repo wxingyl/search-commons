@@ -134,7 +134,14 @@ public abstract class ResultJsonConverts {
         }
         int i = dataIndex;
         //找data前面的位置
-        while (--i > 0 && ',' != json.charAt(i));
+//        while (--i > 0 && ',' != json.charAt(i));
+        //上面是简单的写法, 但是空循环据说可能被jit编译优化给干掉,所以还是别装逼了吧
+        for (; ; ) {
+            i--;
+            if (i <= 0 || ',' == json.charAt(i)) {
+                break;
+            }
+        }
         final int startIndex = i;
         String dataValue = null;
         String simpleJson = null;
@@ -177,9 +184,8 @@ public abstract class ResultJsonConverts {
     /**
      * 该Bean从Json返回串解析并不是解析所有字段, 只解析total, code, message, success 4个fields, data是在后面程序自己搞进去的
      */
+    @SuppressWarnings("serial")
     final static class JsonSimpleResult extends Result<String> implements ErrorCode {
-
-        private static final long serialVersionUID = 1L;
 
         private long total;
 

@@ -6,9 +6,10 @@ import java.util.List;
 
 /**
  * Created by xing on 15/12/5.
- * 参数抽象父类
  */
 public abstract class Param implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     /**
      * 记录系统调用来源
      */
