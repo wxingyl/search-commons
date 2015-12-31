@@ -1,5 +1,6 @@
 package com.tqmall.search.common.cache;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.tqmall.search.common.param.NotifyChangeParam;
@@ -11,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by xing on 15/12/23.
@@ -23,7 +26,9 @@ public abstract class AbstractRtCacheReceive<T extends SlaveHandleInfo> implemen
     /**
      * 本地机器注册的cache对象,这些对象对应着处理slave变化通知
      */
-    private final Map<String, T> handleInfoMap = new HashMap<>();
+    private final ConcurrentMap<String, T> handleInfoMap = new ConcurrentHashMap<>();
+
+    private volatile Predicate<T> filter;
 
     /**
      * 实例化{@link T}对象实例
@@ -41,6 +46,14 @@ public abstract class AbstractRtCacheReceive<T extends SlaveHandleInfo> implemen
      */
     protected abstract boolean doMasterRegister(HostInfo localHost, HostInfo masterHost, List<T> handleInfo);
 
+    /**
+     * 过滤SlaveHandle
+     * @return true: 有效
+     */
+    protected boolean filterSlaveHandle(T handleInfo) {
+        return filter == null || filter.apply(handleInfo);
+    }
+
     @Override
     public final boolean registerHandler(RtCacheSlaveHandle handler) {
         Objects.requireNonNull(handler);
@@ -54,7 +67,8 @@ public abstract class AbstractRtCacheReceive<T extends SlaveHandleInfo> implemen
             throw new IllegalArgumentException("masterPort " + masterHost.getPort() + " <= 80 is invalid");
         }
         T info = initSlaveHandleInfo(handler, masterHost);
-        if (info == null) {
+
+        if (info == null || !filterSlaveHandle(info)) {
             return false;
         } else {
             handleInfoMap.put(info.getCacheKey(), info);
@@ -131,7 +145,7 @@ public abstract class AbstractRtCacheReceive<T extends SlaveHandleInfo> implemen
         return true;
     }
 
-    protected Map<String, T> getHandleInfoMap() {
+    protected ConcurrentMap<String, T> getHandleInfoMap() {
         return handleInfoMap;
     }
 
@@ -163,4 +177,16 @@ public abstract class AbstractRtCacheReceive<T extends SlaveHandleInfo> implemen
         return sb.toString();
     }
 
+    public void setFilter(Predicate<T> filter) {
+        this.filter = filter;
+        List<String> needRemoveKeys = Lists.newArrayList();
+        for (T info : handleInfoMap.values()) {
+            if (!filterSlaveHandle(info)) {
+                needRemoveKeys.add(info.getCacheKey());
+            }
+        }
+        for (String key: needRemoveKeys) {
+            handleInfoMap.remove(key);
+        }
+    }
 }

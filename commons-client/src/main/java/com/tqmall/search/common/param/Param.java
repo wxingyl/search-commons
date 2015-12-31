@@ -6,6 +6,7 @@ import java.util.List;
 
 /**
  * Created by xing on 15/12/5.
+ * 参数抽象父类
  */
 public abstract class Param implements Serializable {
 
@@ -52,6 +53,7 @@ public abstract class Param implements Serializable {
     /**
      * 过滤String, 返回的String是trim过的
      * 关键字不能为null, 不能为空, 并且trim后不能为空
+     *
      * @return 返回的String是trim过的
      */
     public static String filterString(String q) {

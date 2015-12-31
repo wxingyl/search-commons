@@ -7,6 +7,7 @@ import com.tqmall.search.common.param.SlaveRegisterParam;
 import com.tqmall.search.common.result.MapResult;
 import com.tqmall.search.common.result.ResultUtils;
 import com.tqmall.search.common.utils.RwLock;
+import com.tqmall.search.common.utils.UtilsErrorCode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -42,7 +43,7 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveRegisterInfo>
     public MapResult handleSlaveRegister(final SlaveRegisterParam param) {
         if (StringUtils.isEmpty(param.getSlaveHost()) ||
                 param.getInterestCache() == null || param.getInterestCache().isEmpty()) {
-            return ResultUtils.mapResult(CacheErrorCode.SLAVE_REGISTER_INVALID,
+            return ResultUtils.mapResult(UtilsErrorCode.CACHE_SLAVE_REGISTER_INVALID,
                     "参数slaveHost为空或者interestCache为空");
         }
         return slaveHostLock.writeOp(new RwLock.OpRet<Map<String, List<T>>, MapResult>() {
@@ -57,7 +58,7 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveRegisterInfo>
                     try {
                         info = createSlaveInfo(param);
                     } catch (Throwable e) {
-                        return ResultUtils.mapResult(CacheErrorCode.SLAVE_REGISTER_INVALID, e.getMessage());
+                        return ResultUtils.mapResult(UtilsErrorCode.CACHE_SLAVE_REGISTER_INVALID, e.getMessage());
                     }
                     if (info != null && !slaveHosts.contains(info)) {
                         slaveHosts.add(info);

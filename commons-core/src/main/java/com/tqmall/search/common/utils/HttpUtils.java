@@ -302,10 +302,9 @@ public abstract class HttpUtils {
          */
         private boolean requestLogSwitch = true;
         /**
-         * 返回结果是否成功,如果还没有请求,则为false
-         * 该值就不考虑多线程的问题了~~~~
+         * http返回状态码
          */
-        private boolean responseSucceed;
+        private int responseCode;
 
         /**
          * 默认都为长连接, 以json接收数据
@@ -371,8 +370,8 @@ public abstract class HttpUtils {
          * 请求时log打印通过{@link #setRequestLogSwitch(boolean)}设定, 默认是开启的
          *
          * @param convert 如果为null, 说明不需要返回结果, 则返回null
-         * @return 参数convert为null或者请求发生异常则返回null, 判断请求是否成功执行,可通过方法{@link #isResponseSucceed()}
-         * @see #isResponseSucceed()
+         * @return 参数convert为null或者请求发生异常则返回null, 判断请求是否成功执行,可通过方法{@link #getResponseCode()} ()}查看
+         * @see #getResponseCode()
          * @see #setUrl(URL)
          * @see #setConfig(Config)
          * @see #setRequestLogSwitch(boolean)
@@ -380,12 +379,14 @@ public abstract class HttpUtils {
          */
         public <T> T request(StrValueConvert<T> convert) {
             Objects.requireNonNull(url);
+            HttpURLConnection httpConnection = null;
             try {
                 if (requestLogSwitch) {
                     log.info("Http请求, url: " + url + ", Method: " + getMethod());
                 }
+                responseCode = -1;
                 //都是使用的http协议调用,所以可以直接强转
-                HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+                httpConnection = (HttpURLConnection) url.openConnection();
                 httpConnection.setRequestMethod(getMethod());
                 for (Map.Entry<String, String> e : headerMap.entrySet()) {
                     httpConnection.addRequestProperty(e.getKey(), e.getValue());
@@ -403,7 +404,8 @@ public abstract class HttpUtils {
                         response.append(line);
                     }
                 }
-                responseSucceed = true;
+                responseCode = httpConnection.getResponseCode();
+                httpConnection = null;
                 if (convert == null) {
                     if (requestLogSwitch) {
                         log.info("Http请求结果: " + response.toString());
@@ -413,15 +415,27 @@ public abstract class HttpUtils {
                     return convert.convert(response.toString());
                 }
             } catch (IOException e) {
-                responseSucceed = false;
-                log.error("Http请求异常: " + url + ", Method: " + getMethod(), e);
+                if (responseCode == -1) {
+                    if (e instanceof ConnectException) {
+                        responseCode = 404;
+                    } else if (httpConnection != null) {
+                        try {
+                            responseCode = httpConnection.getResponseCode();
+                        } catch (IOException e1) {
+                            log.warn("获取HttpResponseCode 异常: " + e.getMessage());
+                            //野蛮暴力一把吧!!!
+                            responseCode = 404;
+                        }
+                    }
+                }
+                log.error("Http请求异常: " + url + ", responseCode: " + responseCode + ", Method: " + getMethod(), e);
                 //如果失败了, convert不为null则返回转换结果, 为null也就不需要返回结果了
                 return convert == null ? null : convert.convert(null);
             }
         }
 
-        public boolean isResponseSucceed() {
-            return responseSucceed;
+        public int getResponseCode() {
+            return responseCode;
         }
     }
 
