@@ -3,6 +3,7 @@ package com.tqmall.search.common.cache;
 import com.tqmall.search.common.param.HttpSlaveRegisterParam;
 import com.tqmall.search.common.param.NotifyChangeParam;
 import com.tqmall.search.common.param.SlaveRegisterParam;
+import com.tqmall.search.common.utils.HostInfo;
 import com.tqmall.search.common.utils.HttpUtils;
 import com.tqmall.search.common.utils.StrValueConverts;
 import org.apache.commons.lang3.StringUtils;
@@ -47,35 +48,40 @@ public class HttpRtCacheNotify extends AbstractRtCacheNotify<HttpSlaveRegisterIn
     protected void runNotifyTask(NotifyChangeParam param, List<HttpSlaveRegisterInfo> slaves) {
         String getParam = null;
         for (HttpSlaveRegisterInfo info : slaves) {
-            final HttpUtils.RequestBase requestBase = HttpUtils.build(info.getMethod());
-            if (HttpUtils.GET_METHOD.equals(info.getMethod())) {
-                if (getParam == null) {
-                    getParam = String.format("cacheKey=%s&keys=%s&source=%s", param.getCacheKey(),
-                            StringUtils.join(param.getKeys(), ','), param.getSource());
-                }
-            } else {
-                ((HttpUtils.HandleBodyRequest) requestBase).setBody(param, true);
-            }
-            requestBase.setUrl(HttpUtils.buildURL(info.getSlaveHost(), info.getUrlPath(), getParam));
-
-            if (info.getRequestHeaders() != null) {
-                requestBase.addHeader(info.getRequestHeaders());
-            }
-            final String slaveHost = info.getSlaveHost();
-            if (executor == null) {
-                runNotifyRequest(requestBase, slaveHost);
-            } else {
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        runNotifyRequest(requestBase, slaveHost);
+            try {
+                final HttpUtils.RequestBase requestBase = HttpUtils.build(info.getMethod());
+                if (HttpUtils.GET_METHOD.equals(info.getMethod())) {
+                    if (getParam == null) {
+                        getParam = String.format("cacheKey=%s&keys=%s&source=%s", param.getCacheKey(),
+                                StringUtils.join(param.getKeys(), ','), param.getSource());
                     }
-                });
+                } else {
+                    ((HttpUtils.HandleBodyRequest) requestBase).setBody(param, true);
+                }
+                requestBase.setUrl(HttpUtils.buildURL(info.getSlaveHost(), info.getUrlPath(), getParam));
+
+                if (info.getRequestHeaders() != null) {
+                    requestBase.addHeader(info.getRequestHeaders());
+                }
+                final HostInfo slaveHost = info.getSlaveHost();
+                if (executor == null) {
+                    runNotifyRequest(requestBase, slaveHost);
+                } else {
+                    executor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            runNotifyRequest(requestBase, slaveHost);
+                        }
+                    });
+                }
+            } catch (Throwable e) {
+                log.error("通知slave机器: " + info.getSlaveHost() + "通知缓存cacheKey: " + param.getCacheKey()
+                        + "变更, keys: " + param.getKeys() + "发生异常", e);
             }
         }
     }
 
-    private void runNotifyRequest(HttpUtils.RequestBase requestBase, String slaveHost) {
+    private void runNotifyRequest(HttpUtils.RequestBase requestBase, HostInfo slaveHost) {
         //这儿用String做转换,基本上是万能的
         String ret = requestBase.request(StrValueConverts.getConvert(String.class));
         log.info("给slave机器: " + slaveHost + "推送缓存变化keys执行完成, 返回结果: " + ret);

@@ -2,6 +2,7 @@ package com.tqmall.search.common.cache;
 
 import com.tqmall.search.common.param.SlaveRegisterParam;
 import com.tqmall.search.common.result.MapResult;
+import com.tqmall.search.common.utils.HostInfo;
 
 import java.util.List;
 
@@ -19,9 +20,15 @@ public interface RtCacheNotify {
     MapResult handleSlaveRegister(SlaveRegisterParam param);
 
     /**
-     * master 机器通知给slave, 哪些key更改了
-     * 调用salveHost的通知接口的返回结构,建议都以{@link com.tqmall.search.common.result.MapResult}返回,
+     * slaveHost取消注册
+     */
+    MapResult handleSlaveUnRegister(HostInfo slaveHost);
+
+    /**
+     * 1. master 机器通知给slave, 哪些key更改了
+     * 2. 调用salveHost的通知接口的返回结构,建议都以{@link com.tqmall.search.common.result.MapResult}返回,
      * 这样好处理,兼容性好点, 提供的默认{@link HttpRtCacheNotify} 实现就是这样做的, 当然你可以自定义实现
+     * 3. 逐个通知slave机器,如果某个slave机器通知异常,不管~~~
      * @param keys 统一用String标识
      * 发送通知,无需考虑多线程
      */

@@ -81,6 +81,10 @@ public abstract class HttpUtils {
         return buildURL(host, path, "");
     }
 
+    public static URL buildURL(HostInfo host, String path, Map<String, String> param) {
+        return buildURL(hostInfoToString(host), path, param);
+    }
+
     public static URL buildURL(String host, String path, Map<String, String> param) {
         if (param == null || param.isEmpty()) {
             return buildURL(host, path, "");
@@ -93,6 +97,11 @@ public abstract class HttpUtils {
             return buildURL(host, path, sb.toString());
         }
     }
+
+    public static URL buildURL(HostInfo host, String path, String param) {
+        return buildURL(hostInfoToString(host), path, param);
+    }
+
 
     /**
      * 单纯的创建URL对象

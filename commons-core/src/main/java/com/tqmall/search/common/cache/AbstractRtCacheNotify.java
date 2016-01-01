@@ -6,14 +6,16 @@ import com.tqmall.search.common.param.NotifyChangeParam;
 import com.tqmall.search.common.param.SlaveRegisterParam;
 import com.tqmall.search.common.result.MapResult;
 import com.tqmall.search.common.result.ResultUtils;
+import com.tqmall.search.common.utils.HostInfo;
+import com.tqmall.search.common.utils.HttpUtils;
 import com.tqmall.search.common.utils.RwLock;
 import com.tqmall.search.common.utils.UtilsErrorCode;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +43,7 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveRegisterInfo>
 
     @Override
     public MapResult handleSlaveRegister(final SlaveRegisterParam param) {
-        if (StringUtils.isEmpty(param.getSlaveHost()) ||
+        if (param.getSlaveHost() == null ||
                 param.getInterestCache() == null || param.getInterestCache().isEmpty()) {
             return ResultUtils.mapResult(UtilsErrorCode.CACHE_SLAVE_REGISTER_INVALID,
                     "参数slaveHost为空或者interestCache为空");
@@ -66,6 +68,38 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveRegisterInfo>
                     }
                 }
                 return ResultUtils.mapResult("msg", "注册成功");
+            }
+        });
+    }
+
+    @Override
+    public MapResult handleSlaveUnRegister(final HostInfo slaveHost) {
+        if (slaveHost == null) {
+            return ResultUtils.mapResult(UtilsErrorCode.CACHE_SLAVE_UNREGISTER_INVALID, "slaveHost 为空");
+        }
+        return slaveHostLock.writeOp(new RwLock.OpRet<Map<String, List<T>>, MapResult>() {
+            @Override
+            public MapResult op(Map<String, List<T>> input) {
+                List<String> needRemoveKey = null;
+                for (Map.Entry<String, List<T>> e : input.entrySet()) {
+                    Iterator<T> it = e.getValue().iterator();
+                    while (it.hasNext()) {
+                        if (HttpUtils.isEquals(it.next().getSlaveHost(), slaveHost)) {
+                            it.remove();
+                        }
+                    }
+                    if (e.getValue().isEmpty()) {
+                        if (needRemoveKey == null) needRemoveKey = new ArrayList<>();
+                        needRemoveKey.add(e.getKey());
+                    }
+                }
+                if (needRemoveKey != null) {
+                    for (String k : needRemoveKey) {
+                        input.remove(k);
+                    }
+                }
+                log.info("Slave注销缓存处理完成, slaveHost: " + slaveHost);
+                return ResultUtils.mapResult("msg", "注销成功");
             }
         });
     }

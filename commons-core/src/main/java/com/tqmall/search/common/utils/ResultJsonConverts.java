@@ -126,17 +126,17 @@ public abstract class ResultJsonConverts {
      */
     private static JsonSimpleResult parseData(String json) {
         if (StringUtils.isEmpty(json)) {
-            return buildErrorSimpleResult("Json 字符串为空, 无法解析");
+            return buildErrorSimpleResult("Json string is empty");
         }
         int dataIndex = json.indexOf("\"data\"");
         if (dataIndex < 0) {
             return buildErrorSimpleResult("Can not find data field");
         }
-        int i = dataIndex;
+        int i;
         //找data前面的位置
 //        while (--i > 0 && ',' != json.charAt(i));
         //上面是简单的写法, 但是空循环据说可能被jit编译优化给干掉,所以还是别装逼了吧
-        for (; ; ) {
+        for (i = dataIndex; ; ) {
             i--;
             if (i <= 0 || ',' == json.charAt(i)) {
                 break;

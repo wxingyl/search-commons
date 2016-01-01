@@ -1,5 +1,7 @@
 package com.tqmall.search.common.cache;
 
+import com.tqmall.search.common.utils.HostInfo;
+
 import java.util.Collections;
 import java.util.Map;
 
@@ -21,7 +23,7 @@ public class HttpSlaveRegisterInfo extends AbstractSlaveRegisterInfo {
 
     public Map<String, String> requestHeaders;
 
-    private HttpSlaveRegisterInfo(String slaveHost){
+    private HttpSlaveRegisterInfo(HostInfo slaveHost){
         super(slaveHost);
     }
 
@@ -37,17 +39,19 @@ public class HttpSlaveRegisterInfo extends AbstractSlaveRegisterInfo {
         return urlPath;
     }
 
-    public static Build build(String slaveHost) {
+    public static Build build(HostInfo slaveHost) {
         return new Build(slaveHost);
     }
 
     public static class Build {
 
-        private String slaveHost, urlPath, method;
+        private HostInfo slaveHost;
+
+        private String urlPath, method;
 
         private Map<String, String> requestHeaders;
 
-        public Build(String slaveHost) {
+        public Build(HostInfo slaveHost) {
             this.slaveHost = slaveHost;
         }
 
