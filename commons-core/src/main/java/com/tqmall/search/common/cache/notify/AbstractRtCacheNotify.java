@@ -1,9 +1,11 @@
-package com.tqmall.search.common.cache;
+package com.tqmall.search.common.cache.notify;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
+import com.tqmall.search.common.cache.RtCacheManager;
+import com.tqmall.search.common.cache.receive.RtCacheSlaveHandle;
 import com.tqmall.search.common.param.NotifyChangeParam;
-import com.tqmall.search.common.param.SlaveRegisterParam;
+import com.tqmall.search.common.param.LocalRegisterParam;
 import com.tqmall.search.common.result.MapResult;
 import com.tqmall.search.common.result.ResultUtils;
 import com.tqmall.search.common.utils.HostInfo;
@@ -23,7 +25,7 @@ import java.util.Map;
  * Created by xing on 15/12/23.
  * abstract RtCacheNotify
  */
-public abstract class AbstractRtCacheNotify<T extends AbstractSlaveRegisterInfo> implements RtCacheNotify {
+public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> implements RtCacheNotify {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractRtCacheNotify.class);
 
@@ -37,12 +39,12 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveRegisterInfo>
         }
     });
 
-    protected abstract T createSlaveInfo(SlaveRegisterParam param);
+    protected abstract T createSlaveInfo(LocalRegisterParam param);
 
     protected abstract void runNotifyTask(NotifyChangeParam param, List<T> slaves);
 
     @Override
-    public MapResult handleSlaveRegister(final SlaveRegisterParam param) {
+    public MapResult handleSlaveRegister(final LocalRegisterParam param) {
         if (param.getSlaveHost() == null ||
                 param.getInterestCache() == null || param.getInterestCache().isEmpty()) {
             return ResultUtils.mapResult(UtilsErrorCode.CACHE_SLAVE_REGISTER_INVALID,
@@ -110,13 +112,12 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveRegisterInfo>
         final NotifyChangeParam param = new NotifyChangeParam();
         param.setCacheKey(RtCacheManager.getCacheHandleKey(slaveCache));
         param.setKeys(keys);
-        final String cacheKey = RtCacheManager.getCacheHandleKey(slaveCache);
         slaveHostLock.readOp(new RwLock.Op<Map<String, List<T>>>() {
             @Override
             public void op(Map<String, List<T>> input) {
-                List<T> slaveHosts = input.get(cacheKey);
+                List<T> slaveHosts = input.get(param.getCacheKey());
                 if (slaveHosts == null || slaveHosts.isEmpty()) return;
-                log.info("发送缓存" + cacheKey + "更改的key: " + param.getKeys() + "到机器: " + slaveHosts);
+                log.info("发送缓存" + param.getCacheKey() + "更改的key: " + param.getKeys() + "到机器: " + slaveHosts);
                 runNotifyTask(param, slaveHosts);
             }
         });

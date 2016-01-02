@@ -1,6 +1,7 @@
-package com.tqmall.search.common.cache;
+package com.tqmall.search.common.cache.notify;
 
-import com.tqmall.search.common.param.SlaveRegisterParam;
+import com.tqmall.search.common.cache.receive.RtCacheSlaveHandle;
+import com.tqmall.search.common.param.LocalRegisterParam;
 import com.tqmall.search.common.result.MapResult;
 import com.tqmall.search.common.utils.HostInfo;
 
@@ -17,7 +18,7 @@ public interface RtCacheNotify {
      * @param param slave机器注册感兴趣的cache
      * @return 标识注册是否成功
      */
-    MapResult handleSlaveRegister(SlaveRegisterParam param);
+    MapResult handleSlaveRegister(LocalRegisterParam param);
 
     /**
      * slaveHost取消注册

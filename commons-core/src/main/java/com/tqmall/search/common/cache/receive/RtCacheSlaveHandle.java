@@ -1,4 +1,4 @@
-package com.tqmall.search.common.cache;
+package com.tqmall.search.common.cache.receive;
 
 import com.tqmall.search.common.utils.HostInfo;
 

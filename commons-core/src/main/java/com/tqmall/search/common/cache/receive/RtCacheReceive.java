@@ -1,4 +1,4 @@
-package com.tqmall.search.common.cache;
+package com.tqmall.search.common.cache.receive;
 
 import com.tqmall.search.common.param.NotifyChangeParam;
 import com.tqmall.search.common.utils.HostInfo;
@@ -27,6 +27,12 @@ public interface RtCacheReceive {
      * @return 注册是否全部都成功, 如果成功返回true, 存在失败的返回false
      */
     boolean registerMaster(HostInfo localHost);
+
+    /**
+     * 注销RtCacheSlaveHandle处理, 同事请求master执行注销操作
+     * @param masterHost 要注销的masterHost
+     */
+    boolean unRegister(HostInfo localHost, HostInfo masterHost);
 
     /**
      * 处理接收到的变化

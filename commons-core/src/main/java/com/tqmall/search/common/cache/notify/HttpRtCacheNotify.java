@@ -1,8 +1,8 @@
-package com.tqmall.search.common.cache;
+package com.tqmall.search.common.cache.notify;
 
-import com.tqmall.search.common.param.HttpSlaveRegisterParam;
+import com.tqmall.search.common.param.HttpLocalRegisterParam;
 import com.tqmall.search.common.param.NotifyChangeParam;
-import com.tqmall.search.common.param.SlaveRegisterParam;
+import com.tqmall.search.common.param.LocalRegisterParam;
 import com.tqmall.search.common.utils.HostInfo;
 import com.tqmall.search.common.utils.HttpUtils;
 import com.tqmall.search.common.utils.StrValueConverts;
@@ -18,7 +18,7 @@ import java.util.concurrent.Executor;
  * Http implement RtCacheNotify
  * 请求方法都是GET请求
  */
-public class HttpRtCacheNotify extends AbstractRtCacheNotify<HttpSlaveRegisterInfo> {
+public class HttpRtCacheNotify extends AbstractRtCacheNotify<HttpSlaveHostInfo> {
 
     private static final Logger log = LoggerFactory.getLogger(HttpRtCacheNotify.class);
 
@@ -29,25 +29,25 @@ public class HttpRtCacheNotify extends AbstractRtCacheNotify<HttpSlaveRegisterIn
     private Executor executor;
 
     @Override
-    protected HttpSlaveRegisterInfo createSlaveInfo(SlaveRegisterParam param) {
-        HttpSlaveRegisterParam httpParam = (HttpSlaveRegisterParam) param;
+    protected HttpSlaveHostInfo createSlaveInfo(LocalRegisterParam param) {
+        HttpLocalRegisterParam httpParam = (HttpLocalRegisterParam) param;
         //只是检查Http Method是否OK
         if (httpParam.getMethod() != null) {
             HttpUtils.build(httpParam.getMethod());
         } else {
             httpParam.setMethod(HttpUtils.GET_METHOD);
         }
-        return HttpSlaveRegisterInfo.build(param.getSlaveHost())
-                .urlPath(httpParam.getUrlPath())
+        return HttpSlaveHostInfo.build(param.getSlaveHost())
+                .notifyUrlPath(httpParam.getNotifyUrlPath())
                 .method(httpParam.getMethod())
                 .requestHeaders(httpParam.getRequestHeaders())
                 .create();
     }
 
     @Override
-    protected void runNotifyTask(NotifyChangeParam param, List<HttpSlaveRegisterInfo> slaves) {
+    protected void runNotifyTask(NotifyChangeParam param, List<HttpSlaveHostInfo> slaves) {
         String getParam = null;
-        for (HttpSlaveRegisterInfo info : slaves) {
+        for (HttpSlaveHostInfo info : slaves) {
             try {
                 final HttpUtils.RequestBase requestBase = HttpUtils.build(info.getMethod());
                 if (HttpUtils.GET_METHOD.equals(info.getMethod())) {
@@ -58,7 +58,7 @@ public class HttpRtCacheNotify extends AbstractRtCacheNotify<HttpSlaveRegisterIn
                 } else {
                     ((HttpUtils.HandleBodyRequest) requestBase).setBody(param, true);
                 }
-                requestBase.setUrl(HttpUtils.buildURL(info.getSlaveHost(), info.getUrlPath(), getParam));
+                requestBase.setUrl(HttpUtils.buildURL(info.getSlaveHost(), info.getNotifyUrlPath(), getParam));
 
                 if (info.getRequestHeaders() != null) {
                     requestBase.addHeader(info.getRequestHeaders());

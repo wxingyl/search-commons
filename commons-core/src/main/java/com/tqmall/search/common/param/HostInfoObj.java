@@ -17,6 +17,14 @@ public class HostInfoObj implements HostInfo, Serializable {
 
     private int port;
 
+    public HostInfoObj() {
+    }
+
+    public HostInfoObj(HostInfo hostInfo) {
+        this.ip = hostInfo.getIp();
+        this.port = hostInfo.getPort();
+    }
+
     public void setIp(String ip) {
         this.ip = ip;
     }

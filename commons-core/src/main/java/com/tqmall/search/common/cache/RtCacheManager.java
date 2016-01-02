@@ -1,22 +1,35 @@
 package com.tqmall.search.common.cache;
 
+import com.tqmall.search.common.cache.notify.RtCacheNotify;
+import com.tqmall.search.common.cache.receive.RtCacheReceive;
+import com.tqmall.search.common.cache.receive.RtCacheSlaveHandle;
+
+import java.util.Iterator;
+import java.util.ServiceLoader;
+
 /**
  * Created by xing on 15/12/22.
- * RtCacheManager abstract implement
+ * 通过{@link ServiceLoader}机制指定自己的具体实现类, 如果没有指定, 则默认{@link HttpCacheManager}
  */
 public abstract class RtCacheManager {
 
+    public static final RtCacheManager INSTANCE;
+
+    static {
+        Iterator<RtCacheManager> it = ServiceLoader.load(RtCacheManager.class).iterator();
+        if (it.hasNext()) {
+            INSTANCE = it.next();
+        } else {
+            INSTANCE = new HttpCacheManager();
+        }
+    }
+
     /**
      * 获取RtCacheSlaveHandle唯一的一个key
-     * @return 目前取类名
      */
     public static String getCacheHandleKey(RtCacheSlaveHandle handle) {
-        return handle.getClass().getName();
+        return INSTANCE.getCacheKey(handle);
     }
-    /**
-     * 默认实例为Http实现方式
-     */
-    public static final RtCacheManager DEFAULT_INSTANCE = new HttpCacheManager();
 
     private RtCacheNotify notify;
 
@@ -35,12 +48,11 @@ public abstract class RtCacheManager {
         return receive;
     }
 
-    static class HttpCacheManager extends RtCacheManager {
-
-        HttpCacheManager() {
-            super(new HttpRtCacheNotify(), new HttpRtCacheReceive());
-        }
-
+    /**
+     * default get className
+     */
+    public String getCacheKey(RtCacheSlaveHandle handle) {
+        return handle.getClass().getName();
     }
 
 }

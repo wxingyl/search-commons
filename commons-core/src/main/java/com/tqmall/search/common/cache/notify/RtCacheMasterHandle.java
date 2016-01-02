@@ -1,4 +1,4 @@
-package com.tqmall.search.common.cache;
+package com.tqmall.search.common.cache.notify;
 
 import java.util.Map;
 

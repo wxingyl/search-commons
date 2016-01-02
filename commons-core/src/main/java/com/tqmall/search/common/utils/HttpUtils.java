@@ -1,5 +1,6 @@
 package com.tqmall.search.common.utils;
 
+import com.tqmall.search.common.param.Param;
 import com.tqmall.search.common.result.MapResult;
 import com.tqmall.search.common.result.PageResult;
 import com.tqmall.search.common.result.Result;
@@ -62,6 +63,27 @@ public abstract class HttpUtils {
         else return Objects.equals(a.getIp(), b.getIp()) && a.getPort() == b.getPort();
     }
 
+    /**
+     * 过滤urlPath, 如果其以'/'开头或者结尾, 则去掉
+     * eg: /goods/convert/ ---> goods/convert
+     * @param urlPath 不能为null或者为空
+     * @return 过滤结果
+     */
+    public static String filterUrlPath(String urlPath) {
+        urlPath = Param.filterString(urlPath);
+        Objects.requireNonNull(urlPath);
+        int start = 0, end = urlPath.length();
+        if (urlPath.charAt(0) == '/') {
+            start++;
+        }
+        if (urlPath.charAt(end - 1) == '/') {
+            end--;
+        }
+        if (start > 0 || end < urlPath.length()) {
+            urlPath = urlPath.substring(start, end);
+        }
+        return urlPath;
+    }
 
     /**
      * 构建一个StrValueConvert对象, 输入Json字符串, 根据Class对象, 通过Json转换得到该实例
@@ -77,12 +99,20 @@ public abstract class HttpUtils {
     }
 
 
-    public static URL buildURL(String host, String path) {
+    public static URL buildURL(HostInfo host, String path) {
         return buildURL(host, path, "");
     }
 
     public static URL buildURL(HostInfo host, String path, Map<String, String> param) {
         return buildURL(hostInfoToString(host), path, param);
+    }
+
+    public static URL buildURL(HostInfo host, String path, String param) {
+        return buildURL(hostInfoToString(host), path, param);
+    }
+
+    public static URL buildURL(String host, String path) {
+        return buildURL(host, path, "");
     }
 
     public static URL buildURL(String host, String path, Map<String, String> param) {
@@ -98,11 +128,6 @@ public abstract class HttpUtils {
         }
     }
 
-    public static URL buildURL(HostInfo host, String path, String param) {
-        return buildURL(hostInfoToString(host), path, param);
-    }
-
-
     /**
      * 单纯的创建URL对象
      */
@@ -116,17 +141,7 @@ public abstract class HttpUtils {
             urlBuild.append('/');
         }
         if (!StringUtils.isEmpty(path)) {
-            int start = 0, end = path.length();
-            if (path.charAt(0) == '/') {
-                start = 1;
-            }
-            if (path.charAt(end - 1) == '/') {
-                end--;
-            }
-            if (start != 0 || end != path.length()) {
-                path = path.substring(start, end);
-            }
-            urlBuild.append(path);
+            urlBuild.append(filterUrlPath(path));
         } else {
             urlBuild.deleteCharAt(urlBuild.length() - 1);
         }
@@ -137,7 +152,7 @@ public abstract class HttpUtils {
             return new URL(urlBuild.toString());
         } catch (MalformedURLException e) {
             log.warn("创建url存在异常, host: " + host + ", path: " + path + ", param: " + param + ": " + e.getMessage());
-            throw new IllegalArgumentException(e.getMessage());
+            throw new IllegalArgumentException(e);
         }
     }
 

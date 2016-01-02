@@ -1,5 +1,6 @@
 package com.tqmall.search.common.cache;
 
+import com.tqmall.search.common.cache.notify.RtCacheMasterHandle;
 import com.tqmall.search.common.utils.StrValueConvert;
 
 import java.util.Map;

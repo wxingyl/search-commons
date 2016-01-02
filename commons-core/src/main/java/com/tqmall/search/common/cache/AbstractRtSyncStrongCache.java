@@ -2,6 +2,7 @@ package com.tqmall.search.common.cache;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.tqmall.search.common.cache.receive.RtCacheSlaveHandle;
 import com.tqmall.search.common.utils.HostInfo;
 import com.tqmall.search.common.utils.StrValueConvert;
 
@@ -27,11 +28,11 @@ public abstract class AbstractRtSyncStrongCache<K, V> extends AbstractRtStrongCa
     }
 
     /**
-     * 默认直接拿{@link RtCacheManager#DEFAULT_INSTANCE}
+     * 默认直接拿{@link RtCacheManager#INSTANCE}
      * 注意, 该方法是在构造方法里面调用
      */
     protected RtCacheManager getRtCacheManager() {
-        return RtCacheManager.DEFAULT_INSTANCE;
+        return RtCacheManager.INSTANCE;
     }
 
     protected abstract Map<K, V> reloadValue(List<K> keys);

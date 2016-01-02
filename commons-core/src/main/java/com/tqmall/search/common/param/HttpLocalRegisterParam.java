@@ -6,14 +6,14 @@ import java.util.Map;
  * Created by xing on 15/12/23.
  * 通过Http注册cache
  */
-public class HttpSlaveRegisterParam extends SlaveRegisterParam {
+public class HttpLocalRegisterParam extends LocalRegisterParam {
 
     private static final long serialVersionUID = 7844126899989685640L;
 
     /**
      * 接收处理缓存变化的path, 一个host只用一个,不支持不同的缓存key对应不同的urlPath, 那样太麻烦了
      */
-    private String urlPath;
+    private String notifyUrlPath;
 
     /**
      * 说明那中Http方法,目前只支持GET, POST, PUT, DELETE
@@ -23,8 +23,8 @@ public class HttpSlaveRegisterParam extends SlaveRegisterParam {
     public Map<String, String> requestHeaders;
 
 
-    public String getUrlPath() {
-        return urlPath;
+    public String getNotifyUrlPath() {
+        return notifyUrlPath;
     }
 
     public String getMethod() {
@@ -35,8 +35,8 @@ public class HttpSlaveRegisterParam extends SlaveRegisterParam {
         return requestHeaders;
     }
 
-    public void setUrlPath(String urlPath) {
-        this.urlPath = urlPath;
+    public void setNotifyUrlPath(String notifyUrlPath) {
+        this.notifyUrlPath = notifyUrlPath;
     }
 
     public void setMethod(String method) {
