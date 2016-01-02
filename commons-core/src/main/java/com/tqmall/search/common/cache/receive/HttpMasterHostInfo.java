@@ -12,6 +12,8 @@ public class HttpMasterHostInfo extends MasterHostInfo {
 
     private String unRegisterUrlPath;
 
+    private String monitorPath;
+
     public HttpMasterHostInfo(HostInfo masterHost) {
         super(masterHost);
     }
@@ -30,5 +32,13 @@ public class HttpMasterHostInfo extends MasterHostInfo {
 
     public void setUnRegisterUrlPath(String unRegisterUrlPath) {
         this.unRegisterUrlPath = unRegisterUrlPath;
+    }
+
+    public String getMonitorPath() {
+        return monitorPath;
+    }
+
+    public void setMonitorPath(String monitorPath) {
+        this.monitorPath = monitorPath;
     }
 }

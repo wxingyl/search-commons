@@ -35,6 +35,13 @@ public interface RtCacheReceive {
     boolean unRegister(HostInfo localHost, HostInfo masterHost);
 
     /**
+     * 监听本地连接master是否正常, 如果还没有注册成功, 自然也就没有必要检查了,但是如果已经注册成功的,需要检查连接是否正常
+     * 如果无法正常连接, 建议调用{@link #registerMaster(HostInfo)}重新连接
+     * @return 是否正常
+     */
+    boolean doMonitor();
+
+    /**
      * 处理接收到的变化
      * @param param 变化的cache
      * canal更新都是单线程,所以接收处理请求也无需考虑多线程

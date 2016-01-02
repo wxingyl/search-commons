@@ -70,11 +70,16 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<HttpMasterHostInf
         param.setInterestCache(cacheKeys);
         MapResult mapResult = HttpUtils.requestPost(HttpUtils.buildURL(masterHostInfo, masterHostInfo.getRegisterUrlPath()),
                 param, ResultJsonConverts.mapResultConvert());
-        String unRegisterUrlPath = (String) mapResult.get("unRegisterUrlPath");
-        if (unRegisterUrlPath == null) {
-            unRegisterUrlPath = buildFullUrlPath(HttpCacheManager.LOCAL_DEFAULT_UNREGISTER_PATH);
+        String urlPath = (String) mapResult.get("unRegisterUrlPath");
+        if (urlPath == null) {
+            urlPath = buildFullUrlPath(HttpCacheManager.LOCAL_DEFAULT_UNREGISTER_PATH);
         }
-        masterHostInfo.setUnRegisterUrlPath(unRegisterUrlPath);
+        masterHostInfo.setUnRegisterUrlPath(urlPath);
+        urlPath = (String) mapResult.get("monitorUrlPath");
+        if (urlPath == null) {
+            urlPath = buildFullUrlPath(HttpCacheManager.LOCAL_DEFAULT_MONITOR_PATH);
+        }
+        masterHostInfo.setMonitorPath(urlPath);
         log.info("注册master: " + HttpUtils.hostInfoToString(masterHostInfo) + " 完成,返回结果: "
                 + ResultUtils.resultToString(mapResult));
         return mapResult.isSuccess();
@@ -82,11 +87,17 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<HttpMasterHostInf
 
     @Override
     protected boolean doMasterUnRegister(HostInfo localHost, HttpMasterHostInfo masterHostInfo) {
-        HostInfoObj obj = new HostInfoObj(masterHostInfo);
+        HostInfoObj obj = new HostInfoObj(localHost);
         MapResult mapResult = HttpUtils.requestPost(HttpUtils.buildURL(masterHostInfo, masterHostInfo.getUnRegisterUrlPath()),
                 obj, ResultJsonConverts.mapResultConvert());
         log.info("注销master: " + HttpUtils.hostInfoToString(masterHostInfo) + " 完成,返回结果: "
                 + ResultUtils.resultToString(mapResult));
+        return mapResult.isSuccess();
+    }
+
+    @Override
+    protected boolean doMasterMonitor(HttpMasterHostInfo masterHostInfo) {
+        MapResult mapResult = HttpUtils.requestGetMapResult(HttpUtils.buildURL(masterHostInfo, masterHostInfo.getMonitorPath()));
         return mapResult.isSuccess();
     }
 

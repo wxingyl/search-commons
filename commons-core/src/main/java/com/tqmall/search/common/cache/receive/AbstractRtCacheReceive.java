@@ -53,6 +53,12 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
      */
     protected abstract boolean doMasterUnRegister(HostInfo localHost, T masterHostInfo);
 
+    /**
+     * 执行具体的监听操作
+     * @return 是否OK
+     */
+    protected abstract boolean doMasterMonitor(T masterHostInfo);
+
     private HostInfo localHostCheck(final HostInfo localHost) {
         Objects.requireNonNull(localHost);
         if (localHost.getPort() <= 80) {
@@ -122,9 +128,9 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
         boolean succeed = true;
         for (Map.Entry<T, List<String>> e : masterHostMap.entrySet()) {
             T master = e.getKey();
-            if (master.isRegisterSucceed()) continue;
+            if (!master.needRegister()) continue;
             if (HttpUtils.isEquals(master, usedLocalHost)) {
-                master.registerSucceed();
+                master.setRegisterStatus(MasterHostInfo.REGISTER_STATUS_USELESS);
                 log.info("注册cache处理时, masterHost: " + HttpUtils.hostInfoToString(master) + "同localHost相同, 无需注册");
                 continue;
             }
@@ -138,13 +144,18 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
             } else {
                 cacheKeys.addAll(e.getValue());
             }
-            if (cacheKeys.isEmpty()) continue;
+            if (cacheKeys.isEmpty()) {
+                master.setRegisterStatus(MasterHostInfo.REGISTER_STATUS_USELESS);
+                log.info("注册cache处理时, masterHost: " + HttpUtils.hostInfoToString(master) + "的handle全部被过滤");
+                continue;
+            }
             if (doMasterRegister(usedLocalHost, master, cacheKeys)) {
-                master.registerSucceed();
+                master.setRegisterStatus(MasterHostInfo.REGISTER_STATUS_SUCCEED);
             } else {
+                master.setRegisterStatus(MasterHostInfo.REGISTER_STATUS_FAILED);
                 succeed = false;
             }
-            log.error("注册cache完成: " + master);
+            log.info("注册cache完成: " + master);
         }
         return succeed;
     }
@@ -153,6 +164,7 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
     public boolean unRegister(HostInfo localHost, HostInfo masterHost) {
         HostInfo usedLocalHost = localHostCheck(localHost);
         Objects.requireNonNull(masterHost);
+        if (HttpUtils.isEquals(localHost, masterHost)) return false;
         T key = null;
         List<String> cacheKeys = null;
         for (T info : masterHostMap.keySet()) {
@@ -168,6 +180,22 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
         }
         masterHostMap.remove(key);
         return doMasterUnRegister(usedLocalHost, key);
+    }
+
+    @Override
+    public boolean doMonitor() {
+        boolean ret = true;
+        for (T masterHost : masterHostMap.keySet()) {
+            if (masterHost.needRegister()) {
+                ret = false;
+            } else if (masterHost.getRegisterStatus() == MasterHostInfo.REGISTER_STATUS_SUCCEED) {
+                if (!doMasterMonitor(masterHost)) {
+                    masterHost.setRegisterStatus(MasterHostInfo.REGISTER_STATUS_INTERRUPT);
+                    ret = false;
+                }
+            }
+        }
+        return ret;
     }
 
     @Override

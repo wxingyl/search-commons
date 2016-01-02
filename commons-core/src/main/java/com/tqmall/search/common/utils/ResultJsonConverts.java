@@ -27,7 +27,7 @@ public abstract class ResultJsonConverts {
             public Result<T> convert(String input) {
                 JsonSimpleResult simpleResult = parseData(input);
                 if (simpleResult.isSuccess()) {
-                    return ResultUtils.result(JsonUtils.jsonStrToObj(input, cls));
+                    return ResultUtils.result(JsonUtils.jsonStrToObj(simpleResult.getData(), cls));
                 } else {
                     return ResultUtils.result(simpleResult);
                 }
@@ -177,6 +177,7 @@ public abstract class ResultJsonConverts {
         if (simpleResult == null) {
             return buildErrorSimpleResult("String: " + simpleJson + " is not format of com.tqmall.search.common.result.Result class");
         }
+        //TODO bug fix, dataValue maybe is 'null'
         simpleResult.setData(dataValue, isArray);
         return simpleResult;
     }

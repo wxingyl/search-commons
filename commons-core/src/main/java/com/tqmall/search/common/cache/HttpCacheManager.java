@@ -10,11 +10,17 @@ import com.tqmall.search.common.cache.receive.HttpRtCacheReceive;
 public class HttpCacheManager extends RtCacheManager {
 
     /**
-     * 本地机器注册cache的的默认路径, 当然这个是通过Http方式注册才会用到
+     * 本地机器注册cache的的默认路径, 默认POST请求
      */
     public static final String LOCAL_DEFAULT_REGISTER_PATH = "cache/handle/register";
-
+    /**
+     * 本地机器注销cache的的默认路径, 默认POST请求
+     */
     public static final String LOCAL_DEFAULT_UNREGISTER_PATH = "cache/handle/unregister";
+    /**
+     * 本地机器监听cache服务正常的默认路径, 默认GET请求
+     */
+    public static final String LOCAL_DEFAULT_MONITOR_PATH = "cache/handle/monitor";
 
     public HttpCacheManager() {
         super(new HttpRtCacheNotify(), new HttpRtCacheReceive());
