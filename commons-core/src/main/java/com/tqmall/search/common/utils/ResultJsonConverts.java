@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.tqmall.search.common.result.*;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +43,7 @@ public abstract class ResultJsonConverts {
                 final JsonSimpleResult simpleResult = parseData(input);
                 if (!simpleResult.isSuccess()) {
                     return ResultUtils.pageResult(simpleResult);
-                } else if (!simpleResult.isArray) {
+                } else if (simpleResult.flag != 2) {
                     return ResultUtils.pageResult(UtilsErrorCode.JSON_RESULT_CONVERT_INVALID_ARRAY, simpleResult.getData());
                 } else {
                     List<String> list = splitJsonArray(simpleResult.getData());
@@ -67,7 +68,7 @@ public abstract class ResultJsonConverts {
             final JsonSimpleResult simpleResult = parseData(input);
             if (!simpleResult.isSuccess()) {
                 return ResultUtils.mapResult(simpleResult);
-            } else if (simpleResult.isArray) {
+            } else if (simpleResult.flag != 1) {
                 return ResultUtils.mapResult(UtilsErrorCode.JSON_RESULT_CONVERT_INVALID_OBJECT, simpleResult.getData());
             } else {
                 MapResult result = ResultUtils.mapResult();
@@ -108,6 +109,9 @@ public abstract class ResultJsonConverts {
                 }
             }
         }
+        if (startCh == 0) {
+            Collections.addAll(retList, StringUtils.split(jsonArray.substring(1, jsonArray.length() - 1), ','));
+        }
         return retList;
     }
 
@@ -142,10 +146,11 @@ public abstract class ResultJsonConverts {
                 break;
             }
         }
+        //这儿能够处理数组格式,但是对于单个对象的就无能为力了,比如Result<String>类型, 这儿需要做特殊处理
         final int startIndex = i;
         String dataValue = null;
         String simpleJson = null;
-        boolean isArray = false;
+        int flag = 0;
         dataIndex += 7;
         char startCh = 0, endCh = 0;
         int startValueIndex = -1;
@@ -155,8 +160,8 @@ public abstract class ResultJsonConverts {
             char ch = json.charAt(i);
             if (startCh == 0 && (ch == '{' || ch == '[')) {
                 startCh = ch;
-                isArray = ch == '[';
-                endCh = isArray ? ']' : '}';
+                flag = ch == '[' ? 2 : 1;
+                endCh = flag == 2 ? ']' : '}';
                 deep++;
                 startValueIndex = i;
             } else if (ch == startCh) {
@@ -170,15 +175,17 @@ public abstract class ResultJsonConverts {
                 }
             }
         }
-        if (dataValue == null) {
-            return buildErrorSimpleResult("Can not found right data field string value from json string: " + json);
+        if (simpleJson == null) {
+            simpleJson = json;
         }
         JsonSimpleResult simpleResult = JsonUtils.jsonStrToObj(simpleJson, JsonSimpleResult.class);
         if (simpleResult == null) {
             return buildErrorSimpleResult("String: " + simpleJson + " is not format of com.tqmall.search.common.result.Result class");
         }
-        //TODO bug fix, dataValue maybe is 'null'
-        simpleResult.setData(dataValue, isArray);
+        if (dataValue != null) {
+            simpleResult.setData(dataValue);
+        }
+        simpleResult.flag = flag;
         return simpleResult;
     }
 
@@ -190,8 +197,13 @@ public abstract class ResultJsonConverts {
 
         private long total;
 
+        /**
+         * 0: 异常类型, 返回结果为String或者null
+         * 1: 普通的Object类型
+         * 2: 普通的Array类型
+         */
         @JsonIgnore
-        private boolean isArray;
+        private int flag;
 
         public JsonSimpleResult() {
             super();
@@ -221,10 +233,8 @@ public abstract class ResultJsonConverts {
             super.setSuccess(succeed);
         }
 
-        @JsonIgnore
-        public void setData(String data, boolean isArray) {
+        public void setData(String data) {
             super.setData(data);
-            this.isArray = isArray;
         }
 
     }

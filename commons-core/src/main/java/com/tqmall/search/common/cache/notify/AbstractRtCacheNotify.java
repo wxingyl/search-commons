@@ -43,6 +43,8 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
 
     protected abstract void runNotifyTask(NotifyChangeParam param, List<T> slaves);
 
+    protected abstract MapResult wrapSlaveRegisterResult(LocalRegisterParam param);
+
     @Override
     public MapResult handleSlaveRegister(final LocalRegisterParam param) {
         if (param.getSlaveHost() == null ||
@@ -64,12 +66,12 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
                     } catch (Throwable e) {
                         return ResultUtils.mapResult(UtilsErrorCode.CACHE_SLAVE_REGISTER_INVALID, e.getMessage());
                     }
-                    if (info != null && !slaveHosts.contains(info)) {
+                    if (!slaveHosts.contains(info)) {
                         slaveHosts.add(info);
                         log.info("Slave注册缓存处理成功, slaveHost: " + param.getSlaveHost() + ", interestCache: " + param.getInterestCache());
                     }
                 }
-                return ResultUtils.mapResult("msg", "注册成功");
+                return wrapSlaveRegisterResult(param);
             }
         });
     }

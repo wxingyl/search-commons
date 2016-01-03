@@ -3,6 +3,8 @@ package com.tqmall.search.common.cache.notify;
 import com.tqmall.search.common.param.HttpLocalRegisterParam;
 import com.tqmall.search.common.param.NotifyChangeParam;
 import com.tqmall.search.common.param.LocalRegisterParam;
+import com.tqmall.search.common.result.MapResult;
+import com.tqmall.search.common.result.ResultUtils;
 import com.tqmall.search.common.utils.HostInfo;
 import com.tqmall.search.common.utils.HttpUtils;
 import com.tqmall.search.common.utils.StrValueConverts;
@@ -22,6 +24,11 @@ public class HttpRtCacheNotify extends AbstractRtCacheNotify<HttpSlaveHostInfo> 
 
     private static final Logger log = LoggerFactory.getLogger(HttpRtCacheNotify.class);
 
+    private String contextPath;
+
+    private String unRegisterUrlPath;
+
+    private String monitorUrlPath;
     /**
      * 具体的Http执行通过异步执行, 如果没有设置, 只能同步发送了
      * 当然建议异步执行
@@ -81,10 +88,26 @@ public class HttpRtCacheNotify extends AbstractRtCacheNotify<HttpSlaveHostInfo> 
         }
     }
 
+    @Override
+    protected MapResult wrapSlaveRegisterResult(LocalRegisterParam param) {
+        MapResult ret = ResultUtils.mapResult("msg", "注册成功");
+        if (unRegisterUrlPath != null) {
+            ret.put("unRegisterUrlPath", buildFullUrlPath(unRegisterUrlPath));
+        }
+        if (monitorUrlPath != null) {
+            ret.put("monitorUrlPath", buildFullUrlPath(monitorUrlPath));
+        }
+        return ret;
+    }
+
     private void runNotifyRequest(HttpUtils.RequestBase requestBase, HostInfo slaveHost) {
         //这儿用String做转换,基本上是万能的
         String ret = requestBase.request(StrValueConverts.getConvert(String.class));
         log.info("给slave机器: " + slaveHost + "推送缓存变化keys执行完成, 返回结果: " + ret);
+    }
+
+    private String buildFullUrlPath(String urlPath) {
+        return contextPath == null ? urlPath : (contextPath + '/' + urlPath);
     }
 
     /**
@@ -92,5 +115,17 @@ public class HttpRtCacheNotify extends AbstractRtCacheNotify<HttpSlaveHostInfo> 
      */
     public void setExecutor(Executor executor) {
         this.executor = executor;
+    }
+
+    public void setContextPath(String contextPath) {
+        this.contextPath = HttpUtils.filterUrlPath(contextPath);
+    }
+
+    public void setMonitorUrlPath(String monitorUrlPath) {
+        this.monitorUrlPath = HttpUtils.filterUrlPath(monitorUrlPath);
+    }
+
+    public void setUnRegisterUrlPath(String unRegisterUrlPath) {
+        this.unRegisterUrlPath = HttpUtils.filterUrlPath(unRegisterUrlPath);
     }
 }

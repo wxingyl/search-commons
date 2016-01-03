@@ -97,7 +97,8 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<HttpMasterHostInf
 
     @Override
     protected boolean doMasterMonitor(HttpMasterHostInfo masterHostInfo) {
-        MapResult mapResult = HttpUtils.requestGetMapResult(HttpUtils.buildURL(masterHostInfo, masterHostInfo.getMonitorPath()));
+        MapResult mapResult = HttpUtils.requestGetMapResult(HttpUtils.buildURL(masterHostInfo,
+                masterHostInfo.getMonitorPath()));
         return mapResult.isSuccess();
     }
 
