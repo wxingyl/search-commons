@@ -29,6 +29,10 @@ public abstract class MasterHostInfo implements HostInfo {
      * 注册状态: 注册中断
      */
     public static final int REGISTER_STATUS_INTERRUPT = 4;
+    /**
+     * 注册状态: 完成注销
+     */
+    public static final int REGISTER_STATUS_UNREGISTER = 5;
 
     private String ip;
 
@@ -46,7 +50,11 @@ public abstract class MasterHostInfo implements HostInfo {
         this.registerStatus = REGISTER_STATUS_INIT;
     }
 
-    public boolean needRegister() {
+    /**
+     * 是否需要执行远程注册, 目前出了本地master和已经注册成功的无需注册,其他的都需要注册
+     * @return true需要执行
+     */
+    public boolean needDoRegister() {
         return registerStatus != REGISTER_STATUS_SUCCEED && registerStatus != REGISTER_STATUS_USELESS;
     }
 

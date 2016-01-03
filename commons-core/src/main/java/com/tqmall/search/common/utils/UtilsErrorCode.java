@@ -20,19 +20,19 @@ public enum UtilsErrorCode implements ErrorCode {
     static {
         ErrorCodeUtils.setSystemCode(802);
         for (UtilsErrorCode e : UtilsErrorCode.values()) {
-            e.code = ErrorCodeUtils.buildErrorCode(e.order);
+            e.code = ErrorCodeUtils.buildErrorCode(e.exceptionCode);
         }
         ErrorCodeUtils.removeSystemCode();
     }
 
-    private int order;
+    private int exceptionCode;
 
     private String code;
 
     private String message;
 
-    UtilsErrorCode(int order, String message) {
-        this.order = order;
+    UtilsErrorCode(int exceptionCode, String message) {
+        this.exceptionCode = exceptionCode;
         this.message = message;
     }
 

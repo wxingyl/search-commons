@@ -20,7 +20,7 @@ public class HttpCacheManager extends RtCacheManager {
     /**
      * 本地机器监听cache服务正常的默认路径, 默认GET请求
      */
-    public static final String LOCAL_DEFAULT_MONITOR_PATH = "cache/handle/monitor";
+    public static final String LOCAL_DEFAULT_MONITOR_PATH = "cache/monitor";
 
     public HttpCacheManager() {
         super(new HttpRtCacheNotify(), new HttpRtCacheReceive());

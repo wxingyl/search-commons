@@ -49,12 +49,14 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
 
     /**
      * 调用master执行注销操作
+     *
      * @return 注销是否成功
      */
     protected abstract boolean doMasterUnRegister(HostInfo localHost, T masterHostInfo);
 
     /**
      * 执行具体的监听操作
+     *
      * @return 是否OK
      */
     protected abstract boolean doMasterMonitor(T masterHostInfo);
@@ -128,7 +130,7 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
         boolean succeed = true;
         for (Map.Entry<T, List<String>> e : masterHostMap.entrySet()) {
             T master = e.getKey();
-            if (!master.needRegister()) continue;
+            if (!master.needDoRegister()) continue;
             if (HttpUtils.isEquals(master, usedLocalHost)) {
                 master.setRegisterStatus(MasterHostInfo.REGISTER_STATUS_USELESS);
                 log.info("注册cache处理时, masterHost: " + HttpUtils.hostInfoToString(master) + "同localHost相同, 无需注册");
@@ -161,32 +163,26 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
     }
 
     @Override
-    public boolean unRegister(HostInfo localHost, HostInfo masterHost) {
+    public boolean unRegister(HostInfo localHost) {
         HostInfo usedLocalHost = localHostCheck(localHost);
-        Objects.requireNonNull(masterHost);
-        if (HttpUtils.isEquals(localHost, masterHost)) return false;
-        T key = null;
-        List<String> cacheKeys = null;
+        boolean ret = true;
         for (T info : masterHostMap.keySet()) {
-            if (HttpUtils.isEquals(masterHost, info)) {
-                key = info;
-                cacheKeys = masterHostMap.get(info);
-                break;
+            if (info.getRegisterStatus() == MasterHostInfo.REGISTER_STATUS_SUCCEED) {
+                if (!doMasterUnRegister(usedLocalHost, info)) {
+                    ret = false;
+                }
             }
+            info.setRegisterStatus(MasterHostInfo.REGISTER_STATUS_UNREGISTER);
         }
-        if (key == null) return false;
-        for (String ck : cacheKeys) {
-            handleMap.remove(ck);
-        }
-        masterHostMap.remove(key);
-        return doMasterUnRegister(usedLocalHost, key);
+        return ret;
     }
 
     @Override
     public boolean doMonitor() {
         boolean ret = true;
         for (T masterHost : masterHostMap.keySet()) {
-            if (masterHost.needRegister()) {
+            if (masterHost.getRegisterStatus() == MasterHostInfo.REGISTER_STATUS_UNREGISTER) continue;
+            if (masterHost.needDoRegister()) {
                 ret = false;
             } else if (masterHost.getRegisterStatus() == MasterHostInfo.REGISTER_STATUS_SUCCEED) {
                 if (!doMasterMonitor(masterHost)) {

@@ -26,4 +26,5 @@ public class StringUtilsTest {
         PageResult<Integer> pageResult = ResultJsonConverts.pageResultConvert(Integer.class).convert(input);
         System.out.println(ResultUtils.resultToString(pageResult));
     }
+
 }

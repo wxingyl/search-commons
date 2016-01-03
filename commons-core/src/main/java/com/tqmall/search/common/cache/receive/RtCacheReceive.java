@@ -29,10 +29,9 @@ public interface RtCacheReceive {
     boolean registerMaster(HostInfo localHost);
 
     /**
-     * 注销RtCacheSlaveHandle处理, 同事请求master执行注销操作
-     * @param masterHost 要注销的masterHost
+     * 注销RtCacheSlaveHandle处理, 同时请求master执行注销操作
      */
-    boolean unRegister(HostInfo localHost, HostInfo masterHost);
+    boolean unRegister(HostInfo localHost);
 
     /**
      * 监听本地连接master是否正常, 如果还没有注册成功, 自然也就没有必要检查了,但是如果已经注册成功的,需要检查连接是否正常
