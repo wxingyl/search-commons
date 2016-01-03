@@ -27,7 +27,7 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<HttpMasterHostInf
     /**
      * 本地机器接收cache变化的urlPath, 注册是时候告知master
      */
-    private String notifyChangePath = "cache/handle/notify";
+    private String notifyChangePath;
 
     private Function<HostInfo, String> registerUrlPathFactory;
 
@@ -55,21 +55,21 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<HttpMasterHostInf
 
     @Override
     protected HttpMasterHostInfo initMasterHostInfo(HostInfo masterHost) {
-        HttpMasterHostInfo hostInfo = new HttpMasterHostInfo(masterHost);
-        hostInfo.setRegisterUrlPath(getRegisterUrlPath(masterHost));
-        return hostInfo;
+        return new HttpMasterHostInfo(masterHost);
     }
 
     @Override
     protected boolean doMasterRegister(HostInfo localHost, HttpMasterHostInfo masterHostInfo,
                                        List<String> cacheKeys) {
-        HttpLocalRegisterParam param = new HttpLocalRegisterParam();
-        param.setMethod(HttpUtils.POST_METHOD);
-        param.setSlaveHost(new HostInfoObj(localHost));
-        param.setNotifyUrlPath(buildFullUrlPath(notifyChangePath));
-        param.setInterestCache(cacheKeys);
-        MapResult mapResult = HttpUtils.requestPost(HttpUtils.buildURL(masterHostInfo, masterHostInfo.getRegisterUrlPath()),
-                param, ResultJsonConverts.mapResultConvert());
+        HttpLocalRegisterParam bodyBean = new HttpLocalRegisterParam();
+        bodyBean.setMethod(HttpUtils.POST_METHOD);
+        bodyBean.setSlaveHost(new HostInfoObj(localHost));
+        bodyBean.setNotifyUrlPath(buildFullUrlPath(notifyChangePath == null ?
+                HttpCacheManager.MASTER_DEFAULT_NOTIFY_PATH : notifyChangePath));
+        bodyBean.setInterestCache(cacheKeys);
+        MapResult mapResult = HttpUtils.requestPost(HttpUtils.buildURL(masterHostInfo,
+                        getRegisterUrlPath(masterHostInfo)),
+                bodyBean, ResultJsonConverts.mapResultConvert());
         String urlPath = (String) mapResult.get("unRegisterUrlPath");
         if (urlPath == null) {
             urlPath = buildFullUrlPath(HttpCacheManager.LOCAL_DEFAULT_UNREGISTER_PATH);
@@ -87,9 +87,10 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<HttpMasterHostInf
 
     @Override
     protected boolean doMasterUnRegister(HostInfo localHost, HttpMasterHostInfo masterHostInfo) {
-        HostInfoObj obj = new HostInfoObj(localHost);
-        MapResult mapResult = HttpUtils.requestPost(HttpUtils.buildURL(masterHostInfo, masterHostInfo.getUnRegisterUrlPath()),
-                obj, ResultJsonConverts.mapResultConvert());
+        HostInfoObj bodyBean = new HostInfoObj(localHost);
+        MapResult mapResult = HttpUtils.requestPost(HttpUtils.buildURL(masterHostInfo,
+                        masterHostInfo.getUnRegisterUrlPath()),
+                bodyBean, ResultJsonConverts.mapResultConvert());
         log.info("注销master: " + HttpUtils.hostInfoToString(masterHostInfo) + " 完成,返回结果: "
                 + ResultUtils.resultToString(mapResult));
         return mapResult.isSuccess();

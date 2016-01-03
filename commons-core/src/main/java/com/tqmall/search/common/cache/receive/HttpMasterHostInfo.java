@@ -8,22 +8,12 @@ import com.tqmall.search.common.utils.HostInfo;
  */
 public class HttpMasterHostInfo extends MasterHostInfo {
 
-    private String registerUrlPath;
-
     private String unRegisterUrlPath;
 
     private String monitorPath;
 
     public HttpMasterHostInfo(HostInfo masterHost) {
         super(masterHost);
-    }
-
-    public String getRegisterUrlPath() {
-        return registerUrlPath;
-    }
-
-    public void setRegisterUrlPath(String registerUrlPath) {
-        this.registerUrlPath = registerUrlPath;
     }
 
     public String getUnRegisterUrlPath() {

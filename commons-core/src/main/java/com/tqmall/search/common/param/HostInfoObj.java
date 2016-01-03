@@ -35,12 +35,12 @@ public class HostInfoObj implements HostInfo, Serializable {
 
     @Override
     public String getIp() {
-        return null;
+        return ip;
     }
 
     @Override
     public int getPort() {
-        return 0;
+        return port;
     }
 
     @Override

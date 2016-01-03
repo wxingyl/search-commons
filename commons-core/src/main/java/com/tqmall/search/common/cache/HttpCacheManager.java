@@ -22,6 +22,12 @@ public class HttpCacheManager extends RtCacheManager {
      */
     public static final String LOCAL_DEFAULT_MONITOR_PATH = "cache/monitor";
 
+    /**
+     * master机器通知变更的默认路径, 默认POST请求
+     * 该路径在local机器向master注册时需要告诉master机器
+     */
+    public static final String MASTER_DEFAULT_NOTIFY_PATH = "cache/handle/notify";
+
     public HttpCacheManager() {
         super(new HttpRtCacheNotify(), new HttpRtCacheReceive());
     }
