@@ -32,7 +32,8 @@ public class MapResult extends Result<Map<String, Object>> {
     }
 
     public Object get(String key) {
-        return getData().get(key);
+        Map<String, Object> map = getData();
+        return map == null ? null : map.get(key);
     }
 
 }
