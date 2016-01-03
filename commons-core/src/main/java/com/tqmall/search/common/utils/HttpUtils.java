@@ -499,7 +499,7 @@ public abstract class HttpUtils {
                 }
             }
             if (isJson) {
-                addHeader("Content-Type", "application/json,charset=UTF-8");
+                addHeader("Content-Type", "application/json;charset=UTF-8");
             }
             return this;
         }
