@@ -4,15 +4,14 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
 import com.tqmall.search.common.cache.RtCacheManager;
 import com.tqmall.search.common.cache.receive.RtCacheSlaveHandle;
-import com.tqmall.search.common.param.NotifyChangeParam;
 import com.tqmall.search.common.param.LocalRegisterParam;
+import com.tqmall.search.common.param.NotifyChangeParam;
 import com.tqmall.search.common.result.MapResult;
 import com.tqmall.search.common.result.ResultUtils;
 import com.tqmall.search.common.utils.HostInfo;
 import com.tqmall.search.common.utils.HttpUtils;
 import com.tqmall.search.common.utils.RwLock;
 import com.tqmall.search.common.utils.UtilsErrorCode;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +29,7 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
     private static final Logger log = LoggerFactory.getLogger(AbstractRtCacheNotify.class);
 
     /**
-     * key: cache key, value: {@link Pair#getLeft()} is slaveHost, {@link Pair#getRight()} is urlPath
+     * key: cache key, value:slaveHost info list
      */
     private RwLock<Map<String, List<T>>> slaveHostLock = RwLock.build(new Supplier<Map<String, List<T>>>() {
         @Override
@@ -52,28 +51,39 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
             return ResultUtils.mapResult(UtilsErrorCode.CACHE_SLAVE_REGISTER_INVALID,
                     "参数slaveHost为空或者interestCache为空");
         }
-        return slaveHostLock.writeOp(new RwLock.OpRet<Map<String, List<T>>, MapResult>() {
+        final T slaveInfo;
+        try {
+            slaveInfo = createSlaveInfo(param);
+        } catch (Throwable e) {
+            return ResultUtils.mapResult(UtilsErrorCode.CACHE_SLAVE_REGISTER_INVALID, e.getMessage());
+        }
+        if (slaveInfo == null) {
+            return ResultUtils.mapResult(UtilsErrorCode.CACHE_SLAVE_REGISTER_INVALID, "无法构建slaveHost: " + param.getSlaveHost() + "的信息");
+        }
+        MapResult mapResult = slaveHostLock.writeOp(new RwLock.OpRet<Map<String, List<T>>, MapResult>() {
             @Override
             public MapResult op(Map<String, List<T>> input) {
                 for (String cache : param.getInterestCache()) {
-                    List<T> slaveHosts = input.get(cache);
-                    if (slaveHosts == null) {
-                        input.put(cache, slaveHosts = new ArrayList<>());
+                    List<T> slaveInfoList = input.get(cache);
+                    if (slaveInfoList == null) {
+                        input.put(cache, slaveInfoList = new ArrayList<>());
                     }
-                    T info;
-                    try {
-                        info = createSlaveInfo(param);
-                    } catch (Throwable e) {
-                        return ResultUtils.mapResult(UtilsErrorCode.CACHE_SLAVE_REGISTER_INVALID, e.getMessage());
+                    Iterator<T> it = slaveInfoList.iterator();
+                    while (it.hasNext()) {
+                        if (HttpUtils.isEquals(it.next().getSlaveHost(), slaveInfo.getSlaveHost())) {
+                            //先将原先的实例删除, 再将新的实例添加进去
+                            it.remove();
+                            break;
+                        }
                     }
-                    if (!slaveHosts.contains(info)) {
-                        slaveHosts.add(info);
-                        log.info("Slave注册缓存处理成功, slaveHost: " + param.getSlaveHost() + ", interestCache: " + param.getInterestCache());
-                    }
+                    slaveInfoList.add(slaveInfo);
                 }
                 return wrapSlaveRegisterResult(param);
             }
         });
+        log.info("Slave注册缓存处理成功, slaveHost: " + param.getSlaveHost() + ", interestCache: " + param.getInterestCache()
+                + ", 返回结果: " + ResultUtils.resultToString(mapResult));
+        return mapResult;
     }
 
     @Override

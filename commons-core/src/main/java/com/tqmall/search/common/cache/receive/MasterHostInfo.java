@@ -63,7 +63,7 @@ public abstract class MasterHostInfo implements HostInfo {
     }
 
     public void setRegisterStatus(int registerStatus) {
-        if (registerStatus > REGISTER_STATUS_FAILED || registerStatus < REGISTER_STATUS_INIT) {
+        if (registerStatus > REGISTER_STATUS_UNREGISTER || registerStatus < REGISTER_STATUS_INIT) {
             throw new IllegalArgumentException("registerStatus: " + registerStatus + "非法");
         }
         this.registerStatus = registerStatus;
