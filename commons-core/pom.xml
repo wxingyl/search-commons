@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>commons-core</artifactId>
-    <version>1.0-rc3</version>
+    <version>1.0-rc4</version>
     <packaging>jar</packaging>
 
     <dependencies>
