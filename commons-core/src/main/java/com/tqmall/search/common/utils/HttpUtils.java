@@ -1,5 +1,6 @@
 package com.tqmall.search.common.utils;
 
+import com.tqmall.search.common.param.Param;
 import com.tqmall.search.common.result.MapResult;
 import com.tqmall.search.common.result.PageResult;
 import com.tqmall.search.common.result.Result;
@@ -46,6 +47,43 @@ public abstract class HttpUtils {
         LOCAL_IP = ip;
     }
 
+    /**
+     * 如果是jdk1.8就好了, 接口里面默认实现toString()方法
+     */
+    public static String hostInfoToString(HostInfo hostInfo) {
+        return hostInfo.getIp() + ':' + hostInfo.getPort();
+    }
+
+    /**
+     * 两个HostInfo 比较是否相同
+     */
+    public static boolean isEquals(HostInfo a, HostInfo b) {
+        if (a == b) return true;
+        else if (a == null || b == null) return false;
+        else return Objects.equals(a.getIp(), b.getIp()) && a.getPort() == b.getPort();
+    }
+
+    /**
+     * 过滤urlPath, 如果其以'/'开头或者结尾, 则去掉
+     * eg: /goods/convert/ ---> goods/convert
+     * @param urlPath 不能为null或者为空
+     * @return 过滤结果
+     */
+    public static String filterUrlPath(String urlPath) {
+        urlPath = Param.filterString(urlPath);
+        Objects.requireNonNull(urlPath);
+        int start = 0, end = urlPath.length();
+        if (urlPath.charAt(0) == '/') {
+            start++;
+        }
+        if (urlPath.charAt(end - 1) == '/') {
+            end--;
+        }
+        if (start > 0 || end < urlPath.length()) {
+            urlPath = urlPath.substring(start, end);
+        }
+        return urlPath;
+    }
 
     /**
      * 构建一个StrValueConvert对象, 输入Json字符串, 根据Class对象, 通过Json转换得到该实例
@@ -54,12 +92,24 @@ public abstract class HttpUtils {
         return new StrValueConvert<T>() {
             @Override
             public T convert(String input) {
+                if (input == null) return null;
                 return JsonUtils.jsonStrToObj(input, cls);
             }
         };
     }
 
 
+    public static URL buildURL(HostInfo host, String path) {
+        return buildURL(host, path, "");
+    }
+
+    public static URL buildURL(HostInfo host, String path, Map<String, String> param) {
+        return buildURL(hostInfoToString(host), path, param);
+    }
+
+    public static URL buildURL(HostInfo host, String path, String param) {
+        return buildURL(hostInfoToString(host), path, param);
+    }
 
     public static URL buildURL(String host, String path) {
         return buildURL(host, path, "");
@@ -91,17 +141,7 @@ public abstract class HttpUtils {
             urlBuild.append('/');
         }
         if (!StringUtils.isEmpty(path)) {
-            int start = 0, end = path.length();
-            if (path.charAt(0) == '/') {
-                start = 1;
-            }
-            if (path.charAt(end - 1) == '/') {
-                end--;
-            }
-            if (start != 0 || end != path.length()) {
-                path = path.substring(start, end);
-            }
-            urlBuild.append(path);
+            urlBuild.append(filterUrlPath(path));
         } else {
             urlBuild.deleteCharAt(urlBuild.length() - 1);
         }
@@ -112,7 +152,7 @@ public abstract class HttpUtils {
             return new URL(urlBuild.toString());
         } catch (MalformedURLException e) {
             log.warn("创建url存在异常, host: " + host + ", path: " + path + ", param: " + param + ": " + e.getMessage());
-            throw new IllegalArgumentException(e.getMessage());
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -157,6 +197,7 @@ public abstract class HttpUtils {
 
     /**
      * 默认的http post请求, 以json格式发送数据, 返回结果为{@link Result}格式
+     *
      * @param body 可以为null
      */
     public static <T> Result<T> requestPostResult(URL url, Object body, Class<T> cls) {
@@ -165,6 +206,7 @@ public abstract class HttpUtils {
 
     /**
      * 默认的http post请求, 以json格式发送数据, 返回结果为{@link PageResult}格式
+     *
      * @param body 可以为null
      */
     public static <T> PageResult<T> requestPostPageResult(URL url, Object body, Class<T> cls) {
@@ -173,13 +215,16 @@ public abstract class HttpUtils {
 
     /**
      * 默认的http post请求, 以json格式发送数据, 返回结果为{@link MapResult}格式
+     *
      * @param body 可以为null
      */
     public static MapResult requestPostMapResult(URL url, Object body) {
         return requestPost(url, body, ResultJsonConverts.mapResultConvert());
     }
+
     /**
      * 默认的http post请求, 以json格式发送数据
+     *
      * @param body 可以为null
      */
     public static <T> T requestPost(URL url, Object body, StrValueConvert<T> convert) {
@@ -265,6 +310,9 @@ public abstract class HttpUtils {
         }
     }
 
+    /**
+     * 注意: 同一个该类实例对象,执行request时线程不安全的
+     */
     public static abstract class RequestBase {
 
         private Map<String, String> headerMap = new HashMap<>();
@@ -277,6 +325,10 @@ public abstract class HttpUtils {
          * 记录Http请求log, 通过{@link Logger#info(String)}记录, 默认开启
          */
         private boolean requestLogSwitch = true;
+        /**
+         * http返回状态码
+         */
+        private int responseCode;
 
         /**
          * 默认都为长连接, 以json接收数据
@@ -336,16 +388,29 @@ public abstract class HttpUtils {
         }
 
         /**
-         * @param convert 如果为null, 返回结果为null
+         * 请求的url通过方法{@link #setUrl(URL)}设定
+         * 请求的addHeader通过方法{@link #addHeader(Map)}或者{@link #addHeader(String, String)}设定
+         * 请求的一些其他配置通过方法{@link #setConfig(Config)}设定, 提供了默认配置{@link Config#DEFAULT}
+         * 请求时log打印通过{@link #setRequestLogSwitch(boolean)}设定, 默认是开启的
+         *
+         * @param convert 如果为null, 说明不需要返回结果, 则返回null
+         * @return 参数convert为null或者请求发生异常则返回null, 判断请求是否成功执行,可通过方法{@link #getResponseCode()} ()}查看
+         * @see #getResponseCode()
+         * @see #setUrl(URL)
+         * @see #setConfig(Config)
+         * @see #setRequestLogSwitch(boolean)
+         * @see com.tqmall.search.common.utils.HttpUtils.Config#DEFAULT
          */
         public <T> T request(StrValueConvert<T> convert) {
             Objects.requireNonNull(url);
+            HttpURLConnection httpConnection = null;
             try {
                 if (requestLogSwitch) {
                     log.info("Http请求, url: " + url + ", Method: " + getMethod());
                 }
+                responseCode = -1;
                 //都是使用的http协议调用,所以可以直接强转
-                HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+                httpConnection = (HttpURLConnection) url.openConnection();
                 httpConnection.setRequestMethod(getMethod());
                 for (Map.Entry<String, String> e : headerMap.entrySet()) {
                     httpConnection.addRequestProperty(e.getKey(), e.getValue());
@@ -363,6 +428,8 @@ public abstract class HttpUtils {
                         response.append(line);
                     }
                 }
+                responseCode = httpConnection.getResponseCode();
+                httpConnection = null;
                 if (convert == null) {
                     if (requestLogSwitch) {
                         log.info("Http请求结果: " + response.toString());
@@ -372,10 +439,27 @@ public abstract class HttpUtils {
                     return convert.convert(response.toString());
                 }
             } catch (IOException e) {
-                //填充log
-                log.error("Http请求" + url + ", Method: " + getMethod(), e);
-                return null;
+                if (responseCode == -1) {
+                    if (e instanceof ConnectException) {
+                        responseCode = 404;
+                    } else if (httpConnection != null) {
+                        try {
+                            responseCode = httpConnection.getResponseCode();
+                        } catch (IOException e1) {
+                            log.warn("获取HttpResponseCode 异常: " + e.getMessage());
+                            //野蛮暴力一把吧!!!
+                            responseCode = 404;
+                        }
+                    }
+                }
+                log.error("Http请求异常: " + url + ", responseCode: " + responseCode + ", Method: " + getMethod(), e);
+                //如果失败了, convert不为null则返回转换结果, 为null也就不需要返回结果了
+                return convert == null ? null : convert.convert(null);
             }
+        }
+
+        public int getResponseCode() {
+            return responseCode;
         }
     }
 
@@ -415,7 +499,7 @@ public abstract class HttpUtils {
                 }
             }
             if (isJson) {
-                addHeader("Content-Type", "application/json,charset=UTF-8");
+                addHeader("Content-Type", "application/json;charset=UTF-8");
             }
             return this;
         }

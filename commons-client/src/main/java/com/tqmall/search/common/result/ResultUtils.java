@@ -1,5 +1,7 @@
 package com.tqmall.search.common.result;
 
+import com.tqmall.search.common.utils.ErrorCodeUtils;
+
 import java.util.Collection;
 
 /**
@@ -41,7 +43,7 @@ public final class ResultUtils {
     public static String resultToString(Result result) {
         return "Result: succeed = " + result.isSuccess() + ", code = " + result.getCode() + ", message = " + result.getMessage()
                 + (result instanceof PageResult ? (", total = " + ((PageResult) result).getTotal()) : "")
-                + ", data = " + result.getData().toString();
+                + ", data = " + result.getData();
     }
 
     /**
@@ -151,30 +153,15 @@ public final class ResultUtils {
      * error message中带有参数的构造
      * @see #wrapError(ErrorCode, ResultBuild)
      */
-    public static <T extends Result> T wrapError(final ErrorCode errorCode, ResultBuild<T> build, Object... args) {
-        if (args.length == 0) {
-            return build.errorBuild(errorCode);
-        } else {
-            final String message = String.format(errorCode.getMessage(), args);
-            return build.errorBuild(new ErrorCode() {
-                @Override
-                public String getCode() {
-                    return errorCode.getCode();
-                }
-
-                @Override
-                public String getMessage() {
-                    return message;
-                }
-            });
-        }
+    public static <T extends Result> T wrapError(ErrorCode errorCode, ResultBuild<T> build, Object... args) {
+        return build.errorBuild(ErrorCodeUtils.wrapperErrorCode(errorCode, args));
     }
 
     /**
      * 构造Result返回类型接口定义, 可以自定义Result类型
      * @param <T> 具体的Result类型
      */
-    interface ResultBuild<T extends Result> {
+    public interface ResultBuild<T extends Result> {
 
         T errorBuild(ErrorCode errorCode);
 

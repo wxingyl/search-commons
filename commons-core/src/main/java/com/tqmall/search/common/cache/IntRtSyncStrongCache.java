@@ -1,6 +1,7 @@
 package com.tqmall.search.common.cache;
 
 
+import com.tqmall.search.common.utils.HostInfo;
 import com.tqmall.search.common.utils.StrValueConvert;
 import com.tqmall.search.common.utils.StrValueConverts;
 

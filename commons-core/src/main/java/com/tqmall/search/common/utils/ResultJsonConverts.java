@@ -1,8 +1,11 @@
 package com.tqmall.search.common.utils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Lists;
 import com.tqmall.search.common.result.*;
+import org.apache.commons.lang3.StringUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -24,8 +27,8 @@ public abstract class ResultJsonConverts {
             @Override
             public Result<T> convert(String input) {
                 JsonSimpleResult simpleResult = parseData(input);
-                if (simpleResult.isSucceed()) {
-                    return ResultUtils.result(JsonUtils.jsonStrToObj(input, cls));
+                if (simpleResult.isSuccess()) {
+                    return ResultUtils.result(JsonUtils.jsonStrToObj(simpleResult.getData(), cls));
                 } else {
                     return ResultUtils.result(simpleResult);
                 }
@@ -38,14 +41,14 @@ public abstract class ResultJsonConverts {
             @Override
             public PageResult<T> convert(String input) {
                 final JsonSimpleResult simpleResult = parseData(input);
-                if (!simpleResult.succeed) {
+                if (!simpleResult.isSuccess()) {
                     return ResultUtils.pageResult(simpleResult);
-                } else if (!simpleResult.isArray) {
-                    return ResultUtils.pageResult(UtilsErrorCode.JSON_RESULT_CONVERT_INVALID_ARRAY, simpleResult.data);
+                } else if (simpleResult.flag != 2) {
+                    return ResultUtils.pageResult(UtilsErrorCode.JSON_RESULT_CONVERT_INVALID_ARRAY, simpleResult.getData());
                 } else {
-                    List<String> list = splitJsonArray(simpleResult.data);
+                    List<String> list = splitJsonArray(simpleResult.getData());
                     if (list == null) {
-                        return ResultUtils.pageResult(UtilsErrorCode.JSON_RESULT_CONVERT_INVALID_ARRAY, simpleResult.data);
+                        return ResultUtils.pageResult(UtilsErrorCode.JSON_RESULT_CONVERT_INVALID_ARRAY, simpleResult.getData());
                     } else {
                         List<T> beanList = Lists.newArrayListWithExpectedSize(list.size());
                         for (String s : list) {
@@ -63,13 +66,13 @@ public abstract class ResultJsonConverts {
         @Override
         public MapResult convert(String input) {
             final JsonSimpleResult simpleResult = parseData(input);
-            if (!simpleResult.succeed) {
+            if (!simpleResult.isSuccess()) {
                 return ResultUtils.mapResult(simpleResult);
-            } else if (simpleResult.isArray) {
-                return ResultUtils.mapResult(UtilsErrorCode.JSON_RESULT_CONVERT_INVALID_OBJECT, simpleResult.data);
+            } else if (simpleResult.flag != 1) {
+                return ResultUtils.mapResult(UtilsErrorCode.JSON_RESULT_CONVERT_INVALID_OBJECT, simpleResult.getData());
             } else {
                 MapResult result = ResultUtils.mapResult();
-                Map<String, Object> map = JsonUtils.jsonStrToObj(simpleResult.data, Map.class);
+                Map<String, Object> map = JsonUtils.jsonStrToObj(simpleResult.getData(), Map.class);
                 result.putAll(map);
                 return result;
             }
@@ -106,119 +109,133 @@ public abstract class ResultJsonConverts {
                 }
             }
         }
+        if (startCh == 0) {
+            Collections.addAll(retList, StringUtils.split(jsonArray.substring(1, jsonArray.length() - 1), ','));
+        }
         return retList;
     }
 
+    private static JsonSimpleResult buildErrorSimpleResult(String message) {
+        return ResultUtils.wrapError(UtilsErrorCode.JSON_RESULT_PARSE_INVALID_STRING, new ResultUtils.ResultBuild<JsonSimpleResult>() {
+            @Override
+            public JsonSimpleResult errorBuild(ErrorCode errorCode) {
+                return new JsonSimpleResult(errorCode);
+            }
+        }, message);
+    }
+
+    /**
+     * @param json json, 并且符合Result返回格式的字符串
+     * @return not null
+     */
     private static JsonSimpleResult parseData(String json) {
+        if (StringUtils.isEmpty(json)) {
+            return buildErrorSimpleResult("Json string is empty");
+        }
         int dataIndex = json.indexOf("\"data\"");
         if (dataIndex < 0) {
-            throw new ResultJsonParseException("Can not find data field");
+            return buildErrorSimpleResult("Can not find data field");
         }
-        int i = dataIndex;
-        String dataValue = null;
-        String simpleJson = null;
-        boolean isArray = false;
-        while (--i > 0) {
-            //找data前面的位置
-            if (',' == json.charAt(i)) {
-                final int startIndex = i;
-                dataIndex += 7;
-                char startCh = 0, endCh = 0;
-                int startValueIndex = -1;
-                final int length = json.length();
-                int deep = 0;
-                for (i = dataIndex; i < length; i++) {
-                    char ch = json.charAt(i);
-                    if (startCh == 0 && (ch == '{' || ch == '[')) {
-                        startCh = ch;
-                        isArray = ch == '[';
-                        endCh = isArray ? ']' : '}';
-                        deep++;
-                        startValueIndex = i;
-                    } else if (ch == startCh) {
-                        deep++;
-                    } else if (ch == endCh) {
-                        deep--;
-                        if (deep == 0) {
-                            dataValue = json.substring(startValueIndex, ++i);
-                            simpleJson = json.substring(0, startIndex) + json.substring(i);
-                            break;
-                        }
-                    }
-                }
+        int i;
+        //找data前面的位置
+//        while (--i > 0 && ',' != json.charAt(i));
+        //上面是简单的写法, 但是空循环据说可能被jit编译优化给干掉,所以还是别装逼了吧
+        for (i = dataIndex; ; ) {
+            i--;
+            if (i <= 0 || ',' == json.charAt(i)) {
                 break;
             }
         }
-        if (dataValue == null) {
-            throw new ResultJsonParseException("Can not found right data field string value from json string: " + json);
+        //这儿能够处理数组格式,但是对于单个对象的就无能为力了,比如Result<String>类型, 这儿需要做特殊处理
+        final int startIndex = i;
+        String dataValue = null;
+        String simpleJson = null;
+        int flag = 0;
+        dataIndex += 7;
+        char startCh = 0, endCh = 0;
+        int startValueIndex = -1;
+        final int length = json.length();
+        int deep = 0;
+        for (i = dataIndex; i < length; i++) {
+            char ch = json.charAt(i);
+            if (startCh == 0 && (ch == '{' || ch == '[')) {
+                startCh = ch;
+                flag = ch == '[' ? 2 : 1;
+                endCh = flag == 2 ? ']' : '}';
+                deep++;
+                startValueIndex = i;
+            } else if (ch == startCh) {
+                deep++;
+            } else if (ch == endCh) {
+                deep--;
+                if (deep == 0) {
+                    dataValue = json.substring(startValueIndex, ++i);
+                    simpleJson = json.substring(0, startIndex) + json.substring(i);
+                    break;
+                }
+            }
+        }
+        if (simpleJson == null) {
+            simpleJson = json;
         }
         JsonSimpleResult simpleResult = JsonUtils.jsonStrToObj(simpleJson, JsonSimpleResult.class);
         if (simpleResult == null) {
-            throw new ResultJsonParseException("string: " + simpleJson + " is not format of com.tqmall.search.common.result.Result class");
+            return buildErrorSimpleResult("String: " + simpleJson + " is not format of com.tqmall.search.common.result.Result class");
         }
-        simpleResult.setData(dataValue, isArray);
+        if (dataValue != null) {
+            simpleResult.setData(dataValue);
+        }
+        simpleResult.flag = flag;
         return simpleResult;
     }
 
-    final static class JsonSimpleResult implements ErrorCode {
-
-        private String code;
-
-        private String message;
+    /**
+     * 该Bean从Json返回串解析并不是解析所有字段, 只解析total, code, message, success 4个fields, data是在后面程序自己搞进去的
+     */
+    @SuppressWarnings("serial")
+    final static class JsonSimpleResult extends Result<String> implements ErrorCode {
 
         private long total;
 
-        private boolean succeed;
+        /**
+         * 0: 异常类型, 返回结果为String或者null
+         * 1: 普通的Object类型
+         * 2: 普通的Array类型
+         */
+        @JsonIgnore
+        private int flag;
 
-        private String data;
+        public JsonSimpleResult() {
+            super();
+        }
 
-        private boolean isArray;
+        public JsonSimpleResult(ErrorCode errorCode) {
+            super(errorCode);
+        }
 
         public void setCode(String code) {
-            this.code = code;
+            super.setCode(code);
         }
 
         public void setMessage(String message) {
-            this.message = message;
+            super.setMessage(message);
         }
 
         public void setTotal(long total) {
             this.total = total;
         }
 
+        public void setSuccess(boolean success) {
+            super.setSuccess(success);
+        }
+
         public void setSucceed(boolean succeed) {
-            this.succeed = succeed;
+            super.setSuccess(succeed);
         }
 
-        public void setData(String data, boolean isArray) {
-            this.data = data;
-            this.isArray = isArray;
+        public void setData(String data) {
+            super.setData(data);
         }
 
-        @Override
-        public String getCode() {
-            return code;
-        }
-
-        public String getData() {
-            return data;
-        }
-
-        public boolean isArray() {
-            return isArray;
-        }
-
-        @Override
-        public String getMessage() {
-            return message;
-        }
-
-        public long getTotal() {
-            return total;
-        }
-
-        public boolean isSucceed() {
-            return succeed;
-        }
     }
 }

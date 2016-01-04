@@ -1,4 +1,6 @@
-package com.tqmall.search.common.cache;
+package com.tqmall.search.common.cache.notify;
+
+import com.tqmall.search.common.utils.HostInfo;
 
 import java.util.Collections;
 import java.util.Map;
@@ -7,12 +9,12 @@ import java.util.Map;
  * Created by xing on 15/12/25.
  * Http slave 机器注册信息
  */
-public class HttpSlaveRegisterInfo extends AbstractSlaveRegisterInfo {
+public class HttpSlaveHostInfo extends AbstractSlaveHostInfo {
 
     /**
      * 接收处理缓存变化的path, 一个host只用一个,不支持不同的缓存key对应不同的urlPath, 那样太麻烦了
      */
-    private String urlPath;
+    private String notifyUrlPath;
 
     /**
      * 说明那中Http方法,目前只支持GET, POST, PUT, DELETE
@@ -21,7 +23,7 @@ public class HttpSlaveRegisterInfo extends AbstractSlaveRegisterInfo {
 
     public Map<String, String> requestHeaders;
 
-    private HttpSlaveRegisterInfo(String slaveHost){
+    private HttpSlaveHostInfo(HostInfo slaveHost){
         super(slaveHost);
     }
 
@@ -33,26 +35,28 @@ public class HttpSlaveRegisterInfo extends AbstractSlaveRegisterInfo {
         return requestHeaders;
     }
 
-    public String getUrlPath() {
-        return urlPath;
+    public String getNotifyUrlPath() {
+        return notifyUrlPath;
     }
 
-    public static Build build(String slaveHost) {
+    public static Build build(HostInfo slaveHost) {
         return new Build(slaveHost);
     }
 
     public static class Build {
 
-        private String slaveHost, urlPath, method;
+        private HostInfo slaveHost;
+
+        private String notifyUrlPath, method;
 
         private Map<String, String> requestHeaders;
 
-        public Build(String slaveHost) {
+        public Build(HostInfo slaveHost) {
             this.slaveHost = slaveHost;
         }
 
-        public Build urlPath(String urlPath) {
-            this.urlPath = urlPath;
+        public Build notifyUrlPath(String urlPath) {
+            this.notifyUrlPath = urlPath;
             return this;
         }
 
@@ -68,9 +72,9 @@ public class HttpSlaveRegisterInfo extends AbstractSlaveRegisterInfo {
             return this;
         }
 
-        public HttpSlaveRegisterInfo create() {
-            HttpSlaveRegisterInfo info = new HttpSlaveRegisterInfo(slaveHost);
-            info.urlPath = urlPath;
+        public HttpSlaveHostInfo create() {
+            HttpSlaveHostInfo info = new HttpSlaveHostInfo(slaveHost);
+            info.notifyUrlPath = notifyUrlPath;
             info.method = method;
             if (requestHeaders != null) {
                 info.requestHeaders = Collections.unmodifiableMap(requestHeaders);
