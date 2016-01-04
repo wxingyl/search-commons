@@ -89,7 +89,7 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
     @Override
     public MapResult handleSlaveUnRegister(final HostInfo slaveHost) {
         if (slaveHost == null) {
-            return ResultUtils.mapResult(UtilsErrorCode.CACHE_SLAVE_UNREGISTER_INVALID, "slaveHost 为空");
+            return ResultUtils.mapResult(UtilsErrorCode.CACHE_SLAVE_UNREGISTER_INVALID, "slaveHost为null");
         }
         return slaveHostLock.writeOp(new RwLock.OpRet<Map<String, List<T>>, MapResult>() {
             @Override
