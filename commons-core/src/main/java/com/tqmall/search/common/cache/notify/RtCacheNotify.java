@@ -6,6 +6,7 @@ import com.tqmall.search.common.result.MapResult;
 import com.tqmall.search.common.utils.HostInfo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by xing on 15/12/22.
@@ -34,5 +35,10 @@ public interface RtCacheNotify {
      * 发送通知,无需考虑多线程
      */
     boolean notify(RtCacheSlaveHandle slaveCache, List<String> keys);
+
+    /**
+     * 按照slaveHost的纬度返回各个host的状态
+     */
+    List<Map<String, Object>> status();
 
 }

@@ -8,17 +8,11 @@ import com.tqmall.search.common.param.LocalRegisterParam;
 import com.tqmall.search.common.param.NotifyChangeParam;
 import com.tqmall.search.common.result.MapResult;
 import com.tqmall.search.common.result.ResultUtils;
-import com.tqmall.search.common.utils.HostInfo;
-import com.tqmall.search.common.utils.HttpUtils;
-import com.tqmall.search.common.utils.RwLock;
-import com.tqmall.search.common.utils.UtilsErrorCode;
+import com.tqmall.search.common.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by xing on 15/12/23.
@@ -44,12 +38,16 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
 
     protected abstract MapResult wrapSlaveRegisterResult(LocalRegisterParam param);
 
+    protected Map<String, Object> appendHostStatusInfo(T slaveHost, Map<String, Object> infoMap) {
+        return infoMap;
+    }
+
     @Override
     public MapResult handleSlaveRegister(final LocalRegisterParam param) {
         if (param.getSlaveHost() == null ||
                 param.getInterestCache() == null || param.getInterestCache().isEmpty()) {
-            return ResultUtils.mapResult(UtilsErrorCode.CACHE_SLAVE_REGISTER_INVALID,
-                    "参数slaveHost为空或者interestCache为空");
+            log.warn("Slave注册参数不全: slaveHost: " + param.getSlaveHost() + ", interestCache: " + param.getInterestCache());
+            return ResultUtils.mapResult(UtilsErrorCode.CACHE_SLAVE_REGISTER_ARG_INVALID);
         }
         final T slaveInfo;
         try {
@@ -81,7 +79,7 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
                 return wrapSlaveRegisterResult(param);
             }
         });
-        log.info("Slave注册缓存处理成功, slaveHost: " + param.getSlaveHost() + ", interestCache: " + param.getInterestCache()
+        log.info("Slave注册处理成功, slaveHost: " + param.getSlaveHost() + ", interestCache: " + param.getInterestCache()
                 + ", 返回结果: " + ResultUtils.resultToString(mapResult));
         return mapResult;
     }
@@ -89,7 +87,7 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
     @Override
     public MapResult handleSlaveUnRegister(final HostInfo slaveHost) {
         if (slaveHost == null) {
-            return ResultUtils.mapResult(UtilsErrorCode.CACHE_SLAVE_UNREGISTER_INVALID, "slaveHost为null");
+            return ResultUtils.mapResult(UtilsErrorCode.CACHE_SLAVE_UNREGISTER_ARG_INVALID);
         }
         return slaveHostLock.writeOp(new RwLock.OpRet<Map<String, List<T>>, MapResult>() {
             @Override
@@ -136,4 +134,34 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
         return true;
     }
 
+    @Override
+    public List<Map<String, Object>> status() {
+        Map<T, List<String>> slaveHostMap = slaveHostLock.readOp(new RwLock.OpRet<Map<String, List<T>>, Map<T, List<String>>>() {
+            @Override
+            public Map<T, List<String>> op(Map<String, List<T>> input) {
+                Map<T, List<String>> slaveHostMap = new HashMap<>();
+                for (Map.Entry<String, List<T>> e : input.entrySet()) {
+                    for (T t : e.getValue()) {
+                        List<String> list = slaveHostMap.get(t);
+                        if (list == null) {
+                            slaveHostMap.put(t, list = new ArrayList<>());
+                        }
+                        if (!list.contains(e.getKey())) {
+                            list.add(e.getKey());
+                        }
+                    }
+                }
+                return slaveHostMap;
+            }
+        });
+        List<Map<String, Object>> ret = new ArrayList<>();
+        for (T slaveHost : slaveHostMap.keySet()) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("host", HttpUtils.hostInfoToString(slaveHost.getSlaveHost()));
+            map.put("interestKeys", slaveHostMap.get(slaveHost));
+            map = appendHostStatusInfo(slaveHost, map);
+            ret.add(map);
+        }
+        return ret;
+    }
 }

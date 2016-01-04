@@ -9,6 +9,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * Created by xing on 15/8/24.
  * read write lock util
+ * jdk1.8使用的话很方便, 1.7上面就比较麻烦了~~~
  */
 public class RwLock<T> {
 

@@ -9,8 +9,9 @@ import com.tqmall.search.common.result.ErrorCode;
 public enum UtilsErrorCode implements ErrorCode {
 
     //缓存处理的错误码
-    CACHE_SLAVE_REGISTER_INVALID(1, "Slave机器注册处理错误: %s"),
-    CACHE_SLAVE_UNREGISTER_INVALID(2, "Slave机器取消注册处理错误: %s"),
+    CACHE_SLAVE_REGISTER_ARG_INVALID(1, "Slave机器注册参数不全"),
+    CACHE_SLAVE_REGISTER_INVALID(2, "Slave机器注册处理错误: %s"),
+    CACHE_SLAVE_UNREGISTER_ARG_INVALID(11, "Slave机器注销参数不全"),
 
     //错误码从101开始走起 result格式json字符长解析错误码
     JSON_RESULT_CONVERT_INVALID_OBJECT(101, "Result格式Json解析, data字段不是Object: %s"),

@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
@@ -100,10 +101,18 @@ public class HttpRtCacheNotify extends AbstractRtCacheNotify<HttpSlaveHostInfo> 
         return ret;
     }
 
+    @Override
+    protected Map<String, Object> appendHostStatusInfo(HttpSlaveHostInfo slaveHost, Map<String, Object> infoMap) {
+        infoMap.put("notifyUrlPath", slaveHost.getNotifyUrlPath());
+        infoMap.put("httpMethod", slaveHost.getMethod());
+        infoMap.put("requestHeaders", slaveHost.getRequestHeaders());
+        return infoMap;
+    }
+
     private void runNotifyRequest(HttpUtils.RequestBase requestBase, HostInfo slaveHost) {
         //这儿用String做转换,基本上是万能的
         String ret = requestBase.request(StrValueConverts.getConvert(String.class));
-        log.info("给slave机器: " + slaveHost + "推送缓存变化keys执行完成, 返回结果: " + ret);
+        log.info("给slave机器: " + slaveHost + "推送变化执行完成, 返回结果: " + ret);
     }
 
     private String buildFullUrlPath(String urlPath) {
