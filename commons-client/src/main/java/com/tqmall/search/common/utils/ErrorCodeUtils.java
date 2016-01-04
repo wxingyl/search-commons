@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentMap;
  * Created by xing on 15/12/31.
  * {@link com.tqmall.search.common.result.ErrorCode} 的一些工具方法
  * 注意, 构造ErrorCode的具体code的相关方法调用是在定义错误码的时候调用
+ * 该方法用到了{@link Reflection}, 其是sun的私有API, 有一定分险, jdk1.8还在, 应该不会删除, 并且{@link Class}中大量使用,不会随意删除的吧
  */
 public class ErrorCodeUtils {
     /**
@@ -23,6 +24,10 @@ public class ErrorCodeUtils {
      * 具体异常码长度
      */
     private static final int EXCEPTION_CODE_LENGTH = 4;
+    /**
+     * 异常码的长度
+     */
+    private static final int CODE_LENGTH = SYSTEM_CODE_LENGTH + 1 + EXCEPTION_CODE_LENGTH;
 
     private static final String ERROR_CODE_FORMAT = "%0" + SYSTEM_CODE_LENGTH + "d%1d%0" + EXCEPTION_CODE_LENGTH + "d";
 
@@ -43,8 +48,9 @@ public class ErrorCodeUtils {
 
     /**
      * 包装对于Message中存在变量的{@link ErrorCode}
+     *
      * @param errorCode 原始定义的{@link ErrorCode}
-     * @param args 参数, 如果大小为0, 则不进行包装
+     * @param args      参数, 如果大小为0, 则不进行包装
      * @return 参数, 如果大小为0, 则不进行包装
      */
     public static ErrorCode wrapperErrorCode(final ErrorCode errorCode, Object... args) {
@@ -77,6 +83,7 @@ public class ErrorCodeUtils {
 
     /**
      * 移除调用该方法的类注册的{@link #setSystemCode(int)}系统码
+     *
      * @see #setSystemCode(int)
      */
     @CallerSensitive
@@ -86,6 +93,7 @@ public class ErrorCodeUtils {
 
     /**
      * 使用的系统码为调用该方法的类注册的{@link #setSystemCode(int)}系统码, 没有注册则默认为0
+     *
      * @see #setSystemCode(int)
      */
     @CallerSensitive
@@ -95,6 +103,7 @@ public class ErrorCodeUtils {
 
     /**
      * 使用的系统码为调用该方法的类注册的{@link #setSystemCode(int)}系统码, 没有注册则默认为0
+     *
      * @see #setSystemCode(int)
      */
     @CallerSensitive
@@ -104,6 +113,7 @@ public class ErrorCodeUtils {
 
     /**
      * 使用的系统码为调用该方法的类注册的{@link #setSystemCode(int)}系统码, 没有注册则默认为0
+     *
      * @see #setSystemCode(int)
      */
     @CallerSensitive
@@ -113,6 +123,7 @@ public class ErrorCodeUtils {
 
     /**
      * 使用的系统码为调用该方法的类注册的{@link #setSystemCode(int)}系统码, 没有注册则默认为0
+     *
      * @see #setSystemCode(int)
      */
     @CallerSensitive
@@ -134,6 +145,34 @@ public class ErrorCodeUtils {
 
     public static String buildCode(int systemCode, ErrorCode.Level level, int exceptionCode) {
         return String.format(ERROR_CODE_FORMAT, systemCode, level.getCode(), exceptionCode);
+    }
+
+    /**
+     * 错误码识别, 得出具体的系统码, 错误级别以及具体的异常码
+     * 错误码长度必须等于{@link #CODE_LENGTH}
+     *
+     * @see ErrorCodeEntry
+     */
+    public static ErrorCodeEntry parseCode(String code) {
+        if (code.length() != CODE_LENGTH) {
+            throw new IllegalArgumentException("code: " + code + "长度不等于" + CODE_LENGTH);
+        }
+        int levelValue = code.charAt(SYSTEM_CODE_LENGTH) - '0';
+        ErrorCode.Level level = null;
+        for (ErrorCode.Level v : ErrorCode.Level.values()) {
+            if (v.getCode() == levelValue) {
+                level = v;
+                break;
+            }
+        }
+        if (level == null) {
+            throw new IllegalArgumentException("code: " + code + "的异常等级" + levelValue + "值错误, 找不到对应的等级");
+        }
+        return ErrorCodeEntry.build()
+                .systemCode(StrValueConverts.intConvert(code.substring(0, SYSTEM_CODE_LENGTH)))
+                .level(level)
+                .exceptionCode(StrValueConverts.intConvert(code.substring(SYSTEM_CODE_LENGTH + 1)))
+                .create();
     }
 
 }
