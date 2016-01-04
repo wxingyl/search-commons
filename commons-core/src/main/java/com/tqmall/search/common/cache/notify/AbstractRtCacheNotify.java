@@ -38,6 +38,10 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
 
     protected abstract MapResult wrapSlaveRegisterResult(LocalRegisterParam param);
 
+    protected Map<String, Object> appendHostStatusInfo(T slaveHost, Map<String, Object> infoMap) {
+        return infoMap;
+    }
+
     @Override
     public MapResult handleSlaveRegister(final LocalRegisterParam param) {
         if (param.getSlaveHost() == null ||
@@ -152,9 +156,10 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
         });
         List<Map<String, Object>> ret = new ArrayList<>();
         for (T slaveHost : slaveHostMap.keySet()) {
-            Map<String, Object> map = JsonUtils.objToMap(slaveHost);
-            if (map == null) continue;
+            Map<String, Object> map = new HashMap<>();
+            map.put("host", HttpUtils.hostInfoToString(slaveHost.getSlaveHost()));
             map.put("interestKeys", slaveHostMap.get(slaveHost));
+            map = appendHostStatusInfo(slaveHost, map);
             ret.add(map);
         }
         return ret;

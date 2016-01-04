@@ -105,7 +105,7 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<HttpMasterHostInf
     }
 
     @Override
-    protected Map<String, Object> appendHostInfo(HttpMasterHostInfo masterHost, Map<String, Object> hostInfo) {
+    protected Map<String, Object> appendHostStatusInfo(HttpMasterHostInfo masterHost, Map<String, Object> hostInfo) {
         hostInfo.put("unRegisterUrlPath", masterHost.getUnRegisterUrlPath());
         hostInfo.put("monitorPath", masterHost.getMonitorPath());
         return hostInfo;

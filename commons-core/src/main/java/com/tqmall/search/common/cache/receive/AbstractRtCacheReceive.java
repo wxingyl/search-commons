@@ -64,7 +64,7 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
      * 填充masterHost信息, {@link #status()}接口使用, 默认啥都不干
      * @return hostInfo的map, 建议返回入参
      */
-    protected Map<String, Object> appendHostInfo(T masterHost, Map<String, Object> hostInfo) {
+    protected Map<String, Object> appendHostStatusInfo(T masterHost, Map<String, Object> hostInfo) {
         return hostInfo;
     }
 
@@ -195,7 +195,7 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
             T master = e.getKey();
             hostInfo.put("host", HttpUtils.hostInfoToString(master));
             hostInfo.put("registerStatus", master.getRegisterStatus());
-            hostInfo = appendHostInfo(master, hostInfo);
+            hostInfo = appendHostStatusInfo(master, hostInfo);
             List<Map<String, Object>> interestKeys = new ArrayList<>();
             for (String key : e.getValue()) {
                 Map<String, Object> keyMap = new HashMap<>();
@@ -204,7 +204,7 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
                 if (filter != null) {
                     filterApplied = filter.apply(handleMap.get(key));
                 }
-                keyMap.put("key", filterApplied);
+                keyMap.put("filterApplied", filterApplied);
                 interestKeys.add(keyMap);
             }
             hostInfo.put("interestKeys", interestKeys);

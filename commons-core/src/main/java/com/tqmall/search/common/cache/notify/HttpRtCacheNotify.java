@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
@@ -98,6 +99,14 @@ public class HttpRtCacheNotify extends AbstractRtCacheNotify<HttpSlaveHostInfo> 
             ret.put("monitorUrlPath", buildFullUrlPath(monitorUrlPath));
         }
         return ret;
+    }
+
+    @Override
+    protected Map<String, Object> appendHostStatusInfo(HttpSlaveHostInfo slaveHost, Map<String, Object> infoMap) {
+        infoMap.put("notifyUrlPath", slaveHost.getNotifyUrlPath());
+        infoMap.put("httpMethod", slaveHost.getMethod());
+        infoMap.put("requestHeaders", slaveHost.getRequestHeaders());
+        return infoMap;
     }
 
     private void runNotifyRequest(HttpUtils.RequestBase requestBase, HostInfo slaveHost) {
