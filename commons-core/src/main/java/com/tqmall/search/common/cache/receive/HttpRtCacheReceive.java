@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by xing on 15/12/23.
@@ -101,6 +102,13 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<HttpMasterHostInf
         MapResult mapResult = HttpUtils.requestGetMapResult(HttpUtils.buildURL(masterHostInfo,
                 masterHostInfo.getMonitorPath()));
         return mapResult.isSuccess();
+    }
+
+    @Override
+    protected Map<String, Object> appendHostInfo(HttpMasterHostInfo masterHost, Map<String, Object> hostInfo) {
+        hostInfo.put("unRegisterUrlPath", masterHost.getUnRegisterUrlPath());
+        hostInfo.put("monitorPath", masterHost.getMonitorPath());
+        return hostInfo;
     }
 
     private String buildFullUrlPath(String urlPath) {

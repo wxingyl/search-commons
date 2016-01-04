@@ -3,6 +3,9 @@ package com.tqmall.search.common.cache.receive;
 import com.tqmall.search.common.param.NotifyChangeParam;
 import com.tqmall.search.common.utils.HostInfo;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Created by xing on 15/12/22.
  * slave机器接收变化的数据,并处理之
@@ -47,4 +50,10 @@ public interface RtCacheReceive {
      * @return 是否处理
      */
     boolean receive(NotifyChangeParam param);
+
+    /**
+     * 获取当前管理的Handler状态, 结果根据master机器纬度返回
+     * @return 以map返回, 返回结果又不做传输什么的, Map就行了
+     */
+    List<Map<String, Object>> status();
 }

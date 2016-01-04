@@ -8,5 +8,8 @@ import com.google.common.base.Predicate;
  */
 public interface Filterable<T> {
 
+    /**
+     * 设定过滤器, 过滤器返回true则认为有用, 返回false则认为无用
+     */
     void setFilter(Predicate<T> predicate);
 }

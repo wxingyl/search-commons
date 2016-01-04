@@ -8,17 +8,11 @@ import com.tqmall.search.common.param.LocalRegisterParam;
 import com.tqmall.search.common.param.NotifyChangeParam;
 import com.tqmall.search.common.result.MapResult;
 import com.tqmall.search.common.result.ResultUtils;
-import com.tqmall.search.common.utils.HostInfo;
-import com.tqmall.search.common.utils.HttpUtils;
-import com.tqmall.search.common.utils.RwLock;
-import com.tqmall.search.common.utils.UtilsErrorCode;
+import com.tqmall.search.common.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by xing on 15/12/23.
@@ -136,4 +130,33 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
         return true;
     }
 
+    @Override
+    public List<Map<String, Object>> status() {
+        Map<T, List<String>> slaveHostMap = slaveHostLock.readOp(new RwLock.OpRet<Map<String, List<T>>, Map<T, List<String>>>() {
+            @Override
+            public Map<T, List<String>> op(Map<String, List<T>> input) {
+                Map<T, List<String>> slaveHostMap = new HashMap<>();
+                for (Map.Entry<String, List<T>> e : input.entrySet()) {
+                    for (T t : e.getValue()) {
+                        List<String> list = slaveHostMap.get(t);
+                        if (list == null) {
+                            slaveHostMap.put(t, list = new ArrayList<>());
+                        }
+                        if (!list.contains(e.getKey())) {
+                            list.add(e.getKey());
+                        }
+                    }
+                }
+                return slaveHostMap;
+            }
+        });
+        List<Map<String, Object>> ret = new ArrayList<>();
+        for (T slaveHost : slaveHostMap.keySet()) {
+            Map<String, Object> map = JsonUtils.objToMap(slaveHost);
+            if (map == null) continue;
+            map.put("interestKeys", slaveHostMap.get(slaveHost));
+            ret.add(map);
+        }
+        return ret;
+    }
 }

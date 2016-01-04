@@ -60,6 +60,14 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
      */
     protected abstract boolean doMasterMonitor(T masterHostInfo);
 
+    /**
+     * 填充masterHost信息, {@link #status()}接口使用, 默认啥都不干
+     * @return hostInfo的map, 建议返回入参
+     */
+    protected Map<String, Object> appendHostInfo(T masterHost, Map<String, Object> hostInfo) {
+        return hostInfo;
+    }
+
     @Override
     public final boolean registerHandler(RtCacheSlaveHandle handler) {
         Objects.requireNonNull(handler);
@@ -180,8 +188,29 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
     }
 
     @Override
-    public String toString() {
-        return "RtCacheReceive{" + masterHostMap + '}';
+    public List<Map<String, Object>> status() {
+        List<Map<String, Object>> ret = new ArrayList<>();
+        for (Map.Entry<T, List<String>> e : masterHostMap.entrySet()) {
+            Map<String, Object> hostInfo = new HashMap<>();
+            T master = e.getKey();
+            hostInfo.put("host", HttpUtils.hostInfoToString(master));
+            hostInfo.put("registerStatus", master.getRegisterStatus());
+            hostInfo = appendHostInfo(master, hostInfo);
+            List<Map<String, Object>> interestKeys = new ArrayList<>();
+            for (String key : e.getValue()) {
+                Map<String, Object> keyMap = new HashMap<>();
+                keyMap.put("key", key);
+                boolean filterApplied = true;
+                if (filter != null) {
+                    filterApplied = filter.apply(handleMap.get(key));
+                }
+                keyMap.put("key", filterApplied);
+                interestKeys.add(keyMap);
+            }
+            hostInfo.put("interestKeys", interestKeys);
+            ret.add(hostInfo);
+        }
+        return ret;
     }
 
     /**
@@ -190,5 +219,10 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
     @Override
     public void setFilter(Predicate<RtCacheSlaveHandle> filter) {
         this.filter = filter;
+    }
+
+    @Override
+    public String toString() {
+        return "RtCacheReceive{" + masterHostMap + '}';
     }
 }
