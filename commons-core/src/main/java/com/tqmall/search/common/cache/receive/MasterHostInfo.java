@@ -9,36 +9,11 @@ import com.tqmall.search.common.utils.HttpUtils;
  */
 public abstract class MasterHostInfo implements HostInfo {
 
-    /**
-     * 注册状态: 初始状态, 还没有执行注册
-     */
-    public static final int REGISTER_STATUS_INIT = 0;
-    /**
-     * 注册状态: 无需注册, masterHost为本地或者过滤掉了
-     */
-    public static final int REGISTER_STATUS_USELESS = 1;
-    /**
-     * 注册状态: 注册成功
-     */
-    public static final int REGISTER_STATUS_SUCCEED = 2;
-    /**
-     * 注册状态: 注册失败
-     */
-    public static final int REGISTER_STATUS_FAILED = 3;
-    /**
-     * 注册状态: 注册中断
-     */
-    public static final int REGISTER_STATUS_INTERRUPT = 4;
-    /**
-     * 注册状态: 完成注销
-     */
-    public static final int REGISTER_STATUS_UNREGISTER = 5;
-
     private String ip;
 
     private int port;
 
-    private volatile int registerStatus;
+    private volatile RegisterStatus registerStatus;
 
     public MasterHostInfo(HostInfo masterHost) {
         this(masterHost.getIp(), masterHost.getPort());
@@ -47,7 +22,7 @@ public abstract class MasterHostInfo implements HostInfo {
     public MasterHostInfo(String ip, int port) {
         this.ip = ip;
         this.port = port;
-        this.registerStatus = REGISTER_STATUS_INIT;
+        this.registerStatus = RegisterStatus.INIT;
     }
 
     /**
@@ -55,17 +30,14 @@ public abstract class MasterHostInfo implements HostInfo {
      * @return true需要执行
      */
     public boolean needDoRegister() {
-        return registerStatus != REGISTER_STATUS_SUCCEED && registerStatus != REGISTER_STATUS_USELESS;
+        return registerStatus != RegisterStatus.SUCCEED && registerStatus != RegisterStatus.USELESS;
     }
 
-    public int getRegisterStatus() {
+    public RegisterStatus getRegisterStatus() {
         return registerStatus;
     }
 
-    public void setRegisterStatus(int registerStatus) {
-        if (registerStatus > REGISTER_STATUS_UNREGISTER || registerStatus < REGISTER_STATUS_INIT) {
-            throw new IllegalArgumentException("registerStatus: " + registerStatus + "非法");
-        }
+    public void setRegisterStatus(RegisterStatus registerStatus) {
         this.registerStatus = registerStatus;
     }
 

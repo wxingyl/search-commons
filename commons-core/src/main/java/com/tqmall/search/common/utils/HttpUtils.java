@@ -55,6 +55,41 @@ public abstract class HttpUtils {
     }
 
     /**
+     * hostInfo 检查
+     * @param hostInfo 入参, host
+     * @param wrapHost 如果host.getIp()为空, 是否需要使用本地Ip包装, 如果不需要则抛出{@link IllegalArgumentException}
+     * @return hostInfo, 如果需要包装, 则返回本地ip的包装
+     */
+    public static HostInfo hostInfoCheck(final HostInfo hostInfo, boolean wrapHost) {
+        Objects.requireNonNull(hostInfo);
+        //这而判断个<= 80, 误杀那就算你倒霉,谁让你没事干的用系统端口, 本身就是找死
+        if (hostInfo.getPort() <= 80) {
+            throw new IllegalArgumentException("localPort " + hostInfo.getPort() + " <= 80 is invalid");
+        }
+        if (StringUtils.isEmpty(hostInfo.getIp())) {
+            if (wrapHost) {
+                return new HostInfo() {
+
+                    //传进来的ip不好使就用默认的
+                    @Override
+                    public String getIp() {
+                        return HttpUtils.LOCAL_IP;
+                    }
+
+                    @Override
+                    public int getPort() {
+                        return hostInfo.getPort();
+                    }
+                };
+            } else {
+                throw new IllegalArgumentException("ip is empty");
+            }
+        } else {
+            return hostInfo;
+        }
+    }
+
+    /**
      * 两个HostInfo 比较是否相同
      */
     public static boolean isEquals(HostInfo a, HostInfo b) {

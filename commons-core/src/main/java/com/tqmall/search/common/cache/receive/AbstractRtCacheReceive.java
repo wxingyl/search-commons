@@ -6,7 +6,6 @@ import com.tqmall.search.common.param.NotifyChangeParam;
 import com.tqmall.search.common.utils.Filterable;
 import com.tqmall.search.common.utils.HostInfo;
 import com.tqmall.search.common.utils.HttpUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,42 +60,11 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
      */
     protected abstract boolean doMasterMonitor(T masterHostInfo);
 
-    private HostInfo localHostCheck(final HostInfo localHost) {
-        Objects.requireNonNull(localHost);
-        if (localHost.getPort() <= 80) {
-            throw new IllegalArgumentException("localPort " + localHost.getPort() + " <= 80 is invalid");
-        }
-        if (StringUtils.isEmpty(localHost.getIp())) {
-            return new HostInfo() {
-
-                //传进来的ip不好使就用默认的
-                @Override
-                public String getIp() {
-                    return HttpUtils.LOCAL_IP;
-                }
-
-                @Override
-                public int getPort() {
-                    return localHost.getPort();
-                }
-            };
-        } else {
-            return localHost;
-        }
-    }
-
     @Override
     public final boolean registerHandler(RtCacheSlaveHandle handler) {
         Objects.requireNonNull(handler);
         HostInfo masterHost = handler.getMasterHost();
-        Objects.requireNonNull(masterHost);
-        if (StringUtils.isEmpty(masterHost.getIp())) {
-            throw new IllegalArgumentException("masterIp is empty");
-        }
-        //这而判断个<= 80, 误杀那就算你倒霉,谁让你没事干的用系统端口, 本身就是找死
-        if (masterHost.getPort() <= 80) {
-            throw new IllegalArgumentException("masterPort " + masterHost.getPort() + " <= 80 is invalid");
-        }
+        HttpUtils.hostInfoCheck(masterHost, false);
         T masterHostInfo = null;
         for (T e : masterHostMap.keySet()) {
             if (HttpUtils.isEquals(e, masterHost)) {
@@ -125,15 +93,15 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
     @Override
     public boolean registerMaster(HostInfo localHost) {
         if (masterHostMap.isEmpty()) return false;
-        HostInfo usedLocalHost = localHostCheck(localHost);
+        HostInfo usedLocalHost = HttpUtils.hostInfoCheck(localHost, true);
         //先根据masterHost分组, 同时讲masterHost跟localHost相同的过滤掉
         boolean succeed = true;
         for (Map.Entry<T, List<String>> e : masterHostMap.entrySet()) {
             T master = e.getKey();
             if (!master.needDoRegister()) continue;
             if (HttpUtils.isEquals(master, usedLocalHost)) {
-                master.setRegisterStatus(MasterHostInfo.REGISTER_STATUS_USELESS);
-                log.info("注册cache处理时, masterHost: " + HttpUtils.hostInfoToString(master) + "同localHost相同, 无需注册");
+                master.setRegisterStatus(RegisterStatus.USELESS);
+                log.info("向master机器: " + HttpUtils.hostInfoToString(master) + "注册cache与localHost相同, 无需执行注册操作");
                 continue;
             }
             List<String> cacheKeys = new ArrayList<>(e.getValue().size());
@@ -147,51 +115,55 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
                 cacheKeys.addAll(e.getValue());
             }
             if (cacheKeys.isEmpty()) {
-                master.setRegisterStatus(MasterHostInfo.REGISTER_STATUS_USELESS);
-                log.info("注册cache处理时, masterHost: " + HttpUtils.hostInfoToString(master) + "的handle全部被过滤");
+                master.setRegisterStatus(RegisterStatus.USELESS);
+                log.info("向master机器: " + HttpUtils.hostInfoToString(master) + "注册cache, RtCacheSlaveHandle全部被过滤, 无需执行注册操作");
                 continue;
             }
-            if (doMasterRegister(usedLocalHost, master, cacheKeys)) {
-                master.setRegisterStatus(MasterHostInfo.REGISTER_STATUS_SUCCEED);
+            boolean localSucceed = doMasterRegister(usedLocalHost, master, cacheKeys);
+            if (localSucceed) {
+                master.setRegisterStatus(RegisterStatus.SUCCEED);
             } else {
-                master.setRegisterStatus(MasterHostInfo.REGISTER_STATUS_FAILED);
+                master.setRegisterStatus(RegisterStatus.FAILED);
                 succeed = false;
             }
-            log.info("注册cache完成: " + master);
+            log.info("cache注册: " + master + "执行完成, succeed: " + localSucceed + ", cacheKeys: " + cacheKeys);
         }
         return succeed;
     }
 
     @Override
     public boolean unRegister(HostInfo localHost) {
-        HostInfo usedLocalHost = localHostCheck(localHost);
+        HostInfo usedLocalHost = HttpUtils.hostInfoCheck(localHost, true);
         boolean ret = true;
         for (T info : masterHostMap.keySet()) {
-            if (info.getRegisterStatus() == MasterHostInfo.REGISTER_STATUS_SUCCEED) {
+            if (info.getRegisterStatus() == RegisterStatus.SUCCEED) {
                 if (!doMasterUnRegister(usedLocalHost, info)) {
                     ret = false;
                 }
             }
-            info.setRegisterStatus(MasterHostInfo.REGISTER_STATUS_UNREGISTER);
+            info.setRegisterStatus(RegisterStatus.UNREGISTER);
         }
         return ret;
     }
 
     @Override
     public boolean doMonitor() {
-        boolean ret = true;
+        boolean haveException = false;
         for (T masterHost : masterHostMap.keySet()) {
-            if (masterHost.getRegisterStatus() == MasterHostInfo.REGISTER_STATUS_UNREGISTER) continue;
+            //已经注销了,我们就不用管了
+            if (masterHost.getRegisterStatus() == RegisterStatus.UNREGISTER) continue;
             if (masterHost.needDoRegister()) {
-                ret = false;
-            } else if (masterHost.getRegisterStatus() == MasterHostInfo.REGISTER_STATUS_SUCCEED) {
+                //说明注册还没有完成
+                haveException = true;
+            } else if (masterHost.getRegisterStatus() == RegisterStatus.SUCCEED) {
+                //这儿才是需要真正监控的地方
                 if (!doMasterMonitor(masterHost)) {
-                    masterHost.setRegisterStatus(MasterHostInfo.REGISTER_STATUS_INTERRUPT);
-                    ret = false;
+                    masterHost.setRegisterStatus(RegisterStatus.INTERRUPT);
+                    haveException = true;
                 }
             }
         }
-        return ret;
+        return haveException;
     }
 
     @Override

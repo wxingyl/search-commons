@@ -48,8 +48,8 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
     public MapResult handleSlaveRegister(final LocalRegisterParam param) {
         if (param.getSlaveHost() == null ||
                 param.getInterestCache() == null || param.getInterestCache().isEmpty()) {
-            return ResultUtils.mapResult(UtilsErrorCode.CACHE_SLAVE_REGISTER_INVALID,
-                    "参数slaveHost为空或者interestCache为空");
+            log.warn("Slave注册参数不全: slaveHost: " + param.getSlaveHost() + ", interestCache: " + param.getInterestCache());
+            return ResultUtils.mapResult(UtilsErrorCode.CACHE_SLAVE_REGISTER_ARG_INVALID);
         }
         final T slaveInfo;
         try {
@@ -81,7 +81,7 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
                 return wrapSlaveRegisterResult(param);
             }
         });
-        log.info("Slave注册缓存处理成功, slaveHost: " + param.getSlaveHost() + ", interestCache: " + param.getInterestCache()
+        log.info("Slave注册处理成功, slaveHost: " + param.getSlaveHost() + ", interestCache: " + param.getInterestCache()
                 + ", 返回结果: " + ResultUtils.resultToString(mapResult));
         return mapResult;
     }
@@ -89,7 +89,7 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
     @Override
     public MapResult handleSlaveUnRegister(final HostInfo slaveHost) {
         if (slaveHost == null) {
-            return ResultUtils.mapResult(UtilsErrorCode.CACHE_SLAVE_UNREGISTER_INVALID, "slaveHost为null");
+            return ResultUtils.mapResult(UtilsErrorCode.CACHE_SLAVE_UNREGISTER_ARG_INVALID);
         }
         return slaveHostLock.writeOp(new RwLock.OpRet<Map<String, List<T>>, MapResult>() {
             @Override
