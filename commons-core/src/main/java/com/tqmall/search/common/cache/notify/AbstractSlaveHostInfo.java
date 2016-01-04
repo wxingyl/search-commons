@@ -35,4 +35,9 @@ public abstract class AbstractSlaveHostInfo {
     public int hashCode() {
         return slaveHost.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return HttpUtils.hostInfoToString(slaveHost);
+    }
 }
