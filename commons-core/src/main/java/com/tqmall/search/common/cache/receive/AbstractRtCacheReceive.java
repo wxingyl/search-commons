@@ -163,7 +163,7 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
                 }
             }
         }
-        return haveException;
+        return !haveException;
     }
 
     @Override
