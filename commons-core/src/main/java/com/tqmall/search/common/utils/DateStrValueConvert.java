@@ -1,5 +1,6 @@
 package com.tqmall.search.common.utils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,10 @@ public class DateStrValueConvert implements ComparableStrValueConvert<Date> {
         return INSTANCE.format(date);
     }
 
+    public static long dateTimestamp(String input) {
+        return INSTANCE.timestamp(input);
+    }
+
     private final FastDateFormat dateFormat;
 
     public DateStrValueConvert() {
@@ -32,7 +37,11 @@ public class DateStrValueConvert implements ComparableStrValueConvert<Date> {
     }
 
     public DateStrValueConvert(String pattern) {
-        dateFormat = FastDateFormat.getInstance(pattern);
+        this(FastDateFormat.getInstance(pattern));
+    }
+
+    public DateStrValueConvert(FastDateFormat dateFormat) {
+        this.dateFormat = dateFormat;
     }
 
     @Override
@@ -42,6 +51,7 @@ public class DateStrValueConvert implements ComparableStrValueConvert<Date> {
 
     @Override
     public Date convert(String input) {
+        if (StringUtils.isEmpty(input)) return null;
         try {
             return dateFormat.parse(input);
         } catch (ParseException e) {
@@ -53,6 +63,11 @@ public class DateStrValueConvert implements ComparableStrValueConvert<Date> {
 
     public String format(Date date) {
         return dateFormat.format(date);
+    }
+
+    public long timestamp(String input) {
+        Date date = convert(input);
+        return date == null ? 0l : date.getTime();
     }
 
     public FastDateFormat getDateFormat() {
