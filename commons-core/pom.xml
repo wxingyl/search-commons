@@ -10,14 +10,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>commons-core</artifactId>
-    <version>1.0-rc5</version>
+    <version>1.0</version>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>com.tqmall.search</groupId>
             <artifactId>commons-client</artifactId>
-            <version>1.0-rc4</version>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
