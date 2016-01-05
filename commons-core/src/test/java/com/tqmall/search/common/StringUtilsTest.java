@@ -3,11 +3,13 @@ package com.tqmall.search.common;
 import com.tqmall.search.common.result.PageResult;
 import com.tqmall.search.common.result.Result;
 import com.tqmall.search.common.result.ResultUtils;
+import com.tqmall.search.common.utils.DateStrValueConvert;
 import com.tqmall.search.common.utils.JsonUtils;
 import com.tqmall.search.common.utils.ResultJsonConverts;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -61,6 +63,15 @@ public class StringUtilsTest {
         public String getName() {
             return name;
         }
+    }
+
+    @Test
+    public void dateUtilTest() {
+        //2016/1/5 10:0:17, yyyy-MM-dd HH:mm:ss
+        String orgStr = "2016-01-05 10:00:17";
+        Date orgDate = new Date(1451959217000l);
+        Assert.assertTrue(DateStrValueConvert.dateFormat(orgDate).equals(orgStr));
+        Assert.assertTrue(DateStrValueConvert.dateConvert(orgStr).equals(orgDate));
     }
 
 }
