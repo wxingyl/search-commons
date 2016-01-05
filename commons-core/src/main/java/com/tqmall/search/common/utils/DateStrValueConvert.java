@@ -16,7 +16,7 @@ public class DateStrValueConvert implements ComparableStrValueConvert<Date> {
 
     private static final Logger log = LoggerFactory.getLogger(DateStrValueConvert.class);
 
-    public static final DateStrValueConvert INSTANCE = new DateStrValueConvert();
+    public static final DateStrValueConvert INSTANCE = new DateStrValueConvert("yyyy-MM-dd HH:mm:ss");
 
     public static Date dateConvert(String input) {
         return INSTANCE.convert(input);
@@ -31,10 +31,6 @@ public class DateStrValueConvert implements ComparableStrValueConvert<Date> {
     }
 
     private final FastDateFormat dateFormat;
-
-    public DateStrValueConvert() {
-        this("yyyy-MM-dd HH:mm:ss");
-    }
 
     public DateStrValueConvert(String pattern) {
         this(FastDateFormat.getInstance(pattern));
