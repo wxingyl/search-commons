@@ -3,9 +3,12 @@ package com.tqmall.search.common.cache.receive;
 import com.google.common.base.Predicate;
 import com.tqmall.search.common.cache.RtCacheManager;
 import com.tqmall.search.common.param.NotifyChangeParam;
+import com.tqmall.search.common.result.MapResult;
+import com.tqmall.search.common.result.ResultUtils;
 import com.tqmall.search.common.utils.Filterable;
 import com.tqmall.search.common.utils.HostInfo;
 import com.tqmall.search.common.utils.HttpUtils;
+import com.tqmall.search.common.utils.UtilsErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +33,12 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
     private final Map<T, List<String>> masterHostMap = new HashMap<>();
 
     private volatile Predicate<RtCacheSlaveHandle> filter;
+
+    /**
+     * 注册master次数, 等同于调用{@link #registerMaster(HostInfo)}, 除了参数错误之外的次数
+     * 由于方法加了同步锁, 不用考虑多线程问题
+     */
+    private int registerMasterTimes;
 
     /**
      * 实例化{@link T}对象实例
@@ -68,11 +77,18 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
         return hostInfo;
     }
 
+    /**
+     * @return 返回的Map中key = "status"表示处理的状态, true为成功
+     */
     @Override
-    public final boolean registerHandler(RtCacheSlaveHandle handler) {
+    public final synchronized MapResult registerHandler(RtCacheSlaveHandle handler) {
         Objects.requireNonNull(handler);
         HostInfo masterHost = handler.getMasterHost();
-        HttpUtils.hostInfoCheck(masterHost, false);
+        try {
+            HttpUtils.hostInfoCheck(masterHost, false);
+        } catch (IllegalArgumentException e) {
+            return ResultUtils.mapResult(UtilsErrorCode.HOST_INFO_INVALID, e.getMessage());
+        }
         T masterHostInfo = null;
         for (T e : masterHostMap.keySet()) {
             if (HttpUtils.isEquals(e, masterHost)) {
@@ -87,23 +103,35 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
             }
         }
         if (masterHostInfo == null) {
-            log.warn("注册RtCacheSlaveHandle时, masterHost: " + HttpUtils.hostInfoToString(masterHost)
-                    + ", 没有生成对用的MasterHostInfo对象, 取消注册");
-            return false;
+            String msg = "注册RtCacheSlaveHandle时, masterHost: " + HttpUtils.hostInfoToString(masterHost)
+                    + ", 没有生成对用的MasterHostInfo对象, 取消注册";
+            log.warn(msg);
+            return ResultUtils.mapResult(UtilsErrorCode.RECEIVER_RUNTIME_ERROR, msg);
         } else {
             String cacheKey = RtCacheManager.getCacheHandleKey(handler);
             handleMap.put(cacheKey, handler);
             masterHostMap.get(masterHostInfo).add(cacheKey);
-            return true;
+            return ResultUtils.mapResult("status", true);
         }
     }
 
+    /**
+     * 返回的Map中:
+     * 1. key为"finish"表示注册完所有机器, bool类型, 如果为false表明没有完成注册,可能masterHost机器停机等原因,稍后重试可能就成功了
+     * 2. key为"times"表示当前已经注册的次数
+     */
     @Override
-    public boolean registerMaster(HostInfo localHost) {
-        if (masterHostMap.isEmpty()) return false;
-        HostInfo usedLocalHost = HttpUtils.hostInfoCheck(localHost, true);
-        //先根据masterHost分组, 同时讲masterHost跟localHost相同的过滤掉
-        boolean succeed = true;
+    public synchronized MapResult registerMaster(HostInfo localHost) {
+        if (masterHostMap.isEmpty()) {
+            ResultUtils.mapResult("finish", true);
+        }
+        HostInfo usedLocalHost;
+        try {
+            usedLocalHost = HttpUtils.hostInfoCheck(localHost, true);
+        } catch (IllegalArgumentException e) {
+            return ResultUtils.mapResult(UtilsErrorCode.HOST_INFO_INVALID, e.getMessage());
+        }
+        boolean finish = true;
         for (Map.Entry<T, List<String>> e : masterHostMap.entrySet()) {
             T master = e.getKey();
             if (!master.needDoRegister()) continue;
@@ -127,31 +155,55 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
                 log.info("向master机器: " + HttpUtils.hostInfoToString(master) + "注册cache, RtCacheSlaveHandle全部被过滤, 无需执行注册操作");
                 continue;
             }
-            boolean localSucceed = doMasterRegister(usedLocalHost, master, cacheKeys);
+            boolean localSucceed;
+            try {
+                localSucceed = doMasterRegister(usedLocalHost, master, cacheKeys);
+            } catch (RuntimeException re) {
+                log.error("doMasterRegister 存在异常", re);
+                localSucceed = false;
+            }
             if (localSucceed) {
                 master.setRegisterStatus(RegisterStatus.SUCCEED);
             } else {
                 master.setRegisterStatus(RegisterStatus.FAILED);
-                succeed = false;
+                finish = false;
             }
             log.info("cache注册: " + master + "执行完成, succeed: " + localSucceed + ", cacheKeys: " + cacheKeys);
         }
-        return succeed;
+        registerMasterTimes++;
+        MapResult result = ResultUtils.mapResult("finish", finish);
+        result.put("times", registerMasterTimes);
+        return result;
     }
 
+    /**
+     * @return 返回的Map中key = "status"表示处理的状态, true为成功
+     */
     @Override
-    public boolean unRegister(HostInfo localHost) {
-        HostInfo usedLocalHost = HttpUtils.hostInfoCheck(localHost, true);
-        boolean ret = true;
+    public synchronized MapResult unRegister(HostInfo localHost) {
+        HostInfo usedLocalHost;
+        try {
+           usedLocalHost = HttpUtils.hostInfoCheck(localHost, true);
+        } catch (IllegalArgumentException e) {
+            return ResultUtils.mapResult(UtilsErrorCode.HOST_INFO_INVALID, e.getMessage());
+        }
+        boolean status = true;
         for (T info : masterHostMap.keySet()) {
             if (info.getRegisterStatus() == RegisterStatus.SUCCEED) {
-                if (!doMasterUnRegister(usedLocalHost, info)) {
-                    ret = false;
+                boolean succeed;
+                try {
+                    succeed = doMasterUnRegister(usedLocalHost, info);
+                } catch (RuntimeException e) {
+                    succeed = false;
+                    log.error("doMasterUnRegister 存在异常", e);
+                }
+                if (!succeed) {
+                    status = false;
                 }
             }
             info.setRegisterStatus(RegisterStatus.UNREGISTER);
         }
-        return ret;
+        return ResultUtils.mapResult("status", status);
     }
 
     @Override
@@ -165,7 +217,14 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
                 haveException = true;
             } else if (masterHost.getRegisterStatus() == RegisterStatus.SUCCEED) {
                 //这儿才是需要真正监控的地方
-                if (!doMasterMonitor(localHost, masterHost)) {
+                boolean succeed;
+                try {
+                    succeed = doMasterMonitor(localHost, masterHost);
+                } catch (RuntimeException e) {
+                    succeed = false;
+                    log.error("doMasterMonitor 存在异常", e);
+                }
+                if (!succeed) {
                     masterHost.setRegisterStatus(RegisterStatus.INTERRUPT);
                     haveException = true;
                 }

@@ -8,12 +8,14 @@ import com.tqmall.search.common.result.ErrorCode;
  */
 public enum UtilsErrorCode implements ErrorCode {
 
-    //缓存处理的错误码
-    CACHE_SLAVE_REGISTER_ARG_INVALID(1, "Slave机器注册参数不全"),
-    CACHE_SLAVE_REGISTER_INVALID(2, "Slave机器注册处理错误: %s"),
-    CACHE_SLAVE_UNREGISTER_ARG_INVALID(11, "Slave机器注销参数不全"),
-    CACHE_SLAVE_UNREGISTER_UNKNOWN_HOST(12, "Slave机器注销时未知的Host地址: %s"),
-    CACHE_SLAVE_MONITOR_ARG_INVALID(21, "Slave机器监控请求参数不全"),
+    //notify相关错误码
+    NOTIFY_HANDLE_ARG_INVALID(1, "参数不全, notifier无法处理外部请求"),
+    NOTIFY_RUNTIME_ERROR(2, "notifier执行出错, %s"),
+    NOTIFY_UNREGISTER_UNKNOWN_HOST(3, "未知的Host地址: %s, notifier无法处理注销请求"),
+
+    RECEIVER_RUNTIME_ERROR(21, "receiver执行出错, %s"),
+
+    HOST_INFO_INVALID(41, "HostInfo对象值错误: %s"),
 
     //错误码从101开始走起 result格式json字符长解析错误码
     JSON_RESULT_CONVERT_INVALID_OBJECT(101, "Result格式Json解析, data字段不是Object: %s"),

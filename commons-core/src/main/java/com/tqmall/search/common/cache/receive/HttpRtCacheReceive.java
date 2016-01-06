@@ -99,7 +99,7 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<HttpMasterHostInf
     }
 
     /**
-     * monitor监控统一用GET请求就可以了
+     * monitor监控统一用GET请求就可以了, 返回结果获取status字段
      */
     @Override
     protected boolean doMasterMonitor(HostInfo localHost, HttpMasterHostInfo masterHostInfo) {
@@ -108,7 +108,7 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<HttpMasterHostInf
         param.put("post", localHost.getPort());
         MapResult mapResult = HttpUtils.requestGetMapResult(HttpUtils.buildURL(masterHostInfo,
                 masterHostInfo.getMonitorPath(), param));
-        return mapResult.isSuccess();
+        return mapResult.isSuccess() && Boolean.TRUE.equals(mapResult.get("status"));
     }
 
     @Override

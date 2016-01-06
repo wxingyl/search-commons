@@ -1,23 +1,73 @@
-## common-client
+## 模块介绍
+
+### commons-client
 
 简单的Param, Result等公共类抽象封装，后续还需补充。
 
 之后搜索各个项目给其他团队提供的client jar包都可以基于该jar
 
-## common-core
+### commons-core
 
 搜索内部各个项目用到的一些工具，目前主要有
 
-### cache
+#### notify/receive
 
-内存缓存的抽象，支持实时索引同步修改，以及通知相关的Slave机器做更改
+多态机器，多系统之间实现消息逐个通知，类似广播的概念。目前搜索内存缓存少量数据使用到，实时索引在masterHost修改，将改动notify到注册的slaveHost机器, 完成数据同步修改。
 
-### utils
+#### utils
 
 一些公共的，不经常修改添加的utils方法
 
-### 汉字转拼音
+#### 汉字转拼音
 
-通过汉字得到拼音，以及拼音首字母等功能接口，目前还没有添加，或许完善
+通过汉字得到拼音，以及拼音首字母等功能接口，目前还没有，后续添加完善
 
-后面随着需求，不断添加~~~~~~
+#### 分词工具
+
+分词的一些工具类，词库加载，不同粒度分词等，目前还没有，后续添加完善
+
+#### 关键字识别工具
+
+查询时识别关键字信息，其跟上面的分词息息相关，目前还没有，后续添加完善
+
+#### 查询参数构造工具
+
+基于client模块，请求搜索接口时需要封装的参数很多，有些查询有特定格式要求，比如Range，Sort，非查询，商品的属性等等，需要相关的工具类提供。目前还没有，后续添加完善
+
+
+
+更多内容，不断添加~~~~~~
+
+## 版本
+
+### rc版本
+
+rc版本为预发版本，未达到上线标准，能用，但是存在很多已知或者未知的bug，以及部分功能没有实现，所以外部线上环境不要使用所有的rc版本。
+
+### 特殊说明
+
+1. 目前最新版本`v1.0.1`，注意`v1.0`版本能用，但是存在bug：master机器重启，其恰好在slave机器监控周期之内，导致slave机器不知道master的重启，没有重新注册，导致master丢失slave机器列表，无法实现后续通知。
+2. `commons-core` 模块的`v1.0`版本不建议使用，除了bug影响，另外`v1.0.1`对notify模块的实现做了较大改动，以及receive模块的接口返回类型做了修改，不兼容`v1.0`。使用版本从`v1.0.1`开始，就当`v1.0`版本不存在。
+
+### pom依赖
+
+`commons-client`
+
+``` xml
+<dependency>
+	<groupId>com.tqmall.search</groupId>
+	<artifactId>commons-client</artifactId>
+	<version>v1.0.1</version>
+</dependency>
+```
+
+`commons-core`, 其依赖了对应版本最新的`commons-client`模块
+
+``` xml
+<dependency>
+	<groupId>com.tqmall.search</groupId>
+	<artifactId>commons-core</artifactId>
+	<version>1.0.1</version>
+</dependency>
+```
+

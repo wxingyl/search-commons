@@ -25,7 +25,7 @@ public class HttpUtilsTest {
         Assert.assertTrue(uri.toString().equals("http://www.baidu.com"));
         uri = HttpUtils.buildURL("www.baidu.com/", "/search/");
         Assert.assertTrue(uri.toString().equals("http://www.baidu.com/search"));
-        Map<String, String> param = Maps.newLinkedHashMap();
+        Map<String, Object> param = Maps.newLinkedHashMap();
         param.put("key", "大连");
         param.put("args", "search");
         uri = HttpUtils.buildURL("http://www.baidu.com/", "/search/", param);
