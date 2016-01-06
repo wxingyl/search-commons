@@ -41,7 +41,7 @@ public interface RtCacheReceive {
      * 如果无法正常连接, 建议调用{@link #registerMaster(HostInfo)}重新连接
      * @return 是否正常
      */
-    boolean doMonitor();
+    boolean doMonitor(HostInfo localHost);
 
     /**
      * 处理接收到的变化

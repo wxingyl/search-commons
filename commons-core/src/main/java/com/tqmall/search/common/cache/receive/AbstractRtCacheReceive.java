@@ -58,7 +58,7 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
      *
      * @return 是否OK
      */
-    protected abstract boolean doMasterMonitor(T masterHostInfo);
+    protected abstract boolean doMasterMonitor(HostInfo localHost, T masterHostInfo);
 
     /**
      * 填充masterHost信息, {@link #status()}接口使用, 默认啥都不干
@@ -155,7 +155,7 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
     }
 
     @Override
-    public boolean doMonitor() {
+    public boolean doMonitor(HostInfo localHost) {
         boolean haveException = false;
         for (T masterHost : masterHostMap.keySet()) {
             //已经注销了,我们就不用管了
@@ -165,7 +165,7 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
                 haveException = true;
             } else if (masterHost.getRegisterStatus() == RegisterStatus.SUCCEED) {
                 //这儿才是需要真正监控的地方
-                if (!doMasterMonitor(masterHost)) {
+                if (!doMasterMonitor(localHost, masterHost)) {
                     masterHost.setRegisterStatus(RegisterStatus.INTERRUPT);
                     haveException = true;
                 }

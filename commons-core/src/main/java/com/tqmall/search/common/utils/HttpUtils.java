@@ -138,7 +138,7 @@ public abstract class HttpUtils {
         return buildURL(host, path, "");
     }
 
-    public static URL buildURL(HostInfo host, String path, Map<String, String> param) {
+    public static URL buildURL(HostInfo host, String path, Map<String, Object> param) {
         return buildURL(hostInfoToString(host), path, param);
     }
 
@@ -150,12 +150,12 @@ public abstract class HttpUtils {
         return buildURL(host, path, "");
     }
 
-    public static URL buildURL(String host, String path, Map<String, String> param) {
+    public static URL buildURL(String host, String path, Map<String, Object> param) {
         if (param == null || param.isEmpty()) {
             return buildURL(host, path, "");
         } else {
             StringBuilder sb = new StringBuilder(128); //default is 16, maybe too small
-            for (Map.Entry<String, String> e : param.entrySet()) {
+            for (Map.Entry<String, Object> e : param.entrySet()) {
                 sb.append(e.getKey()).append('=').append(e.getValue()).append('&');
             }
             sb.deleteCharAt(sb.length() - 1);

@@ -12,6 +12,7 @@ import com.tqmall.search.common.utils.ResultJsonConverts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -97,10 +98,16 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<HttpMasterHostInf
         return mapResult.isSuccess();
     }
 
+    /**
+     * monitor监控统一用GET请求就可以了
+     */
     @Override
-    protected boolean doMasterMonitor(HttpMasterHostInfo masterHostInfo) {
+    protected boolean doMasterMonitor(HostInfo localHost, HttpMasterHostInfo masterHostInfo) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("ip", localHost.getIp());
+        param.put("post", localHost.getPort());
         MapResult mapResult = HttpUtils.requestGetMapResult(HttpUtils.buildURL(masterHostInfo,
-                masterHostInfo.getMonitorPath()));
+                masterHostInfo.getMonitorPath(), param));
         return mapResult.isSuccess();
     }
 

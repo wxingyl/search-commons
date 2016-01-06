@@ -15,7 +15,8 @@ import java.util.Map;
 public interface RtCacheNotify {
 
     /**
-     * 记录slave机器的注册请求,这个很有可能同时有多个进来,需要考虑多线程
+     * 记录slave机器的注册请求
+     * 同样的机器多次注册,以最后一个为准
      * @param param slave机器注册感兴趣的cache
      * @return 标识注册是否成功
      */
@@ -25,6 +26,12 @@ public interface RtCacheNotify {
      * slaveHost取消注册
      */
     MapResult handleSlaveUnRegister(HostInfo slaveHost);
+
+    /**
+     * 处理监控, 有时候notify端重启了, 但这段时间恰好在receive监控周期之间, 这儿导致receive无法感知notify端的变化
+     * @param slaveHost slave地址
+     */
+    MapResult handleMonitor(HostInfo slaveHost);
 
     /**
      * 1. master 机器通知给slave, 哪些key更改了
