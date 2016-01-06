@@ -55,7 +55,7 @@ public class HttpRtCacheNotify extends AbstractRtCacheNotify<HttpSlaveHostInfo> 
     @Override
     protected void runNotifyTask(NotifyChangeParam param, List<HttpSlaveHostInfo> slaves) {
         String getParam = null;
-        for (HttpSlaveHostInfo info : slaves) {
+        for (final HttpSlaveHostInfo info : slaves) {
             try {
                 final HttpUtils.RequestBase requestBase = HttpUtils.build(info.getMethod());
                 if (HttpUtils.GET_METHOD.equals(info.getMethod())) {
@@ -66,25 +66,23 @@ public class HttpRtCacheNotify extends AbstractRtCacheNotify<HttpSlaveHostInfo> 
                 } else {
                     ((HttpUtils.HandleBodyRequest) requestBase).setBody(param, true);
                 }
-                requestBase.setUrl(HttpUtils.buildURL(info.getSlaveHost(), info.getNotifyUrlPath(), getParam));
+                requestBase.setUrl(HttpUtils.buildURL(info, info.getNotifyUrlPath(), getParam));
 
                 if (info.getRequestHeaders() != null) {
                     requestBase.addHeader(info.getRequestHeaders());
                 }
-                final HostInfo slaveHost = info.getSlaveHost();
                 if (executor == null) {
-                    runNotifyRequest(requestBase, slaveHost);
+                    runNotifyRequest(requestBase, info);
                 } else {
                     executor.execute(new Runnable() {
                         @Override
                         public void run() {
-                            runNotifyRequest(requestBase, slaveHost);
+                            runNotifyRequest(requestBase, info);
                         }
                     });
                 }
             } catch (Throwable e) {
-                log.error("通知slave机器: " + info.getSlaveHost() + "通知缓存cacheKey: " + param.getCacheKey()
-                        + "变更, keys: " + param.getKeys() + "发生异常", e);
+                log.error("通知slave机器: " + info + ", cacheKey: " + param.getCacheKey() + "变更, keys: " + param.getKeys() + "发生异常", e);
             }
         }
     }

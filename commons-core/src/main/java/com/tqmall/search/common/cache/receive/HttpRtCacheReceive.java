@@ -12,6 +12,7 @@ import com.tqmall.search.common.utils.ResultJsonConverts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,16 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<HttpMasterHostInf
     private String notifyChangePath;
 
     private Function<HostInfo, String> registerUrlPathFactory;
+
+    /**
+     * 默认超时链接600ms, 读取超时时间1000ms
+     */
+    private HttpUtils.Config httpConfig = new HttpUtils.Config(600, 1000, 1024, "UTF-8");
+
+    public void setHttpConfig(HttpUtils.Config httpConfig) {
+        if (httpConfig == null) return;
+        this.httpConfig = httpConfig;
+    }
 
     public void setNotifyChangePath(String notifyChangePath) {
         this.notifyChangePath = HttpUtils.filterUrlPath(notifyChangePath);
@@ -97,11 +108,19 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<HttpMasterHostInf
         return mapResult.isSuccess();
     }
 
+    /**
+     * monitor监控统一用GET请求就可以了, 返回结果获取status字段
+     */
     @Override
-    protected boolean doMasterMonitor(HttpMasterHostInfo masterHostInfo) {
-        MapResult mapResult = HttpUtils.requestGetMapResult(HttpUtils.buildURL(masterHostInfo,
-                masterHostInfo.getMonitorPath()));
-        return mapResult.isSuccess();
+    protected boolean doMasterMonitor(HostInfo localHost, HttpMasterHostInfo masterHostInfo) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("ip", localHost.getIp());
+        param.put("port", localHost.getPort());
+        MapResult mapResult = HttpUtils.buildGet()
+                .setUrl(HttpUtils.buildURL(masterHostInfo, masterHostInfo.getMonitorPath(), param))
+                .setConfig(httpConfig)
+                .request(ResultJsonConverts.mapResultConvert());
+        return mapResult.isSuccess() && Boolean.TRUE.equals(mapResult.get("status"));
     }
 
     @Override

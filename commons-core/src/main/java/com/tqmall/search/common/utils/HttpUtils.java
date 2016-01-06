@@ -55,16 +55,18 @@ public abstract class HttpUtils {
     }
 
     /**
-     * hostInfo 检查
+     * hostInfo 检查, 如果检查不通过, 抛出{@link IllegalArgumentException}
+     *
      * @param hostInfo 入参, host
-     * @param wrapHost 如果host.getIp()为空, 是否需要使用本地Ip包装, 如果不需要则抛出{@link IllegalArgumentException}
+     * @param wrapHost 如果host.getIp()为空, 是否需要使用本地Ip包装
      * @return hostInfo, 如果需要包装, 则返回本地ip的包装
      */
     public static HostInfo hostInfoCheck(final HostInfo hostInfo, boolean wrapHost) {
-        Objects.requireNonNull(hostInfo);
-        //这而判断个<= 80, 误杀那就算你倒霉,谁让你没事干的用系统端口, 本身就是找死
-        if (hostInfo.getPort() <= 80) {
-            throw new IllegalArgumentException("localPort " + hostInfo.getPort() + " <= 80 is invalid");
+        if (hostInfo == null) {
+            throw new IllegalArgumentException("hostInfoCheck: hostInfo is null");
+        }
+        if (hostInfo.getPort() <= 0) {
+            throw new IllegalArgumentException("hostInfoCheck: localPort " + hostInfo.getPort() + " <= 0 is invalid");
         }
         if (StringUtils.isEmpty(hostInfo.getIp())) {
             if (wrapHost) {
@@ -82,7 +84,7 @@ public abstract class HttpUtils {
                     }
                 };
             } else {
-                throw new IllegalArgumentException("ip is empty");
+                throw new IllegalArgumentException("hostInfoCheck: ip is empty");
             }
         } else {
             return hostInfo;
@@ -101,6 +103,7 @@ public abstract class HttpUtils {
     /**
      * 过滤urlPath, 如果其以'/'开头或者结尾, 则去掉
      * eg: /goods/convert/ ---> goods/convert
+     *
      * @param urlPath 不能为null或者为空
      * @return 过滤结果
      */
@@ -138,7 +141,7 @@ public abstract class HttpUtils {
         return buildURL(host, path, "");
     }
 
-    public static URL buildURL(HostInfo host, String path, Map<String, String> param) {
+    public static URL buildURL(HostInfo host, String path, Map<String, Object> param) {
         return buildURL(hostInfoToString(host), path, param);
     }
 
@@ -150,12 +153,12 @@ public abstract class HttpUtils {
         return buildURL(host, path, "");
     }
 
-    public static URL buildURL(String host, String path, Map<String, String> param) {
+    public static URL buildURL(String host, String path, Map<String, Object> param) {
         if (param == null || param.isEmpty()) {
             return buildURL(host, path, "");
         } else {
             StringBuilder sb = new StringBuilder(128); //default is 16, maybe too small
-            for (Map.Entry<String, String> e : param.entrySet()) {
+            for (Map.Entry<String, Object> e : param.entrySet()) {
                 sb.append(e.getKey()).append('=').append(e.getValue()).append('&');
             }
             sb.deleteCharAt(sb.length() - 1);
