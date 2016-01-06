@@ -87,6 +87,8 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
         try {
             HttpUtils.hostInfoCheck(masterHost, false);
         } catch (IllegalArgumentException e) {
+            log.warn("registerHandler, masterHost: " + HttpUtils.hostInfoToString(masterHost) + "参数有误: "
+                    + e.getMessage() + ", 无法完成注册");
             return ResultUtils.mapResult(UtilsErrorCode.HOST_INFO_INVALID, e.getMessage());
         }
         T masterHostInfo = null;
@@ -129,6 +131,8 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
         try {
             usedLocalHost = HttpUtils.hostInfoCheck(localHost, true);
         } catch (IllegalArgumentException e) {
+            log.warn("registerMaster, localHost: " + HttpUtils.hostInfoToString(localHost) + "参数有误: "
+                    + e.getMessage() + ", 无法完成注册");
             return ResultUtils.mapResult(UtilsErrorCode.HOST_INFO_INVALID, e.getMessage());
         }
         boolean finish = true;
@@ -185,6 +189,8 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
         try {
            usedLocalHost = HttpUtils.hostInfoCheck(localHost, true);
         } catch (IllegalArgumentException e) {
+            log.warn("unRegister, localHost: " + HttpUtils.hostInfoToString(localHost) + "参数有误: "
+                    + e.getMessage() + ", 无法完成注销");
             return ResultUtils.mapResult(UtilsErrorCode.HOST_INFO_INVALID, e.getMessage());
         }
         boolean status = true;
