@@ -96,7 +96,7 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
         if (slaveHost == null) {
             return ResultUtils.mapResult(UtilsErrorCode.NOTIFY_HANDLE_ARG_INVALID);
         }
-        boolean found = slaveHostMap.isEmpty() || getSlaveHost(slaveHost) != null;
+        boolean found = getSlaveHost(slaveHost) != null;
         return ResultUtils.mapResult("status", found);
     }
 

@@ -33,6 +33,16 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<HttpMasterHostInf
 
     private Function<HostInfo, String> registerUrlPathFactory;
 
+    /**
+     * 默认超时链接600ms, 读取超时时间1000ms
+     */
+    private HttpUtils.Config httpConfig = new HttpUtils.Config(600, 1000, 1024, "UTF-8");
+
+    public void setHttpConfig(HttpUtils.Config httpConfig) {
+        if (httpConfig == null) return;
+        this.httpConfig = httpConfig;
+    }
+
     public void setNotifyChangePath(String notifyChangePath) {
         this.notifyChangePath = HttpUtils.filterUrlPath(notifyChangePath);
     }
@@ -106,8 +116,10 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<HttpMasterHostInf
         Map<String, Object> param = new HashMap<>();
         param.put("ip", localHost.getIp());
         param.put("post", localHost.getPort());
-        MapResult mapResult = HttpUtils.requestGetMapResult(HttpUtils.buildURL(masterHostInfo,
-                masterHostInfo.getMonitorPath(), param));
+        MapResult mapResult = HttpUtils.buildGet()
+                .setUrl(HttpUtils.buildURL(masterHostInfo, masterHostInfo.getMonitorPath(), param))
+                .setConfig(httpConfig)
+                .request(ResultJsonConverts.mapResultConvert());
         return mapResult.isSuccess() && Boolean.TRUE.equals(mapResult.get("status"));
     }
 
