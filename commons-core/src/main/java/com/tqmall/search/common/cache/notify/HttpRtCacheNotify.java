@@ -47,7 +47,7 @@ public class HttpRtCacheNotify extends AbstractRtCacheNotify<HttpSlaveHostInfo> 
         }
         return HttpSlaveHostInfo.build(param.getSlaveHost())
                 .notifyUrlPath(httpParam.getNotifyUrlPath())
-                .method(httpParam.getMethod())
+                .httpMethod(httpParam.getMethod())
                 .requestHeaders(httpParam.getRequestHeaders())
                 .create();
     }
@@ -57,8 +57,8 @@ public class HttpRtCacheNotify extends AbstractRtCacheNotify<HttpSlaveHostInfo> 
         String getParam = null;
         for (final HttpSlaveHostInfo info : slaves) {
             try {
-                final HttpUtils.RequestBase requestBase = HttpUtils.build(info.getMethod());
-                if (HttpUtils.GET_METHOD.equals(info.getMethod())) {
+                final HttpUtils.RequestBase requestBase = HttpUtils.build(info.getHttpMethod());
+                if (HttpUtils.GET_METHOD.equals(info.getHttpMethod())) {
                     if (getParam == null) {
                         getParam = String.format("cacheKey=%s&keys=%s&source=%s", param.getCacheKey(),
                                 StringUtils.join(param.getKeys(), ','), param.getSource());
@@ -102,7 +102,7 @@ public class HttpRtCacheNotify extends AbstractRtCacheNotify<HttpSlaveHostInfo> 
     @Override
     protected Map<String, Object> appendHostStatusInfo(HttpSlaveHostInfo slaveHost, Map<String, Object> infoMap) {
         infoMap.put("notifyUrlPath", slaveHost.getNotifyUrlPath());
-        infoMap.put("httpMethod", slaveHost.getMethod());
+        infoMap.put("httpMethod", slaveHost.getHttpMethod());
         infoMap.put("requestHeaders", slaveHost.getRequestHeaders());
         return infoMap;
     }
