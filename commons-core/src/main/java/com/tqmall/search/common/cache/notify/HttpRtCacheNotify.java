@@ -40,14 +40,14 @@ public class HttpRtCacheNotify extends AbstractRtCacheNotify<HttpSlaveHostInfo> 
     protected HttpSlaveHostInfo createSlaveInfo(LocalRegisterParam param) {
         HttpLocalRegisterParam httpParam = (HttpLocalRegisterParam) param;
         //只是检查Http Method是否OK
-        if (httpParam.getMethod() != null) {
-            HttpUtils.build(httpParam.getMethod());
+        if (httpParam.getHttpMethod() != null) {
+            HttpUtils.build(httpParam.getHttpMethod());
         } else {
-            httpParam.setMethod(HttpUtils.GET_METHOD);
+            httpParam.setHttpMethod(HttpUtils.GET_METHOD);
         }
         return HttpSlaveHostInfo.build(param.getSlaveHost())
                 .notifyUrlPath(httpParam.getNotifyUrlPath())
-                .httpMethod(httpParam.getMethod())
+                .httpMethod(httpParam.getHttpMethod())
                 .requestHeaders(httpParam.getRequestHeaders())
                 .create();
     }
