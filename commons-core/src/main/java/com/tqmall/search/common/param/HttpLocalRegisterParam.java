@@ -18,7 +18,7 @@ public class HttpLocalRegisterParam extends LocalRegisterParam {
     /**
      * 说明那中Http方法,目前只支持GET, POST, PUT, DELETE
      */
-    private String method;
+    private String httpMethod;
 
     public Map<String, String> requestHeaders;
 
@@ -27,8 +27,8 @@ public class HttpLocalRegisterParam extends LocalRegisterParam {
         return notifyUrlPath;
     }
 
-    public String getMethod() {
-        return method;
+    public String getHttpMethod() {
+        return httpMethod;
     }
 
     public Map<String, String> getRequestHeaders() {
@@ -39,8 +39,8 @@ public class HttpLocalRegisterParam extends LocalRegisterParam {
         this.notifyUrlPath = notifyUrlPath;
     }
 
-    public void setMethod(String method) {
-        this.method = method;
+    public void setHttpMethod(String httpMethod) {
+        this.httpMethod = httpMethod;
     }
 
     public void setRequestHeaders(Map<String, String> requestHeaders) {

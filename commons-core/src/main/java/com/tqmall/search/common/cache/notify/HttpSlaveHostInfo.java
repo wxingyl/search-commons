@@ -19,7 +19,7 @@ public class HttpSlaveHostInfo extends AbstractSlaveHostInfo {
     /**
      * 说明那中Http方法,目前只支持GET, POST, PUT, DELETE
      */
-    private String method;
+    private String httpMethod;
 
     public Map<String, String> requestHeaders;
 
@@ -27,8 +27,8 @@ public class HttpSlaveHostInfo extends AbstractSlaveHostInfo {
         super(slaveHost);
     }
 
-    public String getMethod() {
-        return method;
+    public String getHttpMethod() {
+        return httpMethod;
     }
 
     public Map<String, String> getRequestHeaders() {
@@ -47,7 +47,7 @@ public class HttpSlaveHostInfo extends AbstractSlaveHostInfo {
 
         private HostInfo slaveHost;
 
-        private String notifyUrlPath, method;
+        private String notifyUrlPath, httpMethod;
 
         private Map<String, String> requestHeaders;
 
@@ -60,8 +60,8 @@ public class HttpSlaveHostInfo extends AbstractSlaveHostInfo {
             return this;
         }
 
-        public Build method(String method) {
-            this.method = method;
+        public Build httpMethod(String httpMethod) {
+            this.httpMethod = httpMethod;
             return this;
         }
 
@@ -75,7 +75,7 @@ public class HttpSlaveHostInfo extends AbstractSlaveHostInfo {
         public HttpSlaveHostInfo create() {
             HttpSlaveHostInfo info = new HttpSlaveHostInfo(slaveHost);
             info.notifyUrlPath = notifyUrlPath;
-            info.method = method;
+            info.httpMethod = httpMethod;
             if (requestHeaders != null) {
                 info.requestHeaders = Collections.unmodifiableMap(requestHeaders);
             }
