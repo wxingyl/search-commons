@@ -115,7 +115,7 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<HttpMasterHostInf
     protected boolean doMasterMonitor(HostInfo localHost, HttpMasterHostInfo masterHostInfo) {
         Map<String, Object> param = new HashMap<>();
         param.put("ip", localHost.getIp());
-        param.put("post", localHost.getPort());
+        param.put("port", localHost.getPort());
         MapResult mapResult = HttpUtils.buildGet()
                 .setUrl(HttpUtils.buildURL(masterHostInfo, masterHostInfo.getMonitorPath(), param))
                 .setConfig(httpConfig)
