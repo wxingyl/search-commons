@@ -1,6 +1,5 @@
 package com.tqmall.search.common;
 
-import com.google.common.collect.Maps;
 import com.tqmall.search.common.result.PageResult;
 import com.tqmall.search.common.utils.HttpUtils;
 import com.tqmall.search.common.utils.SearchStringUtils;
@@ -10,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.net.URL;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +25,7 @@ public class HttpUtilsTest {
         Assert.assertTrue(uri.toString().equals("http://www.baidu.com"));
         uri = HttpUtils.buildURL("www.baidu.com/", "/search/");
         Assert.assertTrue(uri.toString().equals("http://www.baidu.com/search"));
-        Map<String, Object> param = Maps.newLinkedHashMap();
+        Map<String, Object> param = new LinkedHashMap<>();
         param.put("key", "大连");
         param.put("args", "search");
         uri = HttpUtils.buildURL("http://www.baidu.com/", "/search/", param);
