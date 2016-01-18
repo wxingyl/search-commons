@@ -8,10 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -357,7 +354,7 @@ public abstract class HttpUtils {
 
         private URL url;
 
-        protected Config config;
+        private Config config;
 
         /**
          * 记录Http请求log, 通过{@link Logger#info(String)}记录, 默认开启
@@ -453,7 +450,7 @@ public abstract class HttpUtils {
                 for (Map.Entry<String, String> e : headerMap.entrySet()) {
                     httpConnection.addRequestProperty(e.getKey(), e.getValue());
                 }
-                final Config localConfig = config == null ? Config.DEFAULT : config;
+                Config localConfig = getConfig();
                 httpConnection.setConnectTimeout(localConfig.getConnectTimeout());
                 httpConnection.setReadTimeout(localConfig.getReadTimeout());
                 doHttpURLConnection(httpConnection);
@@ -494,6 +491,10 @@ public abstract class HttpUtils {
                 //如果失败了, convert不为null则返回转换结果, 为null也就不需要返回结果了
                 return convert == null ? null : convert.convert(null);
             }
+        }
+
+        protected Config getConfig() {
+            return config == null ? Config.DEFAULT : config;
         }
 
         public int getResponseCode() {
@@ -547,9 +548,8 @@ public abstract class HttpUtils {
             httpUrlConnection.setDoOutput(true);
             if (body != null) {
                 //其会自动掉用httpUrlConnection.connect()方法
-                try (PrintWriter out = new PrintWriter(httpUrlConnection.getOutputStream())) {
+                try (PrintStream out = new PrintStream(httpUrlConnection.getOutputStream(), true, getConfig().getCharsetName())) {
                     out.print(body);
-                    out.flush();
                 }
             }
         }

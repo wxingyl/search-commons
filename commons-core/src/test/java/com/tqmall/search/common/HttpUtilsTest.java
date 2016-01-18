@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import java.net.URL;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -55,18 +54,6 @@ public class HttpUtilsTest {
 
         private String err_msg;
 
-    }
-
-    @Data
-    static class CategoryEntry {
-
-        private Integer id;
-
-        private String name;
-
-        private String vehicleCode;
-
-        private List<CategoryEntry> list;
     }
 
     @Test
