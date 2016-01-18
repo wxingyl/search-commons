@@ -34,7 +34,7 @@ public class StringUtilsTest {
     public void dateUtilTest() {
         //2016/1/5 10:0:17, yyyy-MM-dd HH:mm:ss
         String orgStr = "2016-01-05 10:00:17";
-        Date orgDate = new Date(1451959217000l);
+        Date orgDate = new Date(1451959217000L);
         Assert.assertTrue(DateStrValueConvert.dateFormat(orgDate).equals(orgStr));
         Assert.assertTrue(DateStrValueConvert.dateConvert(orgStr).equals(orgDate));
     }

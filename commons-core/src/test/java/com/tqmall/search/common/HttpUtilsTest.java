@@ -1,6 +1,5 @@
 package com.tqmall.search.common;
 
-import com.tqmall.search.common.result.PageResult;
 import com.tqmall.search.common.utils.HttpUtils;
 import com.tqmall.search.common.utils.SearchStringUtils;
 import lombok.Data;
@@ -56,13 +55,6 @@ public class HttpUtilsTest {
 
         private String err_msg;
 
-    }
-
-    @Test
-    public void httpJsonHandleTest() {
-        PageResult<CategoryEntry> result = HttpUtils.requestGetPageResult(HttpUtils.buildURL("http://114.215.169.216:8180",
-                "/elasticsearch/category/search"), CategoryEntry.class);
-        Assert.assertTrue(result.isSuccess());
     }
 
     @Data
