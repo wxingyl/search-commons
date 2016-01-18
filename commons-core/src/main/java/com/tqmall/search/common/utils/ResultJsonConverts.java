@@ -1,10 +1,10 @@
 package com.tqmall.search.common.utils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.Lists;
 import com.tqmall.search.common.result.*;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +50,7 @@ public abstract class ResultJsonConverts {
                     if (list == null) {
                         return ResultUtils.pageResult(UtilsErrorCode.JSON_RESULT_CONVERT_INVALID_ARRAY, simpleResult.getData());
                     } else {
-                        List<T> beanList = Lists.newArrayListWithExpectedSize(list.size());
+                        List<T> beanList = new ArrayList<>(list.size());
                         for (String s : list) {
                             beanList.add(JsonUtils.jsonStrToObj(s, cls));
                         }
@@ -90,7 +90,7 @@ public abstract class ResultJsonConverts {
     public static List<String> splitJsonArray(String jsonArray) {
         int lastIndex = jsonArray.length() - 1;
         if (jsonArray.charAt(0) != '[' || jsonArray.charAt(lastIndex) != ']') return null;
-        List<String> retList = Lists.newArrayList();
+        List<String> retList = new ArrayList<>();
         char startCh = 0, endCh = 0;
         int startIndex = 0, deep = 0;
         for (int i = 1; i < lastIndex; i++) {

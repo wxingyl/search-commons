@@ -1,7 +1,6 @@
 package com.tqmall.search.common.cache;
 
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Maps;
 import com.tqmall.search.common.exception.CacheInitException;
 
 import java.util.Collections;
@@ -55,7 +54,7 @@ public abstract class AbstractStrongCache<K, V> implements StrongCache<K, V> {
             if (data instanceof ConcurrentMap){
                 cache = (ConcurrentMap<K, V>) data;
             } else {
-                cache = Maps.newConcurrentMap();
+                cache = new ConcurrentHashMap<>();
                 cache.putAll(data);
             }
         }
