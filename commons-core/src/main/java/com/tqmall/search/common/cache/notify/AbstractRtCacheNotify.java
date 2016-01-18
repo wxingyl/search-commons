@@ -105,9 +105,9 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
         if (keys == null || keys.isEmpty()) return false;
         String cacheKey = RtCacheManager.getCacheHandleKey(slaveCache);
         List<T> slaveHostList = new ArrayList<>();
-        for (T host : slaveHostMap.keySet()) {
-            if (slaveHostMap.get(host).contains(cacheKey)) {
-                slaveHostList.add(host);
+        for (Map.Entry<T, Set<String>> e : slaveHostMap.entrySet()) {
+            if (e.getValue().contains(cacheKey)) {
+                slaveHostList.add(e.getKey());
             }
         }
         log.info("发送缓存" + cacheKey + "更改的key: " + keys + "到机器: " + slaveHostList);
@@ -125,11 +125,11 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
     @Override
     public List<Map<String, Object>> status() {
         List<Map<String, Object>> ret = new ArrayList<>();
-        for (T slaveHost : slaveHostMap.keySet()) {
+        for (Map.Entry<T, Set<String>> e : slaveHostMap.entrySet()) {
             Map<String, Object> map = new HashMap<>();
-            map.put("host", HttpUtils.hostInfoToString(slaveHost));
-            map.put("interestKeys", slaveHostMap.get(slaveHost));
-            map = appendHostStatusInfo(slaveHost, map);
+            map.put("host", HttpUtils.hostInfoToString(e.getKey()));
+            map.put("interestKeys", e.getValue());
+            map = appendHostStatusInfo(e.getKey(), map);
             ret.add(map);
         }
         return ret;
