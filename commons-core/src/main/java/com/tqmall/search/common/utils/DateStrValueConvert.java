@@ -63,7 +63,7 @@ public class DateStrValueConvert implements ComparableStrValueConvert<Date> {
 
     public long timestamp(String input) {
         Date date = convert(input);
-        return date == null ? 0l : date.getTime();
+        return date == null ? 0L : date.getTime();
     }
 
     public FastDateFormat getDateFormat() {

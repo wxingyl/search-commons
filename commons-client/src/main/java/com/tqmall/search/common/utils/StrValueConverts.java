@@ -10,21 +10,40 @@ public abstract class StrValueConverts {
 
     @SuppressWarnings("unchecked")
     public static <T extends Comparable<T> > ComparableStrValueConvert<T> getConvert(Class<T> cls) {
+        ComparableStrValueConvert ret;
         if (cls == Integer.class || cls == Integer.TYPE) {
-            return (ComparableStrValueConvert) IntStrValueConvert.INSTANCE;
+            ret = IntStrValueConvert.INSTANCE;
         } else if (cls == String.class) {
-            return (ComparableStrValueConvert) StringStrValueConvert.INSTANCE;
+            ret = StringStrValueConvert.INSTANCE;
         } else if (cls == Long.class || cls == Long.TYPE) {
-            return (ComparableStrValueConvert) LongStrValueConvert.INSTANCE;
+            ret = LongStrValueConvert.INSTANCE;
         } else if (cls == Double.class || cls == Double.TYPE) {
-            return (ComparableStrValueConvert) DoubleStrValueConvert.INSTANCE;
+            ret = DoubleStrValueConvert.INSTANCE;
         } else if (cls == BigDecimal.class) {
-            return (ComparableStrValueConvert) BigDecimalStrValueConvert.INSTANCE;
+            ret = BigDecimalStrValueConvert.INSTANCE;
         } else {
             return null;
         }
+        return ret;
     }
 
+    public static <T extends Comparable<T> > ComparableStrValueConvert<T> getConvert(Class<T> cls, final T defaultValue) {
+        final AbstractCmpStrValueConvert<T> convert = (AbstractCmpStrValueConvert<T>) getConvert(cls);
+        if (convert == null || defaultValue == null) return convert;
+        if (convert.defaultValue().equals(defaultValue)) return convert;
+        return new AbstractCmpStrValueConvert<T>() {
+
+            @Override
+            protected T innerConvert(String s) {
+                return convert.convert(s);
+            }
+
+            @Override
+            protected T defaultValue() {
+                return defaultValue;
+            }
+        };
+    }
     /**
      * @return have error will return {@link IntStrValueConvert#defaultValue()}
      */
@@ -33,7 +52,7 @@ public abstract class StrValueConverts {
     }
 
     public static int intConvert(String input, int defaultValue) {
-        return IntStrValueConvert.INSTANCE.convert(input, defaultValue);
+        return convert(input, defaultValue, Integer.TYPE);
     }
 
     /**
@@ -44,7 +63,7 @@ public abstract class StrValueConverts {
     }
 
     public static long longConvert(String input, long defaultValue) {
-        return LongStrValueConvert.INSTANCE.convert(input, defaultValue);
+        return convert(input, defaultValue, Long.TYPE);
     }
 
     /**
@@ -55,7 +74,7 @@ public abstract class StrValueConverts {
     }
 
     public static double doubleConvert(String input, double defaultValue) {
-        return DoubleStrValueConvert.INSTANCE.convert(input, defaultValue);
+        return convert(input, defaultValue, Double.TYPE);
     }
 
     /**
@@ -66,7 +85,15 @@ public abstract class StrValueConverts {
     }
 
     public static BigDecimal bigDecimalConvert(String input, BigDecimal defaultValue) {
-        return BigDecimalStrValueConvert.INSTANCE.convert(input, defaultValue);
+        return convert(input, defaultValue, BigDecimal.class);
+    }
+
+    public static <T extends Comparable<T> > T convert(final String input, final T defaultValue, final Class<T> cls) {
+        ComparableStrValueConvert<T> convert = getConvert(cls, defaultValue);
+        if (convert == null) {
+            throw new IllegalArgumentException("class: " + cls + " is unsupported");
+        }
+        return convert.convert(input);
     }
 
     public static abstract class AbstractCmpStrValueConvert<T extends Comparable<T>> implements ComparableStrValueConvert<T> {
@@ -82,16 +109,11 @@ public abstract class StrValueConverts {
 
         @Override
         final public T convert(String s) {
-            return convert(s, defaultValue());
-        }
-
-        final public T convert(String s, T defaultValue) {
-            if (defaultValue == null) defaultValue = defaultValue();
-            if (s == null || s.isEmpty()) return defaultValue;
+            if (s == null || s.isEmpty()) return defaultValue();
             try {
                 return innerConvert(s);
             } catch (NumberFormatException e) {
-                return defaultValue;
+                return defaultValue();
             }
         }
     }
@@ -138,7 +160,7 @@ public abstract class StrValueConverts {
 
         @Override
         protected Long defaultValue() {
-            return 0l;
+            return 0L;
         }
 
     }
@@ -147,7 +169,7 @@ public abstract class StrValueConverts {
 
         final static DoubleStrValueConvert INSTANCE = new DoubleStrValueConvert();
 
-        final static Double DEFAULT_VALUE = 0.0d;
+        final static Double DEFAULT_VALUE = 0.0D;
 
         @Override
         protected Double innerConvert(String s) {
