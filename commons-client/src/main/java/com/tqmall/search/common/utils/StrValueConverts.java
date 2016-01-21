@@ -26,24 +26,36 @@ public abstract class StrValueConverts {
     }
 
     /**
-     * @return can not null, have error will return {@link IntStrValueConvert#defaultValue()}
+     * @return have error will return {@link IntStrValueConvert#defaultValue()}
      */
     public static int intConvert(String input) {
         return IntStrValueConvert.INSTANCE.convert(input);
     }
 
+    public static int intConvert(String input, int defaultValue) {
+        return IntStrValueConvert.INSTANCE.convert(input, defaultValue);
+    }
+
     /**
-     * @return can not null, have error will return {@link LongStrValueConvert#defaultValue()}
+     * @return have error will return {@link LongStrValueConvert#defaultValue()}
      */
     public static long longConvert(String input) {
         return LongStrValueConvert.INSTANCE.convert(input);
     }
 
+    public static long longConvert(String input, long defaultValue) {
+        return LongStrValueConvert.INSTANCE.convert(input, defaultValue);
+    }
+
     /**
-     * @return can not null, have error will return {@link DoubleStrValueConvert#defaultValue()}
+     * @return have error will return {@link DoubleStrValueConvert#defaultValue()}
      */
     public static double doubleConvert(String input) {
         return DoubleStrValueConvert.INSTANCE.convert(input);
+    }
+
+    public static double doubleConvert(String input, double defaultValue) {
+        return DoubleStrValueConvert.INSTANCE.convert(input, defaultValue);
     }
 
     /**
@@ -51,6 +63,10 @@ public abstract class StrValueConverts {
      */
     public static BigDecimal bigDecimalConvert(String input) {
         return BigDecimalStrValueConvert.INSTANCE.convert(input);
+    }
+
+    public static BigDecimal bigDecimalConvert(String input, BigDecimal defaultValue) {
+        return BigDecimalStrValueConvert.INSTANCE.convert(input, defaultValue);
     }
 
     public static abstract class AbstractCmpStrValueConvert<T extends Comparable<T>> implements ComparableStrValueConvert<T> {
@@ -66,11 +82,16 @@ public abstract class StrValueConverts {
 
         @Override
         final public T convert(String s) {
-            if (s == null || s.isEmpty()) return defaultValue();
+            return convert(s, defaultValue());
+        }
+
+        final public T convert(String s, T defaultValue) {
+            if (defaultValue == null) defaultValue = defaultValue();
+            if (s == null || s.isEmpty()) return defaultValue;
             try {
                 return innerConvert(s);
             } catch (NumberFormatException e) {
-                return defaultValue();
+                return defaultValue;
             }
         }
     }

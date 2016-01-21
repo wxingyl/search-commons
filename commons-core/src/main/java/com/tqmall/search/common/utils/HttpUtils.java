@@ -548,7 +548,8 @@ public abstract class HttpUtils {
             httpUrlConnection.setDoOutput(true);
             if (body != null) {
                 //其会自动掉用httpUrlConnection.connect()方法
-                try (PrintStream out = new PrintStream(httpUrlConnection.getOutputStream(), true, getConfig().getCharsetName())) {
+                try (PrintStream out = new PrintStream(httpUrlConnection.getOutputStream(), true,
+                        getConfig().getCharsetName())) {
                     out.print(body);
                 }
             }
