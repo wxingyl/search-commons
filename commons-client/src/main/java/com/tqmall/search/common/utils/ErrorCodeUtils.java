@@ -16,22 +16,6 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class ErrorCodeUtils {
     /**
-     * 系统码长度
-     */
-    private static final int SYSTEM_CODE_LENGTH = 3;
-
-    /**
-     * 具体异常码长度
-     */
-    private static final int EXCEPTION_CODE_LENGTH = 4;
-    /**
-     * 异常码的长度
-     */
-    private static final int CODE_LENGTH = SYSTEM_CODE_LENGTH + 1 + EXCEPTION_CODE_LENGTH;
-
-    private static final String ERROR_CODE_FORMAT = "%0" + SYSTEM_CODE_LENGTH + "d%1d%0" + EXCEPTION_CODE_LENGTH + "d";
-
-    /**
      * 设定的系统码, 可以实时添加已经溢出, 最多100个类调用添加
      */
     private static final ConcurrentMap<String, Integer> SYSTEM_CODE_MAP = new ConcurrentHashMap<>();
@@ -144,20 +128,20 @@ public class ErrorCodeUtils {
     }
 
     public static String buildCode(int systemCode, ErrorCode.Level level, int exceptionCode) {
-        return String.format(ERROR_CODE_FORMAT, systemCode, level.getCode(), exceptionCode);
+        return String.format(ClientConst.ERROR_CODE_FORMAT, systemCode, level.getCode(), exceptionCode);
     }
 
     /**
      * 错误码识别, 得出具体的系统码, 错误级别以及具体的异常码
-     * 错误码长度必须等于{@link #CODE_LENGTH}
+     * 错误码长度必须等于{@link ClientConst#ERROR_CODE_LENGTH}
      *
      * @see ErrorCodeEntry
      */
     public static ErrorCodeEntry parseCode(String code) {
-        if (code.length() != CODE_LENGTH) {
-            throw new IllegalArgumentException("code: " + code + "长度不等于" + CODE_LENGTH);
+        if (code.length() !=ClientConst.ERROR_CODE_LENGTH) {
+            throw new IllegalArgumentException("code: " + code + "长度不等于" +ClientConst.ERROR_CODE_LENGTH);
         }
-        int levelValue = code.charAt(SYSTEM_CODE_LENGTH) - '0';
+        int levelValue = code.charAt(ClientConst.SYSTEM_CODE_LENGTH) - '0';
         ErrorCode.Level level = null;
         for (ErrorCode.Level v : ErrorCode.Level.values()) {
             if (v.getCode() == levelValue) {
@@ -169,9 +153,9 @@ public class ErrorCodeUtils {
             throw new IllegalArgumentException("code: " + code + "的异常等级" + levelValue + "值错误, 找不到对应的等级");
         }
         return ErrorCodeEntry.build()
-                .systemCode(StrValueConverts.intConvert(code.substring(0, SYSTEM_CODE_LENGTH)))
+                .systemCode(StrValueConverts.intConvert(code.substring(0, ClientConst.SYSTEM_CODE_LENGTH)))
                 .level(level)
-                .exceptionCode(StrValueConverts.intConvert(code.substring(SYSTEM_CODE_LENGTH + 1)))
+                .exceptionCode(StrValueConverts.intConvert(code.substring(ClientConst.SYSTEM_CODE_LENGTH + 1)))
                 .create();
     }
 

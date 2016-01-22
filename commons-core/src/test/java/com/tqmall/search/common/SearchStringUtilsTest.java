@@ -15,7 +15,7 @@ import java.util.List;
  * Created by xing on 16/1/3.
  * 字符串处理的相关测试, 包括Json相关处理的测试
  */
-public class StringUtilsTest {
+public class SearchStringUtilsTest {
 
     @Test
     public void simpleResultTest() {

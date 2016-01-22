@@ -113,6 +113,11 @@ public final class ClientStringUtils {
         return buf.toString();
     }
 
+    public static String join(final Iterable<?> iterable, final char separator) {
+        if (iterable == null) return null;
+        return join(iterable.iterator(), separator);
+    }
+
     /**
      * 为null的原先不写入, 但是分隔符会写入
      * 该代码也是来自Apache commons.lang3 的StringUtils, 同上面{@link #split(String, char)}
