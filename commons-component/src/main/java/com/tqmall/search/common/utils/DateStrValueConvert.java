@@ -11,7 +11,7 @@ import java.util.Date;
 
 /**
  * Created by xing on 16/1/5.
- * {@link java.util.Date} 的{@link ComparableStrValueConvert}实现
+ * {@link Date} 的{@link ComparableStrValueConvert}实现
  */
 public class DateStrValueConvert implements ComparableStrValueConvert<Date> {
 
