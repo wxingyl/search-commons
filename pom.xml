@@ -11,8 +11,9 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>commons-client</module>
+        <module>commons-lang</module>
         <module>commons-core</module>
+        <module>commons-component</module>
     </modules>
 
     <dependencies>

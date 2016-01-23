@@ -1,8 +1,8 @@
 package com.tqmall.search.common.cache;
 
 
-import com.tqmall.search.common.utils.HostInfo;
-import com.tqmall.search.common.utils.StrValueConvert;
+import com.tqmall.search.common.lang.HostInfo;
+import com.tqmall.search.common.lang.StrValueConvert;
 import com.tqmall.search.common.utils.StrValueConverts;
 
 import java.util.List;

@@ -1,5 +1,6 @@
 package com.tqmall.search.common.utils;
 
+import com.tqmall.search.common.lang.ComparableStrValueConvert;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.slf4j.Logger;

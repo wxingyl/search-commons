@@ -3,8 +3,8 @@ package com.tqmall.search.common.cache;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.tqmall.search.common.cache.receive.RtCacheSlaveHandle;
-import com.tqmall.search.common.utils.HostInfo;
-import com.tqmall.search.common.utils.StrValueConvert;
+import com.tqmall.search.common.lang.HostInfo;
+import com.tqmall.search.common.lang.StrValueConvert;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -1,5 +1,7 @@
 package com.tqmall.search.common.utils;
 
+import com.tqmall.search.common.lang.HostInfo;
+import com.tqmall.search.common.lang.StrValueConvert;
 import com.tqmall.search.common.param.Param;
 import com.tqmall.search.common.result.MapResult;
 import com.tqmall.search.common.result.PageResult;
@@ -411,9 +413,7 @@ public abstract class HttpUtils {
          */
         public RequestBase addHeader(String name, String value) {
             Objects.requireNonNull(name);
-            if (!StringUtils.isAllLowerCase(name)) {
-                name = name.toLowerCase();
-            }
+            name = name.toLowerCase();
             if (value == null) {
                 headerMap.remove(name);
             } else {

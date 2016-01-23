@@ -2,11 +2,11 @@ package com.tqmall.search.common.cache.receive;
 
 import com.google.common.base.Function;
 import com.tqmall.search.common.cache.HttpCacheManager;
-import com.tqmall.search.common.param.HostInfoObj;
+import com.tqmall.search.common.lang.HostInfoObj;
 import com.tqmall.search.common.param.HttpLocalRegisterParam;
 import com.tqmall.search.common.result.MapResult;
 import com.tqmall.search.common.result.ResultUtils;
-import com.tqmall.search.common.utils.HostInfo;
+import com.tqmall.search.common.lang.HostInfo;
 import com.tqmall.search.common.utils.HttpUtils;
 import com.tqmall.search.common.utils.ResultJsonConverts;
 import org.slf4j.Logger;

@@ -2,7 +2,7 @@ package com.tqmall.search.common.cache.receive;
 
 import com.tqmall.search.common.param.NotifyChangeParam;
 import com.tqmall.search.common.result.MapResult;
-import com.tqmall.search.common.utils.HostInfo;
+import com.tqmall.search.common.lang.HostInfo;
 
 import java.util.List;
 import java.util.Map;

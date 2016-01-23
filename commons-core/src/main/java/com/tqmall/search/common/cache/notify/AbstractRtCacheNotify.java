@@ -6,7 +6,7 @@ import com.tqmall.search.common.param.LocalRegisterParam;
 import com.tqmall.search.common.param.NotifyChangeParam;
 import com.tqmall.search.common.result.MapResult;
 import com.tqmall.search.common.result.ResultUtils;
-import com.tqmall.search.common.utils.HostInfo;
+import com.tqmall.search.common.lang.HostInfo;
 import com.tqmall.search.common.utils.HttpUtils;
 import com.tqmall.search.common.utils.UtilsErrorCode;
 import org.slf4j.Logger;

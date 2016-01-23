@@ -1,6 +1,6 @@
 package com.tqmall.search.common.cache.receive;
 
-import com.tqmall.search.common.utils.HostInfo;
+import com.tqmall.search.common.lang.HostInfo;
 
 /**
  * Created by xing on 16/1/1.

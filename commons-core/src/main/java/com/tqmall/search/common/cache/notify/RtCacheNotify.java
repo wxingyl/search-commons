@@ -3,7 +3,7 @@ package com.tqmall.search.common.cache.notify;
 import com.tqmall.search.common.cache.receive.RtCacheSlaveHandle;
 import com.tqmall.search.common.param.LocalRegisterParam;
 import com.tqmall.search.common.result.MapResult;
-import com.tqmall.search.common.utils.HostInfo;
+import com.tqmall.search.common.lang.HostInfo;
 
 import java.util.List;
 import java.util.Map;

@@ -1,6 +1,6 @@
 package com.tqmall.search.common.cache.receive;
 
-import com.tqmall.search.common.utils.HostInfo;
+import com.tqmall.search.common.lang.HostInfo;
 import com.tqmall.search.common.utils.HttpUtils;
 
 /**

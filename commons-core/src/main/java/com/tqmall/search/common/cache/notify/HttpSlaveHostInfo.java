@@ -1,6 +1,6 @@
 package com.tqmall.search.common.cache.notify;
 
-import com.tqmall.search.common.utils.HostInfo;
+import com.tqmall.search.common.lang.HostInfo;
 
 import java.util.Collections;
 import java.util.Map;

@@ -1,7 +1,7 @@
 package com.tqmall.search.common.cache.receive;
 
 import com.tqmall.search.common.cache.RtCacheManager;
-import com.tqmall.search.common.utils.HostInfo;
+import com.tqmall.search.common.lang.HostInfo;
 
 /**
  * Created by xing on 15/12/29.

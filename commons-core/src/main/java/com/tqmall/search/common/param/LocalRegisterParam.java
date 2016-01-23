@@ -1,5 +1,7 @@
 package com.tqmall.search.common.param;
 
+import com.tqmall.search.common.lang.HostInfoObj;
+
 import java.util.List;
 
 /**

@@ -1,6 +1,7 @@
 package com.tqmall.search.common.utils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.tqmall.search.common.lang.StrValueConvert;
 import com.tqmall.search.common.result.*;
 import org.apache.commons.lang3.StringUtils;
 
@@ -13,7 +14,10 @@ import java.util.Map;
  * Created by xing on 15/12/27.
  * Http调用, 以json格式的Result返回需要转换,该工具类提供转换实现
  */
-public abstract class ResultJsonConverts {
+public class ResultJsonConverts {
+
+    private ResultJsonConverts(){
+    }
 
     /**
      * 获取{@link Result} 的String转换器
