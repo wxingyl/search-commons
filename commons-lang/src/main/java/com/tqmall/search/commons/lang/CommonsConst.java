@@ -4,7 +4,7 @@ package com.tqmall.search.commons.lang;
  * Created by xing on 16/1/22.
  * Client 包常量定义
  */
-public interface ClientConst {
+public interface CommonsConst {
     /**
      * 系统码长度
      */

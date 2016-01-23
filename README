@@ -1,38 +1,86 @@
-## 模块介绍
+# 模块介绍
 
-### commons-client
+## commons-lang
 
-简单的Param, Result等公共类抽象封装，后续还需补充。
+基础jar包，没有依赖任何第三方jar包。其实现了公司规定的Result和ErrorCode规范。所以搜索各个项目给其他团队提供的client包都可以基于该jar包。
 
-之后搜索各个项目给其他团队提供的client jar包都可以基于该jar
+另外还封装了作为搜索参数和简单返回结果的工具包，比如RangeFilter，Sort等。
 
-### commons-core
+## commons-component
 
-搜索内部各个项目用到的一些工具，目前主要有
+搜索公共组件包，目前只是一些简单的Utils方法，里面依赖了一些第三方jar包：
 
-#### notify/receive
+``` xml
+<dependency>
+    <groupId>com.google.guava</groupId>
+    <artifactId>guava</artifactId>
+    <version>19.0</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-lang3</artifactId>
+    <version>3.4</version>
+</dependency>
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+    <version>2.6.4</version>
+</dependency>
+<dependency>
+    <groupId>org.slf4j</groupId>
+    <artifactId>slf4j-api</artifactId>
+    <version>1.7.12</version>
+</dependency>        
+```
 
-多态机器，多系统之间实现消息逐个通知，类似广播的概念。目前搜索内存缓存少量数据使用到，实时索引在masterHost修改，将改动notify到注册的slaveHost机器, 完成数据同步修改。
+这4个jar包基本上是每个项目都需要的，所以这儿单独拿出来，并且基于这些第三库封装了一些工具类。
 
-#### utils
+如果需要排除这些引入的jar包，避免冲突，如下直接拷贝拿去：
 
-一些公共的，不经常修改添加的utils方法
+``` xml
+<exclusions>
+    <exclusion>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+    </exclusion>
+    <exclusion>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+    </exclusion>
+    <exclusion>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+    </exclusion>
+    <exclusion>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+    </exclusion>
+</exclusions>
+```
+
+是不是很人性化~~~~~~
+
+## commons-cache
+
+少量数据内存缓存，该模块封装实现了简单的缓存，支持动态实时修改(需要外部程序支持，比如canal等)，同时支持多机器互发通知更新缓存。
+
+封装了notify/receive,多态机器，多系统之间实现消息逐个通知，类似广播的概念。目前搜索内存缓存少量数据使用到，实时索引在masterHost修改，将改动notify到注册的slaveHost机器, 完成数据同步修改。
+
+## commons-nlp
+
+nlp相关工具类封装，包括：
 
 #### 汉字转拼音
 
 通过汉字得到拼音，以及拼音首字母等功能接口，目前还没有，后续添加完善
 
-#### 分词工具
+#### 分词
 
 分词的一些工具类，词库加载，不同粒度分词等，目前还没有，后续添加完善
 
 #### 关键字识别工具
 
 查询时识别关键字信息，其跟上面的分词息息相关，目前还没有，后续添加完善
-
-#### 查询参数构造工具
-
-基于client模块，请求搜索接口时需要封装的参数很多，有些查询有特定格式要求，比如Range，Sort，非查询，商品的属性等等，需要相关的工具类提供。目前还没有，后续添加完善
 
 
 
@@ -70,4 +118,3 @@ rc版本为预发版本，未达到上线标准，能用，但是存在很多已
 	<version>1.0.1</version>
 </dependency>
 ```
-

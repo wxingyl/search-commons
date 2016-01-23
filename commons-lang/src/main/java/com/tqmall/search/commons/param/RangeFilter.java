@@ -1,6 +1,6 @@
 package com.tqmall.search.commons.param;
 
-import com.tqmall.search.commons.lang.ClientConst;
+import com.tqmall.search.commons.lang.CommonsConst;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 import com.tqmall.search.commons.lang.StrValueConvert;
 
@@ -83,10 +83,10 @@ public class RangeFilter<T> implements Serializable {
      */
     public static <T> RangeFilter<T> build(final String field, final String rangeStr, final StrValueConvert<T> strValueConvert) {
         if (rangeStr == null || rangeStr.isEmpty()) return null;
-        String[] rangeArray = SearchStringUtils.split(rangeStr, ClientConst.RANGE_FILTER_CHAR);
+        String[] rangeArray = SearchStringUtils.split(rangeStr, CommonsConst.RANGE_FILTER_CHAR);
         T start = null, end = null;
         if (rangeArray.length == 1) {
-            if (rangeStr.charAt(0) == ClientConst.RANGE_FILTER_CHAR) {
+            if (rangeStr.charAt(0) == CommonsConst.RANGE_FILTER_CHAR) {
                 end = strValueConvert.convert(rangeArray[0]);
             } else {
                 start = strValueConvert.convert(rangeArray[0]);

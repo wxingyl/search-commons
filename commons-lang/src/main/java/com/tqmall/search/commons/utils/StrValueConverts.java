@@ -101,7 +101,7 @@ public final class StrValueConverts {
     public static <T extends Comparable<T>> T convert(final String input, final T defaultValue, final Class<T> cls) {
         ComparableStrValueConvert<T> convert = getConvert(cls, defaultValue);
         if (convert == null) {
-            throw new IllegalArgumentException("class: " + cls + " is unsupported");
+            throw new IllegalArgumentException("class: " + cls + " StrValueConvert is unsupported");
         }
         return convert.convert(input);
     }
