@@ -156,13 +156,14 @@ public final class SearchStringUtils {
     }
 
     /**
-     * 对字符串数组中的每个String做trim, 注意: 该方法会破坏入参数据
+     * 对字符串数组中的每个String做{@link #filterString(String)}操作, 即每个字符串做trim操作, 如果trim后为空, 则置为null
+     * 注意: 该方法会破坏入参数据
      * @param array 字符串数据, 会破坏入参的值
      * @return trim过的字符串
      */
     public static String[] stringArrayTrim(String[] array) {
         for (int i = 0; i < array.length; i++) {
-            array[i] = array[i].trim();
+            array[i] = filterString(array[i]);
         }
         return array;
     }

@@ -36,4 +36,5 @@ public interface CommonsConst {
     char RANGE_FILTER_CHAR = '~';
 
     String RANGE_FILTER = "" + RANGE_FILTER_CHAR;
+
 }

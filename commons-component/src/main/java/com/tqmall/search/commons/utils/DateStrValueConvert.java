@@ -22,10 +22,18 @@ public class DateStrValueConvert implements ComparableStrValueConvert<Date> {
         return INSTANCE.convert(input);
     }
 
+    /**
+     * @param date 日期对象
+     * @return {@link #INSTANCE}格式的字符串
+     */
     public static String dateFormat(Date date) {
         return INSTANCE.format(date);
     }
 
+    /**
+     * @param input 时间字符串
+     * @return 对应的时间戳, 单位为ms
+     */
     public static long dateTimestamp(String input) {
         return INSTANCE.timestamp(input);
     }
@@ -57,10 +65,18 @@ public class DateStrValueConvert implements ComparableStrValueConvert<Date> {
         }
     }
 
+    /**
+     * @param date 日期对象
+     * @return 对应格式的字符串
+     */
     public String format(Date date) {
         return dateFormat.format(date);
     }
 
+    /**
+     * @param input 时间字符串
+     * @return 对应的时间戳, 单位为ms
+     */
     public long timestamp(String input) {
         Date date = convert(input);
         return date == null ? 0L : date.getTime();

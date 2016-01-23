@@ -83,19 +83,25 @@ public class RangeFilter<T> implements Serializable {
      */
     public static <T> RangeFilter<T> build(final String field, final String rangeStr, final StrValueConvert<T> strValueConvert) {
         if (rangeStr == null || rangeStr.isEmpty()) return null;
-        String[] rangeArray = SearchStringUtils.split(rangeStr, CommonsConst.RANGE_FILTER_CHAR);
-        T start = null, end = null;
+        String[] rangeArray = SearchStringUtils.stringArrayTrim(SearchStringUtils.split(rangeStr, CommonsConst.RANGE_FILTER_CHAR));
+        int startIndex = 0, endIndex = 1;
         if (rangeArray.length == 1) {
             if (rangeStr.charAt(0) == CommonsConst.RANGE_FILTER_CHAR) {
-                end = strValueConvert.convert(rangeArray[0]);
+                startIndex = -1;
+                endIndex = 0;
             } else {
-                start = strValueConvert.convert(rangeArray[0]);
+                startIndex = 0;
+                endIndex = -1;
             }
-        } else {
-            start = strValueConvert.convert(rangeArray[0]);
-            end = strValueConvert.convert(rangeArray[0]);
         }
-        return new RangeFilter<>(field, start, end);
+        T startValue = null, endValue = null;
+        if (startIndex == 0 && rangeArray[0] != null && '*' != rangeArray[0].charAt(0)) {
+            startValue = strValueConvert.convert(rangeArray[0]);
+        }
+        if (endIndex >= 0 && rangeArray[endIndex] != null && '*' != rangeArray[endIndex].charAt(0)) {
+            endValue = strValueConvert.convert(rangeArray[endIndex]);
+        }
+        return new RangeFilter<>(field, startValue, endValue);
     }
 
 }
