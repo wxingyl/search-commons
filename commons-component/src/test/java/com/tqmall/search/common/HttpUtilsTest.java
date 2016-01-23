@@ -1,7 +1,6 @@
 package com.tqmall.search.common;
 
 import com.tqmall.search.common.utils.HttpUtils;
-import lombok.Data;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -38,10 +37,9 @@ public class HttpUtilsTest {
                 .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
                 .request(HttpUtils.jsonStrValueConvert(TinyUrl.class));
         System.out.println(tinyUrl);
-        Assert.assertTrue(tinyUrl.getStatus() == 0);
+        Assert.assertTrue(tinyUrl.status == 0);
     }
 
-    @Data
     static class TinyUrl {
 
         private String tinyurl;

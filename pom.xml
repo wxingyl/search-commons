@@ -12,8 +12,8 @@
 
     <modules>
         <module>commons-lang</module>
-        <module>commons-core</module>
         <module>commons-component</module>
+        <module>commons-cache</module>
     </modules>
 
     <dependencies>

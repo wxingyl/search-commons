@@ -1,7 +1,6 @@
 package com.tqmall.search.common.utils;
 
 import com.tqmall.search.common.lang.ComparableStrValueConvert;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +47,7 @@ public class DateStrValueConvert implements ComparableStrValueConvert<Date> {
 
     @Override
     public Date convert(String input) {
-        if (StringUtils.isEmpty(input)) return null;
+        if (SearchStringUtils.isEmpty(input)) return null;
         try {
             return dateFormat.parse(input);
         } catch (ParseException e) {

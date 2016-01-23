@@ -3,7 +3,6 @@ package com.tqmall.search.common.utils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tqmall.search.common.lang.StrValueConvert;
 import com.tqmall.search.common.result.*;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -114,7 +113,7 @@ public class ResultJsonConverts {
             }
         }
         if (startCh == 0) {
-            Collections.addAll(retList, StringUtils.split(jsonArray.substring(1, jsonArray.length() - 1), ','));
+            Collections.addAll(retList, SearchStringUtils.split(jsonArray.substring(1, jsonArray.length() - 1), ','));
         }
         return retList;
     }
@@ -133,7 +132,7 @@ public class ResultJsonConverts {
      * @return not null
      */
     private static JsonSimpleResult parseData(String json) {
-        if (StringUtils.isEmpty(json)) {
+        if (SearchStringUtils.isEmpty(json)) {
             return buildErrorSimpleResult("Json string is empty");
         }
         int dataIndex = json.indexOf("\"data\"");

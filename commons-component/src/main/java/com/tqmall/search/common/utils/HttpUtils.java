@@ -6,7 +6,6 @@ import com.tqmall.search.common.param.Param;
 import com.tqmall.search.common.result.MapResult;
 import com.tqmall.search.common.result.PageResult;
 import com.tqmall.search.common.result.Result;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +69,7 @@ public abstract class HttpUtils {
         if (hostInfo.getPort() <= 0) {
             throw new IllegalArgumentException("hostInfoCheck: localPort " + hostInfo.getPort() + " <= 0 is invalid");
         }
-        if (StringUtils.isEmpty(hostInfo.getIp())) {
+        if (SearchStringUtils.isEmpty(hostInfo.getIp())) {
             if (wrapHost) {
                 return new HostInfo() {
 
@@ -180,12 +179,12 @@ public abstract class HttpUtils {
         if (host.charAt(host.length() - 1) != '/') {
             urlBuild.append('/');
         }
-        if (!StringUtils.isEmpty(path)) {
+        if (!SearchStringUtils.isEmpty(path)) {
             urlBuild.append(filterUrlPath(path));
         } else {
             urlBuild.deleteCharAt(urlBuild.length() - 1);
         }
-        if (!StringUtils.isEmpty(param)) {
+        if (!SearchStringUtils.isEmpty(param)) {
             urlBuild.append('?').append(param);
         }
         try {
@@ -328,7 +327,7 @@ public abstract class HttpUtils {
             this.connectTimeout = connectTimeout;
             this.readTimeout = readTimeout;
             this.readBufferSize = readBufferSize;
-            if (!StringUtils.isEmpty(charsetName)) {
+            if (!SearchStringUtils.isEmpty(charsetName)) {
                 this.charsetName = charsetName;
             }
         }

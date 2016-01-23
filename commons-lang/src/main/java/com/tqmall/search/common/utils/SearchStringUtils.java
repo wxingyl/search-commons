@@ -16,6 +16,10 @@ public final class SearchStringUtils {
     private SearchStringUtils() {
     }
 
+    public static boolean isEmpty(String str) {
+        return str == null || str.isEmpty();
+    }
+
     /**
      * 过滤掉值为null的value
      */

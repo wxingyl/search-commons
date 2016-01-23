@@ -1,14 +1,14 @@
 package com.tqmall.search.common.cache.notify;
 
+import com.tqmall.search.common.lang.HostInfo;
 import com.tqmall.search.common.param.HttpLocalRegisterParam;
-import com.tqmall.search.common.param.NotifyChangeParam;
 import com.tqmall.search.common.param.LocalRegisterParam;
+import com.tqmall.search.common.param.NotifyChangeParam;
 import com.tqmall.search.common.result.MapResult;
 import com.tqmall.search.common.result.ResultUtils;
-import com.tqmall.search.common.lang.HostInfo;
 import com.tqmall.search.common.utils.HttpUtils;
+import com.tqmall.search.common.utils.SearchStringUtils;
 import com.tqmall.search.common.utils.StrValueConverts;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +61,7 @@ public class HttpRtCacheNotify extends AbstractRtCacheNotify<HttpSlaveHostInfo> 
                 if (HttpUtils.GET_METHOD.equals(info.getHttpMethod())) {
                     if (getParam == null) {
                         getParam = String.format("cacheKey=%s&keys=%s&source=%s", param.getCacheKey(),
-                                StringUtils.join(param.getKeys(), ','), param.getSource());
+                                SearchStringUtils.join(param.getKeys(), ','), param.getSource());
                     }
                 } else {
                     ((HttpUtils.HandleBodyRequest) requestBase).setBody(param, true);

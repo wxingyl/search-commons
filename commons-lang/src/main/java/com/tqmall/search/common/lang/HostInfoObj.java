@@ -42,7 +42,7 @@ public class HostInfoObj implements HostInfo, Serializable {
 
     @Override
     public String toString() {
-        return HttpUtils.hostInfoToString(this);
+        return ip + ':' + port;
     }
 
     @Override
