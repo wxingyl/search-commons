@@ -13,6 +13,7 @@
     <modules>
         <module>commons-lang</module>
         <module>commons-component</module>
+        <module>commons-nlp</module>
         <module>commons-cache</module>
     </modules>
 
