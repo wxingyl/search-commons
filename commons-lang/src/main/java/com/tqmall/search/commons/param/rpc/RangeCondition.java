@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.param;
+package com.tqmall.search.commons.param.rpc;
 
 import com.tqmall.search.commons.lang.CommonsConst;
 import com.tqmall.search.commons.lang.StrValueConvert;
@@ -6,17 +6,17 @@ import com.tqmall.search.commons.utils.SearchStringUtils;
 
 /**
  * Created by xing on 16/1/22.
- * 区间选择参数封装
+ * 区间选择条件
  */
-public class RangeFilter<T> extends Condition {
+public class RangeCondition<T> extends Condition {
 
     private static final long serialVersionUID = 8024467420617760387L;
 
-    private T start;
+    private final T start;
 
-    private T end;
+    private final T end;
 
-    public RangeFilter(String field, T start, T end) {
+    public RangeCondition(String field, T start, T end) {
         super(field);
         this.start = start;
         this.end = end;
@@ -28,6 +28,11 @@ public class RangeFilter<T> extends Condition {
 
     public T getStart() {
         return start;
+    }
+
+    @Override
+    public String toString() {
+        return "RangeCondition{" + super.toString() + ", start = " + start + ", end = " + end;
     }
 
     public static <T> Builder<T> build(String field) {
@@ -58,8 +63,8 @@ public class RangeFilter<T> extends Condition {
             return this;
         }
 
-        public RangeFilter<T> create() {
-            return new RangeFilter<>(field, start, end);
+        public RangeCondition<T> create() {
+            return new RangeCondition<>(field, start, end);
         }
 
     }
@@ -71,7 +76,7 @@ public class RangeFilter<T> extends Condition {
      * @param <T>             对应类型
      * @return 构造好的RangeFilter对象
      */
-    public static <T> RangeFilter<T> build(final String field, final String rangeStr, final StrValueConvert<T> strValueConvert) {
+    public static <T> RangeCondition<T> build(final String field, final String rangeStr, final StrValueConvert<T> strValueConvert) {
         if (rangeStr == null || rangeStr.isEmpty()) return null;
         String[] rangeArray = SearchStringUtils.split(rangeStr, CommonsConst.RANGE_FILTER_CHAR);
         if (rangeArray.length == 0) return null;
@@ -93,7 +98,7 @@ public class RangeFilter<T> extends Condition {
         if (endIndex >= 0 && rangeArray[endIndex] != null && '*' != rangeArray[endIndex].charAt(0)) {
             endValue = strValueConvert.convert(rangeArray[endIndex]);
         }
-        return new RangeFilter<>(field, startValue, endValue);
+        return new RangeCondition<>(field, startValue, endValue);
     }
 
 }

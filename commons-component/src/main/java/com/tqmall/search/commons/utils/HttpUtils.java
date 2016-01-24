@@ -109,7 +109,7 @@ public abstract class HttpUtils {
      * @return 过滤结果
      */
     public static String filterUrlPath(String urlPath) {
-        urlPath = Param.filterString(urlPath);
+        urlPath = SearchStringUtils.filterString(urlPath);
         Objects.requireNonNull(urlPath);
         int start = 0, end = urlPath.length();
         if (urlPath.charAt(0) == '/') {

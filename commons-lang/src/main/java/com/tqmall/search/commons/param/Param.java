@@ -1,9 +1,6 @@
 package com.tqmall.search.commons.param;
 
-import com.tqmall.search.commons.utils.SearchStringUtils;
-
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * Created by xing on 15/12/5.
@@ -37,24 +34,4 @@ public abstract class Param implements Serializable {
         this.uid = uid;
     }
 
-    /**
-     * 往这儿搞个该函数主要是子类调用方便
-     * 过滤掉值为null的value
-     * 参数建议使用List.
-     * Set, Map等开销较大, 不建议使用, 如果需要去重, 可以自己手动处理
-     */
-    public static <T> List<T> filterNullValue(List<T> list) {
-        return SearchStringUtils.filterNullValue(list);
-    }
-
-    /**
-     * 往这儿搞个该函数主要是子类调用方便
-     * 过滤String, 返回的String是trim过的
-     * 关键字不能为null, 不能为空, 并且trim后不能为空
-     *
-     * @return 返回的String是trim过的
-     */
-    public static String filterString(String q) {
-        return SearchStringUtils.filterString(q);
-    }
 }

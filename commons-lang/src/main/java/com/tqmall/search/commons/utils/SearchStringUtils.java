@@ -21,18 +21,6 @@ public final class SearchStringUtils {
     }
 
     /**
-     * 过滤掉值为null的value
-     */
-    public static <T> List<T> filterNullValue(List<T> list) {
-        if (list == null || list.isEmpty()) return null;
-        Iterator<T> it = list.iterator();
-        while (it.hasNext()) {
-            if (it.next() == null) it.remove();
-        }
-        return list.isEmpty() ? null : list;
-    }
-
-    /**
      * 过滤String, 返回的String是trim过的
      * 关键字不能为null, 不能为空, 并且trim后不能为空
      *

@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Created by xing on 15/12/25.
@@ -25,6 +26,9 @@ public abstract class JsonUtils {
         OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
+    /**
+     * @return 读取失败返回null
+     */
     public static String objToJsonStr(Object obj) {
         try {
             return OBJECT_MAPPER.writeValueAsString(obj);
@@ -34,11 +38,28 @@ public abstract class JsonUtils {
         }
     }
 
+    /**
+     * @return 转换失败返回null
+     */
     public static <T> T jsonStrToObj(String jsonStr, Class<T> cls) {
         try {
             return OBJECT_MAPPER.readValue(jsonStr, cls);
         } catch (IOException e) {
             log.warn("json转换异常, 从字符串" + jsonStr + "转化为class: " + cls, e);
+            return null;
+        }
+    }
+
+    /**
+     * 讲json字符串转化为Map
+     * @return 转换失败返回null
+     */
+    @SuppressWarnings("unchecked")
+    public static Map<String, Object> jsonStrToMap(String jsonStr) {
+        try {
+            return OBJECT_MAPPER.readValue(jsonStr, Map.class);
+        } catch (IOException e) {
+            log.warn("json转换异常, 从字符串" + jsonStr + "转化为HashMap", e);
             return null;
         }
     }
