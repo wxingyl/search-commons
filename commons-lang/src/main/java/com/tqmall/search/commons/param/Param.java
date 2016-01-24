@@ -16,13 +16,13 @@ public abstract class Param implements Serializable {
     /**
      * 请求用来表示用户唯一的参数, 这个用户具体业务中区分用户的id, 比如电商的userId, UC的shopId等
      */
-    private Integer uid;
+    private int uid;
 
     public String getSource() {
         return source;
     }
 
-    public Integer getUid() {
+    public int getUid() {
         return uid;
     }
 

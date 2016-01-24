@@ -17,11 +17,16 @@ public class RpcPageParam extends RpcParam {
 
     private int start;
 
-    public RpcPageParam () {
-        this(10);
+    public RpcPageParam(String source) {
+        this(10, source);
     }
 
-    public RpcPageParam (int size) {
+    public RpcPageParam(int size, String source) {
+        this(size, source, 0);
+    }
+
+    public RpcPageParam(int size, String source, Integer uid) {
+        super(source, uid);
         this.size = size;
     }
 

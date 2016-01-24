@@ -2,6 +2,7 @@ package com.tqmall.search.commons.param.rpc;
 
 import com.tqmall.search.commons.param.Param;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,9 +11,17 @@ import java.util.List;
  * http调用之外的Rpc调用使用的公共参数类, 比如Dubbo等
  * 该类可以说是一个Build类
  */
-public class RpcParam extends Param {
+public class RpcParam implements Serializable {
 
     private static final long serialVersionUID = -4627652456092763293L;
+    /**
+     * 记录系统调用来源
+     */
+    private final String source;
+    /**
+     * 请求用来表示用户唯一的参数, 这个用户具体业务中区分用户的id, 比如电商的userId, UC的shopId等
+     */
+    private final int uid;
 
     private ConditionContainer must;
 
@@ -27,12 +36,17 @@ public class RpcParam extends Param {
 
     private List<SortCondition> sort;
 
-    public RpcParam() {
+    public RpcParam(String source) {
+        this(source, null);
     }
 
     public RpcParam(Param param) {
-        setSource(param.getSource());
-        setUid(param.getUid());
+        this(param.getSource(), param.getUid());
+    }
+
+    public RpcParam(String source, Integer uid) {
+        this.source = source;
+        this.uid = uid;
     }
 
     /**
@@ -102,5 +116,13 @@ public class RpcParam extends Param {
 
     public List<SortCondition> getSort() {
         return sort;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public int getUid() {
+        return uid;
     }
 }
