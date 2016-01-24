@@ -19,7 +19,7 @@ public enum CacheErrorCode implements ErrorCode {
     HOST_INFO_INVALID(41, "HostInfo对象值错误: %s");
 
     static {
-        ErrorCodeUtils.setSystemCode(803);
+        ErrorCodeUtils.setSystemCode(812);
         for (CacheErrorCode e : CacheErrorCode.values()) {
             e.code = ErrorCodeUtils.buildErrorCode(e.exceptionCode);
         }

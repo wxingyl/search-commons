@@ -24,6 +24,7 @@ public interface CommonsConst {
      */
     String ERROR_CODE_FORMAT = "%0" + SYSTEM_CODE_LENGTH + "d%1d%0" + EXCEPTION_CODE_LENGTH + "d";
 
+
     /**
      * 默认的分割符separator
      */
@@ -36,5 +37,12 @@ public interface CommonsConst {
     char RANGE_FILTER_CHAR = '~';
 
     String RANGE_FILTER = "" + RANGE_FILTER_CHAR;
+
+    /**
+     * 赋值操作符号, 指定字段赋值, 比如排序的时候,按照id升序排序: "id:asc"
+     */
+    char ASSIGNMENT_CHAR = ':';
+
+    String ASSIGNMENT = "" + ASSIGNMENT_CHAR;
 
 }

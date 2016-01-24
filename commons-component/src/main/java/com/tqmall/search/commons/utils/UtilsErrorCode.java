@@ -14,7 +14,7 @@ public enum UtilsErrorCode implements ErrorCode {
     JSON_RESULT_PARSE_INVALID_STRING(103, "json字符串不符合Result格式: %s");
 
     static {
-        ErrorCodeUtils.setSystemCode(802);
+        ErrorCodeUtils.setSystemCode(811);
         for (UtilsErrorCode e : UtilsErrorCode.values()) {
             e.code = ErrorCodeUtils.buildErrorCode(e.exceptionCode);
         }

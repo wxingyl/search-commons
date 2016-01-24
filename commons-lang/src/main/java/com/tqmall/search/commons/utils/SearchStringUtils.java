@@ -94,6 +94,8 @@ public final class SearchStringUtils {
         }
         if (match) {
             list.add(str.substring(start, i));
+        } else if (list.isEmpty()){
+            return EMPTY_STRING_ARRAY;
         }
         return list.toArray(new String[list.size()]);
     }

@@ -1,39 +1,29 @@
 package com.tqmall.search.commons.param;
 
 import com.tqmall.search.commons.lang.CommonsConst;
-import com.tqmall.search.commons.utils.SearchStringUtils;
 import com.tqmall.search.commons.lang.StrValueConvert;
-
-import java.io.Serializable;
-import java.util.Objects;
+import com.tqmall.search.commons.utils.SearchStringUtils;
 
 /**
  * Created by xing on 16/1/22.
  * 区间选择参数封装
  */
-public class RangeFilter<T> implements Serializable {
+public class RangeFilter<T> extends Condition {
 
     private static final long serialVersionUID = 8024467420617760387L;
-
-    private String field;
 
     private T start;
 
     private T end;
 
     public RangeFilter(String field, T start, T end) {
-        Objects.requireNonNull(field);
-        this.field = field;
+        super(field);
         this.start = start;
         this.end = end;
     }
 
     public T getEnd() {
         return end;
-    }
-
-    public String getField() {
-        return field;
     }
 
     public T getStart() {
@@ -83,7 +73,9 @@ public class RangeFilter<T> implements Serializable {
      */
     public static <T> RangeFilter<T> build(final String field, final String rangeStr, final StrValueConvert<T> strValueConvert) {
         if (rangeStr == null || rangeStr.isEmpty()) return null;
-        String[] rangeArray = SearchStringUtils.stringArrayTrim(SearchStringUtils.split(rangeStr, CommonsConst.RANGE_FILTER_CHAR));
+        String[] rangeArray = SearchStringUtils.split(rangeStr, CommonsConst.RANGE_FILTER_CHAR);
+        if (rangeArray.length == 0) return null;
+        rangeArray = SearchStringUtils.stringArrayTrim(rangeArray);
         int startIndex = 0, endIndex = 1;
         if (rangeArray.length == 1) {
             if (rangeStr.charAt(0) == CommonsConst.RANGE_FILTER_CHAR) {
