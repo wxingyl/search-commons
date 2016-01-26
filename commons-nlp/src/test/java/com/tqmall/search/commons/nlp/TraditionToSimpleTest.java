@@ -17,6 +17,8 @@ public class TraditionToSimpleTest {
         String str = "简体";
         Assert.assertTrue(str == NlpUtils.convert(str));
         str = "簡体";
-        Assert.assertTrue("简体".equals(NlpUtils.convert(str)));
+        Assert.assertEquals("简体", NlpUtils.convert(str));
+        str = "电费測試繁體轉簡體";
+        Assert.assertEquals("电费测试繁体转简体", NlpUtils.convert(str));
     }
 }

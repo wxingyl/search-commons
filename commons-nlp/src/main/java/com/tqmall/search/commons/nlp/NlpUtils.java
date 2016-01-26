@@ -36,5 +36,14 @@ public final class NlpUtils {
         return TraditionToSimple.getInstance().convert(str);
     }
 
+    /**
+     * 判断是否为cjk字符
+     *
+     * @return true为cjk字符
+     */
+    public static boolean isCjkChar(char ch) {
+        return ch >= NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST && ch <= NlpConst.CJK_UNIFIED_IDEOGRAPHS_LAST;
+    }
+
 
 }
