@@ -16,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>com.tqmall.search</groupId>
-            <artifactId>commons-lang</artifactId>
+            <artifactId>commons-component</artifactId>
             <version>dev-1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
