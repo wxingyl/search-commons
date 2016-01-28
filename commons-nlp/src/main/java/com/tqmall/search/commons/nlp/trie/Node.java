@@ -77,11 +77,11 @@ public abstract class Node<V> {
         boolean add = false;
         switch (newNode.status) {
             case LEAF_WORD:
+                if (preNode.status == NodeStatus.NORMAL) {
+                    add = true;
+                }
                 if (preNode.status != NodeStatus.WORD) {
                     preNode.status = LEAF_WORD;
-                }
-                if (preNode.value != null) {
-                    add = true;
                 }
                 preNode.value = newNode.value;
                 break;

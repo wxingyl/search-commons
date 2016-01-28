@@ -47,6 +47,8 @@ public class TrieTest {
             System.out.println("正常抛出异常: " + e.getMessage());
         }
 
+        Assert.assertEquals(dataMap.size(), binaryTrie.size());
+
         binaryTrieGetValue(dataMap, "一");
         binaryTrieGetValue(dataMap, "一切");
         for (String k : dataMap.keySet()) {

@@ -25,7 +25,7 @@ public class CjkRootNode<V> extends Node<V> {
         Node<V> preNode;
         if ((preNode = getChild(node.c)) == null) {
             children[node.c - NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST] = node;
-            return true;
+            return node.status == NodeStatus.LEAF_WORD;
         } else {
             return handleReplaceChildNode(preNode, node);
         }
