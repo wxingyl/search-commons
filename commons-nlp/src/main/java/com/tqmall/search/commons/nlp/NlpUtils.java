@@ -45,5 +45,4 @@ public final class NlpUtils {
         return ch >= NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST && ch <= NlpConst.CJK_UNIFIED_IDEOGRAPHS_LAST;
     }
 
-
 }

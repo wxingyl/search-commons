@@ -55,13 +55,15 @@ final class TraditionToSimple {
                 StandardCharsets.UTF_8))) {
             String line;
             final int indexOffset = NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST;
-            char[] localCharArray = new char[NlpConst.CJK_UNIFIED_IDEOGRAPHS_LAST - NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST + 1];
+            char[] localCharArray = new char[NlpConst.CJK_UNIFIED_SIZE];
+            int loadTraditionCount = 0;
             while ((line = reader.readLine()) != null) {
                 String[] array = SearchStringUtils.split(line, '=');
                 if (array.length < 2) {
                     log.warn("加载繁体转简体词库, 词" + line + "格式存在异常");
                 } else {
                     localCharArray[array[0].charAt(0) - indexOffset] = array[1].charAt(0);
+                    loadTraditionCount++;
                 }
             }
             for (int i = 0; i < localCharArray.length; i++) {
@@ -69,7 +71,7 @@ final class TraditionToSimple {
                     localCharArray[i] = (char) (indexOffset + i);
                 }
             }
-            log.info("加载繁体转简体词库: " + F2J_FILE_NAME + " 完成");
+            log.info("加载繁体转简体词库: " + F2J_FILE_NAME + " 完成, 共加载了" + loadTraditionCount + "个繁体对应简体词库");
             return localCharArray;
         } catch (IOException e) {
             log.error("加载繁体对应简体字典: " + F2J_FILE_NAME + "时存在异常", e);

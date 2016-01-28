@@ -13,5 +13,9 @@ public interface NlpConst {
      * Unicode标准, 最后一个中文字符:'龥'
      */
     char CJK_UNIFIED_IDEOGRAPHS_LAST = '\u9FA5';
+    /**
+     * cjk字符个数
+     */
+    int CJK_UNIFIED_SIZE = CJK_UNIFIED_IDEOGRAPHS_LAST - CJK_UNIFIED_IDEOGRAPHS_FIRST + 1;
 
 }
