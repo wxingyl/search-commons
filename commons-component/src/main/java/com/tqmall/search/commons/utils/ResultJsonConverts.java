@@ -13,7 +13,7 @@ import java.util.Map;
  * Created by xing on 15/12/27.
  * Http调用, 以json格式的Result返回需要转换,该工具类提供转换实现
  */
-public class ResultJsonConverts {
+public final class ResultJsonConverts {
 
     private ResultJsonConverts(){
     }

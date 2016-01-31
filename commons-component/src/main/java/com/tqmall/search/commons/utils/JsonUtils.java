@@ -30,6 +30,7 @@ public abstract class JsonUtils {
      * @return 读取失败返回null
      */
     public static String objToJsonStr(Object obj) {
+        if (obj == null) return null;
         try {
             return OBJECT_MAPPER.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
@@ -42,6 +43,7 @@ public abstract class JsonUtils {
      * @return 转换失败返回null
      */
     public static <T> T jsonStrToObj(String jsonStr, Class<T> cls) {
+        if (jsonStr == null) return null;
         try {
             return OBJECT_MAPPER.readValue(jsonStr, cls);
         } catch (IOException e) {
@@ -56,6 +58,7 @@ public abstract class JsonUtils {
      */
     @SuppressWarnings("unchecked")
     public static Map<String, Object> jsonStrToMap(String jsonStr) {
+        if (jsonStr == null) return null;
         try {
             return OBJECT_MAPPER.readValue(jsonStr, Map.class);
         } catch (IOException e) {

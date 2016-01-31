@@ -10,9 +10,9 @@ public interface NlpConst {
      */
     char CJK_UNIFIED_IDEOGRAPHS_FIRST = '\u4E00';
     /**
-     * Unicode标准, 最后一个中文字符:'龥'
+     * Unicode标准, 最后一个中文字符:'鿌'
      */
-    char CJK_UNIFIED_IDEOGRAPHS_LAST = '\u9FA5';
+    char CJK_UNIFIED_IDEOGRAPHS_LAST = '\u9FCC';
     /**
      * cjk字符个数
      */

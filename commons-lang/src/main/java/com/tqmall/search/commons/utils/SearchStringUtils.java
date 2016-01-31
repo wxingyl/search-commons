@@ -33,7 +33,14 @@ public final class SearchStringUtils {
     /**
      * 该函数实现来自Apache commons.lang3 的StringUtils中的split()方法的实现, 只是用这一个方法,
      * 为了避免过多依赖(client公共基础包尽量少依赖), 我们直接把该方法代码拿过来.
-     * 申明: 不是自己原创, 是人家Apache的, 当然自己有了做了微小改动
+     *
+     * 申明: 不是自己原创, 是人家Apache的
+     *       不是自己原创, 是人家Apache的
+     *       不是自己原创, 是人家Apache的
+     *
+     * 重要的事情至少说3变
+     * 当然自己有了做了微小改动
+     *
      * <p/>
      * 下面的文档也是人家的:
      * <p>Splits the provided text into an array, separator specified.
@@ -90,6 +97,13 @@ public final class SearchStringUtils {
 
     /**
      * 数组join
+     *
+     * 申明: 不是自己原创, 参考人家Apache
+     *       不是自己原创, 参考人家Apache
+     *       不是自己原创, 参考人家Apache
+     *
+     * 重要的事情至少说3变
+     * 当然自己有了做了微小改动
      */
     public static String join(final Object[] array, final char separator) {
         if (array == null) return null;

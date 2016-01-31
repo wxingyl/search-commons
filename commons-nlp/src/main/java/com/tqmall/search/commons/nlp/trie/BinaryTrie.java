@@ -1,9 +1,12 @@
 package com.tqmall.search.commons.nlp.trie;
 
+import com.tqmall.search.commons.nlp.node.Node;
+import com.tqmall.search.commons.nlp.node.TrieNodeFactory;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by xing on 16/1/27.
@@ -11,12 +14,16 @@ import java.util.Map;
  */
 public class BinaryTrie<V> implements Trie<V> {
 
+    private final TrieNodeFactory<V> nodeFactory;
+
     private final Node<V> root;
 
     private int size;
 
-    public BinaryTrie(Node<V> root) {
-        this.root = root;
+    public BinaryTrie(TrieNodeFactory<V> nodeFactory) {
+        this.nodeFactory = nodeFactory;
+        this.root = nodeFactory.createRootNode();
+        Objects.requireNonNull(root);
     }
 
     @Override
@@ -25,10 +32,10 @@ public class BinaryTrie<V> implements Trie<V> {
         if (charArray == null) return false;
         Node<V> current = root;
         for (int i = 0; i < charArray.length - 1; i++) {
-            current.addChild(new NormalNode<V>(charArray[i]));
+            current.addChild(nodeFactory.createNormalNode(charArray[i]));
             current = current.getChild(charArray[i]);
         }
-        if (current.addChild(new NormalNode<>(charArray[charArray.length - 1], value))) {
+        if (current.addChild(nodeFactory.createChildNode(charArray[charArray.length - 1], value))) {
             size++;
         }
         return true;
@@ -37,17 +44,49 @@ public class BinaryTrie<V> implements Trie<V> {
     @Override
     public V getValue(String key) {
         Node<V> node = searchNode(key);
-        return (node == null || node.status == NodeStatus.NORMAL) ? null : node.getValue();
+        return (node == null || node.getStatus() == Node.Status.NORMAL) ? null : node.getValue();
     }
 
+    @Override
+    public boolean remove(String word) {
+        Node<V> node = searchNode(word);
+        if (node == null || node.getStatus() == Node.Status.NORMAL) return false;
+        char[] array = word.toCharArray();
+        node = root;
+        Node<V> startNode = root;
+        int startIndex = 0;
+        for (int i = 0; i < array.length; i++) {
+            node = node.getChild(array[i]);
+            if (node.getStatus() != Node.Status.NORMAL) {
+                startIndex = i;
+                startNode = node;
+            }
+        }
+        startNode.removeNode(array, startIndex);
+        size--;
+        return true;
+    }
+
+    /**
+     * node节点搜索, 筛选掉DELETE的节点
+     *
+     * @return key无效或者节点已经被删除, 返回null
+     */
     private Node<V> searchNode(String key) {
         char[] charArray = argCheck(key);
-        if (charArray == null) return null;
+        return charArray == null ? null : searchNode(charArray);
+    }
+
+    /**
+     * 不做array 参数校验
+     *
+     * @param array 不做参数校验
+     */
+    private Node<V> searchNode(char[] array) {
         Node<V> currentNode = root;
-        final int length = key.length();
-        for (int i = 0; i < length; i++) {
-            currentNode = currentNode.getChild(key.charAt(i));
-            if (currentNode == null) return null;
+        for (char c : array) {
+            currentNode = currentNode.getChild(c);
+            if (currentNode == null || currentNode.getStatus() == Node.Status.DELETE) return null;
         }
         return currentNode;
     }

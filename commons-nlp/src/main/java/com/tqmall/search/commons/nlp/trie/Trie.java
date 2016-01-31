@@ -19,7 +19,16 @@ public interface Trie<V> {
     V getValue(String key);
 
     /**
+     * 删除词
+     *
+     * @param word 要删除的词
+     * @return 如果该词存在, 则删除
+     */
+    boolean remove(String word);
+
+    /**
      * 前缀查询
+     *
      * @param word 要查询的词
      * @return 如果没有匹配, 返回null
      */

@@ -1,7 +1,10 @@
 package com.tqmall.search.commons.nlp;
 
+import com.tqmall.search.commons.nlp.node.LargeRootNode;
+import com.tqmall.search.commons.nlp.node.Node;
+import com.tqmall.search.commons.nlp.node.NormalNode;
+import com.tqmall.search.commons.nlp.node.TrieNodeFactory;
 import com.tqmall.search.commons.nlp.trie.BinaryTrie;
-import com.tqmall.search.commons.nlp.trie.CjkRootNode;
 import com.tqmall.search.commons.nlp.trie.Trie;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -19,7 +22,22 @@ public class TrieTest {
 
     @BeforeClass
     public static void init() {
-        binaryTrie = new BinaryTrie<>(new CjkRootNode<String>());
+        binaryTrie = new BinaryTrie<>(new TrieNodeFactory<String>() {
+            @Override
+            public Node<String> createRootNode() {
+                return LargeRootNode.createCjkRootNode();
+            }
+
+            @Override
+            public Node<String> createNormalNode(char c) {
+                return new NormalNode<>(c);
+            }
+
+            @Override
+            public Node<String> createChildNode(char c, String value) {
+                return new NormalNode<>(c, value);
+            }
+        });
     }
 
     @Test
@@ -66,6 +84,12 @@ public class TrieTest {
         binaryTriePrefixSearch("老", 1);
         binaryTriePrefixSearch("王xi", 1);
         binaryTriePrefixSearch("王星", 2);
+
+        System.out.println("删除测试");
+        Assert.assertFalse(binaryTrie.remove("一心一"));
+        Assert.assertTrue(binaryTrie.remove("一"));
+        Assert.assertEquals(dataMap.size() - 1, binaryTrie.size());
+        binaryTriePrefixSearch("一", 3);
     }
 
     private void binaryTrieGetValue(Map<String, String> dataMap, String key) {

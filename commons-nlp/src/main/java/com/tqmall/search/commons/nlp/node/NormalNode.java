@@ -1,11 +1,8 @@
-package com.tqmall.search.commons.nlp.trie;
+package com.tqmall.search.commons.nlp.node;
 
 import com.tqmall.search.commons.utils.SearchStringUtils;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by xing on 16/1/27.
@@ -14,12 +11,21 @@ import java.util.Map;
 public class NormalNode<V> extends Node<V> {
 
     /**
+     * 默认数组扩展大小
+     */
+    static final int DEFAULT_INFLATE_SIZE = 16;
+
+    private int childCount;
+
+    private Node<?>[] children;
+
+    /**
      * 普通节点构造
      *
      * @param ch 对应字符
      */
     public NormalNode(char ch) {
-        super(ch, NodeStatus.NORMAL, null);
+        this(ch, Status.NORMAL, null);
     }
 
     /**
@@ -29,28 +35,47 @@ public class NormalNode<V> extends Node<V> {
      * @param value 叶子节点对应的值
      */
     public NormalNode(char ch, V value) {
-        super(ch, NodeStatus.LEAF_WORD, value);
+        this(ch, Status.LEAF_WORD, value);
+    }
+
+    public NormalNode(char ch, Status status, V value) {
+        super(ch, status, value);
+    }
+
+    /**
+     * 扩展children数组, 每次扩展DEFAULT_INFLATE_SIZE
+     */
+    private void inflateChildrenArray() {
+        if (children == null) {
+            children = new Node[DEFAULT_INFLATE_SIZE];
+        } else {
+            Node[] newChildren = new Node[children.length + DEFAULT_INFLATE_SIZE];
+            System.arraycopy(children, 0, newChildren, 0, children.length);
+            children = newChildren;
+        }
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public boolean addChild(Node<V> node) {
+        //first child, simple handle
         if (children == null) {
-            children = new Node[1];
+            inflateChildrenArray();
             children[0] = node;
+            childCount++;
             return true;
         }
-        int index = binarySearch(children, node.c);
+        int index = binarySearch(children, 0, childCount, node.c);
         if (index < 0) {
             index = -(index + 1);
-            Node[] newChild = new Node[children.length + 1];
-            if (index > 0) {
-                System.arraycopy(children, 0, newChild, 0, index);
+            if ((childCount + 1) >= children.length) {
+                inflateChildrenArray();
             }
-            newChild[index] = node;
-            if (children.length > index) {
-                System.arraycopy(children, index, newChild, index + 1, children.length - index);
+            if (index < childCount) {
+                System.arraycopy(children, index, children, index + 1, childCount - index);
             }
-            children = newChild;
+            children[index] = node;
+            childCount++;
             return true;
         } else {
             return handleReplaceChildNode((Node<V>) children[index], node);
@@ -58,22 +83,33 @@ public class NormalNode<V> extends Node<V> {
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public Node<V> getChild(char ch) {
         if (children == null) return null;
-        int index = binarySearch(children, ch);
+        int index = binarySearch(children, 0, childCount, ch);
         return index < 0 ? null : (Node<V>) children[index];
+    }
+
+    @Override
+    public boolean haveChild() {
+        if (children == null) return false;
+        for (int i = 0; i < childCount; i++) {
+            if (children[i].status != Status.DELETE) return true;
+        }
+        return false;
     }
 
     @SuppressWarnings("unchecked")
     private void walkAppend(StringBuilder preKey, List<Map.Entry<String, V>> retList) {
+        if (status == Status.DELETE) return;
         preKey.append(c);
-        if (status == NodeStatus.LEAF_WORD || status == NodeStatus.WORD) {
+        if (status == Status.LEAF_WORD || status == Status.WORD) {
             retList.add(new AbstractMap.SimpleEntry<>(preKey.toString(), value));
         }
         if (children != null) {
             final int startIndex = preKey.length();
-            for (Node<?> c : children) {
-                NormalNode<V> childNode = (NormalNode<V>) c;
+            for (int i = 0; i < childCount; i++) {
+                NormalNode<V> childNode = (NormalNode<V>) children[i];
                 childNode.walkAppend(preKey, retList);
                 preKey.delete(startIndex, preKey.length());
             }
