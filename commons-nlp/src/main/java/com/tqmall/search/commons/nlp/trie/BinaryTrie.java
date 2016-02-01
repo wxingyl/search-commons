@@ -101,6 +101,10 @@ public class BinaryTrie<V> implements Trie<V> {
         return size;
     }
 
+    public TrieNodeFactory<V> getNodeFactory() {
+        return nodeFactory;
+    }
+
     public static char[] argCheck(String key) {
         return SearchStringUtils.isEmpty(key) ? null : key.toCharArray();
     }

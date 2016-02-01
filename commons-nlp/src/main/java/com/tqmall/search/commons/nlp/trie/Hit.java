@@ -10,6 +10,7 @@ import java.util.List;
 public class Hit<V> {
     /**
      * 模式串在母文本中的终止位置
+     * startPos通过endPos和outputKey直接搞出来了
      */
     private final int endPos;
 
@@ -50,6 +51,25 @@ public class Hit<V> {
             sb.append("; value:").append(value);
         }
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Hit)) return false;
+
+        Hit<?> hit = (Hit<?>) o;
+
+        if (endPos != hit.endPos) return false;
+        return outputKey.equals(hit.outputKey);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = endPos;
+        result = 31 * result + outputKey.hashCode();
+        return result;
     }
 
     /**

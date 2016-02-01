@@ -95,6 +95,8 @@ public abstract class Node<V> {
         return true;
     }
 
+
+//  下面都是一些static方法定义了~~~~~~
     /**
      * 节点状态定义
      */

@@ -9,12 +9,19 @@ import java.util.TreeMap;
  * Created by xing on 16/1/28.
  * Aho-Corasick 模式匹配树, 论文: http://cr.yp.to/bib/1975/aho.pdf
  * 二分查找前缀树实现
+ * 注: {@link #binaryTrie}的{@link BinaryTrie#getNodeFactory()} 必须是AcTrieNodeFactory的实例
  */
 public class AcBinaryTrie<V> implements AcTrie<V> {
 
     private BinaryTrie<V> binaryTrie;
 
+    /**
+     * @param binaryTrie 其nodeFactory必须是AcTrieNodeFactory的实例
+     */
     public AcBinaryTrie(BinaryTrie<V> binaryTrie) {
+        if (!(binaryTrie.getNodeFactory() instanceof AcTrieNodeFactory)) {
+            throw new IllegalArgumentException("the nodeFactory of binaryTrie must instanceof AcTrieNodeFactory");
+        }
         this.binaryTrie = binaryTrie;
     }
 
