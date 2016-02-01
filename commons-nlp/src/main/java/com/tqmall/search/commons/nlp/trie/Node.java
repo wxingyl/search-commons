@@ -42,8 +42,11 @@ public abstract class Node<V> {
      */
     public abstract boolean haveChild();
 
-    abstract void childHandle(NodeChildHandle handle);
-
+    /**
+     * 内部方法
+     * @param handle 处理接口
+     */
+    abstract void childHandle(NodeChildHandle<V> handle);
     /**
      * 获取所有child的词
      *
@@ -52,12 +55,16 @@ public abstract class Node<V> {
      */
     public abstract List<Map.Entry<String, V>> allChildWords(String prefixKey);
 
-    public Status getStatus() {
+    final public Status getStatus() {
         return status;
     }
 
     final public V getValue() {
         return value;
+    }
+
+    final public char getChar() {
+        return c;
     }
 
     /**

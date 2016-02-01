@@ -99,12 +99,13 @@ public class NormalNode<V> extends Node<V> {
         return false;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    void childHandle(NodeChildHandle handle) {
+    void childHandle(NodeChildHandle<V> handle) {
         if (children == null) return;
         for (int i = 0; i < childCount; i++) {
             if (children[i].status != Status.DELETE) {
-                if (!handle.onHandle(children[i])) break;
+                if (!handle.onHandle((Node<V>) children[i])) break;
             }
         }
     }

@@ -10,12 +10,16 @@ public class AcNormalNode<V> extends NormalNode<V> {
     /**
      * 失败节点
      */
-    private Node failed;
+    private Node<V> failed;
 
     /**
      * 父节点, 如果深度为1的节点, 则父节点为null
      */
-    private AcNormalNode parent;
+    private AcNormalNode<V> parent;
+    /**
+     * 输出
+     */
+    private String singleOutput;
 
     /**
      * 普通节点构造
@@ -46,7 +50,7 @@ public class AcNormalNode<V> extends NormalNode<V> {
         throw new UnsupportedOperationException("AcNode can't support remove");
     }
 
-    public Node getFailed() {
+    public Node<V> getFailed() {
         return failed;
     }
 
@@ -55,48 +59,64 @@ public class AcNormalNode<V> extends NormalNode<V> {
      *
      * @param root 根节点对象
      */
-    void initRootChildNode(final Node root) {
+    void initRootChildNode(final Node<V> root) {
         //深度为1的节点需要单独设定
         this.failed = root;
-        initChildParent();
+        initChildParent(new StringBuilder().append(c));
     }
 
     /**
      * 初始化节点parent
+     *
+     * @param outputSb 当前节点的字符c已经添加
      */
-    private void initChildParent() {
+    private void initChildParent(StringBuilder outputSb) {
+        if (accept()) {
+            this.singleOutput = outputSb.toString();
+        }
         if (children != null) {
             for (int i = 0; i < childCount; i++) {
                 AcNormalNode acNode = (AcNormalNode) children[i];
                 acNode.parent = this;
-                acNode.initChildParent();
+                outputSb.append(acNode.c);
+                acNode.initChildParent(outputSb);
+                outputSb.deleteCharAt(outputSb.length() - 1);
             }
         }
+    }
+
+    public boolean accept() {
+        return status == Status.WORD || status == Status.LEAF_WORD;
+    }
+
+    public String getSingleOutput() {
+        return singleOutput;
     }
 
     /**
      * 初始化failed字段
      * 深度为1的节点需要单独设定
      *
-     * @param root   root根节点
+     * @param root root根节点
      */
-    void buildFailed(final Node root) {
+    @SuppressWarnings("unchecked")
+    void buildFailed(final Node<V> root) {
         if (parent != null) {
-            AcNormalNode lParent = parent;
+            AcNormalNode<V> lParent = parent;
             while (failed == null) {
-                Node node = lParent.failed.getChild(c);
+                Node<V> node = lParent.failed.getChild(c);
                 if (node != null) {
                     failed = node;
                 } else if (lParent.failed == root) {
                     failed = root;
                 } else {
-                    lParent = (AcNormalNode) lParent.failed;
+                    lParent = (AcNormalNode<V>) lParent.failed;
                 }
             }
         }
         if (children == null) return;
         for (int i = 0; i < childCount; i++) {
-            AcNormalNode acNode = (AcNormalNode) children[i];
+            AcNormalNode<V> acNode = (AcNormalNode<V>) children[i];
             acNode.buildFailed(root);
         }
     }

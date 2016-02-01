@@ -101,7 +101,7 @@ public class BinaryTrie<V> implements Trie<V> {
         return size;
     }
 
-    private char[] argCheck(String key) {
+    public static char[] argCheck(String key) {
         return SearchStringUtils.isEmpty(key) ? null : key.toCharArray();
     }
 }

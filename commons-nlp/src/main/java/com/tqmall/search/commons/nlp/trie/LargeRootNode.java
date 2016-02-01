@@ -39,7 +39,7 @@ public class LargeRootNode<V> extends Node<V> {
     @Override
     public boolean addChild(Node<V> node) {
         if (!isValidChar(node.c)) {
-            throw new IllegalArgumentException('\'' + c + "' is not in the range of [ " + minChar + ',' + maxChar + ']');
+            throw new IllegalArgumentException("character '" + c + "' is not in the range of [ " + minChar + ',' + maxChar + ']');
         }
         Node<V> preNode;
         if ((preNode = getChild(node.c)) == null) {
@@ -66,11 +66,12 @@ public class LargeRootNode<V> extends Node<V> {
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    void childHandle(NodeChildHandle handle) {
+    void childHandle(NodeChildHandle<V> handle) {
         for (Node<?> ch : children) {
             if (ch != null && ch.status != Status.DELETE) {
-                if (!handle.onHandle(ch)) break;
+                if (!handle.onHandle((Node<V>) ch)) break;
             }
         }
     }

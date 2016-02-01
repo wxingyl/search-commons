@@ -5,6 +5,7 @@ import java.util.List;
 /**
  * Created by xing on 16/1/28.
  * Aho-Corasick 模式匹配树 接口定义
+ * 接收态的值即为泛型V
  */
 public interface AcTrie<V> {
 
