@@ -101,6 +101,11 @@ public class BinaryTrie<V> implements Trie<V> {
         return size;
     }
 
+    @Override
+    public void clear() {
+        root.clear();
+    }
+
     public TrieNodeFactory<V> getNodeFactory() {
         return nodeFactory;
     }

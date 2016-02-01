@@ -138,4 +138,14 @@ public class NormalNode<V> extends Node<V> {
         return retList;
     }
 
+    @Override
+    public void clear() {
+        super.clear();
+        for (int i = 0; i < childCount; i++) {
+            children[i].clear();
+            children[i] = null;
+        }
+        childCount = 0;
+        children = null;
+    }
 }

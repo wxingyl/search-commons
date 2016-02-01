@@ -47,6 +47,11 @@ public abstract class Node<V> {
      * @param handle 处理接口
      */
     abstract void childHandle(NodeChildHandle<V> handle);
+
+    public void clear() {
+        value = null;
+        status = null;
+    }
     /**
      * 获取所有child的词
      *

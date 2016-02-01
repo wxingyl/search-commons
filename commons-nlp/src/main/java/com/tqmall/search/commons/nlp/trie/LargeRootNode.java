@@ -86,6 +86,20 @@ public class LargeRootNode<V> extends Node<V> {
     }
 
     /**
+     * child大数组不置为null, 如果需要直接在外部将该对象置为null
+     */
+    @Override
+    public void clear() {
+        super.clear();
+        for (int i = 0; i < children.length; i++) {
+            if (children[i] != null) {
+                children[i].clear();
+                children[i] = null;
+            }
+        }
+    }
+
+    /**
      * 创建CJK字符的root节点
      *
      * @param <V> value对应的泛型

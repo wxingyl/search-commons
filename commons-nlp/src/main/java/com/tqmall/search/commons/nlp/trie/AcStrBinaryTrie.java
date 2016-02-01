@@ -37,6 +37,11 @@ public class AcStrBinaryTrie implements AcTrie<Void> {
         return acBinaryTrie.size();
     }
 
+    @Override
+    public void clear() {
+        acBinaryTrie.clear();
+    }
+
     public static Builder build() {
         return new Builder();
     }

@@ -93,6 +93,14 @@ public class AcNormalNode<V> extends NormalNode<V> {
         return singleOutput;
     }
 
+    @Override
+    public void clear() {
+        super.clear();
+        failed = null;
+        parent = null;
+        singleOutput = null;
+    }
+
     /**
      * 初始化failed字段
      * 深度为1的节点需要单独设定

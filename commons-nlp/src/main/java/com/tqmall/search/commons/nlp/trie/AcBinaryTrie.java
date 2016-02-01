@@ -71,6 +71,11 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
         return binaryTrie.size();
     }
 
+    @Override
+    public void clear() {
+        binaryTrie.clear();
+    }
+
     public static <V> Builder<V> build() {
         return new Builder<>();
     }

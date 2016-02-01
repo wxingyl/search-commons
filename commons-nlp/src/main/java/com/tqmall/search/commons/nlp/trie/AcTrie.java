@@ -34,4 +34,8 @@ public interface AcTrie<V> {
 
     int size();
 
+    /**
+     * 执行clear操作, 删除所有节点数据
+     */
+    void clear();
 }

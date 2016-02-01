@@ -2,6 +2,7 @@ package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.nlp.trie.AcStrBinaryTrie;
 import com.tqmall.search.commons.nlp.trie.Hit;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -19,8 +20,6 @@ public class AcTrieTest {
 
     @BeforeClass
     public static void init() {
-//        [endPos=4:she, endPos=4:he, endPos=6:hers]
-//        [endPos=6:hs, endPos=11:she, endPos=11:he, endPos=19:nihao, endPos=19:hao, endPos=22:hs, endPos=23:hsr, endPos=28:nihao, endPos=28:hao]
         acStrBinaryTrie = AcStrBinaryTrie.build()
                 .add("he", "she", "his", "hers")
                 .add("nihao")
@@ -28,6 +27,12 @@ public class AcTrieTest {
                 .add("hs")
                 .add("hsr")
                 .create();
+    }
+
+    @AfterClass
+    public static void clear() {
+        acStrBinaryTrie.clear();
+        acStrBinaryTrie = null;
     }
 
     @Test

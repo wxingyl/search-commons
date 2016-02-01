@@ -1,6 +1,7 @@
 package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.nlp.trie.*;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -33,6 +34,12 @@ public class TrieTest {
                 return new NormalNode<>(c, value);
             }
         });
+    }
+
+    @AfterClass
+    public static void clear() {
+        binaryTrie.clear();
+        binaryTrie = null;
     }
 
     @Test
