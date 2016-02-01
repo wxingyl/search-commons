@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.nlp.node;
+package com.tqmall.search.commons.nlp.trie;
 
 import com.tqmall.search.commons.nlp.NlpConst;
 
@@ -64,6 +64,15 @@ public class LargeRootNode<V> extends Node<V> {
     @Override
     public boolean haveChild() {
         return true;
+    }
+
+    @Override
+    void childHandle(NodeChildHandle handle) {
+        for (Node<?> ch : children) {
+            if (ch != null && ch.status != Status.DELETE) {
+                if (!handle.onHandle(ch)) break;
+            }
+        }
     }
 
     private boolean isValidChar(char ch) {

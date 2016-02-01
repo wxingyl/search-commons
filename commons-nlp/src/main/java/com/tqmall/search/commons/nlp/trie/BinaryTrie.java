@@ -1,7 +1,5 @@
 package com.tqmall.search.commons.nlp.trie;
 
-import com.tqmall.search.commons.nlp.node.Node;
-import com.tqmall.search.commons.nlp.node.TrieNodeFactory;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 
 import java.util.List;
@@ -16,7 +14,7 @@ public class BinaryTrie<V> implements Trie<V> {
 
     private final TrieNodeFactory<V> nodeFactory;
 
-    private final Node<V> root;
+    protected final Node<V> root;
 
     private int size;
 

@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.nlp.node;
+package com.tqmall.search.commons.nlp.trie;
 
 import com.tqmall.search.commons.utils.SearchStringUtils;
 
@@ -15,9 +15,9 @@ public class NormalNode<V> extends Node<V> {
      */
     static final int DEFAULT_INFLATE_SIZE = 16;
 
-    private int childCount;
+    protected int childCount;
 
-    private Node<?>[] children;
+    protected Node<?>[] children;
 
     /**
      * 普通节点构造
@@ -97,6 +97,16 @@ public class NormalNode<V> extends Node<V> {
             if (children[i].status != Status.DELETE) return true;
         }
         return false;
+    }
+
+    @Override
+    void childHandle(NodeChildHandle handle) {
+        if (children == null) return;
+        for (int i = 0; i < childCount; i++) {
+            if (children[i].status != Status.DELETE) {
+                if (!handle.onHandle(children[i])) break;
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")

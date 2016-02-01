@@ -11,7 +11,7 @@ public final class NlpUtils {
 
     /**
      * 是否位繁体字符
-     * 该函数跟{@link #convert(char)}的性能一样一样的, 并没有
+     * 该函数跟{@link #cjkConvert(char)}的性能一样一样的, 并没有
      *
      * @param ch 判断字符
      * @return true 为繁体
@@ -23,7 +23,7 @@ public final class NlpUtils {
     /**
      * 如果是CJK字符, 返回对应的转换字符, 如果不是则返回入参ch
      */
-    public static char convert(char ch) {
+    public static char cjkConvert(char ch) {
         return TraditionToSimple.getInstance().convert(ch);
     }
 
@@ -32,7 +32,7 @@ public final class NlpUtils {
      * 如果没有繁体, 则不做装换, 原样返回
      * 很对情况下, 砸门的字符串里面没有繁体字符的
      */
-    public static String convert(String str) {
+    public static String traditionalConvert(String str) {
         return TraditionToSimple.getInstance().convert(str);
     }
 

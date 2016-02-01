@@ -1,9 +1,9 @@
 package com.tqmall.search.commons.nlp;
 
-import com.tqmall.search.commons.nlp.node.LargeRootNode;
-import com.tqmall.search.commons.nlp.node.Node;
-import com.tqmall.search.commons.nlp.node.NormalNode;
-import com.tqmall.search.commons.nlp.node.TrieNodeFactory;
+import com.tqmall.search.commons.nlp.trie.LargeRootNode;
+import com.tqmall.search.commons.nlp.trie.Node;
+import com.tqmall.search.commons.nlp.trie.NormalNode;
+import com.tqmall.search.commons.nlp.trie.TrieNodeFactory;
 import com.tqmall.search.commons.nlp.trie.BinaryTrie;
 import com.tqmall.search.commons.nlp.trie.Trie;
 import org.junit.Assert;

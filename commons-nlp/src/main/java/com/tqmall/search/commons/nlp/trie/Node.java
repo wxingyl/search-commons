@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.nlp.node;
+package com.tqmall.search.commons.nlp.trie;
 
 import java.util.List;
 import java.util.Map;
@@ -41,6 +41,8 @@ public abstract class Node<V> {
      * 是否存在有效的children
      */
     public abstract boolean haveChild();
+
+    abstract void childHandle(NodeChildHandle handle);
 
     /**
      * 获取所有child的词
@@ -156,6 +158,6 @@ public abstract class Node<V> {
             else
                 return mid; // key found
         }
-        return -(low + 1);  // key not found.
+        return ~low;  // key not found.
     }
 }
