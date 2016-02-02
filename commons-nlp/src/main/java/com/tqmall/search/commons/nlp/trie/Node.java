@@ -68,10 +68,17 @@ public abstract class Node<V> {
         return value;
     }
 
+    final public void setValue(V value) {
+        this.value = value;
+    }
+
     final public char getChar() {
         return c;
     }
 
+    public boolean accept() {
+        return status == Status.WORD || status == Status.LEAF_WORD;
+    }
     /**
      * @param word       要删除的关键字, word不做空等的校验
      * @param startIndex 处理开始删除的节点

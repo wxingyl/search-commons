@@ -10,7 +10,7 @@ public final class NlpUtils {
     }
 
     /**
-     * 是否位繁体字符
+     * 是否为繁体字符
      * 该函数跟{@link #cjkConvert(char)}的性能一样一样的, 并没有
      *
      * @param ch 判断字符

@@ -70,7 +70,7 @@ public class BinaryTrie<V> implements Trie<V> {
      *
      * @return key无效或者节点已经被删除, 返回null
      */
-    private Node<V> searchNode(String key) {
+    Node<V> searchNode(String key) {
         char[] charArray = argCheck(key);
         return charArray == null ? null : searchNode(charArray);
     }

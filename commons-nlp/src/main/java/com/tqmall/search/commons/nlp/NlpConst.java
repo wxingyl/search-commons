@@ -10,9 +10,10 @@ public interface NlpConst {
      */
     char CJK_UNIFIED_IDEOGRAPHS_FIRST = '\u4E00';
     /**
-     * Unicode标准, 最后一个中文字符:'鿌'
+     * Unicode标准, 最后一个中文字符:'龥', 最新版本的Unicode向后还有一些汉字, 哪些就算了, 平常根本就不用, 并且很多系统都不支持
+     * 这些新加的字符显示, 所以砸门还是用工人的9FA5吧
      */
-    char CJK_UNIFIED_IDEOGRAPHS_LAST = '\u9FCC';
+    char CJK_UNIFIED_IDEOGRAPHS_LAST = '\u9FA5';
     /**
      * cjk字符个数
      */

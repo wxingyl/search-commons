@@ -85,10 +85,6 @@ public class AcNormalNode<V> extends NormalNode<V> {
         }
     }
 
-    public boolean accept() {
-        return status == Status.WORD || status == Status.LEAF_WORD;
-    }
-
     public String getSingleOutput() {
         return singleOutput;
     }

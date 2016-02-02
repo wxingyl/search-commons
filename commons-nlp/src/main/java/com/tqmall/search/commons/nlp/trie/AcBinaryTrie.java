@@ -32,7 +32,10 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
 
     @Override
     public boolean updateValue(String key, V value) {
-        return binaryTrie.put(key, value);
+        Node<V> node = binaryTrie.searchNode(key);
+        if (node == null || !node.accept()) return false;
+        node.setValue(value);
+        return true;
     }
 
     @Override
