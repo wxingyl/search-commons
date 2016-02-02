@@ -79,6 +79,36 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
         binaryTrie.clear();
     }
 
+    /**
+     * 不能针对返回的节点进行添加或者删除操作, 或者如果执行了这些操作, 需要重新{@link #initFailed(BinaryTrie)}, 但是需要保证多线程
+     * 读写安全
+     */
+    public BinaryTrie<V> getBinaryTrie() {
+        return binaryTrie;
+    }
+
+    /**
+     * 初始化failed {@link AcNormalNode} failed等字段
+     *
+     * @param binaryTrie 需要的二分前缀树
+     * @param <V>        value泛型
+     */
+    public static <V> void initFailed(final BinaryTrie<V> binaryTrie) {
+        final List<AcNormalNode<V>> rootChildNodes = new ArrayList<>();
+        binaryTrie.root.childHandle(new NodeChildHandle<V>() {
+            @Override
+            public boolean onHandle(final Node<V> child) {
+                AcNormalNode<V> acNode = (AcNormalNode<V>) child;
+                acNode.initRootChildNode(binaryTrie.root);
+                rootChildNodes.add(acNode);
+                return true;
+            }
+        });
+        for (AcNormalNode<V> acNode : rootChildNodes) {
+            acNode.buildFailed(binaryTrie.root);
+        }
+    }
+
     public static <V> Builder<V> build() {
         return new Builder<>();
     }
@@ -132,19 +162,7 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
             }
 
             //初始化failed字段
-            final List<AcNormalNode<V>> rootChildNodes = new ArrayList<>();
-            binaryTrie.root.childHandle(new NodeChildHandle<V>() {
-                @Override
-                public boolean onHandle(final Node<V> child) {
-                    AcNormalNode<V> acNode = (AcNormalNode<V>) child;
-                    acNode.initRootChildNode(binaryTrie.root);
-                    rootChildNodes.add(acNode);
-                    return true;
-                }
-            });
-            for (AcNormalNode<V> acNode : rootChildNodes) {
-                acNode.buildFailed(binaryTrie.root);
-            }
+            initFailed(binaryTrie);
             return new AcBinaryTrie<>(binaryTrie);
         }
     }
