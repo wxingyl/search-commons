@@ -76,7 +76,7 @@ public abstract class Node<V> {
         return c;
     }
 
-    public boolean accept() {
+    final public boolean accept() {
         return status == Status.WORD || status == Status.LEAF_WORD;
     }
     /**

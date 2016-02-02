@@ -39,7 +39,7 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
     }
 
     @Override
-    public List<Hit<V>> parseText(String text) {
+    public List<Hit<V>> textMatch(String text) {
         char[] charArray = BinaryTrie.argCheck(text);
         if (charArray == null) return null;
         List<Hit<V>> resultList = new ArrayList<>();

@@ -25,12 +25,12 @@ public interface AcTrie<V> {
     boolean updateValue(String key, V value);
 
     /**
-     * 匹配字符创
+     * 匹配字符串
      *
      * @param text 需要匹配的文本
      * @return 匹配结果
      */
-    List<Hit<V>> parseText(String text);
+    List<Hit<V>> textMatch(String text);
 
     int size();
 

@@ -28,8 +28,8 @@ public class AcStrBinaryTrie implements AcTrie<Void> {
     }
 
     @Override
-    public List<Hit<Void>> parseText(String text) {
-        return acBinaryTrie.parseText(text);
+    public List<Hit<Void>> textMatch(String text) {
+        return acBinaryTrie.textMatch(text);
     }
 
     @Override

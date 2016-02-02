@@ -41,7 +41,7 @@ public class AcTrieTest {
         answerSet.add(new Hit<>(4, "she", null));
         answerSet.add(new Hit<>(4, "he", null));
         answerSet.add(new Hit<>(6, "hers", null));
-        Set<Hit> runRet = new HashSet<Hit>(acStrBinaryTrie.parseText("ushers"));
+        Set<Hit> runRet = new HashSet<Hit>(acStrBinaryTrie.textMatch("ushers"));
         System.out.printf("ushers: " + runRet);
         Assert.assertEquals(answerSet, runRet);
 
@@ -55,7 +55,7 @@ public class AcTrieTest {
         answerSet.add(new Hit<>(23, "hsr", null));
         answerSet.add(new Hit<>(28, "nihao", null));
         answerSet.add(new Hit<>(28, "hao", null));
-        runRet = new HashSet<Hit>(acStrBinaryTrie.parseText("sdmfhsgnshejfgnihaofhsrnihao"));
+        runRet = new HashSet<Hit>(acStrBinaryTrie.textMatch("sdmfhsgnshejfgnihaofhsrnihao"));
         System.out.printf("sdmfhsgnshejfgnihaofhsrnihao: " + runRet);
         Assert.assertEquals(answerSet, runRet);
     }

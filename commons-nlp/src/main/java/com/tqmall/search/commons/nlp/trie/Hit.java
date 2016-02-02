@@ -46,9 +46,9 @@ public class Hit<V> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("endPos=").append(endPos).append(':').append(outputKey);
+        sb.append(endPos).append(':').append(outputKey);
         if (value != null) {
-            sb.append("; value:").append(value);
+            sb.append(':').append(value);
         }
         return sb.toString();
     }

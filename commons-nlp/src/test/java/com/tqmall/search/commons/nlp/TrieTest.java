@@ -16,9 +16,11 @@ public class TrieTest {
 
     private static Trie<String> binaryTrie;
 
+    private static TrieNodeFactory<String> cjkNodeFactory;
+
     @BeforeClass
     public static void init() {
-        binaryTrie = new BinaryTrie<>(new TrieNodeFactory<String>() {
+        cjkNodeFactory = new TrieNodeFactory<String>() {
             @Override
             public Node<String> createRootNode() {
                 return LargeRootNode.createCjkRootNode();
@@ -33,13 +35,15 @@ public class TrieTest {
             public Node<String> createChildNode(char c, String value) {
                 return new NormalNode<>(c, value);
             }
-        });
+        };
+        binaryTrie = new BinaryTrie<>(cjkNodeFactory);
     }
 
     @AfterClass
     public static void clear() {
         binaryTrie.clear();
         binaryTrie = null;
+        cjkNodeFactory = null;
     }
 
     @Test
@@ -109,4 +113,29 @@ public class TrieTest {
         Assert.assertEquals(expected, keySet.size());
     }
 
+    @Test
+    public void binaryMatchTrieTest() {
+        BinaryMatchTrie<String> matchTrie = new BinaryMatchTrie<>(cjkNodeFactory);
+        matchTrie.put("长", "zhang");
+        matchTrie.put("长沙", "chang sha");
+        matchTrie.put("沙", "sha");
+        matchTrie.put("星星", "xingxing");
+        matchTrie.put("王", "wang");
+        matchTrie.put("王星星", "xingxing.wang");
+        List<Hit<String>> result = matchTrie.textMaxMatch("长沙王星星");
+        System.out.println(result);
+        List<Hit<String>> expectedResult = new ArrayList<>();
+        expectedResult.add(new Hit<>(2, "长沙", "chang sha"));
+        expectedResult.add(new Hit<>(5, "王星星", "xingxing.wang"));
+        Assert.assertEquals(expectedResult, result);
+
+        result = matchTrie.textMinMatch("长沙王星星");
+        System.out.println(result);
+        expectedResult.clear();
+        expectedResult.add(new Hit<>(1, "长", "zhang"));
+        expectedResult.add(new Hit<>(2, "沙", "sha"));
+        expectedResult.add(new Hit<>(3, "王", "wang"));
+        expectedResult.add(new Hit<>(5, "星星", "xingxing"));
+        Assert.assertEquals(expectedResult, result);
+    }
 }

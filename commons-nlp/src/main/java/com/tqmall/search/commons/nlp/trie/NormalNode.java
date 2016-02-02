@@ -114,7 +114,7 @@ public class NormalNode<V> extends Node<V> {
     private void walkAppend(StringBuilder preKey, List<Map.Entry<String, V>> retList) {
         if (status == Status.DELETE) return;
         preKey.append(c);
-        if (status == Status.LEAF_WORD || status == Status.WORD) {
+        if (accept()) {
             retList.add(new AbstractMap.SimpleEntry<>(preKey.toString(), value));
         }
         if (children != null) {
