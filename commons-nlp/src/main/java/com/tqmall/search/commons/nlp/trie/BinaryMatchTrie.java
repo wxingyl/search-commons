@@ -1,6 +1,8 @@
 package com.tqmall.search.commons.nlp.trie;
 
-import java.util.ArrayList;
+import com.tqmall.search.commons.nlp.Hit;
+import com.tqmall.search.commons.nlp.MatchResultHandle;
+
 import java.util.List;
 
 /**
@@ -13,68 +15,131 @@ import java.util.List;
  */
 public class BinaryMatchTrie<V> extends BinaryTrie<V> {
 
+    private ThreadLocal<MatchProcess> maxMatchProcess = new ThreadLocal<MatchProcess>() {
+        @Override
+        protected MatchProcess initialValue() {
+            return new MatchProcess(false);
+        }
+    };
+
+    private ThreadLocal<MatchProcess> minMatchProcess = new ThreadLocal<MatchProcess>() {
+        @Override
+        protected MatchProcess initialValue() {
+            return new MatchProcess(true);
+        }
+    };
+
     public BinaryMatchTrie(TrieNodeFactory<V> nodeFactory) {
         super(nodeFactory);
     }
 
     public List<Hit<V>> textMaxMatch(String text) {
-        return textMatch(text, false);
+        return textMatch(text, maxMatchProcess.get());
     }
 
     public List<Hit<V>> textMinMatch(String text) {
-        return textMatch(text, true);
+        return textMatch(text, minMatchProcess.get());
     }
 
-    private List<Hit<V>> textMatch(String text, boolean isMin) {
+    private List<Hit<V>> textMatch(String text, MatchProcess process) {
         char[] charArray = argCheck(text);
         if (charArray == null) return null;
-        List<Hit<V>> resultList = new ArrayList<>();
-        Node<V> currentNode = root;
-        int i = 0, nextStartCursor = 0;
-        boolean lastAccept = false;
-        V lastValue = null;
-        StringBuilder sb = new StringBuilder();
-        while (i < charArray.length) {
-            char ch = charArray[i];
+        process.resultHandle = new MatchResultHandle<>(text);
+        process.currentNode = root;
+        try {
+            int cursor = 0;
+            while (cursor < charArray.length) {
+                cursor = process.textMatchHandle(cursor, charArray[cursor]);
+            }
+            process.onFinish();
+            return process.resultHandle.getResultList();
+        } finally {
+            process.resultHandle = null;
+            process.currentNode = null;
+        }
+    }
+
+    /**
+     * 模式匹配类, 讲算法抽取出来, 与数据隔离
+     */
+    class MatchProcess {
+
+        private final boolean isMin;
+
+        /**
+         * 执行前需要初始化
+         */
+        MatchResultHandle<V> resultHandle;
+
+        /**
+         * 执行前需要初始化
+         */
+        private Node<V> currentNode;
+
+        private int curStartCursor = -1, curStopCursor = 0;
+
+        private boolean lastAccept = false;
+
+        private V lastValue = null;
+
+        /**
+         * @param isMin 是否为最小匹配
+         */
+        public MatchProcess(boolean isMin) {
+            this.isMin = isMin;
+        }
+
+        /**
+         * @param index 当前处理字符串的地址
+         * @param ch    处理的字符
+         * @return 接下来需要处理字符的index
+         */
+        final int textMatchHandle(int index, char ch) {
             Node<V> nextNode = currentNode.getChild(ch);
             if (nextNode == null || nextNode.getStatus() == Node.Status.DELETE) {
                 if (currentNode == root) {
-                    i++;
+                    index++;
                 } else {
-                    currentNode = root;
-                    i = nextStartCursor;
                     if (lastAccept) {
-                        resultList.add(new Hit<>(nextStartCursor, sb.toString(), lastValue));
-                        lastAccept = false;
+                        index = curStopCursor;
+                        onHit();
+                    } else {
+                        index = curStartCursor + 1;
+                        curStartCursor = -1;
+                        currentNode = root;
                     }
-                    sb.setLength(0);
-                    nextStartCursor = 0;
                 }
             } else {
-                i++;
-                sb.append(ch);
-                if (nextStartCursor == 0) {
-                    nextStartCursor = i;
+                if (curStartCursor == -1) {
+                    curStartCursor = index;
                 }
+                index++;
                 currentNode = nextNode;
                 if (nextNode.accept()) {
                     lastAccept = true;
-                    nextStartCursor = i;
+                    curStopCursor = index;
                     lastValue = nextNode.getValue();
                     if (isMin) {
-                        resultList.add(new Hit<>(nextStartCursor, sb.toString(), lastValue));
-                        currentNode = root;
-                        sb.setLength(0);
-                        lastAccept = false;
-                        nextStartCursor = 0;
+                        onHit();
                     }
                 }
             }
+            return index;
         }
-        if (lastAccept) {
-            resultList.add(new Hit<>(nextStartCursor, sb.toString(), lastValue));
+
+        final void onFinish() {
+            if (isMin || !lastAccept) return;
+            onHit();
         }
-        return resultList;
+
+        private void onHit() {
+            resultHandle.onHit(curStartCursor, curStopCursor, lastValue);
+            currentNode = root;
+            curStartCursor = -1;
+            lastAccept = false;
+            curStopCursor = 0;
+        }
+
     }
 
 }

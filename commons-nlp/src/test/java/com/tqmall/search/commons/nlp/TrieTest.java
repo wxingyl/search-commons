@@ -122,20 +122,33 @@ public class TrieTest {
         matchTrie.put("星星", "xingxing");
         matchTrie.put("王", "wang");
         matchTrie.put("王星星", "xingxing.wang");
-        List<Hit<String>> result = matchTrie.textMaxMatch("长沙王星星");
-        System.out.println(result);
+
+        String word = "长沙王星星";
+        List<Hit<String>> result = matchTrie.textMaxMatch(word);
+        System.out.println("word: " + word + " binaryMatchTrie result: " + result);
         List<Hit<String>> expectedResult = new ArrayList<>();
         expectedResult.add(new Hit<>(2, "长沙", "chang sha"));
         expectedResult.add(new Hit<>(5, "王星星", "xingxing.wang"));
         Assert.assertEquals(expectedResult, result);
 
-        result = matchTrie.textMinMatch("长沙王星星");
-        System.out.println(result);
+        word = "长沙王星艳王星星";
+        result = matchTrie.textMaxMatch(word);
+        System.out.println("word: " + word + " binaryMatchTrie result: " + result);
+        expectedResult.clear();
+        expectedResult.add(new Hit<>(2, "长沙", "chang sha"));
+        expectedResult.add(new Hit<>(3, "王", "wang"));
+        expectedResult.add(new Hit<>(8, "王星星", "xingxing.wang"));
+        Assert.assertEquals(expectedResult, result);
+
+        word = "长沙王星艳王星星";
+        result = matchTrie.textMinMatch(word);
+        System.out.println("word: " + word + " binaryMatchTrie result: " + result);
         expectedResult.clear();
         expectedResult.add(new Hit<>(1, "长", "zhang"));
         expectedResult.add(new Hit<>(2, "沙", "sha"));
         expectedResult.add(new Hit<>(3, "王", "wang"));
-        expectedResult.add(new Hit<>(5, "星星", "xingxing"));
+        expectedResult.add(new Hit<>(6, "王", "wang"));
+        expectedResult.add(new Hit<>(8, "星星", "xingxing"));
         Assert.assertEquals(expectedResult, result);
     }
 }

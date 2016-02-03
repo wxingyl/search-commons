@@ -1,4 +1,6 @@
-package com.tqmall.search.commons.nlp.trie;
+package com.tqmall.search.commons.nlp;
+
+import com.tqmall.search.commons.nlp.trie.AcNormalNode;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -14,7 +16,7 @@ public class Hit<V> {
      */
     private final int endPos;
 
-    private String outputKey;
+    private String matchKey;
 
     private final V value;
 
@@ -22,12 +24,12 @@ public class Hit<V> {
      * 进来匹配的字符
      *
      * @param endPos    匹配到的结束位置
-     * @param outputKey 匹配到的输出文本
+     * @param matchKey 匹配到的输出文本
      * @param value     对应节点的value
      */
-    public Hit(int endPos, String outputKey, V value) {
+    public Hit(int endPos, String matchKey, V value) {
         this.endPos = endPos;
-        this.outputKey = outputKey;
+        this.matchKey = matchKey;
         this.value = value;
     }
 
@@ -39,14 +41,14 @@ public class Hit<V> {
         return value;
     }
 
-    public String getOutputKey() {
-        return outputKey;
+    public String getMatchKey() {
+        return matchKey;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(endPos).append(':').append(outputKey);
+        sb.append(endPos).append(':').append(matchKey);
         if (value != null) {
             sb.append(':').append(value);
         }
@@ -61,15 +63,34 @@ public class Hit<V> {
         Hit<?> hit = (Hit<?>) o;
 
         if (endPos != hit.endPos) return false;
-        return outputKey.equals(hit.outputKey);
+        return matchKey.equals(hit.matchKey);
 
     }
 
     @Override
     public int hashCode() {
         int result = endPos;
-        result = 31 * result + outputKey.hashCode();
+        result = 31 * result + matchKey.hashCode();
         return result;
+    }
+
+    /**
+     * 命中结果处理
+     *
+     * @param <V>
+     */
+    public interface IHit<V> {
+
+        /**
+         * 处理函数
+         *
+         * @param startPos 匹配到的开始位置, 包含startPos, 即左开右闭格式
+         * @param endPos   匹配到的结束位置 不包含endPos, 即左开右闭格式
+         * @param value    对应的value
+         * @return Hit对象
+         */
+        Hit<V> onHit(int startPos, int endPos, V value);
+
     }
 
     /**

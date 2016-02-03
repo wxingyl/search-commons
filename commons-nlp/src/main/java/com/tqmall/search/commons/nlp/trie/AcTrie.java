@@ -1,5 +1,7 @@
 package com.tqmall.search.commons.nlp.trie;
 
+import com.tqmall.search.commons.nlp.Hit;
+
 import java.util.List;
 
 /**

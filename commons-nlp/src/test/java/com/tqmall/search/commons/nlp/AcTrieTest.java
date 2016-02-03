@@ -1,7 +1,6 @@
 package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.nlp.trie.AcStrBinaryTrie;
-import com.tqmall.search.commons.nlp.trie.Hit;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
