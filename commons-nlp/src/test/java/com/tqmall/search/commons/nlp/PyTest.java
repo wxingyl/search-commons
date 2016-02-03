@@ -1,6 +1,7 @@
 package com.tqmall.search.commons.nlp;
 
 import org.junit.Ignore;
+import org.junit.Test;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -32,5 +33,10 @@ public class PyTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void pyTest() {
+
     }
 }

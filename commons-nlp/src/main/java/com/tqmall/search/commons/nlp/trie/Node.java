@@ -44,6 +44,7 @@ public abstract class Node<V> {
 
     /**
      * 内部方法
+     *
      * @param handle 处理接口
      */
     abstract void childHandle(NodeChildHandle<V> handle);
@@ -52,6 +53,7 @@ public abstract class Node<V> {
         value = null;
         status = null;
     }
+
     /**
      * 获取所有child的词
      *
@@ -79,6 +81,7 @@ public abstract class Node<V> {
     final public boolean accept() {
         return status == Status.WORD || status == Status.LEAF_WORD;
     }
+
     /**
      * @param word       要删除的关键字, word不做空等的校验
      * @param startIndex 处理开始删除的节点
@@ -109,6 +112,7 @@ public abstract class Node<V> {
 
 
 //  下面都是一些static方法定义了~~~~~~
+
     /**
      * 节点状态定义
      */
@@ -181,4 +185,34 @@ public abstract class Node<V> {
         }
         return ~low;  // key not found.
     }
+
+
+    private static final TrieNodeFactory<?> DEFAULT_CJK_NODE_FACTORY = new TrieNodeFactory<Object>() {
+        @Override
+        public Node<Object> createRootNode() {
+            return LargeRootNode.createCjkRootNode();
+        }
+
+        @Override
+        public Node<Object> createNormalNode(char c) {
+            return new NormalNode<>(c);
+        }
+
+        @Override
+        public Node<Object> createChildNode(char c, Object value) {
+            return new NormalNode<>(c, value);
+        }
+    };
+
+    /**
+     * 默认的前缀树cjk node factory
+     *
+     * @param <V> Node节点泛型
+     * @return factory
+     */
+    @SuppressWarnings("unchecked")
+    public static <V> TrieNodeFactory<V> defaultCjkTrieNodeFactory() {
+        return (TrieNodeFactory<V>) DEFAULT_CJK_NODE_FACTORY;
+    }
+
 }

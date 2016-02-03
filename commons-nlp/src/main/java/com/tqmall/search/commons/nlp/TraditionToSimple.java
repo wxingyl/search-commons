@@ -1,14 +1,8 @@
 package com.tqmall.search.commons.nlp;
 
-import com.tqmall.search.commons.exception.LoadLexiconException;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Created by xing on 16/1/26.
@@ -19,30 +13,12 @@ final class TraditionToSimple {
 
     private static final Logger log = LoggerFactory.getLogger(TraditionToSimple.class);
 
-    private static final String F2J_FILE_NAME = "tradition-simple.txt";
-
-    private static volatile TraditionToSimple INSTANCE;
-
-    /**
-     * 获取TraditionToSimple实例, 这儿需要保证TraditionToSimple为单例
-     */
-    public static TraditionToSimple getInstance() {
-        if (INSTANCE == null) {
-            synchronized (TraditionToSimple.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = new TraditionToSimple();
-                }
-            }
-        }
-        return INSTANCE;
-    }
-
     /**
      * 字符数据,大小为CJK标准字符个数, 目前是
      */
     private final char[] chars;
 
-    private TraditionToSimple() {
+    TraditionToSimple() {
         chars = load();
     }
 
@@ -50,33 +26,26 @@ final class TraditionToSimple {
      * 都是本地加载, 数据格式的校验就不要太严格了~~~
      */
     private char[] load() {
-        log.info("开始加载繁体转简体词库: " + F2J_FILE_NAME);
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream('/' + F2J_FILE_NAME),
-                StandardCharsets.UTF_8))) {
-            String line;
-            final int indexOffset = NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST;
-            char[] localCharArray = new char[NlpConst.CJK_UNIFIED_SIZE];
-            int loadTraditionCount = 0;
-            while ((line = reader.readLine()) != null) {
+        final int indexOffset = NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST;
+        final char[] localCharArray = new char[NlpConst.CJK_UNIFIED_SIZE];
+        NlpUtils.loadLexicon(NlpConst.F2J_FILE_NAME, new NlpUtils.LineHandle() {
+            @Override
+            public boolean onHandle(String line) {
                 String[] array = SearchStringUtils.split(line, '=');
                 if (array.length < 2) {
                     log.warn("加载繁体转简体词库, 词" + line + "格式存在异常");
                 } else {
                     localCharArray[array[0].charAt(0) - indexOffset] = array[1].charAt(0);
-                    loadTraditionCount++;
                 }
+                return true;
             }
-            for (int i = 0; i < localCharArray.length; i++) {
-                if (localCharArray[i] == 0) {
-                    localCharArray[i] = (char) (indexOffset + i);
-                }
+        });
+        for (int i = 0; i < localCharArray.length; i++) {
+            if (localCharArray[i] == 0) {
+                localCharArray[i] = (char) (indexOffset + i);
             }
-            log.info("加载繁体转简体词库: " + F2J_FILE_NAME + " 完成, 共加载了" + loadTraditionCount + "个繁体对应简体词库");
-            return localCharArray;
-        } catch (IOException e) {
-            log.error("加载繁体对应简体字典: " + F2J_FILE_NAME + "时存在异常", e);
-            throw new LoadLexiconException(F2J_FILE_NAME, e);
         }
+        return localCharArray;
     }
 
     /**

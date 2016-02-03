@@ -19,4 +19,8 @@ public interface NlpConst {
      */
     int CJK_UNIFIED_SIZE = CJK_UNIFIED_IDEOGRAPHS_LAST - CJK_UNIFIED_IDEOGRAPHS_FIRST + 1;
 
+    String F2J_FILE_NAME = "tradition-simple.txt";
+
+    String PINYIN_FILE_NAME = "pinyin.txt";
+
 }

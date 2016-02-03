@@ -16,34 +16,15 @@ public class TrieTest {
 
     private static Trie<String> binaryTrie;
 
-    private static TrieNodeFactory<String> cjkNodeFactory;
-
     @BeforeClass
     public static void init() {
-        cjkNodeFactory = new TrieNodeFactory<String>() {
-            @Override
-            public Node<String> createRootNode() {
-                return LargeRootNode.createCjkRootNode();
-            }
-
-            @Override
-            public Node<String> createNormalNode(char c) {
-                return new NormalNode<>(c);
-            }
-
-            @Override
-            public Node<String> createChildNode(char c, String value) {
-                return new NormalNode<>(c, value);
-            }
-        };
-        binaryTrie = new BinaryTrie<>(cjkNodeFactory);
+        binaryTrie = new BinaryTrie<>(Node.<String>defaultCjkTrieNodeFactory());
     }
 
     @AfterClass
     public static void clear() {
         binaryTrie.clear();
         binaryTrie = null;
-        cjkNodeFactory = null;
     }
 
     @Test
@@ -115,7 +96,7 @@ public class TrieTest {
 
     @Test
     public void binaryMatchTrieTest() {
-        BinaryMatchTrie<String> matchTrie = new BinaryMatchTrie<>(cjkNodeFactory);
+        BinaryMatchTrie<String> matchTrie = new BinaryMatchTrie<>(Node.<String>defaultCjkTrieNodeFactory());
         matchTrie.put("长", "zhang");
         matchTrie.put("长沙", "chang sha");
         matchTrie.put("沙", "sha");

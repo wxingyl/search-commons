@@ -33,6 +33,10 @@ public class Hit<V> {
         this.value = value;
     }
 
+    public int getStartPos() {
+        return endPos - matchKey.length();
+    }
+
     public int getEndPos() {
         return endPos;
     }
