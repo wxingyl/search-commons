@@ -10,7 +10,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by xing on 16/1/26.
@@ -19,6 +21,18 @@ import java.util.Map;
 public final class NlpUtils {
 
     private static final Logger log = LoggerFactory.getLogger(NlpUtils.class);
+
+    /**
+     * 标点符号列表
+     */
+    private static final Set<Character> PUNCTUATIONS_SET;
+
+    static {
+        PUNCTUATIONS_SET = new HashSet<>();
+        for (char ch : "`~!@#$%^&*()_+-={}|[]\\:\";'<>?,./·~！@#￥%……&*（）——+-={}|【】、：“；‘《》？，。、".toCharArray()) {
+            PUNCTUATIONS_SET.add(ch);
+        }
+    }
 
     /**
      * 繁体转简体实例
@@ -53,6 +67,38 @@ public final class NlpUtils {
     }
 
     /**
+     * 是否为特殊字符, 主要判断:
+     * 1. 是否一些常用标点, 即{@link #PUNCTUATIONS_SET}
+     * 2. 判断{@link Character.UnicodeBlock}是否为{@link Character.UnicodeBlock#CJK_SYMBOLS_AND_PUNCTUATION}
+     * 或者{@link Character.UnicodeBlock#GENERAL_PUNCTUATION}
+     * 判断字符是否为标点符号
+     */
+    public static boolean isSpecialChar(char ch) {
+        if (PUNCTUATIONS_SET.contains(ch)) {
+            return true;
+        }
+        Character.UnicodeBlock ub = Character.UnicodeBlock.of(ch);
+        return ub == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION
+                || ub == Character.UnicodeBlock.GENERAL_PUNCTUATION;
+    }
+
+    /**
+     * 全角字符转半角
+     *
+     * @return 如果是全角, 则返回对应字符, 如果不是全角则返回自身
+     */
+    public static char fullwidthConvert(char ch) {
+        //空格特殊处理
+        if (ch == '\u3000') {
+            return '\u0020';
+        } else if (ch > 65280 && ch < 65375) {
+            return (char) (ch - 65248);
+        } else {
+            return ch;
+        }
+    }
+
+    /**
      * 是否为繁体字符
      * 该函数跟{@link #cjkConvert(char)}的性能一样一样的, 并没有
      *
@@ -79,31 +125,33 @@ public final class NlpUtils {
         return TRADITION_TO_SIMPLE.getInstance().convert(str);
     }
 
-
     /**
      * 单个cjk字符转化, 对于多音字, 只返回词库中的第一个
      */
-    public String pyCjkConvert(char cjkChar) {
+    public static String pyCjkConvert(char cjkChar) {
         return PINYIN_CONVERT.getInstance().cjkConvert(cjkChar);
     }
 
     /**
      * 只将汉字转换为对应拼音, 其他未识别字符都忽略
      *
-     * @param word 需要转换的汉字
+     * @param word             需要转换的汉字
+     * @param ignoreWhitespace 是否忽略空白符, 如果不忽略则保留
      */
-    public String pyNormanConvert(String word) {
-        return PINYIN_CONVERT.getInstance().normanConvert(word);
+    public static String pyNormalConvert(String word, boolean ignoreWhitespace) {
+        Map.Entry<String, String> e = PINYIN_CONVERT.getInstance().normalConvert(word, ignoreWhitespace, false);
+        return e == null ? null : e.getKey();
     }
 
     /**
      * 将汉字转换为对应拼音以及首字母字符串, 其他未识别字符都忽略
      *
-     * @param word 需要转换的汉字
+     * @param word             需要转换的汉字
+     * @param ignoreWhitespace 是否忽略空白符, 如果不忽略则保留
      * @return {@link Map.Entry#getKey()} 为转换的拼音text, {@link Map.Entry#getValue()} 为拼音首字母字符串
      */
-    public Map.Entry<String, String> pyNormanFirstLetterConvert(String word) {
-        return PINYIN_CONVERT.getInstance().normanFirstLetterConvert(word);
+    public static Map.Entry<String, String> pyNormalFirstLetterConvert(String word, boolean ignoreWhitespace) {
+        return PINYIN_CONVERT.getInstance().normalConvert(word, ignoreWhitespace, true);
     }
 
     /**
@@ -113,10 +161,9 @@ public final class NlpUtils {
      * @param word 需要转换的汉字
      * @return 转换结果, 如果没有一个拼音匹配, 则返回null, 不再做任何处理
      */
-    public PinyinConvert.Result pyFullConvert(String word) {
+    public static PinyinConvert.Result pyFullConvert(String word) {
         return PINYIN_CONVERT.getInstance().fullConvert(word);
     }
-
 
     /**
      * 加载词库文件, 通过{@link StandardCharsets#UTF_8}打开文件

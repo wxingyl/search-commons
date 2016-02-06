@@ -43,40 +43,38 @@ final class PinyinConvert {
     }
 
     /**
-     * 只将汉字转换为对应拼音, 其他未识别字符都忽略
-     *
-     * @param word 需要转换的汉字
-     */
-    public String normanConvert(String word) {
-        List<Hit<String[]>> hits = binaryMatchTrie.textMaxMatch(word);
-        if (CommonsUtils.isEmpty(hits)) return null;
-        StringBuilder retSb = new StringBuilder();
-        for (Hit<String[]> h : hits) {
-            for (String s : h.getValue()) {
-                retSb.append(s);
-            }
-        }
-        return retSb.toString();
-    }
-
-    /**
      * 将汉字转换为对应拼音以及首字母字符串, 其他未识别字符都忽略
+     * 如果忽略拼音首字母, 则返回结果中的{@link Map.Entry#getValue()}为null
      *
-     * @param word 需要转换的汉字
+     * @param word             需要转换的汉字
+     * @param ignoreWhitespace 是否忽略空白符, 如果不忽略则保留
+     * @param needFirstLetter 是否需要拼音首字母
      * @return {@link Map.Entry#getKey()} 为转换的拼音text, {@link Map.Entry#getValue()} 为拼音首字母字符串
      */
-    public Map.Entry<String, String> normanFirstLetterConvert(String word) {
+    public Map.Entry<String, String> normalConvert(String word, boolean ignoreWhitespace, boolean needFirstLetter) {
         List<Hit<String[]>> hits = binaryMatchTrie.textMaxMatch(word);
         if (CommonsUtils.isEmpty(hits)) return null;
         StringBuilder pyStr = new StringBuilder();
-        StringBuilder firstLetter = new StringBuilder();
+        StringBuilder firstLetter = needFirstLetter ? new StringBuilder() : null;
+        int lastEndPos = 0;
         for (Hit<String[]> h : hits) {
+            int curStartPos = h.getStartPos();
+            if (curStartPos != lastEndPos && !ignoreWhitespace) {
+                while (lastEndPos < curStartPos) {
+                    char ch = word.charAt(lastEndPos);
+                    if (Character.isWhitespace(ch) || NlpUtils.isSpecialChar(ch)) {
+                        pyStr.append(ch);
+                    }
+                    lastEndPos++;
+                }
+            }
             for (String s : h.getValue()) {
                 pyStr.append(s);
-                firstLetter.append(s.charAt(0));
+                if (needFirstLetter) firstLetter.append(s.charAt(0));
             }
+            lastEndPos = h.getEndPos();
         }
-        return new AbstractMap.SimpleEntry<>(pyStr.toString(), firstLetter.toString());
+        return new AbstractMap.SimpleEntry<>(pyStr.toString(), firstLetter == null ? null : firstLetter.toString());
     }
 
     /**
