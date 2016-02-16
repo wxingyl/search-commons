@@ -1,5 +1,6 @@
 package com.tqmall.search.commons.nlp.trie;
 
+import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.nlp.Hits;
 
 import java.util.Collection;
@@ -82,6 +83,10 @@ public class AcStrBinaryTrie implements AcTrie<Void> {
 
         public AcStrBinaryTrie create() {
             return new AcStrBinaryTrie(builder.create());
+        }
+
+        public AcStrBinaryTrie create(Function<AcTrieNodeFactory<Void>, BinaryTrie<Void>> binaryTrieFactory) {
+            return new AcStrBinaryTrie(builder.create(binaryTrieFactory));
         }
     }
 }

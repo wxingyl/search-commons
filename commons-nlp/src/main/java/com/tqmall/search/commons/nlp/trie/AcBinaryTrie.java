@@ -1,12 +1,10 @@
 package com.tqmall.search.commons.nlp.trie;
 
+import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.nlp.Hit;
 import com.tqmall.search.commons.nlp.Hits;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -174,7 +172,7 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
             return this;
         }
 
-        public AcBinaryTrie<V> create() {
+        public AcBinaryTrie<V> create(Function<AcTrieNodeFactory<V>, BinaryTrie<V>> binaryTrieFactory) {
             if (nodeFactory == null) {
                 nodeFactory = new AcTrieNodeFactory<V>() {
                     @Override
@@ -193,11 +191,24 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
                     }
                 };
             }
-            final BinaryTrie<V> binaryTrie = new BinaryTrie<>(nodeFactory);
+            BinaryTrie<V> binaryTrie;
+            if (binaryTrieFactory == null) {
+                /**
+                 * 默认砸门就构造{@link BinaryTrie}
+                 */
+                binaryTrie = new BinaryTrie<>(nodeFactory);
+            } else {
+                binaryTrie = binaryTrieFactory.apply(nodeFactory);
+            }
+            Objects.requireNonNull(binaryTrie);
             for (Map.Entry<String, V> e : dataMap.entrySet()) {
                 binaryTrie.put(e.getKey(), e.getValue());
             }
             return new AcBinaryTrie<>(binaryTrie);
+        }
+
+        public AcBinaryTrie<V> create() {
+            return create(null);
         }
     }
 }
