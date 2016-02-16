@@ -158,7 +158,7 @@ final class PinyinConvert {
         }
 
         void addUnknown(MatchCharacter ch) {
-            if (NlpUtils.isCjkChar(ch.c)) {
+            if (NlpUtils.isCjkChar(ch.getCharacter())) {
                 if (unknownCjk == null) unknownCjk = new LinkedList<>();
                 unknownCjk.add(ch);
             } else {
@@ -212,34 +212,4 @@ final class PinyinConvert {
         }
     }
 
-    /**
-     * 不能转化的字符
-     */
-    public static class MatchCharacter {
-
-        private char c;
-
-        /**
-         * 在原始text{@link Result#srcText}中的位置
-         */
-        private int srcTextPos;
-
-        public MatchCharacter(char c, int srcTextPos) {
-            this.c = c;
-            this.srcTextPos = srcTextPos;
-        }
-
-        public char getC() {
-            return c;
-        }
-
-        public int getSrcTextPos() {
-            return srcTextPos;
-        }
-
-        @Override
-        public String toString() {
-            return c + ":" + srcTextPos;
-        }
-    }
 }

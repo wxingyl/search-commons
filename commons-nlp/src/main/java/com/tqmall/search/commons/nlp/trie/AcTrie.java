@@ -1,8 +1,6 @@
 package com.tqmall.search.commons.nlp.trie;
 
-import com.tqmall.search.commons.nlp.Hit;
-
-import java.util.List;
+import com.tqmall.search.commons.nlp.Hits;
 
 /**
  * Created by xing on 16/1/28.
@@ -27,12 +25,16 @@ public interface AcTrie<V> {
     boolean updateValue(String key, V value);
 
     /**
+     * 构建failed字段
+     */
+    void initFailed();
+    /**
      * 匹配字符串
      *
      * @param text 需要匹配的文本
      * @return 匹配结果
      */
-    List<Hit<V>> textMatch(String text);
+    Hits<V> textMatch(String text);
 
     int size();
 

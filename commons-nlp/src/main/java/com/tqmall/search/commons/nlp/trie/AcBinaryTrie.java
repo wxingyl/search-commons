@@ -1,11 +1,14 @@
 package com.tqmall.search.commons.nlp.trie;
 
 import com.tqmall.search.commons.nlp.Hit;
+import com.tqmall.search.commons.nlp.Hits;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created by xing on 16/1/28.
@@ -14,6 +17,11 @@ import java.util.TreeMap;
  * 注: {@link #binaryTrie}的{@link BinaryTrie#getNodeFactory()} 必须是AcTrieNodeFactory的实例
  */
 public class AcBinaryTrie<V> implements AcTrie<V> {
+
+    /**
+     * failed字段构造读写锁, 构造failed字段时不能执行匹配操作
+     */
+    private ReadWriteLock failedRwLock = new ReentrantReadWriteLock();
 
     private BinaryTrie<V> binaryTrie;
 
@@ -25,6 +33,7 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
             throw new IllegalArgumentException("the nodeFactory of binaryTrie must instanceof AcTrieNodeFactory");
         }
         this.binaryTrie = binaryTrie;
+        initFailed();
     }
 
     @Override
@@ -40,16 +49,43 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
         return true;
     }
 
+    /**
+     * 初始化failed {@link AcNormalNode} failed等字段
+     */
     @Override
-    public List<Hit<V>> textMatch(String text) {
-        char[] charArray = BinaryTrie.argCheck(text);
-        if (charArray == null) return null;
-        List<Hit<V>> resultList = new ArrayList<>();
+    public void initFailed() {
+        failedRwLock.writeLock().lock();
+        try {
+            final List<AcNormalNode<V>> rootChildNodes = new ArrayList<>();
+            binaryTrie.root.childHandle(new NodeChildHandle<V>() {
+                @Override
+                public boolean onHandle(final Node<V> child) {
+                    AcNormalNode<V> acNode = (AcNormalNode<V>) child;
+                    acNode.initRootChildNode(binaryTrie.root);
+                    rootChildNodes.add(acNode);
+                    return true;
+                }
+            });
+            for (AcNormalNode<V> acNode : rootChildNodes) {
+                acNode.buildFailed(binaryTrie.root);
+            }
+        } finally {
+            failedRwLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * 注意 会对charArray做修改
+     *
+     * @param charArray 文本数组
+     * @return 匹配结果
+     */
+    private Hits<V> textMatch(char[] charArray) {
+        Hits<V> hits = new Hits<>();
         Node<V> currentNode = binaryTrie.root;
         int cursor = 0;
         while (cursor < charArray.length) {
-            final char ch = charArray[cursor];
-            AcNormalNode<V> nextNode = (AcNormalNode<V>) currentNode.getChild(ch);
+            AcNormalNode<V> nextNode = (AcNormalNode<V>) currentNode.getChild(charArray[cursor]);
             if (nextNode == null) {
                 if (currentNode == binaryTrie.root) {
                     //当前节点已经是rootNode, 则不匹配
@@ -63,12 +99,34 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
                 cursor++;
                 if (nextNode.accept()) {
                     //匹配到, 讲所有结果添加进来
-                    resultList.addAll(Hit.createHits(cursor, nextNode));
+                    hits.addHits(Hit.createHits(cursor, nextNode));
                 }
                 currentNode = nextNode;
             }
         }
-        return resultList;
+        for (Hit h : hits) {
+            for (int i = h.getStartPos(); i < h.getEndPos(); i++) {
+                charArray[i] = '\0';
+            }
+        }
+        for (int i = 0; i < charArray.length; i++) {
+            if (charArray[i] != '\0') {
+                hits.addUnknownCharacter(charArray[i], i);
+            }
+        }
+        return hits;
+    }
+
+    @Override
+    public Hits<V> textMatch(String text) {
+        char[] charArray = BinaryTrie.argCheck(text);
+        if (charArray == null) return null;
+        failedRwLock.readLock().lock();
+        try {
+            return textMatch(charArray);
+        } finally {
+            failedRwLock.readLock().unlock();
+        }
     }
 
     @Override
@@ -82,33 +140,10 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
     }
 
     /**
-     * 不能针对返回的节点进行添加或者删除操作, 或者如果执行了这些操作, 需要重新{@link #initFailed(BinaryTrie)}, 但是需要保证多线程
-     * 读写安全
+     * 不能针对返回的节点进行添加或者删除操作, 或者如果执行了这些操作, 需要重新{@link #initFailed()}
      */
     public BinaryTrie<V> getBinaryTrie() {
         return binaryTrie;
-    }
-
-    /**
-     * 初始化failed {@link AcNormalNode} failed等字段
-     *
-     * @param binaryTrie 需要的二分前缀树
-     * @param <V>        value泛型
-     */
-    public static <V> void initFailed(final BinaryTrie<V> binaryTrie) {
-        final List<AcNormalNode<V>> rootChildNodes = new ArrayList<>();
-        binaryTrie.root.childHandle(new NodeChildHandle<V>() {
-            @Override
-            public boolean onHandle(final Node<V> child) {
-                AcNormalNode<V> acNode = (AcNormalNode<V>) child;
-                acNode.initRootChildNode(binaryTrie.root);
-                rootChildNodes.add(acNode);
-                return true;
-            }
-        });
-        for (AcNormalNode<V> acNode : rootChildNodes) {
-            acNode.buildFailed(binaryTrie.root);
-        }
     }
 
     public static <V> Builder<V> build() {
@@ -162,9 +197,6 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
             for (Map.Entry<String, V> e : dataMap.entrySet()) {
                 binaryTrie.put(e.getKey(), e.getValue());
             }
-
-            //初始化failed字段
-            initFailed(binaryTrie);
             return new AcBinaryTrie<>(binaryTrie);
         }
     }

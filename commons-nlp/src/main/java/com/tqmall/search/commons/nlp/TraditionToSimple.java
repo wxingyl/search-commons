@@ -19,15 +19,9 @@ final class TraditionToSimple {
     private final char[] chars;
 
     TraditionToSimple() {
-        chars = load();
-    }
-
-    /**
-     * 都是本地加载, 数据格式的校验就不要太严格了~~~
-     */
-    private char[] load() {
         final int indexOffset = NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST;
-        final char[] localCharArray = new char[NlpConst.CJK_UNIFIED_SIZE];
+        //都是本地加载, 数据格式的校验就不要太严格了~~~
+        chars = new char[NlpConst.CJK_UNIFIED_SIZE];
         NlpUtils.loadLexicon(NlpConst.F2J_FILE_NAME, new NlpUtils.LineHandle() {
             @Override
             public boolean onHandle(String line) {
@@ -35,17 +29,16 @@ final class TraditionToSimple {
                 if (array.length < 2) {
                     log.warn("加载繁体转简体词库, 词" + line + "格式存在异常");
                 } else {
-                    localCharArray[array[0].charAt(0) - indexOffset] = array[1].charAt(0);
+                    chars[array[0].charAt(0) - indexOffset] = array[1].charAt(0);
                 }
                 return true;
             }
         });
-        for (int i = 0; i < localCharArray.length; i++) {
-            if (localCharArray[i] == 0) {
-                localCharArray[i] = (char) (indexOffset + i);
+        for (int i = 0; i < chars.length; i++) {
+            if (chars[i] == 0) {
+                chars[i] = (char) (indexOffset + i);
             }
         }
-        return localCharArray;
     }
 
     /**

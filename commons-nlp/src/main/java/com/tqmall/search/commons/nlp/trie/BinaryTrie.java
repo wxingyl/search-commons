@@ -30,8 +30,12 @@ public class BinaryTrie<V> implements Trie<V> {
         if (charArray == null) return false;
         Node<V> current = root;
         for (int i = 0; i < charArray.length - 1; i++) {
-            current.addChild(nodeFactory.createNormalNode(charArray[i]));
-            current = current.getChild(charArray[i]);
+            Node<V> next = current.getChild(charArray[i]);
+            if (next == null) {
+                next = nodeFactory.createNormalNode(charArray[i]);
+                current.addChild(next);
+            }
+            current = next;
         }
         if (current.addChild(nodeFactory.createChildNode(charArray[charArray.length - 1], value))) {
             size++;

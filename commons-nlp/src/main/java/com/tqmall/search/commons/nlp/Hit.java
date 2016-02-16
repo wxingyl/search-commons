@@ -13,6 +13,7 @@ public class Hit<V> {
     /**
      * 模式串在母文本中的终止位置
      * startPos通过endPos和outputKey直接搞出来了
+     * 符合左开右闭原则,即[startPos, endPos)
      */
     private final int endPos;
 
@@ -23,9 +24,9 @@ public class Hit<V> {
     /**
      * 进来匹配的字符
      *
-     * @param endPos    匹配到的结束位置
+     * @param endPos   匹配到的结束位置, 符合左开右闭原则,即[startPos, endPos)
      * @param matchKey 匹配到的输出文本
-     * @param value     对应节点的value
+     * @param value    对应节点的value
      */
     public Hit(int endPos, String matchKey, V value) {
         this.endPos = endPos;

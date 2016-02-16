@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,6 +52,16 @@ public final class NlpUtils {
         @Override
         public PinyinConvert get() {
             return new PinyinConvert();
+        }
+    });
+
+    /**
+     * 分词实例
+     */
+    private static final LazyInit<Segment> SEGMENT = new LazyInit<>(new Supplier<Segment>() {
+        @Override
+        public Segment get() {
+            return new Segment();
         }
     });
 
@@ -163,6 +174,16 @@ public final class NlpUtils {
      */
     public static PinyinConvert.Result pyFullConvert(String word) {
         return PINYIN_CONVERT.getInstance().fullConvert(word);
+    }
+
+    /**
+     * 最小分词, 按照词典中的词最小纬度分词
+     *
+     * @param text 待分词文本
+     * @return 分词结果
+     */
+    public static List<Hit<Void>> segmentText(String text) {
+        return SEGMENT.getInstance().segment(text);
     }
 
     /**

@@ -27,7 +27,7 @@ public class AcNormalNode<V> extends NormalNode<V> {
      * @param ch 对应字符
      */
     public AcNormalNode(char ch) {
-        super(ch);
+        this(ch, Status.NORMAL, null);
     }
 
 
@@ -38,7 +38,7 @@ public class AcNormalNode<V> extends NormalNode<V> {
      * @param value 叶子节点对应的值
      */
     public AcNormalNode(char ch, V value) {
-        super(ch, value);
+        this(ch, Status.LEAF_WORD, value);
     }
 
     public AcNormalNode(char ch, Status status, V value) {
@@ -103,25 +103,64 @@ public class AcNormalNode<V> extends NormalNode<V> {
      *
      * @param root root根节点
      */
-    @SuppressWarnings("unchecked")
     void buildFailed(final Node<V> root) {
         if (parent != null) {
-            AcNormalNode<V> lParent = parent;
-            while (failed == null) {
-                Node<V> node = lParent.failed.getChild(c);
-                if (node != null) {
-                    failed = node;
-                } else if (lParent.failed == root) {
-                    failed = root;
-                } else {
-                    lParent = (AcNormalNode<V>) lParent.failed;
-                }
+            throw new IllegalArgumentException("current node depth is not 1");
+        }
+        for (int i = 0; i < childCount; i++) {
+            @SuppressWarnings({"rawtypes","unchecked"})
+            AcNormalNode<V> acNode = (AcNormalNode<V>) children[i];
+            acNode.innerBuildFailed(root);
+        }
+    }
+
+    private void innerBuildFailed(final Node<V> root) {
+        AcNormalNode<V> lParent = parent;
+        while (failed == null) {
+            if (lParent.failed == null) {
+                lParent.innerBuildFailed(root);
+            }
+            Node<V> node = lParent.failed.getChild(c);
+            if (node != null) {
+                failed = node;
+            } else if (lParent.failed == root) {
+                failed = root;
+            } else {
+                lParent = (AcNormalNode<V>) lParent.failed;
             }
         }
-        if (children == null) return;
         for (int i = 0; i < childCount; i++) {
+            @SuppressWarnings({"rawtypes","unchecked"})
             AcNormalNode<V> acNode = (AcNormalNode<V>) children[i];
-            acNode.buildFailed(root);
+            acNode.innerBuildFailed(root);
         }
+    }
+
+    private static final AcTrieNodeFactory<?> DEFAULT_CJK_AC_NODE_FACTORY = new AcTrieNodeFactory<Object>() {
+        @Override
+        public Node<Object> createRootNode() {
+            return LargeRootNode.createCjkRootNode();
+        }
+
+        @Override
+        public AcNormalNode<Object> createNormalNode(char c) {
+            return new AcNormalNode<>(c);
+        }
+
+        @Override
+        public AcNormalNode<Object> createChildNode(char c, Object value) {
+            return new AcNormalNode<>(c, value);
+        }
+    };
+
+    /**
+     * 默认的前缀树Cjk AcNode Factory
+     *
+     * @param <V> Node节点泛型
+     * @return factory
+     */
+    @SuppressWarnings("unchecked")
+    public static <V> AcTrieNodeFactory<V> defaultCjkAcTrieNodeFactory() {
+        return (AcTrieNodeFactory<V>) DEFAULT_CJK_AC_NODE_FACTORY;
     }
 }

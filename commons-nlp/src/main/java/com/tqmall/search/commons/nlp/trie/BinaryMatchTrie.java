@@ -98,6 +98,7 @@ public class BinaryMatchTrie<V> extends BinaryTrie<V> {
             Node<V> nextNode = currentNode.getChild(ch);
             if (nextNode == null || nextNode.getStatus() == Node.Status.DELETE) {
                 if (currentNode == root) {
+                    //没有匹配上
                     index++;
                 } else {
                     if (lastAccept) {
