@@ -1,5 +1,8 @@
 package com.tqmall.search.commons.nlp.trie;
 
+import java.util.Deque;
+import java.util.LinkedList;
+
 /**
  * Created by xing on 16/1/28.
  * Aho-Corasick 多模式匹配算法实现, AC自动机节点
@@ -107,32 +110,52 @@ public class AcNormalNode<V> extends NormalNode<V> {
         if (parent != null) {
             throw new IllegalArgumentException("current node depth is not 1");
         }
-        for (int i = 0; i < childCount; i++) {
-            @SuppressWarnings({"rawtypes","unchecked"})
-            AcNormalNode<V> acNode = (AcNormalNode<V>) children[i];
-            acNode.innerBuildFailed(root);
+        /**
+         * 这儿把Deque当成Stack用
+         */
+        Deque<AcNormalNode<V>> stack = new LinkedList<>();
+        this.addChildToStack(stack);
+        AcNormalNode<V> lParent = null;
+        while (!stack.isEmpty()) {
+            AcNormalNode<V> curNode = stack.getFirst();
+            if (curNode.failed == null) {
+                if (lParent == null) {
+                    lParent = curNode.parent;
+                }
+                if (lParent.failed == null) {
+                    stack.push(lParent);
+                    lParent = null;
+                    continue;
+                }
+                Node<V> curFailedNode = lParent.failed.getChild(curNode.c);
+                if (curFailedNode != null) {
+                    //找到失败节点
+                    curNode.failed = curFailedNode;
+                } else if (lParent.failed == root) {
+                    //没有找到, 但父节点的failed就是root, 就没有必要继续找下去了
+                    curNode.failed = root;
+                } else {
+                    //没有找到, 但父节点的failed节点有效,
+                    lParent = (AcNormalNode<V>) lParent.failed;
+                }
+            }
+            if (curNode.failed != null) {
+                //当前节点的failed节点初始化完成
+                stack.pollFirst();
+                lParent = null;
+                curNode.addChildToStack(stack);
+            }
         }
     }
 
-    private void innerBuildFailed(final Node<V> root) {
-        AcNormalNode<V> lParent = parent;
-        while (failed == null) {
-            if (lParent.failed == null) {
-                lParent.innerBuildFailed(root);
-            }
-            Node<V> node = lParent.failed.getChild(c);
-            if (node != null) {
-                failed = node;
-            } else if (lParent.failed == root) {
-                failed = root;
-            } else {
-                lParent = (AcNormalNode<V>) lParent.failed;
-            }
-        }
+    /**
+     * 讲children添加到队列开始位置, 即入栈
+     */
+    private void addChildToStack(Deque<AcNormalNode<V>> deque) {
         for (int i = 0; i < childCount; i++) {
-            @SuppressWarnings({"rawtypes","unchecked"})
+            @SuppressWarnings({"rawtypes", "unchecked"})
             AcNormalNode<V> acNode = (AcNormalNode<V>) children[i];
-            acNode.innerBuildFailed(root);
+            deque.push(acNode);
         }
     }
 

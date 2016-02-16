@@ -14,9 +14,12 @@ public class SegmentTest {
     public void segmentTest() {
         String text = "北京大学";
         List<Hit<Void>> list;
-//        list = NlpUtils.segmentText(text);
-//        System.out.println(text + ": " + list);
+        list = NlpUtils.segmentText(text);
+        System.out.println(text + ": " + list);
         text = "北京的大学";
+        list = NlpUtils.segmentText(text);
+        System.out.println(text + ": " + list);
+        text = "B-tree中的每个结点根据实际情况可以包含大量的关键字信息";
         list = NlpUtils.segmentText(text);
         System.out.println(text + ": " + list);
     }

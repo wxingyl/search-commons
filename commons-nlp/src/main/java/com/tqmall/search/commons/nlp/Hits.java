@@ -13,6 +13,9 @@ public class Hits<V> implements Iterable<Hit<V>> {
 
     private List<Hit<V>> hits = new ArrayList<>();
 
+    /**
+     * 注意: 这儿{@link MatchCharacter#srcPos} 是原始文本中的坐标pos, 并不是开区间结束位置
+     */
     private List<MatchCharacter> unknownCharacters;
 
     public void addHit(Hit<V> hit) {
