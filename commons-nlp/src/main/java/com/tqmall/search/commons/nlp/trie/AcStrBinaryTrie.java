@@ -85,7 +85,7 @@ public class AcStrBinaryTrie implements AcTrie<Void> {
             return new AcStrBinaryTrie(builder.create());
         }
 
-        public AcStrBinaryTrie create(Function<AcTrieNodeFactory<Void>, BinaryTrie<Void>> binaryTrieFactory) {
+        public AcStrBinaryTrie create(Function<AcTrieNodeFactory<Void>, AbstractTrie<Void>> binaryTrieFactory) {
             return new AcStrBinaryTrie(builder.create(binaryTrieFactory));
         }
     }

@@ -4,24 +4,17 @@ import com.tqmall.search.commons.utils.SearchStringUtils;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Created by xing on 16/1/27.
  * CJK二分查找树, 根节点直接分配, 其他的根据需要再添加
  */
-public class BinaryTrie<V> implements Trie<V> {
-
-    private final TrieNodeFactory<V> nodeFactory;
-
-    protected final Node<V> root;
+public class BinaryTrie<V> extends AbstractTrie<V> {
 
     private int size;
 
     public BinaryTrie(TrieNodeFactory<V> nodeFactory) {
-        this.nodeFactory = nodeFactory;
-        this.root = nodeFactory.createRootNode();
-        Objects.requireNonNull(root);
+        super(nodeFactory);
     }
 
     @Override
@@ -69,30 +62,6 @@ public class BinaryTrie<V> implements Trie<V> {
         return true;
     }
 
-    /**
-     * node节点搜索, 筛选掉DELETE的节点
-     *
-     * @return key无效或者节点已经被删除, 返回null
-     */
-    Node<V> searchNode(String key) {
-        char[] charArray = argCheck(key);
-        return charArray == null ? null : searchNode(charArray);
-    }
-
-    /**
-     * 不做array 参数校验
-     *
-     * @param array 不做参数校验
-     */
-    private Node<V> searchNode(char[] array) {
-        Node<V> currentNode = root;
-        for (char c : array) {
-            currentNode = currentNode.getChild(c);
-            if (currentNode == null || currentNode.getStatus() == Node.Status.DELETE) return null;
-        }
-        return currentNode;
-    }
-
     @Override
     public List<Map.Entry<String, V>> prefixSearch(String word) {
         Node<V> node = searchNode(word);
@@ -108,10 +77,6 @@ public class BinaryTrie<V> implements Trie<V> {
     @Override
     public void clear() {
         root.clear();
-    }
-
-    public TrieNodeFactory<V> getNodeFactory() {
-        return nodeFactory;
     }
 
     public static char[] argCheck(String key) {

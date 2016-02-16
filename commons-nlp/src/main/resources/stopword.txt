@@ -8,7 +8,6 @@ according
 according to
 across
 across
-afore
 after
 after
 after
@@ -17,7 +16,6 @@ again
 against
 against
 against
-agin
 all
 all
 almost
@@ -41,7 +39,6 @@ among
 among
 amongst
 amongst
-amoungst
 amount
 an
 an
@@ -129,7 +126,6 @@ co
 computer
 con
 could
-could
 couldnt
 cry
 currently
@@ -183,7 +179,7 @@ except
 except
 few
 fifteen
-fify
+fifty
 fill
 find
 fire
@@ -342,7 +338,6 @@ no
 nobody
 none
 none
-noone
 nor
 not
 not
@@ -512,8 +507,6 @@ through
 through
 throughout
 throughout
-thru
-thru
 thus
 till
 to
@@ -572,7 +565,6 @@ whence
 whenever
 where
 where
-whereafter
 whereas
 whereby
 wherein
@@ -1383,6 +1375,7 @@ yourselves
 顺
 顺着
 首先
+没有
 ︰
 ︳
 ︴
@@ -1444,4 +1437,3 @@ yourselves
 ＿
 ￣
 &nbsp;
-没有
