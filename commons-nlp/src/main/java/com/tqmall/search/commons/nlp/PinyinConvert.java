@@ -37,9 +37,9 @@ final class PinyinConvert {
      * 单个cjk字符转化, 对于多音字, 只返回词库中的第一个
      */
     public String cjkConvert(char cjkChar) {
-        List<Hit<String[]>> hits = binaryMatchTrie.textMaxMatch(cjkChar + "");
-        if (CommonsUtils.isEmpty(hits)) return null;
-        return hits.get(0).getValue()[0];
+        Hits<String[]> hits = binaryMatchTrie.textMaxMatch(cjkChar + "");
+        if (hits == null || CommonsUtils.isEmpty(hits.getHits())) return null;
+        return hits.getHits().get(0).getValue()[0];
     }
 
     /**
@@ -48,12 +48,12 @@ final class PinyinConvert {
      *
      * @param word             需要转换的汉字
      * @param ignoreWhitespace 是否忽略空白符, 如果不忽略则保留
-     * @param needFirstLetter 是否需要拼音首字母
-     * @return {@link Map.Entry#getKey()} 为转换的拼音text, {@link Map.Entry#getValue()} 为拼音首字母字符串
+     * @param needFirstLetter  是否需要拼音首字母
+     * @return {@link Map.Entry#getKey()} 为转换的拼音text, {@link Map.Entry#getValue()} 为拼音首字母字符串. 当然此时needFirstLetter = true才有效
      */
     public Map.Entry<String, String> normalConvert(String word, boolean ignoreWhitespace, boolean needFirstLetter) {
-        List<Hit<String[]>> hits = binaryMatchTrie.textMaxMatch(word);
-        if (CommonsUtils.isEmpty(hits)) return null;
+        Hits<String[]> hits = binaryMatchTrie.textMaxMatch(word);
+        if (hits == null || CommonsUtils.isEmpty(hits.getHits())) return null;
         StringBuilder pyStr = new StringBuilder();
         StringBuilder firstLetter = needFirstLetter ? new StringBuilder() : null;
         int lastEndPos = 0;
@@ -85,29 +85,25 @@ final class PinyinConvert {
      * @return 转换结果, 如果没有一个拼音匹配, 则返回null, 不再做任何处理
      */
     public Result fullConvert(String word) {
-        List<Hit<String[]>> hits = binaryMatchTrie.textMaxMatch(word);
-        if (CommonsUtils.isEmpty(hits)) return null;
-        int length = word.length();
-        Map<Integer, Hit<String[]>> hitStartPosMap = new HashMap<>();
-        for (Hit<String[]> h : hits) {
-            hitStartPosMap.put(h.getStartPos(), h);
-        }
+        Hits<String[]> hits = binaryMatchTrie.textMaxMatch(word);
+        if (hits == null || CommonsUtils.isEmpty(hits.getHits())) return null;
         Result result = new Result(word);
         StringBuilder firstLetter = new StringBuilder();
-        for (int i = 0; i < length; ) {
-            Hit<String[]> hit = hitStartPosMap.get(i);
-            if (hit != null) {
-                for (String s : hit.getValue()) {
-                    result.pinyinList.add(new PinyinCharacter(word.charAt(i), i, s));
-                    firstLetter.append(s.charAt(0));
-                    i++;
-                }
-            } else {
-                result.addUnknown(new MatchCharacter(word.charAt(i), i));
+        for (Hit<String[]> h : hits) {
+            final int startPos = h.getStartPos();
+            int i = 0;
+            for (String s : h.getValue()) {
+                result.pinyinList.add(new PinyinCharacter(h.getMatchKey().charAt(i), startPos, s));
+                firstLetter.append(s.charAt(0));
                 i++;
             }
         }
         result.pinyinFirstLetter = firstLetter.toString();
+        if (hits.getUnknownCharacters() != null) {
+            for (MatchCharacter e : hits.getUnknownCharacters()) {
+                result.addUnknown(e);
+            }
+        }
         return result;
     }
 

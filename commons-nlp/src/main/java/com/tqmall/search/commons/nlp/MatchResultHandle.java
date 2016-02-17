@@ -1,17 +1,14 @@
 package com.tqmall.search.commons.nlp;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by xing on 16/2/3.
- * 匹配结果手机处理
+ * 匹配结果处理
  */
 public class MatchResultHandle<V> implements Hit.IHit<V> {
     /**
      * 结果集
      */
-    private List<Hit<V>> resultList;
+    private final Hits<V> hits;
     /**
      * 匹配的源文本
      */
@@ -19,6 +16,7 @@ public class MatchResultHandle<V> implements Hit.IHit<V> {
 
     public MatchResultHandle(String text) {
         this.srcText = text;
+        hits = new Hits<>();
     }
 
     /**
@@ -29,11 +27,7 @@ public class MatchResultHandle<V> implements Hit.IHit<V> {
      */
     @Override
     public Hit<V> onHit(int startPos, int endPos, V value) {
-        Hit<V> hit = new Hit<>(endPos, srcText.substring(startPos, endPos), value);
-        if (resultList == null) {
-            resultList = new ArrayList<>();
-        }
-        resultList.add(hit);
+        hits.addHit(new Hit<>(endPos, srcText.substring(startPos, endPos), value));
         return null;
     }
 
@@ -42,8 +36,8 @@ public class MatchResultHandle<V> implements Hit.IHit<V> {
      *
      * @return 匹配结果
      */
-    public List<Hit<V>> getResultList() {
-        return resultList;
+    public Hits<V> getHits() {
+        return hits;
     }
 
     public String getSrcText() {

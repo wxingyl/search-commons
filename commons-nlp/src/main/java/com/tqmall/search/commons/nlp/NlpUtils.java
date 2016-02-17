@@ -177,13 +177,34 @@ public final class NlpUtils {
     }
 
     /**
-     * 最小分词, 按照词典中的词最小纬度分词
+     * 索引分词, 尽可能的返回所有分词结果
      *
      * @param text 待分词文本
      * @return 分词结果
      */
-    public static List<Hit<Void>> segmentText(String text) {
-        return SEGMENT.getInstance().segment(text);
+    public static List<Hit<Void>> fullSegmentText(String text) {
+        return SEGMENT.getInstance().fullSegment(text);
+    }
+
+    /**
+     * 最大分词匹配
+     *
+     * @param text 待输入文本
+     * @return 最大分词结果
+     */
+    public static List<Hit<Void>> maxSegmentText(String text) {
+        return SEGMENT.getInstance().maxSegment(text);
+    }
+
+
+    /**
+     * 最小分词匹配
+     *
+     * @param text 待输入文本
+     * @return 最小分词结果
+     */
+    public static List<Hit<Void>> minSegmentText(String text) {
+        return SEGMENT.getInstance().minSegment(text);
     }
 
     /**

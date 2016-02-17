@@ -105,7 +105,7 @@ public class TrieTest {
         matchTrie.put("王星星", "xingxing.wang");
 
         String word = "长沙王星星";
-        List<Hit<String>> result = matchTrie.textMaxMatch(word);
+        List<Hit<String>> result = matchTrie.textMaxMatch(word).getHits();
         System.out.println("word: " + word + " binaryMatchTrie result: " + result);
         List<Hit<String>> expectedResult = new ArrayList<>();
         expectedResult.add(new Hit<>(2, "长沙", "chang sha"));
@@ -113,7 +113,7 @@ public class TrieTest {
         Assert.assertEquals(expectedResult, result);
 
         word = "长沙王星艳王星星";
-        result = matchTrie.textMaxMatch(word);
+        result = matchTrie.textMaxMatch(word).getHits();
         System.out.println("word: " + word + " binaryMatchTrie result: " + result);
         expectedResult.clear();
         expectedResult.add(new Hit<>(2, "长沙", "chang sha"));
@@ -122,7 +122,7 @@ public class TrieTest {
         Assert.assertEquals(expectedResult, result);
 
         word = "长沙王星艳王星星";
-        result = matchTrie.textMinMatch(word);
+        result = matchTrie.textMinMatch(word).getHits();
         System.out.println("word: " + word + " binaryMatchTrie result: " + result);
         expectedResult.clear();
         expectedResult.add(new Hit<>(1, "长", "zhang"));

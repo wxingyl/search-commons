@@ -69,7 +69,6 @@ public class Hit<V> {
 
         if (endPos != hit.endPos) return false;
         return matchKey.equals(hit.matchKey);
-
     }
 
     @Override

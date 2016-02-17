@@ -102,16 +102,7 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
                 currentNode = nextNode;
             }
         }
-        for (Hit h : hits) {
-            for (int i = h.getStartPos(); i < h.getEndPos(); i++) {
-                charArray[i] = '\0';
-            }
-        }
-        for (int i = 0; i < charArray.length; i++) {
-            if (charArray[i] != '\0') {
-                hits.addUnknownCharacter(charArray[i], i);
-            }
-        }
+        Hits.initUnknownCharacters(hits, charArray);
         return hits;
     }
 

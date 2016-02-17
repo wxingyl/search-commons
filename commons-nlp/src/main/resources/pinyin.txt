@@ -493,7 +493,7 @@
 #価=jia,jie
 価=jia
 侢=zai
-侣=lu:
+侣=lv
 侤=ta
 #侥=jiao,yao,jia
 侥=jiao
@@ -715,9 +715,9 @@
 偶=ou
 偷=tou
 偹=bei
-#偻=lou,lu:
+#偻=lou,lv
 偻=lou
-伛偻=yu lu:
+伛偻=yu lv
 偼=jie
 偾=fen
 偿=chang
@@ -852,7 +852,7 @@
 儞=ni
 儠=lie
 儡=lei
-儢=lu:
+儢=lv
 儣=kuang
 儤=bao
 儥=du
@@ -1321,7 +1321,7 @@
 勯=dan
 勰=xie
 勲=xun
-勴=lu:
+勴=lv
 勶=che
 勷=rang
 勹=bao
@@ -1426,7 +1426,7 @@
 単=dan
 卙=ji
 博=bo
-#卛=shuai,lu:
+#卛=shuai,lv
 卛=shuai
 #卜=bu,bo
 卜=bu
@@ -1636,7 +1636,7 @@
 威吓=wei he
 恐吓=kong he
 吔=ye
-吕=lu:
+吕=lv
 吖=a
 吗=ma
 吘=ou
@@ -2408,7 +2408,7 @@
 #圕=tu,shu,guan
 圕=tu
 圗=tu
-圙=lu:e
+圙=lve
 圚=hui
 圛=yi
 #圜=yuan,huan
@@ -2994,8 +2994,8 @@
 奰=bei
 奱=lian
 奲=che
-#女=nu:,ru
-女=nu:
+#女=nv,ru
+女=nv
 奴=nu
 奵=ding
 奶=nai
@@ -3622,8 +3622,8 @@
 #寻=xun,xin
 寻=xun
 导=dao
-#寽=lu:,luo
-寽=lu:
+#寽=lv,luo
+寽=lv
 対=dui
 寿=shou
 尀=po
@@ -3730,9 +3730,9 @@
 属意=zhu yi
 屟=xie
 屠=tu
-屡=lu:
+屡=lv
 屣=xi
-履=lu:
+履=lv
 屦=ju
 屧=xie
 屩=jue
@@ -3946,7 +3946,7 @@
 崿=e
 嵀=zhu
 嵁=kan
-嵂=lu:
+嵂=lv
 嵃=yan
 嵄=mei
 嵅=gan
@@ -4489,7 +4489,7 @@
 徉=yang
 #徊=huai,hui
 徊=huai
-律=lu:
+律=lv
 徍=wang
 徎=cheng
 徏=zhi
@@ -4595,7 +4595,7 @@
 念=nian
 忶=hun
 忷=xiong
-#忸=niu,nu:
+#忸=niu,nv
 忸=niu
 忹=wang
 忺=xian
@@ -4711,7 +4711,7 @@
 恣=zi
 恤=xu
 恦=xiang
-恧=nu:
+恧=nv
 恨=hen
 恩=en
 #恪=ke,que
@@ -4966,7 +4966,7 @@
 慷=kang
 慸=di
 慹=zhi
-慺=lu:
+慺=lv
 慻=juan
 慽=qi
 慿=ping
@@ -5373,7 +5373,7 @@
 挑=tiao
 挒=lie
 挓=zha
-挔=lu:
+挔=lv
 挕=die
 挖=wa
 挗=jue
@@ -5433,8 +5433,8 @@
 捈=tu
 捉=zhuo
 捊=pou
-#捋=lu:,luo
-捋=lu:
+#捋=lv,luo
+捋=lv
 捌=ba
 捍=han
 捎=shao
@@ -5450,7 +5450,7 @@
 捘=jun
 捙=yi
 捚=zhai
-捛=lu:
+捛=lv
 捜=sou
 捝=tuo
 捞=lao
@@ -5513,7 +5513,7 @@
 掝=huo
 掞=shan
 掟=ding
-掠=lu:e
+掠=lve
 探=tan
 掣=che
 掤=bing
@@ -5826,7 +5826,7 @@
 擶=jian
 擸=lie
 擹=tan
-擽=lu:e
+擽=lve
 擿=zhi
 攀=pan
 攁=yang
@@ -5837,7 +5837,7 @@
 攇=xian
 攈=jun
 攉=huo
-攊=lu:e
+攊=lve
 攋=la
 攌=han
 攍=ying
@@ -6012,7 +6012,7 @@
 旁=pang
 旃=zhan
 旄=mao
-旅=lu:
+旅=lv
 旆=pei
 旇=pi
 旈=liu
@@ -6338,7 +6338,7 @@
 朏=fei
 朐=qu
 朑=ti
-朒=nu:
+朒=nv
 朓=tiao
 朔=shuo
 朕=zhen
@@ -6783,7 +6783,7 @@
 梛=nuo
 梜=jia
 梞=ji
-梠=lu:
+梠=lv
 梡=kuan
 #梢=shao,sao
 梢=shao
@@ -7015,7 +7015,7 @@
 榅=yun
 榆=yu
 榇=chen
-榈=lu:
+榈=lv
 榉=ju
 榊=shen
 榋=chu
@@ -7320,7 +7320,7 @@
 櫒=sa
 櫔=li
 櫕=cuan
-櫖=lu:
+櫖=lv
 櫗=mie
 櫘=hui
 櫙=ou
@@ -7581,7 +7581,7 @@
 毼=he
 毽=jian
 毾=ta
-氀=lu:
+氀=lv
 氁=mu
 氃=tong
 氄=rong
@@ -7624,7 +7624,7 @@
 氪=ke
 氭=dong
 氮=dan
-氯=lu:
+氯=lv
 氰=qing
 氱=yang
 氲=yun
@@ -8315,7 +8315,7 @@
 满=man
 滢=ying
 滣=chun
-滤=lu:
+滤=lv
 滥=lan
 滦=luan
 滧=xiao
@@ -9028,7 +9028,7 @@
 爆=bao
 爇=ruo
 爈=di
-爉=lu:
+爉=lv
 爊=ao
 爋=xun
 爌=kuang
@@ -9377,8 +9377,8 @@
 玃=qu
 玄=xuan
 玅=miao
-#率=lu:,shuai,shuo
-率=lu:
+#率=lv,shuai,shuo
+率=lv
 率领=shuai ling
 统率=tong shuai
 率队=shuai dui
@@ -9844,10 +9844,10 @@
 畡=gai
 畣=da
 畤=zhi
-略=lu:e
+略=lve
 #畦=qi,xi
 畦=qi
-畧=lu:e
+畧=lve
 畨=pan
 畩=yi
 #番=fan,pan
@@ -9901,8 +9901,8 @@
 疜=xia
 疝=shan
 疞=xu
-#疟=nu:e,yao
-疟=nu:e
+#疟=nve,yao
+疟=nve
 疠=li
 疡=yang
 疢=chen
@@ -10848,7 +10848,7 @@
 祡=chai
 #祢=mi,ni
 祢=mi
-祣=lu:
+祣=lv
 祤=yu
 祥=xiang
 祦=wu
@@ -11016,7 +11016,7 @@
 稂=lang
 稃=fu
 稄=ze
-稆=lu:
+稆=lv
 稇=kun
 稉=jing
 稊=ti
@@ -11097,7 +11097,7 @@
 穛=zhuo
 穜=tong
 穝=zuo
-穞=lu:
+穞=lv
 穟=sui
 穣=rang
 穤=nuo
@@ -11589,7 +11589,7 @@
 籶=shen
 籷=zhe
 籸=shen
-籹=nu:
+籹=nv
 籺=xie
 类=lei
 籼=xian
@@ -11797,7 +11797,7 @@
 絺=chi
 絻=mian
 絼=zhen
-絽=lu:
+絽=lv
 絾=cheng
 絿=qiu
 綀=shu
@@ -11846,7 +11846,7 @@
 緎=yu
 総=zong
 緐=fan
-緑=lu:
+緑=lv
 緕=zi
 緖=xu
 緛=ruan
@@ -12079,8 +12079,8 @@
 综=zong
 绽=zhan
 绾=wan
-#绿=lu:,lu
-绿=lu:
+#绿=lv,lu
+绿=lv
 绿林=lu lin
 鸭绿江=ya lu jiang
 缀=zhui
@@ -12106,7 +12106,7 @@
 缒=zhui
 缓=huan
 缔=di
-缕=lu:
+缕=lv
 编=bian
 缗=min
 缘=yuan
@@ -12699,7 +12699,7 @@
 腿=tui
 #膀=bang,pang,bang
 膀=bang
-膂=lu:
+膂=lv
 膄=shou
 膅=tang
 膆=su
@@ -12712,7 +12712,7 @@
 膍=pi
 膎=xie
 膏=gao
-膐=lu:
+膐=lv
 膑=bin
 膒=ou
 膓=chang
@@ -12725,9 +12725,9 @@
 膜=mo
 膝=xi
 膞=zhuan
-膟=lu:
+膟=lv
 膡=ying
-膢=lu:
+膢=lv
 膣=zhi
 膤=xue
 膥=chun
@@ -13299,7 +13299,7 @@
 菆=zou
 菇=gu
 菈=la
-#菉=lu,lu:
+#菉=lu,lv
 菉=lu
 菊=ju
 菋=wei
@@ -13432,8 +13432,8 @@
 葋=qu
 葌=jian
 葍=fu
-葎=lu:
-葏=lu:
+葎=lv
+葏=lv
 葐=pen
 葑=feng
 葓=hong
@@ -13810,7 +13810,7 @@
 藕=ou
 藖=xian
 藗=su
-藘=lu:
+藘=lv
 藙=yi
 藚=xu
 藛=xie
@@ -13914,8 +13914,8 @@
 虍=hu
 虎=hu
 虏=lu
-虐=nu:e
-虑=lu:
+虐=nve
+虑=lv
 虒=zhi
 虓=xiao
 虔=qian
@@ -14402,9 +14402,9 @@
 #血=xue,xie
 血=xue
 衁=huang
-衂=nu:
+衂=nv
 衃=pei
-衄=nu:
+衄=nv
 衅=xin
 衇=mo
 衈=er
@@ -14627,7 +14627,7 @@
 褙=bei
 #褚=chu,zhu
 褚=chu
-褛=lu:
+褛=lv
 褜=pao
 褝=dan
 褞=yun
@@ -15425,7 +15425,7 @@
 #贲=bi,ben
 贲=bi
 虎贲=hu ben
-旅贲=lu: ben
+旅贲=lv ben
 贲溃=ben kui
 贲星=ben xing
 贳=shi
@@ -16302,7 +16302,7 @@
 郕=cheng
 郖=dou
 郗=xi
-郘=lu:
+郘=lv
 郙=fu
 郚=wu
 郛=fu
@@ -16942,7 +16942,7 @@
 鑝=peng
 鑟=du
 鑡=chuo
-鑢=lu:
+鑢=lv
 鑦=xian
 鑧=kuan
 鑨=long
@@ -16977,7 +16977,7 @@
 钒=fan
 钓=diao
 钔=men
-钕=nu:
+钕=nv
 钖=yang
 钗=chai
 钘=xing
@@ -17058,7 +17058,7 @@
 酒铛=jiu cheng
 茶铛=cha cheng
 铜=tong
-铝=lu:
+铝=lv
 铞=diao
 铟=yin
 铠=kai
@@ -17107,7 +17107,7 @@
 锇=e
 锈=xiu
 锉=cuo
-锊=lu:e
+锊=lve
 锋=feng
 锌=xin
 锍=liu
@@ -17315,7 +17315,7 @@
 闻=wen
 闼=ta
 闽=min
-闾=lu:
+闾=lv
 闿=kai
 阀=fa
 阁=ge
@@ -18140,7 +18140,7 @@
 馼=wen
 馽=zhi
 馾=dan
-馿=lu:
+馿=lv
 駀=you
 駂=bao
 駃=kuai
@@ -18263,7 +18263,7 @@
 驱=qu
 驲=ri
 驳=bo
-驴=lu:
+驴=lv
 驵=zang
 驶=shi
 驷=si

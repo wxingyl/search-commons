@@ -1,9 +1,7 @@
 package com.tqmall.search.commons.nlp.trie;
 
-import com.tqmall.search.commons.nlp.Hit;
+import com.tqmall.search.commons.nlp.Hits;
 import com.tqmall.search.commons.nlp.MatchResultHandle;
-
-import java.util.List;
 
 /**
  * Created by xing on 16/2/2.
@@ -15,33 +13,19 @@ import java.util.List;
  */
 public class BinaryMatchTrie<V> extends BinaryTrie<V> {
 
-    private ThreadLocal<MatchProcess> maxMatchProcess = new ThreadLocal<MatchProcess>() {
-        @Override
-        protected MatchProcess initialValue() {
-            return new MatchProcess(false);
-        }
-    };
-
-    private ThreadLocal<MatchProcess> minMatchProcess = new ThreadLocal<MatchProcess>() {
-        @Override
-        protected MatchProcess initialValue() {
-            return new MatchProcess(true);
-        }
-    };
-
     public BinaryMatchTrie(TrieNodeFactory<V> nodeFactory) {
         super(nodeFactory);
     }
 
-    public List<Hit<V>> textMaxMatch(String text) {
-        return textMatch(text, maxMatchProcess.get());
+    public Hits<V> textMaxMatch(String text) {
+        return textMatch(text, new MatchProcess(false));
     }
 
-    public List<Hit<V>> textMinMatch(String text) {
-        return textMatch(text, minMatchProcess.get());
+    public Hits<V> textMinMatch(String text) {
+        return textMatch(text, new MatchProcess(true));
     }
 
-    private List<Hit<V>> textMatch(String text, MatchProcess process) {
+    private Hits<V> textMatch(String text, MatchProcess process) {
         char[] charArray = argCheck(text);
         if (charArray == null) return null;
         process.resultHandle = new MatchResultHandle<>(text);
@@ -52,7 +36,9 @@ public class BinaryMatchTrie<V> extends BinaryTrie<V> {
                 cursor = process.textMatchHandle(cursor, charArray[cursor]);
             }
             process.onFinish();
-            return process.resultHandle.getResultList();
+            Hits<V> hits = process.resultHandle.getHits();
+            Hits.initUnknownCharacters(hits, charArray);
+            return hits;
         } finally {
             process.resultHandle = null;
             process.currentNode = null;
