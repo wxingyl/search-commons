@@ -63,7 +63,9 @@ public class BinaryMatchTrie<V> extends BinaryTrie<V> {
         private Node<V> currentNode;
 
         private int curStartCursor = -1, curStopCursor = 0;
-
+        /**
+         * 最后是否有匹配, 最大匹配的时候需要
+         */
         private boolean lastAccept = false;
 
         private V lastValue = null;
@@ -83,11 +85,12 @@ public class BinaryMatchTrie<V> extends BinaryTrie<V> {
         final int textMatchHandle(int index, char ch) {
             Node<V> nextNode = currentNode.getChild(ch);
             if (nextNode == null || nextNode.getStatus() == Node.Status.DELETE) {
+                //没有匹配上
                 if (currentNode == root) {
-                    //没有匹配上
                     index++;
                 } else {
                     if (lastAccept) {
+                        //只有最大匹配才会到这儿, 讲原先匹配到词添加结果
                         index = curStopCursor;
                         onHit();
                     } else {

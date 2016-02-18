@@ -14,11 +14,10 @@ public enum UtilsErrorCode implements ErrorCode {
     JSON_RESULT_PARSE_INVALID_STRING(103, "json字符串不符合Result格式: %s");
 
     static {
-        ErrorCodeUtils.setSystemCode(811);
+        ErrorCodeBuilder builder = new ErrorCodeBuilder(811);
         for (UtilsErrorCode e : UtilsErrorCode.values()) {
-            e.code = ErrorCodeUtils.buildErrorCode(e.exceptionCode);
+            e.code = builder.buildErrorCode(e.exceptionCode);
         }
-        ErrorCodeUtils.removeSystemCode();
     }
 
     private int exceptionCode;

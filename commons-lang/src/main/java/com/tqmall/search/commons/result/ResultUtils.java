@@ -1,7 +1,5 @@
 package com.tqmall.search.commons.result;
 
-import com.tqmall.search.commons.utils.ErrorCodeUtils;
-
 import java.util.Collection;
 
 /**
@@ -154,7 +152,30 @@ public final class ResultUtils {
      * @see #wrapError(ErrorCode, ResultBuild)
      */
     public static <T extends Result> T wrapError(ErrorCode errorCode, ResultBuild<T> build, Object... args) {
-        return build.errorBuild(ErrorCodeUtils.wrapperErrorCode(errorCode, args));
+        return build.errorBuild(wrapperErrorCode(errorCode, args));
+    }
+
+    /**
+     * 包装对于Message中存在变量的{@link ErrorCode}
+     *
+     * @param errorCode 原始定义的{@link ErrorCode}
+     * @param args      参数, 如果大小为0, 则不进行包装
+     * @return 参数, 如果大小为0, 则不进行包装
+     */
+    public static ErrorCode wrapperErrorCode(final ErrorCode errorCode, Object... args) {
+        if (args.length == 0) return errorCode;
+        final String message = String.format(errorCode.getMessage(), args);
+        return new ErrorCode() {
+            @Override
+            public String getCode() {
+                return errorCode.getCode();
+            }
+
+            @Override
+            public String getMessage() {
+                return message;
+            }
+        };
     }
 
     /**

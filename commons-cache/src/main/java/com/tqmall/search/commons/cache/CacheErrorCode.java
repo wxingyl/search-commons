@@ -1,7 +1,7 @@
 package com.tqmall.search.commons.cache;
 
 import com.tqmall.search.commons.result.ErrorCode;
-import com.tqmall.search.commons.utils.ErrorCodeUtils;
+import com.tqmall.search.commons.utils.ErrorCodeBuilder;
 
 /**
  * Created by xing on 15/12/28.
@@ -19,11 +19,10 @@ public enum CacheErrorCode implements ErrorCode {
     HOST_INFO_INVALID(41, "HostInfo对象值错误: %s");
 
     static {
-        ErrorCodeUtils.setSystemCode(812);
+        ErrorCodeBuilder builder = new ErrorCodeBuilder(812);
         for (CacheErrorCode e : CacheErrorCode.values()) {
-            e.code = ErrorCodeUtils.buildErrorCode(e.exceptionCode);
+            e.code = builder.buildErrorCode(e.exceptionCode);
         }
-        ErrorCodeUtils.removeSystemCode();
     }
 
     private int exceptionCode;

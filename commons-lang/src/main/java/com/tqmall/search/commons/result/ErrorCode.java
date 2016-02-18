@@ -34,5 +34,18 @@ public interface ErrorCode {
         public int getCode() {
             return code;
         }
+
+        /**
+         * 根据code值获取对应level
+         *
+         * @param code level对应的code值
+         * @return 如果没有找到, 抛出{@link IllegalArgumentException}
+         */
+        public static Level valueOf(int code) {
+            for (Level l : values()) {
+                if (l.code == code) return l;
+            }
+            throw new IllegalArgumentException("can not find code = " + code + " Level");
+        }
     }
 }

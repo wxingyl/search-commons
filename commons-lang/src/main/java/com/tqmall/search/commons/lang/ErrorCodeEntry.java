@@ -1,13 +1,12 @@
 package com.tqmall.search.commons.lang;
 
 import com.tqmall.search.commons.result.ErrorCode;
-import com.tqmall.search.commons.utils.ErrorCodeUtils;
 
 /**
  * Created by xing on 16/1/4.
  * 字符串{@link ErrorCode#getCode()}对应的实例
  * 解析errorCode字符串, 获得对应的系统码, 错误级别以及异常码
- * 构造方法参见{@link ErrorCodeUtils#parseCode(String)}
+ * 构造方法参见{@link com.tqmall.search.commons.utils.ErrorCodeBuilder.Config#parseCode(String)}
  */
 public final class ErrorCodeEntry {
     /**
@@ -49,35 +48,5 @@ public final class ErrorCodeEntry {
     @Override
     public String toString() {
         return "[" + systemCode + ", " + level + ", " + exceptionCode + ']';
-    }
-
-    public static Builder build() {
-        return new Builder();
-    }
-
-    public static class Builder {
-
-        private int systemCode, exceptionCode;
-
-        private ErrorCode.Level level;
-
-        public Builder systemCode(int systemCode) {
-            this.systemCode = systemCode;
-            return this;
-        }
-
-        public Builder exceptionCode(int exceptionCode) {
-            this.exceptionCode = exceptionCode;
-            return this;
-        }
-
-        public Builder level(ErrorCode.Level level) {
-            this.level = level;
-            return this;
-        }
-
-        public ErrorCodeEntry create() {
-            return new ErrorCodeEntry(systemCode, level, exceptionCode);
-        }
     }
 }

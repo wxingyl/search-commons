@@ -51,7 +51,12 @@ public final class NlpUtils {
     private static final LazyInit<PinyinConvert> PINYIN_CONVERT = new LazyInit<>(new Supplier<PinyinConvert>() {
         @Override
         public PinyinConvert get() {
-            return new PinyinConvert();
+            log.info("开始加载拼音词库");
+            long startTime = System.currentTimeMillis();
+            PinyinConvert convert = new PinyinConvert();
+            log.info("加载拼音词库完成, 耗时: " + (System.currentTimeMillis() - startTime) + "ms");
+            System.out.println("加载拼音词库完成, 耗时: " + (System.currentTimeMillis() - startTime) + "ms");
+            return convert;
         }
     });
 
@@ -61,7 +66,12 @@ public final class NlpUtils {
     private static final LazyInit<Segment> SEGMENT = new LazyInit<>(new Supplier<Segment>() {
         @Override
         public Segment get() {
-            return new Segment();
+            log.info("开始初始化分词实例, 加载词库");
+            long startTime = System.currentTimeMillis();
+            Segment segment = new Segment();
+            log.info("初始化分词实例, 加载词库完成, 耗时: " + (System.currentTimeMillis() - startTime) + "ms");
+            System.out.println("初始化分词实例, 加载词库完成, 耗时: " + (System.currentTimeMillis() - startTime) + "ms");
+            return segment;
         }
     });
 

@@ -47,6 +47,9 @@ public class SegmentTest {
         text = "北京的大学";
         list = function.apply(text);
         System.out.println(text + ": " + list);
+        text = "商品服务";
+        list = function.apply(text);
+        System.out.println(text + ": " + list);
         text = "商品和服务";
         list = function.apply(text);
         System.out.println(text + ": " + list);
@@ -54,6 +57,12 @@ public class SegmentTest {
         list = function.apply(text);
         System.out.println(text + ": " + list);
         text = "B-tree中的每个结点根据实际情况可以包含大量的关键字信息";
+        list = function.apply(text);
+        System.out.println(text + ": " + list);
+        text = "东方不败笑傲江湖都是好看的电视剧";
+        list = function.apply(text);
+        System.out.println(text + ": " + list);
+        text = "商品共和服";
         list = function.apply(text);
         System.out.println(text + ": " + list);
     }
