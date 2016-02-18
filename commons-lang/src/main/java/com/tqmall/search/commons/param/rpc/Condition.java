@@ -7,7 +7,7 @@ import java.util.Objects;
  * Created by xing on 16/1/23.
  * 条件抽象类, 包访问权限
  */
-abstract class Condition implements Serializable {
+public abstract class Condition implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
