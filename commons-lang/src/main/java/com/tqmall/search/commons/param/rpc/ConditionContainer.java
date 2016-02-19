@@ -47,6 +47,6 @@ public class ConditionContainer {
         //或关系, 至少匹配一个, 类型外部调用基本上不会使用,Search内部qp可能会用到
         SHOULD,
         //非
-        MUST_NOT;
+        MUST_NOT
     }
 }

@@ -54,7 +54,7 @@ public class ErrorCodeBuilder {
          */
         private final String errorCodeFormat;
 
-        public static Config DEFAULT = new Config(3, 4);
+        public final static Config DEFAULT = new Config(3, 4);
 
         public Config(int systemCodeLength, int exceptionCodeLength) {
             this.systemCodeLength = systemCodeLength;
