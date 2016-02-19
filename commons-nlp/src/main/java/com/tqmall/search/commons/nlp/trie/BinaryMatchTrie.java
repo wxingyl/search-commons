@@ -1,7 +1,10 @@
 package com.tqmall.search.commons.nlp.trie;
 
+import com.tqmall.search.commons.nlp.Hit;
 import com.tqmall.search.commons.nlp.Hits;
 import com.tqmall.search.commons.nlp.MatchResultHandle;
+
+import java.util.Collections;
 
 /**
  * Created by xing on 16/2/2.
@@ -22,7 +25,7 @@ public class BinaryMatchTrie<V> extends BinaryTrie<V> {
     }
 
     public Hits<V> textMinMatch(String text) {
-        return textMatch(text, new MatchProcess(true));
+        return textBackMatch(text);
     }
 
     private Hits<V> textMatch(String text, MatchProcess process) {
@@ -43,6 +46,51 @@ public class BinaryMatchTrie<V> extends BinaryTrie<V> {
             process.resultHandle = null;
             process.currentNode = null;
         }
+    }
+
+
+    /**
+     * 通过反向匹配
+     *
+     * @param text 待匹配输入文本
+     * @return 返回结果根据匹配到的endPos, startPos正序排序
+     */
+    private Hits<V> textBackMatch(String text) {
+        char[] charArray = argCheck(text);
+        if (charArray == null) return null;
+        Node<V> currentNode = root;
+        Hits<V> hits = new Hits<>();
+        int i = charArray.length - 1, startPos = charArray.length, lastPos = charArray.length;
+        while (i >= 0) {
+            Node<V> nextNode = i < lastPos ? currentNode.getChild(charArray[i]) : null;
+            if (nextNode == null) {
+                //没有匹配到, 向前移
+                if (currentNode == root) {
+                    i--;
+                } else {
+                    i = startPos - 1;
+                    currentNode = root;
+                }
+            } else {
+                //startPos只会不断减小
+                if (i < startPos) startPos = i;
+                i++;
+                if (nextNode.accept()) {
+                    //匹配到一个词了~~~
+                    hits.addHit(new Hit<>(i, text.substring(startPos, i), nextNode.getValue()));
+                    i = startPos - 1;
+                    lastPos = startPos;
+                    currentNode = root;
+                } else {
+                    currentNode = nextNode;
+                }
+            }
+        }
+        if (!hits.getHits().isEmpty()) {
+            Collections.sort(hits.getHits());
+        }
+        Hits.initUnknownCharacters(hits, charArray);
+        return hits;
     }
 
     /**

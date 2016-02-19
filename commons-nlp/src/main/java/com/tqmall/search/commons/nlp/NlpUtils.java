@@ -54,8 +54,9 @@ public final class NlpUtils {
             log.info("开始加载拼音词库");
             long startTime = System.currentTimeMillis();
             PinyinConvert convert = new PinyinConvert();
-            log.info("加载拼音词库完成, 耗时: " + (System.currentTimeMillis() - startTime) + "ms");
-            System.out.println("加载拼音词库完成, 耗时: " + (System.currentTimeMillis() - startTime) + "ms");
+            String msg = "加载拼音词库完成, 耗时: " + (System.currentTimeMillis() - startTime) + "ms";
+            log.info(msg);
+            System.out.println(msg);
             return convert;
         }
     });
@@ -69,8 +70,9 @@ public final class NlpUtils {
             log.info("开始初始化分词实例, 加载词库");
             long startTime = System.currentTimeMillis();
             Segment segment = new Segment();
-            log.info("初始化分词实例, 加载词库完成, 耗时: " + (System.currentTimeMillis() - startTime) + "ms");
-            System.out.println("初始化分词实例, 加载词库完成, 耗时: " + (System.currentTimeMillis() - startTime) + "ms");
+            String msg = "初始化分词实例, 加载词库完成, 耗时: " + (System.currentTimeMillis() - startTime) + "ms";
+            log.info(msg);
+            System.out.println(msg);
             return segment;
         }
     });

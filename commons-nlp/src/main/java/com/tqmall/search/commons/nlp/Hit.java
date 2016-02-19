@@ -9,7 +9,7 @@ import java.util.List;
  * Created by xing on 16/1/28.
  * 匹配到的结果
  */
-public class Hit<V> {
+public class Hit<V> implements Comparable<Hit<V>> {
     /**
      * 模式串在母文本中的终止位置
      * startPos通过endPos和outputKey直接搞出来了
@@ -76,6 +76,15 @@ public class Hit<V> {
         int result = endPos;
         result = 31 * result + matchKey.hashCode();
         return result;
+    }
+
+    @Override
+    public int compareTo(Hit<V> o) {
+        int cmp = Integer.compare(endPos, o.endPos);
+        if (cmp == 0) {
+            cmp = Integer.compare(getStartPos(), o.getStartPos());
+        }
+        return cmp;
     }
 
     /**

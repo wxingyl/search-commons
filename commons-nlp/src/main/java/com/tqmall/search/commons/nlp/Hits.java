@@ -46,8 +46,14 @@ public class Hits<V> implements Iterable<Hit<V>> {
         return hits.iterator();
     }
 
+    @Override
+    public String toString() {
+        return hits.toString() + (unknownCharacters == null ? "" : ", unknown: " + unknownCharacters);
+    }
+
     /**
      * 初始化{@link Hits#unknownCharacters}
+     *
      * @param charArray 解析text的原数组, 该函数会修改char
      */
     public static <V> void initUnknownCharacters(Hits<V> hits, char[] charArray) {
