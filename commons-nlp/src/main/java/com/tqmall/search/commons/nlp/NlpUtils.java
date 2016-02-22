@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
@@ -220,7 +221,7 @@ public final class NlpUtils {
     }
 
     /**
-     * 加载词库文件, 通过{@link StandardCharsets#UTF_8}打开文件
+     * 加载词库文件, 通过{@link StandardCharsets#UTF_8}编码打开文件
      *
      * @param filename   词库加载
      * @param lineHandle 每行的处理函数
@@ -230,7 +231,7 @@ public final class NlpUtils {
     }
 
     /**
-     * 加载词库文件, 通过{@link StandardCharsets#UTF_8}打开文件
+     * 加载词库文件, 通过{@link StandardCharsets#UTF_8}编码打开文件
      *
      * @param filename   词库加载
      * @param lineHandle 每行的处理函数
@@ -242,9 +243,28 @@ public final class NlpUtils {
             filename = '/' + filename;
         }
         log.info("开始加载词库文件: " + filename);
-        int lineCount = 0;
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(NlpUtils.class.getResourceAsStream(filename),
-                StandardCharsets.UTF_8))) {
+        try {
+            int lineCount = loadLexicon(NlpUtils.class.getResourceAsStream(filename), lineHandle, lineTrim);
+            log.info("加载词库文件: " + filename + " 完成, 共加载了" + lineCount + "行");
+        } catch (IOException e) {
+            log.error("加载词库文件: " + filename + "时存在异常", e);
+            throw new LoadLexiconException(filename, e);
+        }
+    }
+
+    /**
+     * 加载词库文件, 通过{@link StandardCharsets#UTF_8}编码打开文件
+     *
+     * @param in         input输入流, 加载完会执行关闭
+     * @param lineHandle 每行的处理函数
+     * @param lineTrim   每行数据是否需要trim处理, 即使该值为false, 也会判断line是否为空{@link String#isEmpty()}
+     *                   作为词库文件, 都应该尽可能的稍作一些字符串的处理操作
+     * @return 加载的行数统计
+     * @throws IOException 读取文件发生异常
+     */
+    public static int loadLexicon(InputStream in, LineHandle lineHandle, boolean lineTrim) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
+            int lineCount = 0;
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.isEmpty() || (lineTrim && (line = line.trim()).isEmpty())) continue;
@@ -254,11 +274,8 @@ public final class NlpUtils {
                 lineCount++;
                 if (!lineHandle.onHandle(line)) break;
             }
-        } catch (IOException e) {
-            log.error("加载词库文件: " + filename + "时存在异常", e);
-            throw new LoadLexiconException(filename, e);
+            return lineCount;
         }
-        log.info("加载词库文件: " + filename + " 完成, 共加载了" + lineCount + "行");
     }
 
     /**
