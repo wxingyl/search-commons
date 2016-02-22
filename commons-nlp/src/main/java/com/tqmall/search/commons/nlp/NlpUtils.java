@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -59,22 +58,6 @@ public final class NlpUtils {
             log.info(msg);
             System.out.println(msg);
             return convert;
-        }
-    });
-
-    /**
-     * 分词实例
-     */
-    private static final LazyInit<Segment> SEGMENT = new LazyInit<>(new Supplier<Segment>() {
-        @Override
-        public Segment get() {
-            log.info("开始初始化分词实例, 加载词库");
-            long startTime = System.currentTimeMillis();
-            Segment segment = new Segment();
-            String msg = "初始化分词实例, 加载词库完成, 耗时: " + (System.currentTimeMillis() - startTime) + "ms";
-            log.info(msg);
-            System.out.println(msg);
-            return segment;
         }
     });
 
@@ -190,37 +173,6 @@ public final class NlpUtils {
     }
 
     /**
-     * 索引分词, 尽可能的返回所有分词结果
-     *
-     * @param text 待分词文本
-     * @return 分词结果
-     */
-    public static List<Hit<Void>> fullSegmentText(String text) {
-        return SEGMENT.getInstance().fullSegment(text);
-    }
-
-    /**
-     * 最大分词匹配
-     *
-     * @param text 待输入文本
-     * @return 最大分词结果
-     */
-    public static List<Hit<Void>> maxSegmentText(String text) {
-        return SEGMENT.getInstance().maxSegment(text);
-    }
-
-
-    /**
-     * 最小分词匹配
-     *
-     * @param text 待输入文本
-     * @return 最小分词结果
-     */
-    public static List<Hit<Void>> minSegmentText(String text) {
-        return SEGMENT.getInstance().minSegment(text);
-    }
-
-    /**
      * 加载词库文件, 通过{@link StandardCharsets#UTF_8}编码打开文件
      *
      * @param filename   词库加载
@@ -248,7 +200,7 @@ public final class NlpUtils {
             log.info("加载词库文件: " + filename + " 完成, 共加载了" + lineCount + "行");
         } catch (IOException e) {
             log.error("加载词库文件: " + filename + "时存在异常", e);
-            throw new LoadLexiconException(filename, e);
+            throw new LoadLexiconException("加载词库文件" + filename + "发生异常", e);
         }
     }
 

@@ -1,6 +1,8 @@
 package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.lang.Function;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.List;
@@ -11,13 +13,25 @@ import java.util.List;
  */
 public class SegmentTest {
 
+    private static Segment segment;
+
+    @BeforeClass
+    public static void init() {
+        segment = new Segment(SegmentTest.class.getResourceAsStream("/segment.txt"));
+    }
+
+    @AfterClass
+    public static void destroy() {
+        segment = null;
+    }
+
     @Test
     public void segmentTest() {
         System.out.println("fullSegment");
         runSegment(new Function<String, List<Hit<Void>>>() {
             @Override
             public List<Hit<Void>> apply(String text) {
-                return NlpUtils.fullSegmentText(text);
+                return segment.fullSegment(text);
             }
         });
         System.out.println();
@@ -25,7 +39,7 @@ public class SegmentTest {
         runSegment(new Function<String, List<Hit<Void>>>() {
             @Override
             public List<Hit<Void>> apply(String text) {
-                return NlpUtils.minSegmentText(text);
+                return segment.minSegment(text);
             }
         });
         System.out.println();
@@ -33,7 +47,7 @@ public class SegmentTest {
         runSegment(new Function<String, List<Hit<Void>>>() {
             @Override
             public List<Hit<Void>> apply(String text) {
-                return NlpUtils.maxSegmentText(text);
+                return segment.maxSegment(text);
             }
         });
         System.out.println();

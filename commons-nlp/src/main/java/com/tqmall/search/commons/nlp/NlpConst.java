@@ -23,8 +23,6 @@ public interface NlpConst {
 
     String PINYIN_FILE_NAME = "pinyin.txt";
 
-    String SEGMENT_FILE_NAME = "segment.txt";
-
     String STOPWORD_FILE_NAME = "stopword.txt";
 
 }

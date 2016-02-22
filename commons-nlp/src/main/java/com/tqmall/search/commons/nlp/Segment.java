@@ -1,8 +1,13 @@
 package com.tqmall.search.commons.nlp;
 
+import com.tqmall.search.commons.exception.LoadLexiconException;
 import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.nlp.trie.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -11,8 +16,11 @@ import java.util.Set;
 /**
  * Created by xing on 16/2/8.
  * 分词, 通过{@link AcStrBinaryTrie}实现
+ * 该类应该是单例的
  */
-final class Segment {
+public class Segment {
+
+    private static final Logger log = LoggerFactory.getLogger(Segment.class);
 
     private final AcStrBinaryTrie acBinaryTrie;
 
@@ -20,16 +28,38 @@ final class Segment {
 
     private BinaryMatchTrie<Void> binaryMatchTrie;
 
-    Segment() {
+    /**
+     * 使用默认的{@link AcNormalNode#defaultCjkAcTrieNodeFactory()} 也就是词的开通只支持汉字
+     */
+    public Segment(InputStream lexicon) {
+        this(AcNormalNode.<Void>defaultCjkAcTrieNodeFactory(), lexicon);
+    }
+
+    /**
+     * 读取词库文件, 如果存在异常则抛出{@link LoadLexiconException}
+     *
+     * @param nodeFactory 具体初始化节点的Factory
+     * @param lexicon     词库输入流
+     * @see LoadLexiconException
+     */
+    public Segment(AcTrieNodeFactory<Void> nodeFactory, InputStream lexicon) {
         final AcStrBinaryTrie.Builder builder = AcStrBinaryTrie.build();
-        builder.nodeFactory(AcNormalNode.<Void>defaultCjkAcTrieNodeFactory());
-        NlpUtils.loadLexicon(NlpConst.SEGMENT_FILE_NAME, new NlpUtils.LineHandle() {
-            @Override
-            public boolean onHandle(String line) {
-                builder.add(line);
-                return true;
-            }
-        });
+        builder.nodeFactory(nodeFactory);
+        long startTime = System.currentTimeMillis();
+        log.info("开始初始化词库: " + lexicon);
+        try {
+            NlpUtils.loadLexicon(lexicon, new NlpUtils.LineHandle() {
+                @Override
+                public boolean onHandle(String line) {
+                    builder.add(line);
+                    return true;
+                }
+            }, true);
+
+        } catch (IOException e) {
+            log.error("读取词库: " + lexicon + " 存在IOException", e);
+            throw new LoadLexiconException("初始化分词Segment: " + lexicon + ", 读取词库异常", e);
+        }
         acBinaryTrie = builder.create(new Function<AcTrieNodeFactory<Void>, AbstractTrie<Void>>() {
 
             @Override
@@ -39,6 +69,7 @@ final class Segment {
             }
 
         });
+        log.info("加载词库: " + lexicon + "完成, 共耗时: " + (System.currentTimeMillis() - startTime) + "ms");
         stopWords = new HashSet<>();
         NlpUtils.loadLexicon(NlpConst.STOPWORD_FILE_NAME, new NlpUtils.LineHandle() {
             @Override
