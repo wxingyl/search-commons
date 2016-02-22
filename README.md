@@ -6,9 +6,11 @@
 
 另外还封装了作为搜索参数和简单返回结果的工具包，比如RangeFilter，Sort等。
 
+目前最新版本1.0-rc1
+
 ## commons-component
 
-搜索公共组件包，目前只是一些简单的Utils方法，里面依赖了一些第三方jar包：
+依赖`commons-lang`，搜索公共组件包，目前只是一些简单的Utils方法，里面依赖了一些第三方jar包：
 
 ``` xml
 <dependency>
@@ -60,11 +62,15 @@
 
 是不是很人性化~~~~~~
 
+目前最新版本1.0-rc1
+
 ## commons-cache
 
-少量数据内存缓存，该模块封装实现了简单的缓存，支持动态实时修改(需要外部程序支持，比如canal等)，同时支持多机器互发通知更新缓存。
+依赖`commons-component`，少量数据内存缓存，该模块封装实现了简单的缓存，支持动态实时修改(需要外部程序支持，比如canal等)，同时支持多机器互发通知更新缓存。
 
 封装了notify/receive,多态机器，多系统之间实现消息逐个通知，类似广播的概念。目前搜索内存缓存少量数据使用到，实时索引在masterHost修改，将改动notify到注册的slaveHost机器, 完成数据同步修改。
+
+目前最新版本1.0-rc1
 
 ## commons-db
 
@@ -74,7 +80,7 @@
 
 ## commons-nlp
 
-nlp相关工具类封装，包括：
+依赖`commons-lang`，nlp相关工具类封装，包括：
 
 #### 繁体转简体
 
@@ -87,6 +93,8 @@ nlp相关工具类封装，包括：
 #### 分词
 
 分词的一些工具类，词库加载，不同粒度分词等，目前还没有，后续添加完善
+
+目前还在开发测试
 
 ## commons-qp
 
@@ -115,22 +123,33 @@ rc版本为预发版本，未达到上线标准，能用，但是存在很多已
 
 ### pom依赖
 
-`commons-client`
+`commons-lang`
 
 ``` xml
 <dependency>
-	<groupId>com.tqmall.search</groupId>
-	<artifactId>commons-client</artifactId>
-	<version>v1.0.1</version>
+    <groupId>com.tqmall.search</groupId>
+    <artifactId>commons-lang</artifactId>
+    <version>1.0-rc1</version>
 </dependency>
 ```
 
-`commons-core`, 其依赖了对应版本最新的`commons-client`模块
+`commons-component`, 其依赖`commons-client`
 
 ``` xml
 <dependency>
-	<groupId>com.tqmall.search</groupId>
-	<artifactId>commons-core</artifactId>
-	<version>1.0.1</version>
+    <groupId>com.tqmall.search</groupId>
+    <artifactId>commons-component</artifactId>
+    <version>1.0-rc1</version>
 </dependency>
 ```
+
+`commons-cache`, 其依赖`commons-component`
+
+``` xml
+<dependency>
+    <groupId>com.tqmall.search</groupId>
+    <artifactId>commons-cache</artifactId>
+    <version>1.0-rc1</version>
+</dependency>
+```
+
