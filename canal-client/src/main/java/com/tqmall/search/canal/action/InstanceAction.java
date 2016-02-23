@@ -1,14 +1,21 @@
 package com.tqmall.search.canal.action;
 
-import com.tqmall.search.canal.RowChangedData;
+import com.tqmall.search.canal.InstanceRowChangedData;
+import com.tqmall.search.canal.handle.InstanceSectionHandle;
 
 import java.util.List;
 
 /**
- * Created by xing on 16/2/22.
- * 处理数据更新, 实例级别的响应, 粒度为实例, 此为最大粒度
+ * Created by xing on 16/2/23.
+ * canalInstance 级别对应的处理方法, 对应{@link InstanceSectionHandle}
  */
 public interface InstanceAction {
 
-    void onAction(String schema, String table, List<? extends RowChangedData> changedData);
+    /**
+     * 实例名
+     */
+    String instanceName();
+
+    void onAction(List<? extends InstanceRowChangedData> rowChangedData);
+
 }

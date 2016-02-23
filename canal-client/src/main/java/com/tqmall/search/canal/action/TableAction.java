@@ -5,8 +5,9 @@ import com.tqmall.search.canal.RowChangedData;
 import java.util.List;
 
 /**
- * Created by xing on 16/2/22.
- * 处理数据更新, 单个表的action, 粒度为表
+ * Created by xing on 16/2/23.
+ * Table 级别对应的处理Action, 对应{@link com.tqmall.search.canal.handle.TableSectionHandle}
+ *
  */
 public interface TableAction {
 

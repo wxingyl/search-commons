@@ -147,54 +147,11 @@ public class CanalExecutor {
         volatile long startRtTime;
 
         /**
-         * 待处理数据集合列表, 供{@link CanalInstanceHandle#rowChangeHandle(String, String, List)}使用
-         * 只能本线程访问, 线程不安全的
-         */
-        private List<RowChangedData> rowChangedDataList = new LinkedList<>();
-
-        /**
-         * 最近处理的schema
-         * 只能本线程访问, 线程不安全的
-         */
-        private String lastSchema;
-
-        /**
-         * 最近处理的table
-         * 只能本线程访问, 线程不安全的
-         */
-        private String lastTable;
-
-        /**
-         * 最近处理的tableEvent
-         * 只能本线程访问, 线程不安全的
-         */
-        private CanalEntry.EventType lastEventType;
-
-        /**
          * 该实例运行的线程对象, 先留着, 后面说不定有用
          */
 //        private Thread t;
         public CanalInstance(CanalInstanceHandle handle) {
             this.handle = handle;
-        }
-
-        private void runHandleRowChange() {
-            if (rowChangedDataList.isEmpty()) return;
-            try {
-                handle.rowChangeHandle(lastSchema, lastTable, rowChangedDataList);
-            } catch (RuntimeException e) {
-                if (!handle.exceptionHandle(HandleExceptionContext.build(e)
-                        .schema(lastSchema)
-                        .table(lastTable)
-                        .eventType(lastEventType)
-                        .changedData(rowChangedDataList)
-                        .create())) {
-                    //不忽略异常, 那砸门就抛出去, 停止canal监听
-                    throw e;
-                }
-            } finally {
-                rowChangedDataList.clear();
-            }
         }
 
         /**
@@ -205,10 +162,6 @@ public class CanalExecutor {
             log.info("start launching canalInstance: " + handle.instanceName());
             handle.connect();
             running = true;
-            //开始之前先灭掉
-            lastSchema = null;
-            lastTable = null;
-            lastEventType = null;
             long lastBatchId = 0L;
             try {
                 while (running) {
@@ -219,24 +172,17 @@ public class CanalExecutor {
                         if (e.getEntryType() != CanalEntry.EntryType.ROWDATA || !e.hasStoreValue()) continue;
                         CanalEntry.Header header = e.getHeader();
                         if (header.getExecuteTime() < startRtTime
-                                || header.getEventType().getNumber() > CanalEntry.EventType.DELETE_VALUE) continue;
+                                || header.getEventType().getNumber() > CanalEntry.EventType.DELETE_VALUE
+                                || !handle.headerFilter(header)) continue;
                         try {
                             CanalEntry.RowChange rowChange = CanalEntry.RowChange.parseFrom(e.getStoreValue());
                             if (rowChange.getIsDdl()) continue;
-                            //尽量集中处理
-                            if (!header.getTableName().equals(lastTable) || !header.getSchemaName().equals(lastSchema)
-                                    || !header.getEventType().equals(lastEventType)) {
-                                runHandleRowChange();
-                                lastSchema = header.getSchemaName();
-                                lastTable = header.getTableName();
-                                lastEventType = header.getEventType();
-                            }
-                            rowChangedDataList.addAll(RowChangedData.build(rowChange));
+                            handle.rowChangeHandle(header, rowChange);
                         } catch (InvalidProtocolBufferException e1) {
                             log.error("canal instance: " + handle.instanceName() + " parse store value have exception: ", e1);
                         }
                     }
-                    runHandleRowChange();
+                    handle.finishHandle();
                     handle.ack(lastBatchId);
                 }
             } catch (RuntimeException e) {
@@ -246,8 +192,6 @@ public class CanalExecutor {
                 handle.rollback(lastBatchId);
             } finally {
                 handle.disConnect();
-                //以防万一~~~
-                rowChangedDataList.clear();
             }
             log.info("canalInstance: " + handle.instanceName() + " has stopped");
         }

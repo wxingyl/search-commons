@@ -1,9 +1,8 @@
 package com.tqmall.search.canal;
 
 import com.alibaba.otter.canal.client.CanalConnector;
+import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.alibaba.otter.canal.protocol.Message;
-
-import java.util.List;
 
 /**
  * Created by xing on 16/2/22.
@@ -52,32 +51,21 @@ public interface CanalInstanceHandle {
     void rollback(long batchId);
 
     /**
-     * 处理数据更新~~~, 每次更新处理,都是同类型更新事件, changedData中不会存在{@link RowChangedData.Insert}, {@link RowChangedData.Delete}和
-     * {@link RowChangedData.Update}混合的对象实例, 所以判断时间类型可以通过如下代码
-     * <p/>
-     * <pre>{@code
-     *      CanalEntry.EventType eventType = RowChangedData.getEventType(changedData.get(0));
-     * }</pre>
-     *
-     * @param changedData 待处理的更新数据, 调用的时候保证changeData有效, 即 != null && !isEmpty()
-     * @param schema      对应的schema name
-     * @param table       对应的table name
-     * @see RowChangedData.Update
-     * @see RowChangedData.Delete
-     * @see RowChangedData.Insert
-     * @see RowChangedData#getEventType(RowChangedData)
+     * 根据{@link CanalEntry.Header}能够提供的信息先过滤一下, 关于事件类型, 时间戳有效性前面已经过滤过了~~~
+     * @return 标识是否有效, 无效那就不解析其changeRow数据
+     * @see CanalExecutor.CanalInstance#run()
      */
-    void rowChangeHandle(String schema, String table, List<? extends RowChangedData> changedData);
+    boolean headerFilter(CanalEntry.Header header);
 
     /**
-     * 处理函数{@link #rowChangeHandle(String, String, List)}发生异常时, 出发该方法调用
-     * 如果继续处理后续的更新数据, 忽略当前异常, 则返回true
-     * 如果该异常较严重, 后续更新无法处理, 则返回false, canal执行器{@link CanalExecutor}会停止canal同步, 待问题处理之后再说~~~
-     *
-     * @param context 出异常时的上下文
-     * @return 是否忽略该异常
-     * @see CanalExecutor.CanalInstance#runHandleRowChange()
-     * @see CanalExecutor#startInstance(String)
+     * 记录更新处理, 一次处理过程, 不断调用该方法, 数据更新处理完成, 通过{@link #finishHandle()} 结束处理
+     * @see #finishHandle()
      */
-    boolean exceptionHandle(HandleExceptionContext context);
+    void rowChangeHandle(CanalEntry.Header header, CanalEntry.RowChange rowChange);
+
+    /**
+     * 完成本次处理
+     * @see #rowChangeHandle(CanalEntry.Header, CanalEntry.RowChange)
+     */
+    void finishHandle();
 }

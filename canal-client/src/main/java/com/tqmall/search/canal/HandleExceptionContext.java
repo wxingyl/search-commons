@@ -1,6 +1,8 @@
 package com.tqmall.search.canal;
 
 import com.alibaba.otter.canal.protocol.CanalEntry;
+import com.tqmall.search.canal.handle.AbstractCanalInstanceHandle;
+import com.tqmall.search.commons.utils.CommonsUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -9,8 +11,8 @@ import java.util.List;
  * Created by xing on 16/2/23.
  * canal处理事件时出现异常, 该类封装当时异常的上下文
  *
- * @see CanalInstanceHandle#rowChangeHandle(String, String, List)
- * @see CanalInstanceHandle#rowChangeHandle(String, String, List)
+ * @see CanalInstanceHandle#rowChangeHandle(CanalEntry.Header, CanalEntry.RowChange)
+ * @see AbstractCanalInstanceHandle#doRowChangeHandle(CanalEntry.Header, List)
  */
 public class HandleExceptionContext {
 
@@ -35,9 +37,15 @@ public class HandleExceptionContext {
         this.schema = schema;
         this.table = table;
         this.eventType = eventType;
-        this.changedData = Collections.unmodifiableList(changedData);
+        this.changedData = CommonsUtils.isEmpty(changedData) ? Collections.<RowChangedData>emptyList()
+                : Collections.unmodifiableList(changedData);
     }
 
+    /**
+     * 返回{@link Collections#unmodifiableList(List)}, 执行add操作直接抛异常
+     *
+     * @return 不可修改的list 并且不可能为null
+     */
     public List<RowChangedData> getChangedData() {
         return changedData;
     }
