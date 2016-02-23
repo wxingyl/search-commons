@@ -4,6 +4,7 @@ import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +14,9 @@ import java.util.Map;
  * Created by xing on 16/2/22.
  * {@link CanalEntry}中一行数据改动封装
  */
-public abstract class RowChangedData<V> {
+public abstract class RowChangedData<V> implements Serializable {
+
+    private static final long serialVersionUID = -8712239138384357603L;
 
     protected final Map<String, V> fieldValueMap;
 
@@ -26,6 +29,8 @@ public abstract class RowChangedData<V> {
     }
 
     public static final class Insert extends RowChangedData<String> {
+
+        private static final long serialVersionUID = -2687037454927572799L;
 
         public static final Function<CanalEntry.RowData, Insert> CONVERT = new Function<CanalEntry.RowData, Insert>() {
             @Override
@@ -46,6 +51,8 @@ public abstract class RowChangedData<V> {
 
     public static final class Delete extends RowChangedData<String> {
 
+        private static final long serialVersionUID = 6254540878604970123L;
+
         public static final Function<CanalEntry.RowData, Delete> CONVERT = new Function<CanalEntry.RowData, Delete>() {
             @Override
             public Delete apply(CanalEntry.RowData rowData) {
@@ -64,6 +71,8 @@ public abstract class RowChangedData<V> {
     }
 
     public static final class Update extends RowChangedData<Pair> {
+
+        private static final long serialVersionUID = 585376007150297603L;
 
         public static final Function<CanalEntry.RowData, Update> CONVERT = new Function<CanalEntry.RowData, Update>() {
             @Override
@@ -127,7 +136,9 @@ public abstract class RowChangedData<V> {
     /**
      * {@link Update}专用数据结果
      */
-    public static class Pair {
+    public static class Pair implements Serializable {
+
+        private static final long serialVersionUID = -7764854062126189422L;
         /**
          * 修改之前数据
          */
