@@ -7,7 +7,7 @@
 
     <groupId>com.tqmall.search</groupId>
     <artifactId>commons</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -15,6 +15,7 @@
         <module>commons-component</module>
         <module>commons-nlp</module>
         <module>commons-cache</module>
+        <module>canal-client</module>
     </modules>
 
     <dependencies>
@@ -58,14 +59,12 @@
         <snapshotRepository>
             <id>tqmall-snapshots</id>
             <name>tqmall snapshots</name>
-            <url>http://build.tqmall.com/nexus/content/repositories/snapshots
-            </url>
+            <url>http://build.tqmall.com/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
         <repository>
             <id>tqmall-releases</id>
             <name>tqmall releases</name>
-            <url>http://build.tqmall.com/nexus/content/repositories/releases
-            </url>
+            <url>http://build.tqmall.com/nexus/content/repositories/releases</url>
         </repository>
     </distributionManagement>
 </project>

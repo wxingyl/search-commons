@@ -80,7 +80,7 @@
 
 ## commons-nlp
 
-依赖`commons-lang`，nlp相关工具类封装，包括：
+依赖`commons-lang`，简单的nlp相关工具类封装，包括：
 
 #### 繁体转简体
 
