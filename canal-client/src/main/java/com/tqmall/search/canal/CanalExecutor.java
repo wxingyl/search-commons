@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -25,6 +26,13 @@ public class CanalExecutor {
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     private Map<String, CanalInstance> canalInstanceMap = new HashMap<>();
+
+    /**
+     * 默认使用{@link Executors#defaultThreadFactory()}
+     */
+    public CanalExecutor() {
+        this(Executors.defaultThreadFactory());
+    }
 
     public CanalExecutor(ThreadFactory threadFactory) {
         this.threadFactory = threadFactory;
