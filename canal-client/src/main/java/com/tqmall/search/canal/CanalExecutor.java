@@ -7,10 +7,7 @@ import com.tqmall.search.canal.handle.CanalInstanceHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -50,21 +47,29 @@ public class CanalExecutor {
                 try {
                     List<CanalInstance> needStoppedInstances = new ArrayList<>();
                     for (Map.Entry<String, CanalInstance> e : canalInstanceMap.entrySet()) {
-                        if (e.getValue().running) {
+                        if (e.getValue().runningSwitch) {
                             log.warn("shutdown canal instance " + e.getKey());
-                            e.getValue().running = false;
+                            e.getValue().runningSwitch = false;
                             needStoppedInstances.add(e.getValue());
                         }
                     }
-                    for (; ; ) {
-                        boolean needContinue = false;
-                        for (CanalInstance c : needStoppedInstances) {
-                            if (!c.exited) {
-                                needContinue = true;
-                                break;
+                    while (!needStoppedInstances.isEmpty()) {
+                        Iterator<CanalInstance> it = needStoppedInstances.iterator();
+                        while (it.hasNext()) {
+                            CanalInstance c = it.next();
+                            synchronized (c.lock) {
+                                if (c.running) {
+                                    try {
+                                        //最起码我要等这个实力执行结束, 那就等等吧
+                                        c.wait();
+                                    } catch (InterruptedException e) {
+                                        log.error("there is a exception when waiting canal: " + c.handle.instanceName() + " thread stop", e);
+                                    }
+                                } else {
+                                    it.remove();
+                                }
                             }
                         }
-                        if (!needContinue) break;
                     }
                     log.info("run shutdown finish, all canalInstances have been stopped");
                 } finally {
@@ -83,7 +88,7 @@ public class CanalExecutor {
         lock.readLock().lock();
         try {
             CanalInstance instance = canalInstanceMap.get(instanceName);
-            return instance != null && instance.running;
+            return instance != null && instance.runningSwitch;
         } finally {
             lock.readLock().unlock();
         }
@@ -137,7 +142,7 @@ public class CanalExecutor {
         lock.writeLock().lock();
         try {
             CanalInstance instance = canalInstanceMap.get(instanceName);
-            if (instance == null || instance.running) {
+            if (instance == null || instance.runningSwitch) {
                 log.warn("canal instance " + instanceName + " is not exist or running: " + instance);
                 return;
             }
@@ -145,9 +150,14 @@ public class CanalExecutor {
 //            instance.t = thread;
             instance.startRtTime = startRtTime;
             thread.start();
-            for (; ; ) {
-                //这儿需要等待线程启动完成
-                if (!instance.exited) return;
+            synchronized (instance.lock) {
+                while (!instance.running) {
+                    try {
+                        instance.lock.wait();
+                    } catch (InterruptedException e) {
+                        log.error("start canal: " + instanceName + " have exception when waiting thread running", e);
+                    }
+                }
             }
         } finally {
             lock.writeLock().unlock();
@@ -156,7 +166,7 @@ public class CanalExecutor {
 
     /**
      * 停止指定的canal实例
-     * 停止时会等待canal运行线程退出{@link CanalInstance#run()}方法, 即{@link CanalInstance#exited} 为true才退出
+     * 停止时会等待canal运行线程退出{@link CanalInstance#run()}方法, 即{@link CanalInstance#running} 为true才退出
      *
      * @param instanceName 实例名
      */
@@ -164,10 +174,16 @@ public class CanalExecutor {
         lock.writeLock().lock();
         try {
             CanalInstance instance = canalInstanceMap.get(instanceName);
-            if (instance != null && instance.running) {
-                instance.running = false;
-                for (; ; ) {
-                    if (instance.exited) return;
+            if (instance != null && instance.runningSwitch) {
+                instance.runningSwitch = false;
+                synchronized (instance.lock) {
+                    while (instance.running) {
+                        try {
+                            instance.lock.wait();
+                        } catch (InterruptedException e) {
+                            log.error("stop canal: " + instanceName + " have exception when waiting thread stop", e);
+                        }
+                    }
                 }
             }
         } finally {
@@ -184,15 +200,18 @@ public class CanalExecutor {
         /**
          * 标识运行状态
          */
-        volatile boolean running;
+        volatile boolean runningSwitch;
         /**
          * 处理实时数据变化的起始时间点, 为0则从canal服务器记录的上次更新点获取Message
          */
         volatile long startRtTime;
+
+        final Object lock = new Object();
         /**
-         * 是否完全退出, 即{@link #run()}执行完成
+         * 是否还在执行, 即正在执行{@link #run()}
+         * 该对象需要线程安全, 修改或者读取需要拿到锁{@link #lock}
          */
-        volatile boolean exited;
+        boolean running;
 
         /**
          * 该实例运行的线程对象, 先留着, 后面说不定有用
@@ -207,14 +226,22 @@ public class CanalExecutor {
          */
         @Override
         public void run() {
+            synchronized (lock) {
+                if (running) {
+                    throw new IllegalStateException("canalInstance: " + handle.instanceName() + " has running, it must be have error");
+                }
+            }
             log.info("start launching canalInstance: " + handle.instanceName());
             handle.connect();
             //下面2条代码的顺便不要随意更换~~~
-            running = true;
-            exited = false;
+            runningSwitch = true;
+            synchronized (lock) {
+                running = true;
+                lock.notifyAll();
+            }
             long lastBatchId = 0L;
             try {
-                while (running) {
+                while (runningSwitch) {
                     Message message = handle.getWithoutAck();
                     lastBatchId = message.getId();
                     if (message.getId() <= 0 || message.getEntries().isEmpty()) continue;
@@ -236,12 +263,15 @@ public class CanalExecutor {
                     handle.ack(lastBatchId);
                 }
             } catch (RuntimeException e) {
-                running = false;
+                runningSwitch = false;
                 log.error("canalInstance: " + handle.instanceName() + " occurring a serious RuntimeException and lead to stop this canalInstance", e);
                 //既然处理失败了, 那就回滚呗~~~
                 handle.rollback(lastBatchId);
             } finally {
-                exited = true;
+                synchronized (lock) {
+                    running = false;
+                    lock.notifyAll();
+                }
                 handle.disConnect();
             }
             log.info("canalInstance: " + handle.instanceName() + " has stopped");
@@ -249,7 +279,7 @@ public class CanalExecutor {
 
         @Override
         public String toString() {
-            return "CanalInstance{" + handle.instanceName() + ", running=" + running + "startRtTime=" + startRtTime + '}';
+            return "CanalInstance{" + handle.instanceName() + ", running=" + runningSwitch + "startRtTime=" + startRtTime + '}';
         }
     }
 }

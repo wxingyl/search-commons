@@ -183,7 +183,7 @@ public abstract class RowChangedData<V> implements Serializable {
      * @return 如果事件类型不对, 则返回一个空的List
      */
     public static List<? extends RowChangedData> build(CanalEntry.RowChange rowChange) {
-        List<? extends RowChangedData> result = null;
+        List<? extends RowChangedData> result;
         switch (rowChange.getEventType()) {
             case INSERT:
                 result = Lists.transform(rowChange.getRowDatasList(), Insert.CONVERT);
@@ -194,6 +194,8 @@ public abstract class RowChangedData<V> implements Serializable {
             case UPDATE:
                 result = Lists.transform(rowChange.getRowDatasList(), Update.CONVERT);
                 break;
+            default:
+                result = null;
         }
         return result == null ? Collections.<RowChangedData>emptyList() : result;
     }
