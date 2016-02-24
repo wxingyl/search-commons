@@ -147,9 +147,7 @@ public class CanalExecutor {
             thread.start();
             for (; ; ) {
                 //这儿需要等待线程启动完成
-                if (!instance.exited) {
-                    return;
-                }
+                if (!instance.exited) return;
             }
         } finally {
             lock.writeLock().unlock();

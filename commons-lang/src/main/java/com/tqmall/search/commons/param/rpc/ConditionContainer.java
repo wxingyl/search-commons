@@ -10,6 +10,9 @@ import java.util.List;
  * 该条件容器是各个查询条件的集合, {@link SortCondition}并不在这里面
  *
  * @see SortCondition
+ * @see InCondition
+ * @see RangeCondition
+ * @see EqualCondition
  */
 public class ConditionContainer {
 

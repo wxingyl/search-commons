@@ -63,8 +63,10 @@ public class EventTypeSectionHandle extends ActionInstanceHandle<EventTypeAction
                 break;
             case UPDATE:
                 action.onUpdateAction(rowChangedDataTransfer(new ArrayList<RowChangedData.Update>()));
+                break;
             case INSERT:
                 action.onInsertAction(rowChangedDataTransfer(new ArrayList<RowChangedData.Insert>()));
+                break;
             default:
                 //can not reach here
                 throw new UnsupportedOperationException("unsupported eventType: " + lastEventType);

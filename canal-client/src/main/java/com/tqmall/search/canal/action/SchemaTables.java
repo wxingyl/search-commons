@@ -107,6 +107,7 @@ public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
 
     /**
      * //TODO {@link #columns} 列过滤目前还不支持~~~后续很快会添加
+     *
      * @param <V>
      */
     public static class Table<V> {
@@ -143,6 +144,11 @@ public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
             return action;
         }
 
+        /**
+         * unmodifiableSet
+         *
+         * @see Collections#unmodifiableSet(Set)
+         */
         public Set<String> getColumns() {
             return columns;
         }
@@ -155,7 +161,6 @@ public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
             Table<?> table = (Table<?>) o;
 
             return tableName.equals(table.tableName);
-
         }
 
         @Override

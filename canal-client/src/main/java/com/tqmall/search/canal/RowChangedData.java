@@ -18,10 +18,12 @@ public abstract class RowChangedData<V> implements Serializable {
 
     private static final long serialVersionUID = -8712239138384357603L;
 
-    protected final Map<String, V> fieldValueMap;
+    protected final Map<String, V> fieldValueMap = new HashMap<>();
 
     public RowChangedData(Map<String, V> dataMap) {
-        fieldValueMap = dataMap == null ? new HashMap<String, V>() : new HashMap<>(dataMap);
+        if (dataMap != null && !dataMap.isEmpty()) {
+            fieldValueMap.putAll(dataMap);
+        }
     }
 
     public V getValue(String field) {
