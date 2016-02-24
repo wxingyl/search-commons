@@ -1,6 +1,4 @@
-package com.tqmall.search.commons.param.rpc;
-
-import com.tqmall.search.commons.param.PageParam;
+package com.tqmall.search.commons.param;
 
 /**
  * Created by xing on 16/1/24.

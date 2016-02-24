@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.param.rpc;
+package com.tqmall.search.commons.param.condition;
 
 import com.tqmall.search.commons.utils.CommonsUtils;
 
@@ -35,6 +35,10 @@ public class InCondition<T> extends Condition {
         return "InCondition{" + super.toString() + ", values = " + values;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return this == o || o instanceof InCondition && super.equals(o);
+    }
     /**
      * 该build方法对传入的values做了过滤
      * @return 如果values无效, 返回null

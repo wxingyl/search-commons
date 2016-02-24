@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.param.rpc;
+package com.tqmall.search.commons.param;
 
 import com.tqmall.search.commons.lang.CommonsConst;
 import com.tqmall.search.commons.utils.SearchStringUtils;

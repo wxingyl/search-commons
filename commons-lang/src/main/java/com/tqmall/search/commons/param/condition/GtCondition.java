@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.param.rpc;
+package com.tqmall.search.commons.param.condition;
 
 import java.util.Objects;
 
@@ -30,6 +30,11 @@ public class GtCondition<T extends Comparable<T>> extends Condition {
             T tValue = (T) value;
             return tValue.compareTo(this.value) > 0;
         } else return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o || o instanceof GtCondition && super.equals(o);
     }
 
     @Override

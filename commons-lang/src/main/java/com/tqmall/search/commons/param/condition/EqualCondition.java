@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.param.rpc;
+package com.tqmall.search.commons.param.condition;
 
 import java.util.Objects;
 
@@ -32,6 +32,11 @@ public class EqualCondition<T> extends Condition {
     @Override
     public String toString() {
         return "EqualCondition{" + super.toString() + ", value = " + value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o || o instanceof EqualCondition && super.equals(o);
     }
 
     /**

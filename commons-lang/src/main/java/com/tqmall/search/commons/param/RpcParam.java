@@ -1,6 +1,6 @@
-package com.tqmall.search.commons.param.rpc;
+package com.tqmall.search.commons.param;
 
-import com.tqmall.search.commons.param.Param;
+import com.tqmall.search.commons.param.condition.ConditionContainer;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -23,16 +23,7 @@ public class RpcParam implements Serializable {
      */
     private final int uid;
 
-    private ConditionContainer must;
-
-    private ConditionContainer should;
-
-    /**
-     * {@link #should} 的最小的匹配条件数目, 当然{@link #should}有值才会有效
-     */
-    private int minimumShouldMatch = 1;
-
-    private ConditionContainer mustNot;
+    private ConditionContainer conditionContainer;
 
     private List<FieldSort> sort;
 
@@ -70,48 +61,12 @@ public class RpcParam implements Serializable {
         return this;
     }
 
-    public RpcParam must(Condition condition) {
-        if (must == null) {
-            must = new ConditionContainer();
-        }
-        must.addCondition(condition);
-        return this;
+    public ConditionContainer getConditionContainer() {
+        return conditionContainer;
     }
 
-    public RpcParam should(Condition condition) {
-        if (should == null) {
-            should = new ConditionContainer();
-        }
-        should.addCondition(condition);
-        return this;
-    }
-
-    public RpcParam mustNot(Condition condition) {
-        if (mustNot == null) {
-            mustNot = new ConditionContainer();
-        }
-        mustNot.addCondition(condition);
-        return this;
-    }
-
-    public void setMinimumShouldMatch(int minimumShouldMatch) {
-        this.minimumShouldMatch = minimumShouldMatch;
-    }
-
-    public int getMinimumShouldMatch() {
-        return minimumShouldMatch;
-    }
-
-    public ConditionContainer getMust() {
-        return must;
-    }
-
-    public ConditionContainer getMustNot() {
-        return mustNot;
-    }
-
-    public ConditionContainer getShould() {
-        return should;
+    public void setConditionContainer(ConditionContainer conditionContainer) {
+        this.conditionContainer = conditionContainer;
     }
 
     public List<FieldSort> getSort() {

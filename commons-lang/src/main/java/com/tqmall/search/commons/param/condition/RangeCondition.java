@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.param.rpc;
+package com.tqmall.search.commons.param.condition;
 
 import com.tqmall.search.commons.lang.CommonsConst;
 import com.tqmall.search.commons.lang.StrValueConvert;
@@ -49,6 +49,11 @@ public class RangeCondition<T extends Comparable<T>> extends Condition {
     @Override
     public String toString() {
         return "RangeCondition{" + super.toString() + ", start = " + start + ", end = " + end;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o || o instanceof RangeCondition && super.equals(o);
     }
 
     public static <T extends Comparable<T>> Builder<T> build(String field) {
