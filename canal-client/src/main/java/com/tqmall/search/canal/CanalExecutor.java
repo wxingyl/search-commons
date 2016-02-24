@@ -61,7 +61,7 @@ public class CanalExecutor {
                                 if (c.running) {
                                     try {
                                         //最起码我要等这个canalInstance执行结束, 那就等等吧
-                                        c.wait();
+                                        c.lock.wait();
                                     } catch (InterruptedException e) {
                                         log.error("there is a exception when waiting canal: " + c.handle.instanceName() + " thread stop", e);
                                     }
