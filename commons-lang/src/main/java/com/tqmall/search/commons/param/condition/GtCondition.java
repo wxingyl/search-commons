@@ -37,6 +37,13 @@ public class GtCondition<T extends Comparable<T>> extends Condition {
         return this == o || o instanceof GtCondition && super.equals(o);
     }
 
+    private final static int HASH_CODE_FACTOR = GtCondition.class.getSimpleName().hashCode();
+
+    @Override
+    public int hashCode() {
+        return 31 * super.hashCode() + HASH_CODE_FACTOR;
+    }
+
     @Override
     public String toString() {
         return "GtCondition{" + "value=" + value + '}';

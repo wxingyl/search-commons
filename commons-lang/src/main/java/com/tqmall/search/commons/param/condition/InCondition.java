@@ -39,6 +39,14 @@ public class InCondition<T> extends Condition {
     public boolean equals(Object o) {
         return this == o || o instanceof InCondition && super.equals(o);
     }
+
+    private final static int HASH_CODE_FACTOR = InCondition.class.getSimpleName().hashCode();
+
+    @Override
+    public int hashCode() {
+        return 31 * super.hashCode() + HASH_CODE_FACTOR;
+    }
+
     /**
      * 该build方法对传入的values做了过滤
      * @return 如果values无效, 返回null

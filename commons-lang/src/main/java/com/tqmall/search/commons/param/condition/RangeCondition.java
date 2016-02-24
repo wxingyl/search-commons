@@ -56,6 +56,13 @@ public class RangeCondition<T extends Comparable<T>> extends Condition {
         return this == o || o instanceof RangeCondition && super.equals(o);
     }
 
+    private final static int HASH_CODE_FACTOR = RangeCondition.class.getSimpleName().hashCode();
+
+    @Override
+    public int hashCode() {
+        return 31 * super.hashCode() + HASH_CODE_FACTOR;
+    }
+
     public static <T extends Comparable<T>> Builder<T> build(String field) {
         return new Builder<>(field);
     }
