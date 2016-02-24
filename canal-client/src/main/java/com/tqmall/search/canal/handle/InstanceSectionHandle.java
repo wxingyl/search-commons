@@ -30,7 +30,7 @@ public class InstanceSectionHandle extends AbstractCanalInstanceHandle {
     private final InstanceAction instanceAction;
 
     /**
-     * 异常处理方法, 返回结果表示是否忽略, 如果返回null 则为false, 即不忽略
+     * 异常处理方法, 返回结果表示是否忽略, 如果返回null 则为false, 即不忽略, 默认不忽略
      */
     private Function<ExceptionContext, Boolean> exceptionHandleFunction;
 
@@ -62,7 +62,7 @@ public class InstanceSectionHandle extends AbstractCanalInstanceHandle {
     }
 
     /**
-     * @param exceptionHandleFunction 异常处理方法, 返回结果表示是否忽略, 如果返回null 则为false, 即不忽略
+     * @param exceptionHandleFunction 异常处理方法, 返回结果表示是否忽略, 如果返回null 则为false, 即不忽略, 默认不忽略
      */
     public void setExceptionHandleFunction(Function<ExceptionContext, Boolean> exceptionHandleFunction) {
         this.exceptionHandleFunction = exceptionHandleFunction;

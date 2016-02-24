@@ -105,12 +105,17 @@ public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
 
     }
 
+    /**
+     * //TODO {@link #columns} 列过滤目前还不支持~~~后续很快会添加
+     * @param <V>
+     */
     public static class Table<V> {
 
         private final String tableName;
 
         /**
-         * table中的列字段列表, 不可更改list
+         * 该表中感兴趣的列, 不指定默认不做过滤
+         * 目前还没有添加列过滤支持, 后续很快支持
          */
         private final Set<String> columns;
         /**
@@ -124,6 +129,7 @@ public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
 
         public Table(String tableName, V action, Collection<String> columns) {
             this.tableName = tableName;
+            Objects.requireNonNull(action);
             this.action = action;
             this.columns = CommonsUtils.isEmpty(columns) ? null
                     : Collections.unmodifiableSet(new HashSet<>(columns));
@@ -157,24 +163,43 @@ public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
             return tableName.hashCode();
         }
 
-        public static <V> Table<V> create(String tableName, V action) {
-            return new Table<>(tableName, action);
+        public static <V> Builder<V> build(String tableName) {
+            return new Builder<>(tableName);
         }
 
-        public static <V> Table<V> create(String tableName, V action, Collection<String> columns) {
-            return CommonsUtils.isEmpty(columns) ? new Table<>(tableName, action)
-                    : new Table<>(tableName, action, columns);
-        }
+        public static class Builder<V> {
+            private String tableName;
+            private Set<String> columnSet = new HashSet<>();
+            private V action;
 
-        public static <V> Table<V> create(String tableName, V action, String... columns) {
-            if (columns.length == 0) {
-                return new Table<>(tableName, action);
-            } else {
-                List<String> columnList = new ArrayList<>(columns.length);
-                Collections.addAll(columnList, columns);
-                return new Table<>(tableName, action, columnList);
+            public Builder(String tableName) {
+                this.tableName = tableName;
+            }
+
+            public Builder<V> action(V action) {
+                this.action = action;
+                return this;
+            }
+
+            public Builder<V> columns(String... columns) {
+                if (columns.length > 0) {
+                    Collections.addAll(this.columnSet, columns);
+                }
+                return this;
+            }
+
+            public Builder<V> columns(Collection<String> columns) {
+                if (!CommonsUtils.isEmpty(columns)) {
+                    this.columnSet.addAll(columns);
+                }
+                return this;
+            }
+
+            public Table<V> create() {
+                return new Table<>(tableName, action, columnSet);
             }
         }
+
     }
 
     public static <V> Builder<V> builder() {
@@ -201,7 +226,8 @@ public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
             return this;
         }
 
-        public Builder<V> add(String schemaName, Table<V>... tables) {
+        @SafeVarargs
+        public final Builder<V> add(String schemaName, Table<V>... tables) {
             if (tables.length == 0) throw new IllegalArgumentException("tables length is 0");
             Collections.addAll(getOrInit(schemaName), tables);
             return this;
