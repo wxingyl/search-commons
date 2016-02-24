@@ -7,7 +7,10 @@ import com.tqmall.search.canal.handle.CanalInstanceHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -16,6 +19,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * Created by xing on 16/2/22.
  * 执行具体的{@link CanalInstanceHandle}, 一个canalInstance占用一个单独线程
+ * 该类实例通过{@link Runtime#addShutdownHook(Thread)}添加的jvm退出回调hook, jvm退出时主动停止每个运行的canalInstance
  * 该类建议单例执行
  */
 public class CanalExecutor {
@@ -44,13 +48,25 @@ public class CanalExecutor {
                 lock.writeLock().lock();
                 log.info("run shutdown, going to stop all running canalInstances");
                 try {
+                    List<CanalInstance> needStoppedInstances = new ArrayList<>();
                     for (Map.Entry<String, CanalInstance> e : canalInstanceMap.entrySet()) {
                         if (e.getValue().running) {
                             log.warn("shutdown canal instance " + e.getKey());
                             e.getValue().running = false;
+                            needStoppedInstances.add(e.getValue());
                         }
                     }
-                    log.info("run shutdown finish, all canalInstances will be stop as soon as possible");
+                    for (; ; ) {
+                        boolean needContinue = false;
+                        for (CanalInstance c : needStoppedInstances) {
+                            if (!c.exited) {
+                                needContinue = true;
+                                break;
+                            }
+                        }
+                        if (!needContinue) break;
+                    }
+                    log.info("run shutdown finish, all canalInstances have been stopped");
                 } finally {
                     lock.writeLock().unlock();
                 }
@@ -112,7 +128,7 @@ public class CanalExecutor {
 
     /**
      * 启动指定的canal实例
-     * 每次启动都是从
+     * 每次启动都是从{@link #threadFactory}获取新的线程启动, 并且启动时会等待待启动线程执行到{@link CanalInstance#run()}方法里面之后再退出
      *
      * @param instanceName 实例名
      * @param startRtTime  处理实时数据变化的起始时间点, 为0则从canal服务器记录的上次更新点获取Message
@@ -129,6 +145,12 @@ public class CanalExecutor {
 //            instance.t = thread;
             instance.startRtTime = startRtTime;
             thread.start();
+            for (; ; ) {
+                //这儿需要等待线程启动完成
+                if (!instance.exited) {
+                    return;
+                }
+            }
         } finally {
             lock.writeLock().unlock();
         }
@@ -136,6 +158,7 @@ public class CanalExecutor {
 
     /**
      * 停止指定的canal实例
+     * 停止时会等待canal运行线程退出{@link CanalInstance#run()}方法, 即{@link CanalInstance#exited} 为true才退出
      *
      * @param instanceName 实例名
      */
@@ -145,6 +168,9 @@ public class CanalExecutor {
             CanalInstance instance = canalInstanceMap.get(instanceName);
             if (instance != null && instance.running) {
                 instance.running = false;
+                for (; ; ) {
+                    if (instance.exited) return;
+                }
             }
         } finally {
             lock.writeLock().unlock();
@@ -165,6 +191,10 @@ public class CanalExecutor {
          * 处理实时数据变化的起始时间点, 为0则从canal服务器记录的上次更新点获取Message
          */
         volatile long startRtTime;
+        /**
+         * 是否完全退出, 即{@link #run()}执行完成
+         */
+        volatile boolean exited;
 
         /**
          * 该实例运行的线程对象, 先留着, 后面说不定有用
@@ -181,7 +211,9 @@ public class CanalExecutor {
         public void run() {
             log.info("start launching canalInstance: " + handle.instanceName());
             handle.connect();
+            //下面2条代码的顺便不要随意更换~~~
             running = true;
+            exited = false;
             long lastBatchId = 0L;
             try {
                 while (running) {
@@ -211,6 +243,7 @@ public class CanalExecutor {
                 //既然处理失败了, 那就回滚呗~~~
                 handle.rollback(lastBatchId);
             } finally {
+                exited = true;
                 handle.disConnect();
             }
             log.info("canalInstance: " + handle.instanceName() + " has stopped");
