@@ -206,6 +206,25 @@ final class PinyinConvert {
         public String toString() {
             return super.toString() + ':' + pinyin;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof PinyinCharacter)) return false;
+            if (!super.equals(o)) return false;
+
+            PinyinCharacter that = (PinyinCharacter) o;
+
+            return pinyin.equals(that.pinyin);
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = super.hashCode();
+            result = 31 * result + pinyin.hashCode();
+            return result;
+        }
     }
 
 }

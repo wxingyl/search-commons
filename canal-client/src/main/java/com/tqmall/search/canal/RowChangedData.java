@@ -37,6 +37,7 @@ public abstract class RowChangedData<V> implements Serializable {
         public static final Function<CanalEntry.RowData, Insert> CONVERT = new Function<CanalEntry.RowData, Insert>() {
             @Override
             public Insert apply(CanalEntry.RowData rowData) {
+                if (rowData == null) return null;
                 Insert insert = new Insert(null);
                 for (CanalEntry.Column c : rowData.getAfterColumnsList()) {
                     insert.fieldValueMap.put(c.getName(), c.getValue());
@@ -58,6 +59,7 @@ public abstract class RowChangedData<V> implements Serializable {
         public static final Function<CanalEntry.RowData, Delete> CONVERT = new Function<CanalEntry.RowData, Delete>() {
             @Override
             public Delete apply(CanalEntry.RowData rowData) {
+                if (rowData == null) return null;
                 Delete delete = new Delete(null);
                 for (CanalEntry.Column c : rowData.getBeforeColumnsList()) {
                     delete.fieldValueMap.put(c.getName(), c.getValue());
@@ -79,6 +81,7 @@ public abstract class RowChangedData<V> implements Serializable {
         public static final Function<CanalEntry.RowData, Update> CONVERT = new Function<CanalEntry.RowData, Update>() {
             @Override
             public Update apply(CanalEntry.RowData rowData) {
+                if (rowData == null) return null;
                 Update update = new Update(null);
                 for (CanalEntry.Column c : rowData.getBeforeColumnsList()) {
                     update.fieldValueMap.put(c.getName(), new Pair(c.getValue(), null, false));
@@ -180,16 +183,19 @@ public abstract class RowChangedData<V> implements Serializable {
      * @return 如果事件类型不对, 则返回一个空的List
      */
     public static List<? extends RowChangedData> build(CanalEntry.RowChange rowChange) {
+        List<? extends RowChangedData> result = null;
         switch (rowChange.getEventType()) {
             case INSERT:
-                return Lists.transform(rowChange.getRowDatasList(), Insert.CONVERT);
+                result = Lists.transform(rowChange.getRowDatasList(), Insert.CONVERT);
+                break;
             case DELETE:
-                return Lists.transform(rowChange.getRowDatasList(), Delete.CONVERT);
+                result = Lists.transform(rowChange.getRowDatasList(), Delete.CONVERT);
+                break;
             case UPDATE:
-                return Lists.transform(rowChange.getRowDatasList(), Update.CONVERT);
-            default:
-                return Collections.emptyList();
+                result = Lists.transform(rowChange.getRowDatasList(), Update.CONVERT);
+                break;
         }
+        return result == null ? Collections.<RowChangedData>emptyList() : result;
     }
 
     /**

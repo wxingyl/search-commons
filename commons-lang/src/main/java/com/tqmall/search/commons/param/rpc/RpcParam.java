@@ -37,14 +37,14 @@ public class RpcParam implements Serializable {
     private List<SortCondition> sort;
 
     public RpcParam(String source) {
-        this(source, null);
+        this(source, 0);
     }
 
     public RpcParam(Param param) {
         this(param.getSource(), param.getUid());
     }
 
-    public RpcParam(String source, Integer uid) {
+    public RpcParam(String source, int uid) {
         this.source = source;
         this.uid = uid;
     }

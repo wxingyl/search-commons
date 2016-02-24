@@ -1,5 +1,6 @@
 package com.tqmall.search.commons.param.rpc;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,7 +15,9 @@ import java.util.List;
  * @see RangeCondition
  * @see EqualCondition
  */
-public class ConditionContainer {
+public class ConditionContainer implements Serializable {
+
+    private static final long serialVersionUID = 8536199694404404344L;
 
     private List<Condition> conditionList = new ArrayList<>();
 
