@@ -17,5 +17,4 @@ public interface InstanceAction {
     String instanceName();
 
     void onAction(List<? extends InstanceRowChangedData> rowChangedData);
-
 }
