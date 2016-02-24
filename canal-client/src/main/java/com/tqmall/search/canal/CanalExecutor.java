@@ -197,7 +197,7 @@ public class CanalExecutor {
 
         final CanalInstanceHandle handle;
         /**
-         * 标识运行状态
+         * 标识运行状态, 当前是否正在运行, 由变量{@link #running}标识
          */
         volatile boolean runningSwitch;
         /**

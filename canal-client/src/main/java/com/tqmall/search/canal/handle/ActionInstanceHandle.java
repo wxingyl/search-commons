@@ -3,11 +3,15 @@ package com.tqmall.search.canal.handle;
 import com.alibaba.otter.canal.client.CanalConnector;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.google.common.base.Function;
+import com.tqmall.search.canal.RowChangedData;
 import com.tqmall.search.canal.action.SchemaTables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by xing on 16/2/22.
@@ -66,6 +70,29 @@ public abstract class ActionInstanceHandle<V> extends AbstractCanalInstanceHandl
         } else {
             canalConnector.subscribe();
         }
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @Override
+    protected List<? extends RowChangedData> changedDataParse(CanalEntry.RowChange rowChange) {
+        List<? extends RowChangedData> dataList = super.changedDataParse(rowChange);
+        Set<String> columns;
+        if (currentEventType == CanalEntry.EventType.UPDATE
+                && (columns = schemaTables.getTable(currentHandleSchema, currentHandleTable).getColumns()) != null) {
+            Iterator<RowChangedData.Update> it = ((List<RowChangedData.Update>) dataList).iterator();
+            while (it.hasNext()) {
+                RowChangedData.Update update = it.next();
+                boolean canRemove = true;
+                for (String c : columns) {
+                    if (update.isChanged(c)) {
+                        canRemove = false;
+                        break;
+                    }
+                }
+                if (canRemove) it.remove();
+            }
+        }
+        return dataList;
     }
 
     @Override

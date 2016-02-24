@@ -111,6 +111,10 @@ public abstract class RowChangedData<V> implements Serializable {
             return (pair = fieldValueMap.get(column)) == null ? null : pair.before;
         }
 
+        public boolean isChanged(String column) {
+            Pair pair;
+            return (pair = fieldValueMap.get(column)) != null && pair.changed;
+        }
         /**
          * 将{@link Update}实例转化成{@link Delete}, 当然,能不能转换自己在外面判断
          *

@@ -19,10 +19,11 @@ import java.util.List;
  * Created by xing on 16/2/24.
  * canal client 使用demo
  *
- * @see #INSTANCE  {@link CanalExecutor}单例实例
- * @see #addInstanceSectionCanalInstance()  InstanceSectionHandle 添加
- * @see #addTableSectionCanalInstance()  TableSectionHandle 添加
- * @see #addEventTypeSectionCanalInstance()  EventTypeSectionHandle 添加
+ * @see #INSTANCE
+ * @see #addInstanceSectionCanalInstance()
+ * @see #addTableSectionCanalInstance()
+ * @see #addEventTypeSectionCanalInstance()
+ * @see #startInstance()
  */
 public class CanalClientDemo {
 
@@ -266,6 +267,32 @@ public class CanalClientDemo {
         eventTypeSectionHandle.setMessageTimeout(500L);
 
         INSTANCE.getInstance().addInstanceHandle(eventTypeSectionHandle);
+    }
+
+    private static final long START_TIMESTAMP = System.currentTimeMillis();
+
+    /**
+     * 开启实例
+     */
+    private void startInstance() {
+        //启动指定的canalInstance
+        INSTANCE.getInstance().startInstance("legend-table-section");
+
+        //启动所有的canalInstance
+        for (String instanceName : INSTANCE.getInstance().allCanalInstance()) {
+            INSTANCE.getInstance().startInstance(instanceName);
+        }
+
+        //停止Instance
+        for (String instanceName : INSTANCE.getInstance().allCanalInstance()) {
+            INSTANCE.getInstance().stopInstance(instanceName);
+        }
+
+        //指定开始时间启动
+        //启动所有的canalInstance
+        for (String instanceName : INSTANCE.getInstance().allCanalInstance()) {
+            INSTANCE.getInstance().startInstance(instanceName, START_TIMESTAMP);
+        }
     }
 
 }
