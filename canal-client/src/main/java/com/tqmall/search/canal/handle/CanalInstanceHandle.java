@@ -1,8 +1,9 @@
-package com.tqmall.search.canal;
+package com.tqmall.search.canal.handle;
 
 import com.alibaba.otter.canal.client.CanalConnector;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.alibaba.otter.canal.protocol.Message;
+import com.tqmall.search.canal.CanalExecutor;
 
 /**
  * Created by xing on 16/2/22.

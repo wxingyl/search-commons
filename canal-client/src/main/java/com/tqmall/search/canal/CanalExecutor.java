@@ -3,6 +3,7 @@ package com.tqmall.search.canal;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.alibaba.otter.canal.protocol.Message;
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.tqmall.search.canal.handle.CanalInstanceHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,7 +137,7 @@ public class CanalExecutor {
      */
     static class CanalInstance implements Runnable {
 
-        final CanalInstanceHandle handle;
+        private final CanalInstanceHandle handle;
         /**
          * 标识运行状态
          */

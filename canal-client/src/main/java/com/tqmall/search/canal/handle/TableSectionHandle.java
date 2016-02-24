@@ -1,7 +1,6 @@
 package com.tqmall.search.canal.handle;
 
 import com.alibaba.otter.canal.protocol.CanalEntry;
-import com.tqmall.search.canal.HandleExceptionContext;
 import com.tqmall.search.canal.RowChangedData;
 import com.tqmall.search.canal.action.SchemaTables;
 import com.tqmall.search.canal.action.TableAction;
@@ -12,7 +11,7 @@ import java.util.List;
 
 /**
  * Created by xing on 16/2/24.
- * table处理级别的{@link com.tqmall.search.canal.CanalInstanceHandle}
+ * table处理级别的{@link CanalInstanceHandle}
  * 连续的事件更新, 发现不同表则处理掉
  */
 public class TableSectionHandle extends ActionInstanceHandle<TableAction> {

@@ -1,6 +1,6 @@
 package com.tqmall.search.canal.action;
 
-import com.tqmall.search.canal.InstanceRowChangedData;
+import com.tqmall.search.canal.handle.InstanceRowChangedData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

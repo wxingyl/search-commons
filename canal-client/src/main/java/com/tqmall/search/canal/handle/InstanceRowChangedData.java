@@ -1,6 +1,7 @@
-package com.tqmall.search.canal;
+package com.tqmall.search.canal.handle;
 
 import com.alibaba.otter.canal.protocol.CanalEntry;
+import com.tqmall.search.canal.RowChangedData;
 
 import java.util.Collections;
 import java.util.List;

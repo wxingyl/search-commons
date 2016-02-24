@@ -2,7 +2,6 @@ package com.tqmall.search.canal.handle;
 
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.google.common.base.Function;
-import com.tqmall.search.canal.InstanceRowChangedData;
 import com.tqmall.search.canal.RowChangedData;
 import com.tqmall.search.canal.action.InstanceAction;
 import com.tqmall.search.commons.utils.CommonsUtils;

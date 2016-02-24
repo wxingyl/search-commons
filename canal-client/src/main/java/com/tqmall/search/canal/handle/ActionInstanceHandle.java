@@ -3,8 +3,6 @@ package com.tqmall.search.canal.handle;
 import com.alibaba.otter.canal.client.CanalConnector;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.google.common.base.Function;
-import com.tqmall.search.canal.CanalInstanceHandle;
-import com.tqmall.search.canal.HandleExceptionContext;
 import com.tqmall.search.canal.action.SchemaTables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

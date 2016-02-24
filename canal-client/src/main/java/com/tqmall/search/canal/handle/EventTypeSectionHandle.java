@@ -1,12 +1,12 @@
 package com.tqmall.search.canal.handle;
 
 import com.alibaba.otter.canal.protocol.CanalEntry;
-import com.tqmall.search.canal.HandleExceptionContext;
 import com.tqmall.search.canal.RowChangedData;
 import com.tqmall.search.canal.action.EventTypeAction;
 import com.tqmall.search.canal.action.SchemaTables;
 
 import java.net.SocketAddress;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -46,12 +46,38 @@ public class EventTypeSectionHandle extends ActionInstanceHandle<EventTypeAction
         super(address, destination, schemaTables);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private <T extends RowChangedData> List<T> rowChangedDataTransfer(List<T> list) {
+        for (RowChangedData r : rowChangedDataList) {
+            list.add((T) r);
+        }
+        return list;
+    }
+
+    private void runRowChangeAction() {
+        if (rowChangedDataList.isEmpty()) return;
+        EventTypeAction action = schemaTables.getTable(lastSchema, lastTable).getAction();
+        switch (lastEventType) {
+            case DELETE:
+                action.onDeleteAction(rowChangedDataTransfer(new ArrayList<RowChangedData.Delete>()));
+                break;
+            case UPDATE:
+                action.onUpdateAction(rowChangedDataTransfer(new ArrayList<RowChangedData.Update>()));
+            case INSERT:
+                action.onInsertAction(rowChangedDataTransfer(new ArrayList<RowChangedData.Insert>()));
+            default:
+                //can not reach here
+                throw new UnsupportedOperationException("unsupported eventType: " + lastEventType);
+        }
+        rowChangedDataList.clear();
+    }
+
     @Override
     protected void doRowChangeHandle(CanalEntry.Header header, List<? extends RowChangedData> changedData) {
         //尽量集中处理
         if (!header.getTableName().equals(lastTable) || !header.getSchemaName().equals(lastSchema)
                 || !header.getEventType().equals(lastEventType)) {
-//            runRowChangeAction();
+            runRowChangeAction();
             lastSchema = header.getSchemaName();
             lastTable = header.getTableName();
             lastEventType = header.getEventType();
@@ -61,7 +87,7 @@ public class EventTypeSectionHandle extends ActionInstanceHandle<EventTypeAction
 
     @Override
     protected void doFinishHandle() {
-
+        runRowChangeAction();
     }
 
     @Override
@@ -82,4 +108,5 @@ public class EventTypeSectionHandle extends ActionInstanceHandle<EventTypeAction
                 .changedData(rowChangedDataList)
                 .create();
     }
+
 }

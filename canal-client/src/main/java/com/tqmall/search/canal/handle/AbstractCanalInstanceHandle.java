@@ -5,7 +5,6 @@ import com.alibaba.otter.canal.client.CanalConnectors;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.alibaba.otter.canal.protocol.Message;
 import com.tqmall.search.canal.CanalExecutor;
-import com.tqmall.search.canal.CanalInstanceHandle;
 import com.tqmall.search.canal.RowChangedData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
