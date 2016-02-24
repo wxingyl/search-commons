@@ -22,6 +22,8 @@ public abstract class Condition implements Serializable {
         return field;
     }
 
+    public abstract boolean validation(Object value);
+
     @Override
     public String toString() {
         return "field = " + field;

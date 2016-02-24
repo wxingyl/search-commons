@@ -8,10 +8,10 @@ import java.util.List;
 /**
  * Created by xing on 16/1/24.
  * 条件容器, 默认Type为{@link Type#MUST}
- * 该条件容器是各个查询条件的集合, {@link SortCondition}并不在这里面
+ * 该条件容器是各个查询条件的集合
  *
- * @see SortCondition
  * @see InCondition
+ * @see GtCondition
  * @see RangeCondition
  * @see EqualCondition
  */
@@ -22,7 +22,6 @@ public class ConditionContainer implements Serializable {
     private List<Condition> conditionList = new ArrayList<>();
 
     private final Type type;
-
 
     public ConditionContainer() {
         this(Type.MUST);

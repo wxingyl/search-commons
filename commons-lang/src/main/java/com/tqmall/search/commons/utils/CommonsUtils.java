@@ -3,6 +3,7 @@ package com.tqmall.search.commons.utils;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by xing on 16/1/24.
@@ -12,6 +13,10 @@ public final class CommonsUtils {
 
     public static boolean isEmpty(Collection collection) {
         return collection == null || collection.isEmpty();
+    }
+
+    public static boolean isEmpty(Map map) {
+        return map == null || map.isEmpty();
     }
 
     /**

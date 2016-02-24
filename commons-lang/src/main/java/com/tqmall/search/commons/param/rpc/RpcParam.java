@@ -34,7 +34,7 @@ public class RpcParam implements Serializable {
 
     private ConditionContainer mustNot;
 
-    private List<SortCondition> sort;
+    private List<FieldSort> sort;
 
     public RpcParam(String source) {
         this(source, 0);
@@ -53,20 +53,20 @@ public class RpcParam implements Serializable {
      * 如果原先已经添加过SortCondition, 则追加
      */
     public RpcParam sort(String sortStr) {
-        List<SortCondition> list = SortCondition.build(sortStr);
+        List<FieldSort> list = FieldSort.build(sortStr);
         if (list != null) {
-            for (SortCondition c : list) {
+            for (FieldSort c : list) {
                 sort(c);
             }
         }
         return this;
     }
 
-    public RpcParam sort(SortCondition sortCondition) {
+    public RpcParam sort(FieldSort fieldSort) {
         if (sort == null) {
             sort = new ArrayList<>();
         }
-        sort.add(sortCondition);
+        sort.add(fieldSort);
         return this;
     }
 
@@ -114,7 +114,7 @@ public class RpcParam implements Serializable {
         return should;
     }
 
-    public List<SortCondition> getSort() {
+    public List<FieldSort> getSort() {
         return sort;
     }
 

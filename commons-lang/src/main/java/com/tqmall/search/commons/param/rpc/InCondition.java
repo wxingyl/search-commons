@@ -2,6 +2,7 @@ package com.tqmall.search.commons.param.rpc;
 
 import com.tqmall.search.commons.utils.CommonsUtils;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,11 +17,17 @@ public class InCondition<T> extends Condition {
 
     public InCondition(String field, List<T> values) {
         super(field);
-        this.values = values;
+        if (CommonsUtils.isEmpty(values)) throw new IllegalArgumentException("values list is null or empty");
+        this.values = Collections.unmodifiableList(values);
     }
 
     public List<T> getValues() {
         return values;
+    }
+
+    @Override
+    public boolean validation(Object value) {
+        return values.contains(value);
     }
 
     @Override
