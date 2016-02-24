@@ -3,7 +3,6 @@ package com.tqmall.search.canal.handle;
 import com.alibaba.otter.canal.client.CanalConnector;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.alibaba.otter.canal.protocol.Message;
-import com.tqmall.search.canal.CanalExecutor;
 
 /**
  * Created by xing on 16/2/22.
@@ -52,21 +51,29 @@ public interface CanalInstanceHandle {
     void rollback(long batchId);
 
     /**
-     * 根据{@link CanalEntry.Header}能够提供的信息先过滤一下, 关于事件类型, 时间戳有效性前面已经过滤过了~~~
-     * @return 标识是否有效, 无效那就不解析其changeRow数据
-     * @see CanalExecutor.CanalInstance#run()
+     * 开始处理事件通知, 提供当前更改记录的{@link CanalEntry.Header}, 该接口与{@link #rowChangeHandle(CanalEntry.RowChange)}成对调用,
+     * 除非该接口返回false
+     * <p/>
+     * 通过该接口, 可以根据{@link CanalEntry.Header}能够提供的信息先过滤一下, 关于事件类型, 时间戳有效性前面已经过滤过了~~~
+     *
+     * @return 标识是否有效, 无效那就不解析其changeRow数据, 自然不会调用{@link #rowChangeHandle(CanalEntry.RowChange)}
      */
-    boolean headerFilter(CanalEntry.Header header);
+    boolean startHandle(CanalEntry.Header header);
 
     /**
-     * 记录更新处理, 一次处理过程, 不断调用该方法, 数据更新处理完成, 通过{@link #finishHandle()} 结束处理
-     * @see #finishHandle()
+     * 记录更新处理, 不断调用该方法, 数据更新处理完成, 通过{@link #finishMessageHandle()} 结束处理
+     *
+     * @see #finishMessageHandle()
      */
-    void rowChangeHandle(CanalEntry.Header header, CanalEntry.RowChange rowChange);
+    void rowChangeHandle(CanalEntry.RowChange rowChange);
 
     /**
-     * 完成本次处理
-     * @see #rowChangeHandle(CanalEntry.Header, CanalEntry.RowChange)
+     * 完成本轮{@link Message}调用, 一轮{@link Message}会包含一批{@link CanalEntry.Header}数据
+     * 注意: 该方法并不与{@link #startHandle(CanalEntry.Header)}, {@link #rowChangeHandle(CanalEntry.RowChange)}成对调用, 总体次数更少
+     * 调用方法{@link #startHandle(CanalEntry.Header)}, {@link #rowChangeHandle(CanalEntry.RowChange)}如果存在异常, 也会保证该方法调用
+     *
+     * @see #startHandle(CanalEntry.Header)
+     * @see #rowChangeHandle(CanalEntry.RowChange)
      */
-    void finishHandle();
+    void finishMessageHandle();
 }

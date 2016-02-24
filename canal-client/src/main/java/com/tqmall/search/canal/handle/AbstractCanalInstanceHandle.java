@@ -6,6 +6,7 @@ import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.alibaba.otter.canal.protocol.Message;
 import com.tqmall.search.canal.CanalExecutor;
 import com.tqmall.search.canal.RowChangedData;
+import com.tqmall.search.commons.utils.CommonsUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,16 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
     private Long messageTimeout = 1000L;
 
     /**
+     * 当前这在处理的schema.table
+     * 每个canalHandle都是单个线程负责调用, 所以这儿也就不用考虑多线程, 如果以后添加了多线程处理, 引入{@link ThreadLocal}
+     *
+     * @see #startHandle(CanalEntry.Header)
+     */
+    protected String currentHandleSchema, currentHandleTable;
+
+    protected CanalEntry.EventType currentEventType;
+
+    /**
      * @param address     canal服务器地址
      * @param destination canal实例名称
      */
@@ -45,12 +56,12 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
 
     protected abstract void doConnect();
 
-    protected abstract void doRowChangeHandle(CanalEntry.Header header, List<? extends RowChangedData> changedData);
+    protected abstract void doRowChangeHandle(List<? extends RowChangedData> changedData);
 
     protected abstract void doFinishHandle();
 
     /**
-     * 执行{@link #doRowChangeHandle(CanalEntry.Header, List)}或者{@link #doFinishHandle()} 发生异常时, 触发该方法调用
+     * 执行{@link #doRowChangeHandle(List)}或者{@link #doFinishHandle()} 发生异常时, 触发该方法调用
      * 如果继续处理后续的更新数据, 忽略当前异常, 则返回true
      * 如果该异常较严重, 后续更新无法处理, 则返回false, canal执行器{@link CanalExecutor}会停止canal同步, 待问题处理之后再说~~~
      *
@@ -97,12 +108,30 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
         return canalConnector.getWithoutAck(messageBatchSize, messageTimeout, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * 更改记录的诗句转换成 {@link RowChangedData} list
+     *
+     * @param rowChange 更改的数据
+     * @return 构建的{@link RowChangedData} list
+     */
+    protected List<? extends RowChangedData> changedDataParse(CanalEntry.RowChange rowChange) {
+        return RowChangedData.build(rowChange);
+    }
+
+    @Override
+    public boolean startHandle(CanalEntry.Header header) {
+        currentHandleSchema = header.getSchemaName();
+        currentHandleTable = header.getTableName();
+        currentEventType = header.getEventType();
+        return true;
+    }
+
     //TODO 各个事件根据table的column筛选, 以及Update事件向Insert, Delete事件转换
     @Override
-    public void rowChangeHandle(CanalEntry.Header header, CanalEntry.RowChange rowChange) {
+    public final void rowChangeHandle(CanalEntry.RowChange rowChange) {
         try {
-            List<? extends RowChangedData> changedData = RowChangedData.build(rowChange);
-            if (!changedData.isEmpty()) doRowChangeHandle(header, changedData);
+            List<? extends RowChangedData> changedData = changedDataParse(rowChange);
+            if (!CommonsUtils.isEmpty(changedData)) doRowChangeHandle(changedData);
         } catch (RuntimeException e) {
             if (!exceptionHandle(e, false)) {
                 throw e;
@@ -111,7 +140,7 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
     }
 
     @Override
-    public final void finishHandle() {
+    public final void finishMessageHandle() {
         try {
             doFinishHandle();
         } catch (RuntimeException e) {

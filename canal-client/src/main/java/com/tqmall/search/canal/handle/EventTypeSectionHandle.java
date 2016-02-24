@@ -75,29 +75,46 @@ public class EventTypeSectionHandle extends ActionInstanceHandle<EventTypeAction
     }
 
     @Override
-    protected void doRowChangeHandle(CanalEntry.Header header, List<? extends RowChangedData> changedData) {
+    protected void doRowChangeHandle(List<? extends RowChangedData> changedData) {
         //尽量集中处理
-        if (!header.getTableName().equals(lastTable) || !header.getSchemaName().equals(lastSchema)
-                || !header.getEventType().equals(lastEventType)) {
+        if (!currentHandleTable.equals(lastTable) || !currentEventType.equals(lastEventType)
+                || !currentHandleSchema.equals(lastSchema)) {
             runRowChangeAction();
-            lastSchema = header.getSchemaName();
-            lastTable = header.getTableName();
-            lastEventType = header.getEventType();
+            lastSchema = currentHandleSchema;
+            lastTable = currentHandleTable;
+            lastEventType = currentEventType;
         }
         rowChangedDataList.addAll(changedData);
     }
 
+    /**
+     * 如果出现异常, 可以肯定方法{@link #runRowChangeAction()}至少调用过一次, 那么对应的{@link #lastSchema}, {@link #lastTable},
+     * {@link #lastEventType} 需要更新
+     *
+     * @param exception      具体异常
+     * @param inFinishHandle 标识是否在{@link #doFinishHandle()}中产生的异常
+     * @return 是否忽略异常
+     */
     @Override
-    protected void doFinishHandle() {
-        runRowChangeAction();
+    protected boolean exceptionHandle(RuntimeException exception, boolean inFinishHandle) {
+        if (super.exceptionHandle(exception, inFinishHandle)) {
+            lastSchema = currentHandleSchema;
+            lastTable = currentHandleTable;
+            lastEventType = currentEventType;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
-    protected boolean exceptionHandle(RuntimeException exception, boolean inFinishHandle) {
+    protected void doFinishHandle() {
         try {
-            return super.exceptionHandle(exception, inFinishHandle);
+            runRowChangeAction();
         } finally {
-            rowChangedDataList.clear();
+            if (!rowChangedDataList.isEmpty()) {
+                rowChangedDataList.clear();
+            }
         }
     }
 

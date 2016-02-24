@@ -39,8 +39,8 @@ public abstract class ActionInstanceHandle<V> extends AbstractCanalInstanceHandl
     private boolean userLocalTableFilter = true;
 
     /**
-     * @param address     canal服务器地址
-     * @param destination canal实例名称
+     * @param address      canal服务器地址
+     * @param destination  canal实例名称
      * @param schemaTables table对应action实例
      */
     public ActionInstanceHandle(SocketAddress address, String destination, SchemaTables<V> schemaTables) {
@@ -106,7 +106,7 @@ public abstract class ActionInstanceHandle<V> extends AbstractCanalInstanceHandl
     }
 
     @Override
-    public boolean headerFilter(CanalEntry.Header header) {
-        return schemaTables.getTable(header.getSchemaName(), header.getTableName()) != null;
+    public boolean startHandle(CanalEntry.Header header) {
+        return super.startHandle(header) && schemaTables.getTable(currentHandleSchema, currentHandleTable) != null;
     }
 }

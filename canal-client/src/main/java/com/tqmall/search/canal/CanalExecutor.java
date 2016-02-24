@@ -60,7 +60,7 @@ public class CanalExecutor {
                             synchronized (c.lock) {
                                 if (c.running) {
                                     try {
-                                        //最起码我要等这个实力执行结束, 那就等等吧
+                                        //最起码我要等这个canalInstance执行结束, 那就等等吧
                                         c.wait();
                                     } catch (InterruptedException e) {
                                         log.error("there is a exception when waiting canal: " + c.handle.instanceName() + " thread stop", e);
@@ -147,7 +147,6 @@ public class CanalExecutor {
                 return;
             }
             Thread thread = threadFactory.newThread(instance);
-//            instance.t = thread;
             instance.startRtTime = startRtTime;
             thread.start();
             synchronized (instance.lock) {
@@ -196,7 +195,7 @@ public class CanalExecutor {
      */
     static class CanalInstance implements Runnable {
 
-        private final CanalInstanceHandle handle;
+        final CanalInstanceHandle handle;
         /**
          * 标识运行状态
          */
@@ -213,10 +212,6 @@ public class CanalExecutor {
          */
         boolean running;
 
-        /**
-         * 该实例运行的线程对象, 先留着, 后面说不定有用
-         */
-//        private Thread t;
         public CanalInstance(CanalInstanceHandle handle) {
             this.handle = handle;
         }
@@ -245,22 +240,25 @@ public class CanalExecutor {
                     Message message = handle.getWithoutAck();
                     lastBatchId = message.getId();
                     if (message.getId() <= 0 || message.getEntries().isEmpty()) continue;
-                    for (CanalEntry.Entry e : message.getEntries()) {
-                        if (e.getEntryType() != CanalEntry.EntryType.ROWDATA || !e.hasStoreValue()) continue;
-                        CanalEntry.Header header = e.getHeader();
-                        if (header.getExecuteTime() < startRtTime
-                                || header.getEventType().getNumber() > CanalEntry.EventType.DELETE_VALUE
-                                || !handle.headerFilter(header)) continue;
-                        try {
-                            CanalEntry.RowChange rowChange = CanalEntry.RowChange.parseFrom(e.getStoreValue());
-                            if (rowChange.getIsDdl()) continue;
-                            handle.rowChangeHandle(header, rowChange);
-                        } catch (InvalidProtocolBufferException e1) {
-                            log.error("canal instance: " + handle.instanceName() + " parse store value have exception: ", e1);
+                    try {
+                        for (CanalEntry.Entry e : message.getEntries()) {
+                            if (e.getEntryType() != CanalEntry.EntryType.ROWDATA || !e.hasStoreValue()) continue;
+                            CanalEntry.Header header = e.getHeader();
+                            if (header.getExecuteTime() < startRtTime
+                                    || header.getEventType().getNumber() > CanalEntry.EventType.DELETE_VALUE
+                                    || !handle.startHandle(header)) continue;
+                            try {
+                                CanalEntry.RowChange rowChange = CanalEntry.RowChange.parseFrom(e.getStoreValue());
+                                if (rowChange.getIsDdl()) continue;
+                                handle.rowChangeHandle(rowChange);
+                            } catch (InvalidProtocolBufferException e1) {
+                                log.error("canal instance: " + handle.instanceName() + " parse store value have exception: ", e1);
+                            }
                         }
+                        handle.ack(lastBatchId);
+                    } finally {
+                        handle.finishMessageHandle();
                     }
-                    handle.finishHandle();
-                    handle.ack(lastBatchId);
                 }
             } catch (RuntimeException e) {
                 runningSwitch = false;

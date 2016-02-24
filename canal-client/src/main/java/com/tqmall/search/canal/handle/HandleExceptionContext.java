@@ -11,7 +11,7 @@ import java.util.List;
  * Created by xing on 16/2/23.
  * canal处理事件时出现异常, 该类封装当时异常的上下文
  *
- * @see CanalInstanceHandle#rowChangeHandle(CanalEntry.Header, CanalEntry.RowChange)
+ * @see CanalInstanceHandle#rowChangeHandle(CanalEntry.RowChange)
  * @see AbstractCanalInstanceHandle#doRowChangeHandle(CanalEntry.Header, List)
  */
 public class HandleExceptionContext {

@@ -1,6 +1,5 @@
 package com.tqmall.search.canal.handle;
 
-import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.canal.RowChangedData;
 import com.tqmall.search.canal.action.SchemaTables;
 import com.tqmall.search.canal.action.TableAction;
@@ -52,27 +51,42 @@ public class TableSectionHandle extends ActionInstanceHandle<TableAction> {
 
 
     @Override
-    protected void doRowChangeHandle(CanalEntry.Header header, List<? extends RowChangedData> changedData) {
+    protected void doRowChangeHandle(List<? extends RowChangedData> changedData) {
         //尽量集中处理
-        if (!header.getTableName().equals(lastTable) || !header.getSchemaName().equals(lastSchema)) {
+        if (!currentHandleTable.equals(lastTable) || !currentHandleSchema.equals(lastSchema)) {
             runRowChangeAction();
-            lastSchema = header.getSchemaName();
-            lastTable = header.getTableName();
+            lastSchema = currentHandleSchema;
+            lastTable = currentHandleTable;
         }
         rowChangedDataList.addAll(changedData);
     }
 
+    /**
+     * 如果出现异常, 可以肯定方法{@link #runRowChangeAction()}至少调用过一次, 那么对应的{@link #lastSchema}, {@link #lastTable}需要更新
+     *
+     * @param exception      具体异常
+     * @param inFinishHandle 标识是否在{@link #doFinishHandle()}中产生的异常
+     * @return 是否忽略异常
+     */
     @Override
     protected boolean exceptionHandle(RuntimeException exception, boolean inFinishHandle) {
-        try {
-            return super.exceptionHandle(exception, inFinishHandle);
-        } finally {
-            rowChangedDataList.clear();
+        if (super.exceptionHandle(exception, inFinishHandle)) {
+            lastSchema = currentHandleSchema;
+            lastTable = currentHandleTable;
+            return true;
+        } else {
+            return false;
         }
     }
 
     @Override
     protected void doFinishHandle() {
-        runRowChangeAction();
+        try {
+            runRowChangeAction();
+        } finally {
+            if (!rowChangedDataList.isEmpty()) {
+                rowChangedDataList.clear();
+            }
+        }
     }
 }

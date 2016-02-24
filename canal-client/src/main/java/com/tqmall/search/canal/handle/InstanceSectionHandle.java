@@ -1,6 +1,5 @@
 package com.tqmall.search.canal.handle;
 
-import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.google.common.base.Function;
 import com.tqmall.search.canal.RowChangedData;
 import com.tqmall.search.canal.action.InstanceAction;
@@ -50,9 +49,9 @@ public class InstanceSectionHandle extends AbstractCanalInstanceHandle {
     }
 
     @Override
-    protected void doRowChangeHandle(CanalEntry.Header header, List<? extends RowChangedData> changedData) {
-        rowChangedData.add(new InstanceRowChangedData(header.getSchemaName(),
-                header.getTableName(), header.getEventType(), changedData));
+    protected void doRowChangeHandle(List<? extends RowChangedData> changedData) {
+        rowChangedData.add(new InstanceRowChangedData(currentHandleSchema,
+                currentHandleTable, currentEventType, changedData));
     }
 
     @Override
@@ -80,13 +79,8 @@ public class InstanceSectionHandle extends AbstractCanalInstanceHandle {
                 return ignore == null ? false : ignore;
             }
         } finally {
-            rowChangedData.clear();
+            if (!rowChangedData.isEmpty()) rowChangedData.clear();
         }
-    }
-
-    @Override
-    public boolean headerFilter(CanalEntry.Header header) {
-        return true;
     }
 
     public static class ExceptionContext {
