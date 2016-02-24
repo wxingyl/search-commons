@@ -6,7 +6,7 @@ import java.util.*;
 
 /**
  * Created by xing on 16/2/25.
- * 可修改的ConditionContainer
+ * 不能修改的ConditionContainer
  */
 public class UnmodifiableConditionContainer extends ConditionContainer {
 
