@@ -37,6 +37,25 @@ public class CanalExecutor {
 
     public CanalExecutor(ThreadFactory threadFactory) {
         this.threadFactory = threadFactory;
+        //jvm退出时执行hook
+        Runtime.getRuntime().addShutdownHook(threadFactory.newThread(new Runnable() {
+            @Override
+            public void run() {
+                lock.writeLock().lock();
+                log.info("run shutdown, going to stop all running canalInstances");
+                try {
+                    for (Map.Entry<String, CanalInstance> e : canalInstanceMap.entrySet()) {
+                        if (e.getValue().running) {
+                            log.warn("shutdown canal instance " + e.getKey());
+                            e.getValue().running = false;
+                        }
+                    }
+                    log.info("run shutdown finish, all canalInstances will be stop as soon as possible");
+                } finally {
+                    lock.writeLock().unlock();
+                }
+            }
+        }));
     }
 
     /**
