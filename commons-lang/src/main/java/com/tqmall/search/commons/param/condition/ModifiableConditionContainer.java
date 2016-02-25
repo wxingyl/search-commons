@@ -5,6 +5,7 @@ import com.tqmall.search.commons.utils.CommonsUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by xing on 16/2/25.
@@ -99,17 +100,17 @@ public class ModifiableConditionContainer extends ConditionContainer {
     }
 
     @Override
-    public Collection<Condition> getMust() {
-        return must == null ? null : Collections.unmodifiableCollection(must);
+    public List<Condition> getMust() {
+        return must == null ? null : Collections.unmodifiableList(must);
     }
 
     @Override
-    public Collection<Condition> getShould() {
-        return should == null ? null : Collections.unmodifiableCollection(should);
+    public List<Condition> getShould() {
+        return should == null ? null : Collections.unmodifiableList(should);
     }
 
     @Override
-    public Collection<Condition> getMustNot() {
-        return mustNot == null ? null : Collections.unmodifiableCollection(mustNot);
+    public List<Condition> getMustNot() {
+        return mustNot == null ? null : Collections.unmodifiableList(mustNot);
     }
 }

@@ -5,6 +5,7 @@ import com.tqmall.search.commons.utils.CommonsUtils;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -26,12 +27,12 @@ public abstract class ConditionContainer implements Serializable {
     /**
      * 且关系条件集合
      */
-    protected Collection<Condition> must;
+    protected List<Condition> must;
     /**
      * 或关系条件集合, 通过{@link #minimumShouldMatch}控制至少匹配条件数, 默认至少匹配1个条件
      * 如果该集合为空, 即{@link CommonsUtils#isEmpty(Collection)}为true, 则不考虑should相关条件
      */
-    protected Collection<Condition> should;
+    protected List<Condition> should;
 
     /**
      * {@link #should} 的最小的匹配条件数目, 当然{@link #should}有值才会有效
@@ -40,22 +41,22 @@ public abstract class ConditionContainer implements Serializable {
     /**
      * 非关系条件集合
      */
-    protected Collection<Condition> mustNot;
+    protected List<Condition> mustNot;
 
     /**
      * @return unmodifiableList
      */
-    public abstract Collection<Condition> getMust();
+    public abstract List<Condition> getMust();
 
     /**
      * @return unmodifiableList
      */
-    public abstract Collection<Condition> getShould();
+    public abstract List<Condition> getShould();
 
     /**
      * @return unmodifiableList
      */
-    public abstract Collection<Condition> getMustNot();
+    public abstract List<Condition> getMustNot();
 
     /**
      * 给定值验证, 3类条件都考虑, 这3个大的条件list之间是且的关系

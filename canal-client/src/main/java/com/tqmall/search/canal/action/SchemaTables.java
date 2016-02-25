@@ -134,9 +134,9 @@ public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
             Objects.requireNonNull(tableName);
             this.tableName = tableName;
             this.action = action;
+            this.columnCondition = columnCondition;
             this.columns = CommonsUtils.isEmpty(columns) ? null
                     : Collections.unmodifiableSet(new HashSet<>(columns));
-            this.columnCondition = columnCondition;
         }
 
         public String getTableName() {

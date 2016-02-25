@@ -7,6 +7,7 @@ import com.tqmall.search.commons.utils.CommonsUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by xing on 16/2/25.
@@ -26,12 +27,17 @@ public class TableColumnCondition {
     private final Map<String, StrValueConvert> columnConvertMap;
 
     public TableColumnCondition(ConditionContainer conditionContainer, Map<String, StrValueConvert> columnConvertMap) {
+        Objects.requireNonNull(conditionContainer);
         this.conditionContainer = conditionContainer;
         if (CommonsUtils.isEmpty(columnConvertMap)) {
             this.columnConvertMap = new HashMap<>(columnConvertMap);
         } else {
             this.columnConvertMap = null;
         }
+    }
+
+    public ConditionContainer getConditionContainer() {
+        return conditionContainer;
     }
 
     /**

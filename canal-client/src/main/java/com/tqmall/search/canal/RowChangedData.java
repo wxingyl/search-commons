@@ -212,7 +212,7 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
         }
         return CommonsUtils.isEmpty(resultList) ? Collections.<RowChangedData>emptyList() : resultList;
     }
-
+    
     /**
      * 判断{@link RowChangedData}对象时间类型
      */
