@@ -1,6 +1,6 @@
 package com.tqmall.search.commons.utils;
 
-import com.tqmall.search.commons.lang.ComparableStrValueConvert;
+import com.tqmall.search.commons.lang.StrValueConvert;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,9 +10,9 @@ import java.util.Date;
 
 /**
  * Created by xing on 16/1/5.
- * {@link Date} 的{@link ComparableStrValueConvert}实现
+ * {@link Date} 的{@link StrValueConvert}实现
  */
-public class DateStrValueConvert implements ComparableStrValueConvert<Date> {
+public class DateStrValueConvert implements StrValueConvert<Date> {
 
     private static final Logger log = LoggerFactory.getLogger(DateStrValueConvert.class);
 
@@ -46,11 +46,6 @@ public class DateStrValueConvert implements ComparableStrValueConvert<Date> {
 
     public DateStrValueConvert(FastDateFormat dateFormat) {
         this.dateFormat = dateFormat;
-    }
-
-    @Override
-    public int compare(Date o1, Date o2) {
-        return o1.compareTo(o2);
     }
 
     @Override

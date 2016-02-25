@@ -43,6 +43,10 @@ public class RangeCondition<T extends Comparable<T>> extends Condition {
             @SuppressWarnings({"rawtypes", "unchecked"})
             T tValue = (T) value;
             return !((start != null && tValue.compareTo(start) < 0) || (end != null && tValue.compareTo(end) > 0));
+        } else if (t instanceof Number && value instanceof Number) {
+            double dValue = ((Number) value).doubleValue();
+            return !((start != null && Double.compare(dValue, ((Number) start).doubleValue()) < 0)
+                    || (end != null && Double.compare(dValue, ((Number) end).doubleValue()) > 0));
         } else return false;
     }
 
@@ -63,39 +67,8 @@ public class RangeCondition<T extends Comparable<T>> extends Condition {
         return 31 * super.hashCode() + HASH_CODE_FACTOR;
     }
 
-    public static <T extends Comparable<T>> Builder<T> build(String field) {
-        return new Builder<>(field);
-    }
-
-    /**
-     * 对于多参数构造, 通过Build构造更好, 最起码能避免参数顺序错误
-     *
-     * @param <T>
-     */
-    public static class Builder<T extends Comparable<T>> {
-
-        private T start, end;
-
-        private String field;
-
-        public Builder(String field) {
-            this.field = field;
-        }
-
-        public Builder start(T start) {
-            this.start = start;
-            return this;
-        }
-
-        public Builder end(T end) {
-            this.end = end;
-            return this;
-        }
-
-        public RangeCondition<T> create() {
-            return new RangeCondition<>(field, start, end);
-        }
-
+    public static <T extends Comparable<T>> RangeCondition<T> build(String field, T start, T end) {
+        return new RangeCondition<>(field, start, end);
     }
 
     /**

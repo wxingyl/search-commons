@@ -2,7 +2,6 @@ package com.tqmall.search.commons.utils;
 
 import com.tqmall.search.commons.lang.HostInfo;
 import com.tqmall.search.commons.lang.StrValueConvert;
-import com.tqmall.search.commons.param.Param;
 import com.tqmall.search.commons.result.MapResult;
 import com.tqmall.search.commons.result.PageResult;
 import com.tqmall.search.commons.result.Result;
@@ -155,7 +154,7 @@ public abstract class HttpUtils {
     }
 
     public static URL buildURL(String host, String path, Map<String, Object> param) {
-        if (param == null || param.isEmpty()) {
+        if (CommonsUtils.isEmpty(param)) {
             return buildURL(host, path, "");
         } else {
             StringBuilder sb = new StringBuilder(128); //default is 16, maybe too small
@@ -400,7 +399,7 @@ public abstract class HttpUtils {
         }
 
         public RequestBase addHeader(Map<String, String> headers) {
-            if (headers != null && !headers.isEmpty()) {
+            if (!CommonsUtils.isEmpty(headers)) {
                 for (Map.Entry<String, String> e : headers.entrySet()) {
                     addHeader(e.getKey(), e.getValue());
                 }

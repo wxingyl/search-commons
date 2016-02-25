@@ -3,6 +3,7 @@ package com.tqmall.search.canal;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.tqmall.search.commons.utils.CommonsUtils;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -21,7 +22,7 @@ public abstract class RowChangedData<V> implements Serializable {
     protected final Map<String, V> fieldValueMap = new HashMap<>();
 
     public RowChangedData(Map<String, V> dataMap) {
-        if (dataMap != null && !dataMap.isEmpty()) {
+        if (!CommonsUtils.isEmpty(dataMap)) {
             fieldValueMap.putAll(dataMap);
         }
     }

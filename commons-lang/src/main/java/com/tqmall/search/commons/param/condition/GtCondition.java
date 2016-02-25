@@ -29,7 +29,9 @@ public class GtCondition<T extends Comparable<T>> extends Condition {
             @SuppressWarnings({"rawtypes", "unchecked"})
             T tValue = (T) value;
             return tValue.compareTo(this.value) > 0;
-        } else return false;
+        } else
+            return this.value instanceof Number && value instanceof Number
+                    && Double.compare(((Number) value).doubleValue(), ((Number) this.value).doubleValue()) > 0;
     }
 
     @Override

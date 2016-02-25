@@ -7,6 +7,6 @@ package com.tqmall.search.commons.lang;
  */
 public interface StrValueConvert<T> {
 
-    T convert(String input);
+    T convert(String str);
 
 }

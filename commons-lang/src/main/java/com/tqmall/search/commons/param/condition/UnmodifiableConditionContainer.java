@@ -10,6 +10,9 @@ import java.util.*;
  */
 public class UnmodifiableConditionContainer extends ConditionContainer {
 
+    /**
+     * 内部的{@link #must}, {@link #should}, {@link #mustNot}直接使用入参对象, 不重新创建了
+     */
     public UnmodifiableConditionContainer(Collection<? extends Condition> must,
                                           Collection<? extends Condition> should,
                                           Collection<? extends Condition> mustNot,
@@ -43,7 +46,7 @@ public class UnmodifiableConditionContainer extends ConditionContainer {
 
         private int minimumShouldMatch;
 
-        private Set<Condition> must = new HashSet<>(), should = new HashSet<>(), mustNot = new HashSet<>();
+        private Set<Condition> must = new LinkedHashSet<>(), should = new LinkedHashSet<>(), mustNot = new LinkedHashSet<>();
 
         public Builder minimumShouldMatch(int minimumShouldMatch) {
             this.minimumShouldMatch = minimumShouldMatch;

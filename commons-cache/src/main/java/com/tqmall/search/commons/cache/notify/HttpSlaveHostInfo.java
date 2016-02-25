@@ -1,8 +1,10 @@
 package com.tqmall.search.commons.cache.notify;
 
 import com.tqmall.search.commons.lang.HostInfo;
+import com.tqmall.search.commons.utils.CommonsUtils;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -23,7 +25,7 @@ public class HttpSlaveHostInfo extends AbstractSlaveHostInfo {
 
     public Map<String, String> requestHeaders;
 
-    private HttpSlaveHostInfo(HostInfo slaveHost){
+    private HttpSlaveHostInfo(HostInfo slaveHost) {
         super(slaveHost);
     }
 
@@ -49,7 +51,7 @@ public class HttpSlaveHostInfo extends AbstractSlaveHostInfo {
 
         private String notifyUrlPath, httpMethod;
 
-        private Map<String, String> requestHeaders;
+        private Map<String, String> requestHeaders = new HashMap<>();
 
         public Build(HostInfo slaveHost) {
             this.slaveHost = slaveHost;
@@ -66,8 +68,8 @@ public class HttpSlaveHostInfo extends AbstractSlaveHostInfo {
         }
 
         public Build requestHeaders(Map<String, String> requestHeaders) {
-            if (requestHeaders != null && !requestHeaders.isEmpty()) {
-                this.requestHeaders = requestHeaders;
+            if (!CommonsUtils.isEmpty(requestHeaders)) {
+                this.requestHeaders.putAll(requestHeaders);
             }
             return this;
         }
@@ -76,7 +78,7 @@ public class HttpSlaveHostInfo extends AbstractSlaveHostInfo {
             HttpSlaveHostInfo info = new HttpSlaveHostInfo(slaveHost);
             info.notifyUrlPath = notifyUrlPath;
             info.httpMethod = httpMethod;
-            if (requestHeaders != null) {
+            if (!requestHeaders.isEmpty()) {
                 info.requestHeaders = Collections.unmodifiableMap(requestHeaders);
             }
             return info;
