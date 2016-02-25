@@ -33,14 +33,14 @@ public final class SearchStringUtils {
     /**
      * 该函数实现来自Apache commons.lang3 的StringUtils中的split()方法的实现, 只是用这一个方法,
      * 为了避免过多依赖(client公共基础包尽量少依赖), 我们直接把该方法代码拿过来.
-     *
-     * 申明: 不是自己原创, 是人家Apache的
-     *       不是自己原创, 是人家Apache的
-     *       不是自己原创, 是人家Apache的
-     *
+     * <p/>
+     * 不是自己原创, 是人家Apache的
+     * 不是自己原创, 是人家Apache的
+     * 不是自己原创, 是人家Apache的
+     * <p/>
      * 重要的事情至少说3变
      * 当然自己有了做了微小改动
-     *
+     * <p/>
      * <p/>
      * 下面的文档也是人家的:
      * <p>Splits the provided text into an array, separator specified.
@@ -89,7 +89,7 @@ public final class SearchStringUtils {
         }
         if (match) {
             list.add(str.substring(start, i));
-        } else if (list.isEmpty()){
+        } else if (list.isEmpty()) {
             return EMPTY_STRING_ARRAY;
         }
         return list.toArray(new String[list.size()]);
@@ -97,11 +97,11 @@ public final class SearchStringUtils {
 
     /**
      * 数组join
-     *
-     * 申明: 不是自己原创, 参考人家Apache
-     *       不是自己原创, 参考人家Apache
-     *       不是自己原创, 参考人家Apache
-     *
+     * <p/>
+     * 不是自己原创, 参考人家Apache
+     * 不是自己原创, 参考人家Apache
+     * 不是自己原创, 参考人家Apache
+     * <p/>
      * 重要的事情至少说3变
      * 当然自己有了做了微小改动
      */
@@ -162,6 +162,7 @@ public final class SearchStringUtils {
     /**
      * 对字符串数组中的每个String做{@link #filterString(String)}操作, 即每个字符串做trim操作, 如果trim后为空, 则置为null
      * 注意: 该方法会破坏入参数据
+     *
      * @param array 字符串数据, 会破坏入参的值
      * @return trim过的字符串
      */

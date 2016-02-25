@@ -15,6 +15,10 @@ import java.util.List;
 /**
  * Created by xing on 16/2/23.
  * canalInstance级别的处理, schema, table的区分完全自己实现
+ * 因为基于canal instance级别执行更新, 所以每次获取数据{@link #messageBatchSize}不宜过大, 该类默认100
+ *
+ * @see #setMessageBatchSize(int)
+ * @see InstanceAction
  */
 public class InstanceSectionHandle extends AbstractCanalInstanceHandle {
 
@@ -40,6 +44,7 @@ public class InstanceSectionHandle extends AbstractCanalInstanceHandle {
     public InstanceSectionHandle(SocketAddress address, InstanceAction instanceAction) {
         super(address, instanceAction.instanceName());
         this.instanceAction = instanceAction;
+        setMessageBatchSize(100);
     }
 
     @Override

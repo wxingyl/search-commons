@@ -126,7 +126,6 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
         return true;
     }
 
-    //TODO 各个事件根据table的column筛选, 以及Update事件向Insert, Delete事件转换
     @Override
     public final void rowChangeHandle(CanalEntry.RowChange rowChange) {
         try {

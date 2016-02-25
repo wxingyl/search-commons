@@ -13,7 +13,10 @@ import java.util.List;
 /**
  * Created by xing on 16/2/23.
  * 基于表级别, 每个事件如果
- * 连续的事件更新, 发现不同表则处理掉
+ * 连续的事件更新, 发现不同schema, table, eventType 则处理掉
+ *
+ * @see #runRowChangeAction()
+ * @see EventTypeAction
  */
 public class EventTypeSectionHandle extends ActionInstanceHandle<EventTypeAction> {
     /**

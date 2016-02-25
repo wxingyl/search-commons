@@ -93,5 +93,5 @@ pom依赖
 
 ##Demo Class
 
-[CanalClientDemo](src/test/java/com/tqmall/search/canal/CanalClientDemo.java)
+[CanalClientDemo.java](src/test/java/com/tqmall/search/canal/CanalClientDemo.java)
 

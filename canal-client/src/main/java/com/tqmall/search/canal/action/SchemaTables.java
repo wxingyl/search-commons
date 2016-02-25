@@ -106,7 +106,7 @@ public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
     }
 
     /**
-     * //TODO {@link #columns} 列过滤目前还不支持~~~后续很快会添加
+     * table 对象实例
      *
      * @param <V>
      */
@@ -124,16 +124,19 @@ public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
          */
         private final V action;
 
-        public Table(String tableName, V action) {
-            this(tableName, action, null);
-        }
+        /**
+         * 列条件筛选容器
+         */
+        private final TableColumnCondition columnCondition;
 
-        public Table(String tableName, V action, Collection<String> columns) {
-            this.tableName = tableName;
+        public Table(String tableName, V action, Collection<String> columns, TableColumnCondition columnCondition) {
             Objects.requireNonNull(action);
+            Objects.requireNonNull(tableName);
+            this.tableName = tableName;
             this.action = action;
             this.columns = CommonsUtils.isEmpty(columns) ? null
                     : Collections.unmodifiableSet(new HashSet<>(columns));
+            this.columnCondition = columnCondition;
         }
 
         public String getTableName() {
@@ -151,6 +154,10 @@ public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
          */
         public Set<String> getColumns() {
             return columns;
+        }
+
+        public TableColumnCondition getColumnCondition() {
+            return columnCondition;
         }
 
         @Override
@@ -174,8 +181,9 @@ public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
 
         public static class Builder<V> {
             private String tableName;
-            private Set<String> columnSet = new HashSet<>();
             private V action;
+            private Set<String> columnSet = new HashSet<>();
+            private TableColumnCondition columnCondition;
 
             public Builder(String tableName) {
                 this.tableName = tableName;
@@ -200,8 +208,13 @@ public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
                 return this;
             }
 
+            public Builder<V> columnCondition(TableColumnCondition columnCondition) {
+                this.columnCondition = columnCondition;
+                return this;
+            }
+
             public Table<V> create() {
-                return new Table<>(tableName, action, columnSet);
+                return new Table<>(tableName, action, columnSet, columnCondition);
             }
         }
 

@@ -1,21 +1,17 @@
 package com.tqmall.search.canal;
 
 import com.alibaba.otter.canal.protocol.CanalEntry;
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
+import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.utils.CommonsUtils;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by xing on 16/2/22.
  * {@link CanalEntry}中一行数据改动封装
  */
-public abstract class RowChangedData<V> implements Serializable {
+public abstract class RowChangedData<V> implements Function<String, V>, Serializable {
 
     private static final long serialVersionUID = -8712239138384357603L;
 
@@ -27,8 +23,9 @@ public abstract class RowChangedData<V> implements Serializable {
         }
     }
 
-    public V getValue(String field) {
-        return fieldValueMap.get(field);
+    @Override
+    public V apply(String s) {
+        return fieldValueMap.get(s);
     }
 
     public static final class Insert extends RowChangedData<String> {
@@ -87,7 +84,7 @@ public abstract class RowChangedData<V> implements Serializable {
                 for (CanalEntry.Column c : rowData.getBeforeColumnsList()) {
                     update.fieldValueMap.put(c.getName(), new Pair(c.getValue(), null, false));
                 }
-                for (CanalEntry.Column c : rowData.getBeforeColumnsList()) {
+                for (CanalEntry.Column c : rowData.getAfterColumnsList()) {
                     Pair p = update.fieldValueMap.get(c.getName());
                     if (p != null) {
                         p.after = c.getValue();
@@ -102,20 +99,21 @@ public abstract class RowChangedData<V> implements Serializable {
             super(dataMap);
         }
 
-        public String getAfter(String column) {
-            Pair pair;
-            return (pair = fieldValueMap.get(column)) == null ? null : pair.after;
-        }
-
         public String getBefore(String column) {
             Pair pair;
             return (pair = fieldValueMap.get(column)) == null ? null : pair.before;
+        }
+
+        public String getAfter(String column) {
+            Pair pair;
+            return (pair = fieldValueMap.get(column)) == null ? null : pair.after;
         }
 
         public boolean isChanged(String column) {
             Pair pair;
             return (pair = fieldValueMap.get(column)) != null && pair.changed;
         }
+
         /**
          * 将{@link Update}实例转化成{@link Delete}, 当然,能不能转换自己在外面判断
          *
@@ -188,21 +186,31 @@ public abstract class RowChangedData<V> implements Serializable {
      * @return 如果事件类型不对, 则返回一个空的List
      */
     public static List<? extends RowChangedData> build(CanalEntry.RowChange rowChange) {
-        List<? extends RowChangedData> result;
+        Function<CanalEntry.RowData, ? extends RowChangedData> function;
         switch (rowChange.getEventType()) {
             case INSERT:
-                result = Lists.transform(rowChange.getRowDatasList(), Insert.CONVERT);
+                function = Insert.CONVERT;
                 break;
             case DELETE:
-                result = Lists.transform(rowChange.getRowDatasList(), Delete.CONVERT);
+                function = Delete.CONVERT;
                 break;
             case UPDATE:
-                result = Lists.transform(rowChange.getRowDatasList(), Update.CONVERT);
+                function = Update.CONVERT;
                 break;
             default:
-                result = null;
+                function = null;
         }
-        return result == null ? Collections.<RowChangedData>emptyList() : result;
+        List<RowChangedData> resultList = null;
+        if (function != null) {
+            resultList = new ArrayList<>(rowChange.getRowDatasCount());
+            for (CanalEntry.RowData r : rowChange.getRowDatasList()) {
+                RowChangedData data = function.apply(r);
+                if (data != null) {
+                    resultList.add(data);
+                }
+            }
+        }
+        return CommonsUtils.isEmpty(resultList) ? Collections.<RowChangedData>emptyList() : resultList;
     }
 
     /**

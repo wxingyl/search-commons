@@ -11,7 +11,10 @@ import java.util.List;
 /**
  * Created by xing on 16/2/24.
  * table处理级别的{@link CanalInstanceHandle}
- * 连续的事件更新, 发现不同表则处理掉
+ * 连续的事件更新, 发现不同schema, table则处理掉
+ *
+ * @see #runRowChangeAction()
+ * @see TableAction
  */
 public class TableSectionHandle extends ActionInstanceHandle<TableAction> {
     /**
@@ -36,6 +39,7 @@ public class TableSectionHandle extends ActionInstanceHandle<TableAction> {
     }
 
     private void runRowChangeAction() {
+        if (rowChangedDataList.isEmpty()) return;
         schemaTables.getTable(lastSchema, lastTable).getAction().onAction(rowChangedDataList);
         rowChangedDataList.clear();
     }
