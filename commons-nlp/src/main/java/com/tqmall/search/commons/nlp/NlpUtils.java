@@ -54,9 +54,7 @@ public final class NlpUtils {
             log.info("开始加载拼音词库");
             long startTime = System.currentTimeMillis();
             PinyinConvert convert = new PinyinConvert();
-            String msg = "加载拼音词库完成, 耗时: " + (System.currentTimeMillis() - startTime) + "ms";
-            log.info(msg);
-            System.out.println(msg);
+            log.info("加载拼音词库完成, 耗时: " + (System.currentTimeMillis() - startTime) + "ms");
             return convert;
         }
     });
