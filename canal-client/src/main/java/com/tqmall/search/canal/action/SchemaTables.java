@@ -3,6 +3,9 @@ package com.tqmall.search.canal.action;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import com.tqmall.search.commons.param.condition.Condition;
+import com.tqmall.search.commons.param.condition.ConditionContainer;
 import com.tqmall.search.commons.utils.CommonsUtils;
 
 import java.util.*;
@@ -116,7 +119,7 @@ public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
 
         /**
          * 该表中感兴趣的列, 不指定默认不做过滤
-         * 目前还没有添加列过滤支持, 后续很快支持
+         * 建议设置上该值, 防止大量无关数据更新拖累
          */
         private final Set<String> columns;
         /**
@@ -135,8 +138,31 @@ public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
             this.tableName = tableName;
             this.action = action;
             this.columnCondition = columnCondition;
-            this.columns = CommonsUtils.isEmpty(columns) ? null
-                    : Collections.unmodifiableSet(new HashSet<>(columns));
+            if (!CommonsUtils.isEmpty(columns)) {
+                Set<String> columnSet = new HashSet<>(columns);
+                if (columnCondition != null) {
+                    /**
+                     * 要保证在判断条件中的column添加到{@link #columns}
+                     */
+                    ConditionContainer conditionContainer = columnCondition.getConditionContainer();
+                    Function<Condition, String> function = new Function<Condition, String>() {
+                        @Override
+                        public String apply(Condition input) {
+                            return input.getField();
+                        }
+                    };
+                    if (CommonsUtils.isEmpty(conditionContainer.getMust())) {
+                        columnSet.addAll(Lists.transform(conditionContainer.getMust(), function));
+                    }
+                    if (CommonsUtils.isEmpty(conditionContainer.getShould())) {
+                        columnSet.addAll(Lists.transform(conditionContainer.getShould(), function));
+                    }
+                    if (CommonsUtils.isEmpty(conditionContainer.getMustNot())) {
+                        columnSet.addAll(Lists.transform(conditionContainer.getMustNot(), function));
+                    }
+                }
+                this.columns = Collections.unmodifiableSet(columnSet);
+            } else this.columns = null;
         }
 
         public String getTableName() {
@@ -148,7 +174,7 @@ public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
         }
 
         /**
-         * unmodifiableSet
+         * unmodifiableSet, 保证不为null
          *
          * @see Collections#unmodifiableSet(Set)
          */

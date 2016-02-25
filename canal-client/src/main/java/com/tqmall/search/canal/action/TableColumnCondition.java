@@ -46,7 +46,7 @@ public class TableColumnCondition {
      * @param tableRowData table 单条记录数据
      * @return 是否通过条件验证
      */
-    public boolean vaildation(final Function<String, String> tableRowData) {
+    public boolean validation(final Function<String, String> tableRowData) {
         if (CommonsUtils.isEmpty(columnConvertMap)) {
             return conditionContainer.validation(tableRowData);
         } else {

@@ -18,7 +18,7 @@ import java.util.List;
  * @see #runRowChangeAction()
  * @see EventTypeAction
  */
-public class EventTypeSectionHandle extends ActionInstanceHandle<EventTypeAction> {
+public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAction> {
     /**
      * 最近处理的schema
      * 只能canal获取数据的线程访问, 线程不安全的

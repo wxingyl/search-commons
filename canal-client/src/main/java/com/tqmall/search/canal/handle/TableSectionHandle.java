@@ -16,7 +16,7 @@ import java.util.List;
  * @see #runRowChangeAction()
  * @see TableAction
  */
-public class TableSectionHandle extends ActionInstanceHandle<TableAction> {
+public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
     /**
      * 最近处理的schema
      * 只能canal获取数据的线程访问, 线程不安全的

@@ -1,8 +1,8 @@
 package com.tqmall.search.canal.handle;
 
-import com.google.common.base.Function;
 import com.tqmall.search.canal.RowChangedData;
 import com.tqmall.search.canal.action.InstanceAction;
+import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.utils.CommonsUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

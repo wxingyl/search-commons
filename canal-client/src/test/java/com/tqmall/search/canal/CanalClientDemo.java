@@ -1,12 +1,12 @@
 package com.tqmall.search.canal;
 
 import com.alibaba.otter.canal.common.utils.AddressUtils;
-import com.google.common.base.Function;
 import com.tqmall.search.canal.action.AbstractInstanceAction;
 import com.tqmall.search.canal.action.EventTypeAction;
 import com.tqmall.search.canal.action.SchemaTables;
 import com.tqmall.search.canal.action.TableAction;
 import com.tqmall.search.canal.handle.*;
+import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.lang.LazyInit;
 import com.tqmall.search.commons.lang.Supplier;
 

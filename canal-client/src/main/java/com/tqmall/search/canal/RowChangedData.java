@@ -185,7 +185,7 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
      * @param rowChange canal 对应修改的数据
      * @return 如果事件类型不对, 则返回一个空的List
      */
-    public static List<? extends RowChangedData> build(CanalEntry.RowChange rowChange) {
+    public static List<RowChangedData> build(CanalEntry.RowChange rowChange) {
         Function<CanalEntry.RowData, ? extends RowChangedData> function;
         switch (rowChange.getEventType()) {
             case INSERT:
@@ -200,17 +200,16 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
             default:
                 function = null;
         }
-        List<RowChangedData> resultList = null;
         if (function != null) {
-            resultList = new ArrayList<>(rowChange.getRowDatasCount());
+            List<RowChangedData> resultList = new ArrayList<>(rowChange.getRowDatasCount());
             for (CanalEntry.RowData r : rowChange.getRowDatasList()) {
                 RowChangedData data = function.apply(r);
                 if (data != null) {
                     resultList.add(data);
                 }
             }
-        }
-        return CommonsUtils.isEmpty(resultList) ? Collections.<RowChangedData>emptyList() : resultList;
+            return resultList;
+        } else return null;
     }
     
     /**

@@ -114,7 +114,7 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
      * @param rowChange 更改的数据
      * @return 构建的{@link RowChangedData} list
      */
-    protected List<? extends RowChangedData> changedDataParse(CanalEntry.RowChange rowChange) {
+    protected List<RowChangedData> changedDataParse(CanalEntry.RowChange rowChange) {
         return RowChangedData.build(rowChange);
     }
 
@@ -129,7 +129,7 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
     @Override
     public final void rowChangeHandle(CanalEntry.RowChange rowChange) {
         try {
-            List<? extends RowChangedData> changedData = changedDataParse(rowChange);
+            List<RowChangedData> changedData = changedDataParse(rowChange);
             if (!CommonsUtils.isEmpty(changedData)) doRowChangeHandle(changedData);
         } catch (RuntimeException e) {
             if (!exceptionHandle(e, false)) {
