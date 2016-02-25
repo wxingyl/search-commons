@@ -36,6 +36,7 @@ public class TableSectionHandle extends ActionInstanceHandle<TableAction> {
     }
 
     private void runRowChangeAction() {
+        if (rowChangedDataList.isEmpty()) return;
         schemaTables.getTable(lastSchema, lastTable).getAction().onAction(rowChangedDataList);
         rowChangedDataList.clear();
     }
