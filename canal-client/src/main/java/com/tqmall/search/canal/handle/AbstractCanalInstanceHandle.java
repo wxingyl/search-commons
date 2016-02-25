@@ -56,7 +56,7 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
 
     protected abstract void doConnect();
 
-    protected abstract void doRowChangeHandle(List<? extends RowChangedData> changedData);
+    protected abstract void doRowChangeHandle(List<RowChangedData> changedData);
 
     protected abstract void doFinishHandle();
 

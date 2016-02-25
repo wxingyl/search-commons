@@ -78,7 +78,7 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
     }
 
     @Override
-    protected void doRowChangeHandle(List<? extends RowChangedData> changedData) {
+    protected void doRowChangeHandle(List<RowChangedData> changedData) {
         //尽量集中处理
         if (!currentHandleTable.equals(lastTable) || !currentEventType.equals(lastEventType)
                 || !currentHandleSchema.equals(lastSchema)) {

@@ -54,7 +54,7 @@ public class InstanceSectionHandle extends AbstractCanalInstanceHandle {
     }
 
     @Override
-    protected void doRowChangeHandle(List<? extends RowChangedData> changedData) {
+    protected void doRowChangeHandle(List<RowChangedData> changedData) {
         rowChangedData.add(new InstanceRowChangedData(currentHandleSchema,
                 currentHandleTable, currentEventType, changedData));
     }

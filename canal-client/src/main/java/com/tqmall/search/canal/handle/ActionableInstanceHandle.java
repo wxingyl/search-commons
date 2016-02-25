@@ -72,8 +72,7 @@ public abstract class ActionableInstanceHandle<V> extends AbstractCanalInstanceH
 
     /**
      * {@link SchemaTables.Table#columns}有值, 则对于UPDATE操作过滤更改的字段是否包含在{@link SchemaTables.Table#columns}
-     * 对于INSERT类型的记录更新, 如果条件判断没有通过, 可以认为该更新事件没有发生~~~~
-     * 对于DELETE类型的记录更新, 如果条件判断没有通过, 可以认为该数据删除之前就不关心, 那这次删除我们更不关心了~~~
+     * DELETE, INSERT事件执行条件过滤, 对于UPDATE的过滤不在这做, 比较复杂, 由子类自己实现过滤
      *
      * @param rowChange 更改的数据
      * @return 解析结果
@@ -94,6 +93,7 @@ public abstract class ActionableInstanceHandle<V> extends AbstractCanalInstanceH
                 for (String c : columns) {
                     for (CanalEntry.Column ce : columnList) {
                         if (ce.getName().equals(c) && ce.getUpdated()) {
+                            //存在更新, 那直接初始化, 搞定
                             RowChangedData.Update update = RowChangedData.Update.CONVERT.apply(rowData);
                             if (update != null) dataList.add(update);
                             break next;
@@ -105,10 +105,10 @@ public abstract class ActionableInstanceHandle<V> extends AbstractCanalInstanceH
             dataList = super.changedDataParse(rowChange);
         }
         if (CommonsUtils.isEmpty(dataList)) return null;
-        if (currentEventType != CanalEntry.EventType.UPDATE && table.getColumnCondition() != null) {
+        TableColumnCondition columnCondition;
+        if (currentEventType != CanalEntry.EventType.UPDATE && (columnCondition = table.getColumnCondition()) != null) {
             //对于INSERT类型的记录更新, 如果条件判断没有通过, 可以认为该更新事件没有发生~~~~
             //对于DELETE类型的记录更新, 如果条件判断没有通过, 可以认为该数据删除之前就不关心, 那这次删除我们更不关心了~~~
-            TableColumnCondition columnCondition = table.getColumnCondition();
             Iterator<RowChangedData> it = dataList.iterator();
             while (it.hasNext()) {
                 if (!columnCondition.validation(it.next())) {

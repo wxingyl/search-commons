@@ -1,12 +1,16 @@
 package com.tqmall.search.canal.handle;
 
+import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.canal.RowChangedData;
 import com.tqmall.search.canal.action.SchemaTables;
 import com.tqmall.search.canal.action.TableAction;
+import com.tqmall.search.canal.action.TableColumnCondition;
+import com.tqmall.search.commons.lang.Function;
 
 import java.net.SocketAddress;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
 /**
  * Created by xing on 16/2/24.
@@ -53,14 +57,39 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
                 .create();
     }
 
-
     @Override
-    protected void doRowChangeHandle(List<? extends RowChangedData> changedData) {
+    protected void doRowChangeHandle(List<RowChangedData> changedData) {
         //尽量集中处理
         if (!currentHandleTable.equals(lastTable) || !currentHandleSchema.equals(lastSchema)) {
             runRowChangeAction();
             lastSchema = currentHandleSchema;
             lastTable = currentHandleTable;
+        }
+        TableColumnCondition columnCondition;
+        if (currentEventType == CanalEntry.EventType.UPDATE
+                && (columnCondition = schemaTables.getTable(lastSchema, lastTable).getColumnCondition()) != null) {
+            ListIterator<RowChangedData> it = changedData.listIterator();
+            Function<String, String> beforeFunction = UpdateDataFunction.before();
+            Function<String, String> afterFunction = UpdateDataFunction.after();
+            while (it.hasNext()) {
+                RowChangedData.Update update = (RowChangedData.Update) it.next();
+                UpdateDataFunction.setUpdateData(update);
+                try {
+                    boolean beforeInvalid = !columnCondition.validation(beforeFunction);
+                    boolean afterInvalid = !columnCondition.validation(afterFunction);
+                    if (beforeInvalid && afterInvalid) {
+                        //没有数据, 删除
+                        it.remove();
+                    } else if (beforeInvalid) {
+                        it.set(update.transferToInsert());
+                    } else {
+                        it.set(update.transferToDelete());
+                    }
+                } finally {
+                    //要记得清楚掉, 避免内存泄露
+                    UpdateDataFunction.setUpdateData(null);
+                }
+            }
         }
         rowChangedDataList.addAll(changedData);
     }
