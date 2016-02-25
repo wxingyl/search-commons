@@ -62,11 +62,15 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
         dataList.clear();
     }
 
+    /**
+     * UPDATE 事件, 执行条件过滤, 对于多条更新记录, 由于条件过滤, UPDATE事件可能想DELETE, INSERT转换, 这样将本来只需要一次调用
+     * {@link EventTypeAction#onUpdateAction(List)}, 由于{@link RowChangedData.Update}转换, 分隔成多个List, 调用多次各自事
+     * 件处理方法
+     */
     private void runRowChangeAction() {
         if (rowChangedDataList.isEmpty()) return;
         TableColumnCondition columnCondition;
         if (lastEventType == CanalEntry.EventType.UPDATE && (columnCondition = currentSchemaTable.getColumnCondition()) != null) {
-            //UPDATE 事件, 执行条件过滤
             ListIterator<RowChangedData> it = rowChangedDataList.listIterator();
             Function<String, String> beforeFunction = UpdateDataFunction.before();
             Function<String, String> afterFunction = UpdateDataFunction.after();
