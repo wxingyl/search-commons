@@ -44,7 +44,7 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
 
     private void runRowChangeAction() {
         if (rowChangedDataList.isEmpty()) return;
-        schemaTables.getTable(lastSchema, lastTable).getAction().onAction(rowChangedDataList);
+        currentSchemaTable.getAction().onAction(rowChangedDataList);
         rowChangedDataList.clear();
     }
 
@@ -67,14 +67,15 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
         }
         TableColumnCondition columnCondition;
         if (currentEventType == CanalEntry.EventType.UPDATE
-                && (columnCondition = schemaTables.getTable(lastSchema, lastTable).getColumnCondition()) != null) {
+                && (columnCondition = currentSchemaTable.getColumnCondition()) != null) {
             ListIterator<RowChangedData> it = changedData.listIterator();
             Function<String, String> beforeFunction = UpdateDataFunction.before();
             Function<String, String> afterFunction = UpdateDataFunction.after();
-            while (it.hasNext()) {
-                RowChangedData.Update update = (RowChangedData.Update) it.next();
-                UpdateDataFunction.setUpdateData(update);
-                try {
+            try {
+                while (it.hasNext()) {
+                    RowChangedData.Update update = (RowChangedData.Update) it.next();
+                    UpdateDataFunction.setUpdateData(update);
+
                     boolean beforeInvalid = !columnCondition.validation(beforeFunction);
                     boolean afterInvalid = !columnCondition.validation(afterFunction);
                     if (beforeInvalid && afterInvalid) {
@@ -82,13 +83,13 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
                         it.remove();
                     } else if (beforeInvalid) {
                         it.set(update.transferToInsert());
-                    } else {
+                    } else if (afterInvalid) {
                         it.set(update.transferToDelete());
                     }
-                } finally {
-                    //要记得清楚掉, 避免内存泄露
-                    UpdateDataFunction.setUpdateData(null);
                 }
+            } finally {
+                //要记得清楚掉, 避免内存泄露
+                UpdateDataFunction.setUpdateData(null);
             }
         }
         rowChangedDataList.addAll(changedData);

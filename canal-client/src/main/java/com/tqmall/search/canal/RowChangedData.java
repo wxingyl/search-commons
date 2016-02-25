@@ -10,6 +10,9 @@ import java.util.*;
 /**
  * Created by xing on 16/2/22.
  * {@link CanalEntry}中一行数据改动封装
+ * 对于RowChangedData对象, 可以通过{@link #getEventType(RowChangedData)}判断对象类型
+ *
+ * @see #getEventType(RowChangedData)
  */
 public abstract class RowChangedData<V> implements Function<String, V>, Serializable {
 
@@ -211,9 +214,9 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
             return resultList;
         } else return null;
     }
-    
+
     /**
-     * 判断{@link RowChangedData}对象时间类型
+     * 判断{@link RowChangedData}对象事件类型
      */
     public static CanalEntry.EventType getEventType(RowChangedData data) {
         return data instanceof RowChangedData.Update ? CanalEntry.EventType.UPDATE :

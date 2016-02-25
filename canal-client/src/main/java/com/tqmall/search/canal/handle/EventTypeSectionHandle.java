@@ -4,11 +4,11 @@ import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.canal.RowChangedData;
 import com.tqmall.search.canal.action.EventTypeAction;
 import com.tqmall.search.canal.action.SchemaTables;
+import com.tqmall.search.canal.action.TableColumnCondition;
+import com.tqmall.search.commons.lang.Function;
 
 import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by xing on 16/2/23.
@@ -50,31 +50,68 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private <T extends RowChangedData> List<T> rowChangedDataTransfer(List<T> list) {
-        for (RowChangedData r : rowChangedDataList) {
-            list.add((T) r);
+    private void runEventTypeOfAction(int eventType, List<? extends RowChangedData> dataList) {
+        if (eventType == CanalEntry.EventType.UPDATE_VALUE) {
+            currentSchemaTable.getAction().onUpdateAction(Collections.unmodifiableList((List<RowChangedData.Update>) dataList));
+        } else if (eventType == CanalEntry.EventType.INSERT_VALUE) {
+            currentSchemaTable.getAction().onInsertAction(Collections.unmodifiableList((List<RowChangedData.Insert>) dataList));
+        } else {
+            currentSchemaTable.getAction().onDeleteAction(Collections.unmodifiableList((List<RowChangedData.Delete>) dataList));
         }
-        return list;
+        //这儿清楚掉
+        dataList.clear();
     }
 
     private void runRowChangeAction() {
         if (rowChangedDataList.isEmpty()) return;
-        EventTypeAction action = schemaTables.getTable(lastSchema, lastTable).getAction();
-        switch (lastEventType) {
-            case DELETE:
-                action.onDeleteAction(rowChangedDataTransfer(new ArrayList<RowChangedData.Delete>()));
-                break;
-            case UPDATE:
-                action.onUpdateAction(rowChangedDataTransfer(new ArrayList<RowChangedData.Update>()));
-                break;
-            case INSERT:
-                action.onInsertAction(rowChangedDataTransfer(new ArrayList<RowChangedData.Insert>()));
-                break;
-            default:
-                //can not reach here
-                throw new UnsupportedOperationException("unsupported eventType: " + lastEventType);
+        TableColumnCondition columnCondition;
+        if (lastEventType == CanalEntry.EventType.UPDATE && (columnCondition = currentSchemaTable.getColumnCondition()) != null) {
+            //UPDATE 事件, 执行条件过滤
+            ListIterator<RowChangedData> it = rowChangedDataList.listIterator();
+            Function<String, String> beforeFunction = UpdateDataFunction.before();
+            Function<String, String> afterFunction = UpdateDataFunction.after();
+            try {
+                int lastType = -1, i = 0;
+                while (it.hasNext()) {
+                    RowChangedData.Update update = (RowChangedData.Update) it.next();
+                    UpdateDataFunction.setUpdateData(update);
+                    boolean beforeInvalid = !columnCondition.validation(beforeFunction);
+                    boolean afterInvalid = !columnCondition.validation(afterFunction);
+                    int curType;
+                    if (beforeInvalid && afterInvalid) {
+                        //没有数据, 删除
+                        it.remove();
+                        continue;
+                    } else if (beforeInvalid) {
+                        it.set(update.transferToInsert());
+                        curType = CanalEntry.EventType.INSERT_VALUE;
+                    } else if (afterInvalid) {
+                        it.set(update.transferToDelete());
+                        curType = CanalEntry.EventType.DELETE_VALUE;
+                    } else {
+                        curType = CanalEntry.EventType.UPDATE_VALUE;
+                    }
+                    i++;
+                    if (lastType == -1) {
+                        lastType = curType;
+                    } else if (lastType != curType) {
+                        runEventTypeOfAction(lastType, rowChangedDataList.subList(0, i));
+                        //从头开始
+                        it = rowChangedDataList.listIterator();
+                        i = 0;
+                        lastType = curType;
+                    }
+                }
+                if (i > 0) {
+                    runEventTypeOfAction(lastType, rowChangedDataList);
+                }
+            } finally {
+                //要记得清楚掉, 避免内存泄露
+                UpdateDataFunction.setUpdateData(null);
+            }
+        } else {
+            runEventTypeOfAction(currentEventType.getNumber(), rowChangedDataList);
         }
-        rowChangedDataList.clear();
     }
 
     @Override

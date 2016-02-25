@@ -38,6 +38,8 @@ public abstract class ActionableInstanceHandle<V> extends AbstractCanalInstanceH
 
     protected final SchemaTables<V> schemaTables;
 
+    protected SchemaTables.Table<V> currentSchemaTable;
+
     private boolean userLocalTableFilter = true;
 
     /**
@@ -80,10 +82,9 @@ public abstract class ActionableInstanceHandle<V> extends AbstractCanalInstanceH
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     protected List<RowChangedData> changedDataParse(CanalEntry.RowChange rowChange) {
-        SchemaTables.Table table = schemaTables.getTable(currentHandleSchema, currentHandleTable);
         List<RowChangedData> dataList;
         Set<String> columns;
-        if (currentEventType == CanalEntry.EventType.UPDATE && (columns = table.getColumns()) != null) {
+        if (currentEventType == CanalEntry.EventType.UPDATE && (columns = currentSchemaTable.getColumns()) != null) {
             dataList = new ArrayList<>();
             Iterator<CanalEntry.RowData> it = rowChange.getRowDatasList().iterator();
             next:
@@ -106,7 +107,8 @@ public abstract class ActionableInstanceHandle<V> extends AbstractCanalInstanceH
         }
         if (CommonsUtils.isEmpty(dataList)) return null;
         TableColumnCondition columnCondition;
-        if (currentEventType != CanalEntry.EventType.UPDATE && (columnCondition = table.getColumnCondition()) != null) {
+        if (currentEventType != CanalEntry.EventType.UPDATE
+                && (columnCondition = currentSchemaTable.getColumnCondition()) != null) {
             //对于INSERT类型的记录更新, 如果条件判断没有通过, 可以认为该更新事件没有发生~~~~
             //对于DELETE类型的记录更新, 如果条件判断没有通过, 可以认为该数据删除之前就不关心, 那这次删除我们更不关心了~~~
             Iterator<RowChangedData> it = dataList.iterator();
@@ -165,6 +167,7 @@ public abstract class ActionableInstanceHandle<V> extends AbstractCanalInstanceH
 
     @Override
     public boolean startHandle(CanalEntry.Header header) {
-        return super.startHandle(header) && schemaTables.getTable(currentHandleSchema, currentHandleTable) != null;
+        super.startHandle(header);
+        return (currentSchemaTable = schemaTables.getTable(currentHandleSchema, currentHandleTable)) != null;
     }
 }
