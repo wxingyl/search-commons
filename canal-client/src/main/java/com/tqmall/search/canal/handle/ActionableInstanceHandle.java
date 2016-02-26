@@ -3,6 +3,7 @@ package com.tqmall.search.canal.handle;
 import com.alibaba.otter.canal.client.CanalConnector;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.canal.RowChangedData;
+import com.tqmall.search.canal.action.Schema;
 import com.tqmall.search.canal.action.SchemaTables;
 import com.tqmall.search.canal.action.TableColumnCondition;
 import com.tqmall.search.commons.lang.Function;
@@ -38,7 +39,7 @@ public abstract class ActionableInstanceHandle<V> extends AbstractCanalInstanceH
 
     protected final SchemaTables<V> schemaTables;
 
-    protected SchemaTables.Table<V> currentSchemaTable;
+    protected Schema<V>.Table currentSchemaTable;
 
     private boolean userLocalTableFilter = true;
 
@@ -59,9 +60,9 @@ public abstract class ActionableInstanceHandle<V> extends AbstractCanalInstanceH
         canalConnector.connect();
         if (userLocalTableFilter) {
             StringBuilder sb = new StringBuilder();
-            for (SchemaTables.Schema<V> s : schemaTables) {
+            for (Schema<V> s : schemaTables) {
                 String schemaName = s.getSchemaName();
-                for (SchemaTables.Table t : s) {
+                for (Schema<V>.Table t : s) {
                     sb.append(schemaName).append('.').append(t.getTableName()).append(',');
                 }
             }
@@ -73,7 +74,7 @@ public abstract class ActionableInstanceHandle<V> extends AbstractCanalInstanceH
     }
 
     /**
-     * {@link SchemaTables.Table#columns}有值, 则对于UPDATE操作过滤更改的字段是否包含在{@link SchemaTables.Table#columns}
+     * {@link Schema.Table#columns}有值, 则对于UPDATE操作过滤更改的字段是否包含在{@link Schema.Table#columns}
      * DELETE, INSERT事件执行条件过滤, 对于UPDATE的过滤不在这做, 比较复杂, 由子类自己实现过滤
      *
      * @param rowChange 更改的数据

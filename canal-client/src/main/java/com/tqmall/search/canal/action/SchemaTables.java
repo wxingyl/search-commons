@@ -32,7 +32,7 @@ public class SchemaTables<V> implements Iterable<Schema<V>> {
         this.schemaArray = schemas.toArray(new Schema[schemas.size()]);
     }
 
-    public Schema.Table getTable(String schemaName, String tableName) {
+    public Schema<V>.Table getTable(String schemaName, String tableName) {
         for (int i = schemaArray.length - 1; i >= 0; i--) {
             if (schemaArray[i].getSchemaName().equals(schemaName)) {
                 return schemaArray[i].getTable(tableName);

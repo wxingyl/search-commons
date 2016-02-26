@@ -12,7 +12,7 @@ import java.util.*;
  * Created by xing on 16/2/26.
  * schema 对象封装
  */
-public class Schema<V> implements Iterable<Schema.Table> {
+public class Schema<V> implements Iterable<Schema<V>.Table> {
 
     private final String schemaName;
 
