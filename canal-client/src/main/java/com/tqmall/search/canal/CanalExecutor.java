@@ -227,6 +227,7 @@ public class CanalExecutor {
                 }
             }
             log.info("start launching canalInstance: " + handle.instanceName());
+            //如果连接出现异常, 相关配置,变量还没有修改, 所以不用做任何处理,当前线程退出就行
             handle.connect();
             //下面2条代码的顺便不要随意更换~~~
             runningSwitch = true;

@@ -3,6 +3,8 @@ package com.tqmall.search.canal.action;
 import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.lang.StrValueConvert;
 import com.tqmall.search.commons.param.condition.ConditionContainer;
+import com.tqmall.search.commons.param.condition.EqualCondition;
+import com.tqmall.search.commons.param.condition.UnmodifiableConditionContainer;
 import com.tqmall.search.commons.utils.CommonsUtils;
 
 import java.util.HashMap;
@@ -14,6 +16,15 @@ import java.util.Objects;
  * table中基于列的刷选条件容器
  */
 public class TableColumnCondition {
+
+    /**
+     * 默认的逻辑删除表字段过滤器
+     * 字段名: "is_deleted"
+     * 有效值: "N"
+     */
+    public static final TableColumnCondition DEFAULT_DELETE_COLUMN_CONDITION = new TableColumnCondition(UnmodifiableConditionContainer.build()
+            .addMust(EqualCondition.build("is_deleted", "N"))
+            .create(), null);
 
     private final ConditionContainer conditionContainer;
 
@@ -30,9 +41,9 @@ public class TableColumnCondition {
         Objects.requireNonNull(conditionContainer);
         this.conditionContainer = conditionContainer;
         if (CommonsUtils.isEmpty(columnConvertMap)) {
-            this.columnConvertMap = new HashMap<>(columnConvertMap);
-        } else {
             this.columnConvertMap = null;
+        } else {
+            this.columnConvertMap = new HashMap<>(columnConvertMap);
         }
     }
 

@@ -10,6 +10,8 @@ import java.util.*;
  */
 public class UnmodifiableConditionContainer extends ConditionContainer {
 
+    private static final long serialVersionUID = -8399218221802294566L;
+
     public UnmodifiableConditionContainer(Collection<? extends Condition> must,
                                           Collection<? extends Condition> should,
                                           Collection<? extends Condition> mustNot,

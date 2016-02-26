@@ -1,19 +1,19 @@
 package com.tqmall.search.canal;
 
 import com.alibaba.otter.canal.common.utils.AddressUtils;
-import com.tqmall.search.canal.action.AbstractInstanceAction;
-import com.tqmall.search.canal.action.EventTypeAction;
-import com.tqmall.search.canal.action.SchemaTables;
-import com.tqmall.search.canal.action.TableAction;
+import com.tqmall.search.canal.action.*;
 import com.tqmall.search.canal.handle.*;
 import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.lang.LazyInit;
 import com.tqmall.search.commons.lang.Supplier;
+import com.tqmall.search.commons.utils.CommonsUtils;
+import org.junit.Test;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by xing on 16/2/24.
@@ -26,7 +26,6 @@ import java.util.List;
  * @see #startInstance()
  */
 public class CanalClientDemo {
-
     /**
      * 最好单例~~~
      */
@@ -46,6 +45,45 @@ public class CanalClientDemo {
      * canal server ip地址, 这儿就直接取本地了
      */
     private final static SocketAddress LOCAL_ADDRESS = new InetSocketAddress(AddressUtils.getHostAddress(), CANAL_PORT);
+
+    public static String toString(SchemaTables.Table table, List<? extends RowChangedData> changedData) {
+        if (CommonsUtils.isEmpty(changedData)) return null;
+        else if (table.getColumns() == null) return changedData.toString();
+        StringBuilder sb = new StringBuilder(512);
+        sb.append('[');
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        Set<String> columnSet = table.getColumns();
+        for (RowChangedData row : changedData) {
+            sb.append(RowChangedData.getEventType(row)).append(':');
+            sb.append('{');
+            for (String column : columnSet) {
+                sb.append(column).append(':').append(row.apply(column)).append(',');
+            }
+            sb.deleteCharAt(sb.length() - 1);
+            sb.append('}');
+        }
+        sb.append(']');
+        return sb.toString();
+    }
+
+    @Test
+    public void runCanalInstanceTest() {
+        SchemaTables<TableAction> schemas = SchemaTables.<TableAction>builder()
+                .add("dev_autoparts", SchemaTables.Table.<TableAction>build("db_goods_stock")
+                        .columns("id", "goods_id", "goods_number")
+                        .columnCondition(TableColumnCondition.DEFAULT_DELETE_COLUMN_CONDITION)
+                        .action(new TableAction() {
+                            @Override
+                            public void onAction(List<? extends RowChangedData> changedData) {
+                                System.out.println(changedData);
+                            }
+                        })
+                        .create())
+                .create();
+        TableSectionHandle tableSectionHandle = new TableSectionHandle(LOCAL_ADDRESS, "shop", schemas);
+        INSTANCE.getInstance().addInstanceHandle(tableSectionHandle);
+        INSTANCE.getInstance().startInstance("shop");
+    }
 
     /**
      * 添加{@link InstanceSectionHandle}

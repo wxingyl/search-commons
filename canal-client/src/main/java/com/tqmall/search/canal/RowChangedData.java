@@ -31,6 +31,11 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
         return fieldValueMap.get(s);
     }
 
+    @Override
+    public String toString() {
+        return fieldValueMap.toString();
+    }
+
     public static final class Insert extends RowChangedData<String> {
 
         private static final long serialVersionUID = -2687037454927572799L;
@@ -51,6 +56,10 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
             super(dataMap);
         }
 
+        @Override
+        public String toString() {
+            return CanalEntry.EventType.INSERT.toString() + ':' + super.toString();
+        }
     }
 
     public static final class Delete extends RowChangedData<String> {
@@ -73,6 +82,10 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
             super(dataMap);
         }
 
+        @Override
+        public String toString() {
+            return CanalEntry.EventType.DELETE.toString() + ':' + super.toString();
+        }
     }
 
     public static final class Update extends RowChangedData<Pair> {
@@ -142,6 +155,11 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
             }
             return new Insert(dataMap);
         }
+
+        @Override
+        public String toString() {
+            return CanalEntry.EventType.UPDATE.toString() + ':' + super.toString();
+        }
     }
 
     /**
@@ -179,6 +197,11 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
 
         public boolean isChanged() {
             return changed;
+        }
+
+        @Override
+        public String toString() {
+            return "before: " + before + ", after: " + after + ", changed: " + changed;
         }
     }
 

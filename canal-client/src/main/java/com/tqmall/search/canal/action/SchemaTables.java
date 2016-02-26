@@ -151,13 +151,13 @@ public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
                             return input.getField();
                         }
                     };
-                    if (CommonsUtils.isEmpty(conditionContainer.getMust())) {
+                    if (!CommonsUtils.isEmpty(conditionContainer.getMust())) {
                         columnSet.addAll(Lists.transform(conditionContainer.getMust(), function));
                     }
-                    if (CommonsUtils.isEmpty(conditionContainer.getShould())) {
+                    if (!CommonsUtils.isEmpty(conditionContainer.getShould())) {
                         columnSet.addAll(Lists.transform(conditionContainer.getShould(), function));
                     }
-                    if (CommonsUtils.isEmpty(conditionContainer.getMustNot())) {
+                    if (!CommonsUtils.isEmpty(conditionContainer.getMustNot())) {
                         columnSet.addAll(Lists.transform(conditionContainer.getMustNot(), function));
                     }
                 }
@@ -174,7 +174,8 @@ public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
         }
 
         /**
-         * unmodifiableSet, 保证不为null
+         * unmodifiableSet, 如果没有过滤字段, 或者{@link #columns} isEmpty() 为true, 则返回null,
+         * 即返回结果不为null肯定存在感兴趣column
          *
          * @see Collections#unmodifiableSet(Set)
          */
