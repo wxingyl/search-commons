@@ -64,8 +64,9 @@ public class Schema<V> implements Iterable<Schema.Table> {
     /**
      * 创建一个Table对象
      */
-    public void addTable(TableBuilder<V> builder) {
+    public Schema<V> addTable(TableBuilder<V> builder) {
         tableMap.put(builder.tableName, new Table(builder.tableName, builder.action, builder.columns, builder.columnCondition));
+        return this;
     }
 
     public class Table {
@@ -185,10 +186,6 @@ public class Schema<V> implements Iterable<Schema.Table> {
         public TableBuilder<V> columnCondition(TableColumnCondition columnCondition) {
             this.columnCondition = columnCondition;
             return this;
-        }
-
-        public void addToSchema(Schema<V> schema) {
-            schema.addTable(this);
         }
     }
 
