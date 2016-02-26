@@ -1,14 +1,11 @@
 package com.tqmall.search.canal.action;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
-import com.tqmall.search.commons.param.condition.Condition;
-import com.tqmall.search.commons.param.condition.ConditionContainer;
 import com.tqmall.search.commons.utils.CommonsUtils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * Created by xing on 16/2/24.
@@ -18,9 +15,16 @@ import java.util.*;
  * @see TableAction
  * @see EventTypeAction
  */
-public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
+public class SchemaTables<V> implements Iterable<Schema<V>> {
 
     private final Schema<V>[] schemaArray;
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public SchemaTables(Schema<V> schema) {
+        Objects.requireNonNull(schema);
+        this.schemaArray = new Schema[1];
+        this.schemaArray[0] = schema;
+    }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public SchemaTables(Collection<Schema<V>> schemas) {
@@ -28,9 +32,9 @@ public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
         this.schemaArray = schemas.toArray(new Schema[schemas.size()]);
     }
 
-    public Table<V> getTable(String schemaName, String tableName) {
+    public Schema.Table getTable(String schemaName, String tableName) {
         for (int i = schemaArray.length - 1; i >= 0; i--) {
-            if (schemaArray[i].schemaName.equals(schemaName)) {
+            if (schemaArray[i].getSchemaName().equals(schemaName)) {
                 return schemaArray[i].getTable(tableName);
             }
         }
@@ -53,239 +57,4 @@ public class SchemaTables<V> implements Iterable<SchemaTables.Schema<V>> {
         return schemaArray[index];
     }
 
-    public static class Schema<V> implements Iterable<Table<V>> {
-
-        private final String schemaName;
-
-        /**
-         * key tableName
-         */
-        private final Map<String, Table<V>> tableMap = new HashMap<>();
-
-        public Schema(String schemaName, Collection<Table<V>> tables) {
-            if (CommonsUtils.isEmpty(tables)) throw new IllegalArgumentException("tables is null or empty: " + tables);
-            this.schemaName = schemaName;
-            for (Table<V> t : tables) {
-                tableMap.put(t.getTableName(), t);
-            }
-        }
-
-        public String getSchemaName() {
-            return schemaName;
-        }
-
-        public Table<V> getTable(String tableName) {
-            return tableMap.get(tableName);
-        }
-
-        /**
-         * 不可更改
-         */
-        public Collection<Table<V>> tables() {
-            return Collections.unmodifiableCollection(tableMap.values());
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof Schema)) return false;
-
-            Schema<?> schema = (Schema<?>) o;
-
-            return schemaName.equals(schema.schemaName);
-
-        }
-
-        @Override
-        public int hashCode() {
-            return schemaName.hashCode();
-        }
-
-        @Override
-        public Iterator<Table<V>> iterator() {
-            return Iterators.unmodifiableIterator(tableMap.values().iterator());
-        }
-
-    }
-
-    /**
-     * table 对象实例
-     *
-     * @param <V>
-     */
-    public static class Table<V> {
-
-        private final String tableName;
-
-        /**
-         * 该表中感兴趣的列, 不指定默认不做过滤
-         * 建议设置上该值, 防止大量无关数据更新拖累
-         */
-        private final Set<String> columns;
-        /**
-         * 该表对应事件
-         */
-        private final V action;
-
-        /**
-         * 列条件筛选容器
-         */
-        private final TableColumnCondition columnCondition;
-
-        public Table(String tableName, V action, Collection<String> columns, TableColumnCondition columnCondition) {
-            Objects.requireNonNull(action);
-            Objects.requireNonNull(tableName);
-            this.tableName = tableName;
-            this.action = action;
-            this.columnCondition = columnCondition;
-            if (!CommonsUtils.isEmpty(columns)) {
-                Set<String> columnSet = new HashSet<>(columns);
-                if (columnCondition != null) {
-                    /**
-                     * 要保证在判断条件中的column添加到{@link #columns}
-                     */
-                    ConditionContainer conditionContainer = columnCondition.getConditionContainer();
-                    Function<Condition, String> function = new Function<Condition, String>() {
-                        @Override
-                        public String apply(Condition input) {
-                            return input.getField();
-                        }
-                    };
-                    if (!CommonsUtils.isEmpty(conditionContainer.getMust())) {
-                        columnSet.addAll(Lists.transform(conditionContainer.getMust(), function));
-                    }
-                    if (!CommonsUtils.isEmpty(conditionContainer.getShould())) {
-                        columnSet.addAll(Lists.transform(conditionContainer.getShould(), function));
-                    }
-                    if (!CommonsUtils.isEmpty(conditionContainer.getMustNot())) {
-                        columnSet.addAll(Lists.transform(conditionContainer.getMustNot(), function));
-                    }
-                }
-                this.columns = Collections.unmodifiableSet(columnSet);
-            } else this.columns = null;
-        }
-
-        public String getTableName() {
-            return tableName;
-        }
-
-        public V getAction() {
-            return action;
-        }
-
-        /**
-         * unmodifiableSet, 如果没有过滤字段, 或者{@link #columns} isEmpty() 为true, 则返回null,
-         * 即返回结果不为null肯定存在感兴趣column
-         *
-         * @see Collections#unmodifiableSet(Set)
-         */
-        public Set<String> getColumns() {
-            return columns;
-        }
-
-        public TableColumnCondition getColumnCondition() {
-            return columnCondition;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof Table)) return false;
-
-            Table<?> table = (Table<?>) o;
-
-            return tableName.equals(table.tableName);
-        }
-
-        @Override
-        public int hashCode() {
-            return tableName.hashCode();
-        }
-
-        public static <V> Builder<V> build(String tableName) {
-            return new Builder<>(tableName);
-        }
-
-        public static class Builder<V> {
-            private String tableName;
-            private V action;
-            private Set<String> columnSet = new HashSet<>();
-            private TableColumnCondition columnCondition;
-
-            public Builder(String tableName) {
-                this.tableName = tableName;
-            }
-
-            public Builder<V> action(V action) {
-                this.action = action;
-                return this;
-            }
-
-            public Builder<V> columns(String... columns) {
-                if (columns.length > 0) {
-                    Collections.addAll(this.columnSet, columns);
-                }
-                return this;
-            }
-
-            public Builder<V> columns(Collection<String> columns) {
-                if (!CommonsUtils.isEmpty(columns)) {
-                    this.columnSet.addAll(columns);
-                }
-                return this;
-            }
-
-            public Builder<V> columnCondition(TableColumnCondition columnCondition) {
-                this.columnCondition = columnCondition;
-                return this;
-            }
-
-            public Table<V> create() {
-                return new Table<>(tableName, action, columnSet, columnCondition);
-            }
-        }
-
-    }
-
-    public static <V> Builder<V> builder() {
-        return new Builder<>();
-    }
-
-    public static class Builder<V> {
-
-        private Map<String, Set<Table<V>>> schemaTableMap = new HashMap<>();
-
-        private Set<Table<V>> getOrInit(String schemaName) {
-            Set<Table<V>> tableList = schemaTableMap.get(schemaName);
-            if (tableList == null) {
-                tableList = new HashSet<>();
-                schemaTableMap.put(schemaName, tableList);
-            }
-            return tableList;
-        }
-
-        public Builder<V> add(String schemaName, Collection<? extends Table<V>> tables) {
-            if (CommonsUtils.isEmpty(tables)) throw new IllegalArgumentException("tables is null or empty: "
-                    + tables);
-            getOrInit(schemaName).addAll(tables);
-            return this;
-        }
-
-        @SafeVarargs
-        public final Builder<V> add(String schemaName, Table<V>... tables) {
-            if (tables.length == 0) throw new IllegalArgumentException("tables length is 0");
-            Collections.addAll(getOrInit(schemaName), tables);
-            return this;
-        }
-
-        public SchemaTables<V> create() {
-            return new SchemaTables<>(Collections2.transform(schemaTableMap.entrySet(), new Function<Map.Entry<String, Set<Table<V>>>, Schema<V>>() {
-                @Override
-                public Schema<V> apply(Map.Entry<String, Set<Table<V>>> e) {
-                    return new Schema<>(e.getKey(), e.getValue());
-                }
-            }));
-        }
-
-    }
 }
