@@ -246,4 +246,32 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
                 data instanceof RowChangedData.Insert ? CanalEntry.EventType.INSERT : CanalEntry.EventType.DELETE;
     }
 
+    /**
+     * 将变更的数据转换成String, 方便log记录啥的~~~
+     * 如果对应的table标记了感兴趣的column, 即{@link com.tqmall.search.canal.Schema.Table#columns}, 则只输出对应的column,
+     * 不感兴趣的忽略, 这也是这个函数的价格所在
+     *
+     * @param table       对应的table
+     * @param changedData 变更的数据
+     */
+    public static String toString(Schema.Table table, List<? extends RowChangedData> changedData) {
+        if (CommonsUtils.isEmpty(changedData)) return null;
+        else if (table.getColumns() == null) return changedData.toString();
+        StringBuilder sb = new StringBuilder(512);
+        sb.append('[');
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        Set<String> columnSet = table.getColumns();
+        for (RowChangedData row : changedData) {
+            sb.append(RowChangedData.getEventType(row)).append(':');
+            sb.append('{');
+            for (String column : columnSet) {
+                sb.append(column).append(':').append(row.apply(column)).append(',');
+            }
+            sb.deleteCharAt(sb.length() - 1);
+            sb.append('}');
+        }
+        sb.append(']');
+        return sb.toString();
+    }
+
 }

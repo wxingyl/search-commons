@@ -42,6 +42,12 @@ public interface CanalInstanceHandle {
     void ack(long batchId);
 
     /**
+     * 在本地canal实例线程不断轮询获取数据{@link Message}, 该接口确定轮询的时间间隔
+     * @return 轮询获取变更数据的时间间隔, 时间单位为ms
+     */
+    long fetchInterval();
+
+    /**
      * 回滚到未进行{@link #ack(long)} 的地方，指定回滚具体的batchId
      * <p/>
      * 回滚操作只会在处理发生异常, 后续处理也不能正常处理, 必须停止当前canalInstance才会用到, 其他地方使用意义不大~~~

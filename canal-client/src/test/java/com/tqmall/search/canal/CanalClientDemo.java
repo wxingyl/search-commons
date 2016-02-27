@@ -4,22 +4,19 @@ import com.alibaba.otter.canal.common.utils.AddressUtils;
 import com.tqmall.search.canal.action.*;
 import com.tqmall.search.canal.handle.*;
 import com.tqmall.search.commons.lang.Function;
-import com.tqmall.search.commons.lang.LazyInit;
-import com.tqmall.search.commons.lang.Supplier;
-import com.tqmall.search.commons.utils.CommonsUtils;
+import com.tqmall.search.commons.param.condition.RangeCondition;
+import com.tqmall.search.commons.param.condition.UnmodifiableConditionContainer;
 import org.junit.Test;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by xing on 16/2/24.
  * canal client 使用demo
  *
- * @see #INSTANCE
  * @see #addInstanceSectionCanalInstance()
  * @see #addTableSectionCanalInstance()
  * @see #addEventTypeSectionCanalInstance()
@@ -29,12 +26,7 @@ public class CanalClientDemo {
     /**
      * 最好单例~~~
      */
-    private final static LazyInit<CanalExecutor> INSTANCE = new LazyInit<>(new Supplier<CanalExecutor>() {
-        @Override
-        public CanalExecutor get() {
-            return new CanalExecutor();
-        }
-    });
+    private final static CanalExecutor CANAL_EXECUTOR = new CanalExecutor();
 
     /**
      * canal server 端口, 默认是11111
@@ -46,43 +38,22 @@ public class CanalClientDemo {
      */
     private final static SocketAddress LOCAL_ADDRESS = new InetSocketAddress(AddressUtils.getHostAddress(), CANAL_PORT);
 
-    public static String toString(SchemaTables.Table table, List<? extends RowChangedData> changedData) {
-        if (CommonsUtils.isEmpty(changedData)) return null;
-        else if (table.getColumns() == null) return changedData.toString();
-        StringBuilder sb = new StringBuilder(512);
-        sb.append('[');
-        @SuppressWarnings({"rawtypes", "unchecked"})
-        Set<String> columnSet = table.getColumns();
-        for (RowChangedData row : changedData) {
-            sb.append(RowChangedData.getEventType(row)).append(':');
-            sb.append('{');
-            for (String column : columnSet) {
-                sb.append(column).append(':').append(row.apply(column)).append(',');
-            }
-            sb.deleteCharAt(sb.length() - 1);
-            sb.append('}');
-        }
-        sb.append(']');
-        return sb.toString();
-    }
-
     @Test
     public void runCanalInstanceTest() {
-        SchemaTables<TableAction> schemas = SchemaTables.<TableAction>builder()
-                .add("dev_autoparts", SchemaTables.Table.<TableAction>build("db_goods_stock")
-                        .columns("id", "goods_id", "goods_number")
-                        .columnCondition(TableColumnCondition.DEFAULT_DELETE_COLUMN_CONDITION)
+        final ActionFactory<TableAction> actionFactory = new SingleSchemaActionFactory<>(Schemas.<TableAction>buildSchema("dev_autoparts")
+                .addTable(Schemas.buildTable("db_goods_stock")
                         .action(new TableAction() {
                             @Override
                             public void onAction(List<? extends RowChangedData> changedData) {
                                 System.out.println(changedData);
                             }
                         })
-                        .create())
-                .create();
-        TableSectionHandle tableSectionHandle = new TableSectionHandle(LOCAL_ADDRESS, "shop", schemas);
-        INSTANCE.getInstance().addInstanceHandle(tableSectionHandle);
-        INSTANCE.getInstance().startInstance("shop");
+                        .columns("id", "goods_id", "goods_number")
+                        .columnCondition(TableColumnCondition.DEFAULT_DELETE_COLUMN_CONDITION))
+                .create());
+        TableSectionHandle tableSectionHandle = new TableSectionHandle(LOCAL_ADDRESS, "shop", actionFactory);
+        CANAL_EXECUTOR.addInstanceHandle(tableSectionHandle);
+        CANAL_EXECUTOR.startInstance("shop");
     }
 
     /**
@@ -110,7 +81,7 @@ public class CanalClientDemo {
         instanceSectionHandle.setMessageBatchSize(1000);
         instanceSectionHandle.setMessageTimeout(500L);
 
-        INSTANCE.getInstance().addInstanceHandle(instanceSectionHandle);
+        CANAL_EXECUTOR.addInstanceHandle(instanceSectionHandle);
     }
 
     /**
@@ -118,11 +89,11 @@ public class CanalClientDemo {
      */
     private void addTableSectionCanalInstance() {
 
-        SchemaTables.Builder<TableAction> schemaTablesBuilder = SchemaTables.builder();
-        List<SchemaTables.Table<TableAction>> tableList = new ArrayList<>();
+        List<Schema<TableAction>> schemas = new ArrayList<>();
 
+        List<Schemas.TableBuilder> tableList = new ArrayList<>();
         //添加legend表中的legend_shop和legend_shop_service_info表处理
-        tableList.add(SchemaTables.Table.<TableAction>build("legend_shop")
+        tableList.add(Schemas.buildTable("legend_shop")
                 .action(new TableAction() {
                     @Override
                     public void onAction(List<? extends RowChangedData> changedData) {
@@ -130,9 +101,10 @@ public class CanalClientDemo {
                         //do some work or call some function~~~
                     }
                 })
-                .create()
+                .columnCondition(TableColumnCondition.DEFAULT_DELETE_COLUMN_CONDITION)
         );
-        tableList.add(SchemaTables.Table.<TableAction>build("legend_shop_service_info")
+
+        tableList.add(Schemas.buildTable("legend_shop_service_info")
                 .action(new TableAction() {
                     @Override
                     public void onAction(List<? extends RowChangedData> changedData) {
@@ -141,36 +113,44 @@ public class CanalClientDemo {
                     }
                 })
                 .columns("id", "is_deleted", "name", "service_sn") //目前还不支持列过滤~~~不过很快了~~~
-                .create()
+                //id 取值返回在[10, 100], 并且is_deleted = 'N'
+                .columnCondition(TableColumnCondition.build()
+                        .conditionContainer(UnmodifiableConditionContainer.build()
+                                .addMust(RangeCondition.build("id", 10, 100), TableColumnCondition.IS_DELETED_CONDITION)
+                                .create())
+                        .columnConvert("id", Integer.class)
+                        .create())
         );
         String schemaName = "legend";
-        schemaTablesBuilder.add(schemaName, tableList);
+        schemas.add(Schemas.<TableAction>buildSchema(schemaName)
+                .addTable(tableList)
+                .create());
 
         //添加dandelion表中的activity, member表处理
         schemaName = "dandelion";
-        schemaTablesBuilder.add(schemaName,
-                SchemaTables.Table.<TableAction>build("activity")
+        schemas.add(Schemas.<TableAction>buildSchema(schemaName)
+                .addTable(Schemas.buildTable("activity")
+                        .columnCondition(TableColumnCondition.DEFAULT_DELETE_COLUMN_CONDITION)
                         .action(new TableAction() {
                             @Override
                             public void onAction(List<? extends RowChangedData> changedData) {
                                 //activity表改动对应的处理
                                 //do some work or call some function~~~
                             }
-                        })
-                        .create(),
-                SchemaTables.Table.<TableAction>build("member")
+                        }), Schemas.buildTable("member")
+                        .columnCondition(TableColumnCondition.DEFAULT_DELETE_COLUMN_CONDITION)
                         .action(new TableAction() {
                             @Override
                             public void onAction(List<? extends RowChangedData> changedData) {
                                 //member表改动对应的处理
                                 //do some work or call some function~~~
                             }
-                        })
-                        .create());
+                        }))
+                .create());
 
         //canal实例名称
         String instanceName = "legend-table-section";
-        TableSectionHandle tableSectionHandle = new TableSectionHandle(LOCAL_ADDRESS, instanceName, schemaTablesBuilder.create());
+        TableSectionHandle tableSectionHandle = new TableSectionHandle(LOCAL_ADDRESS, instanceName, new MultiSchemaActionFactory<>(schemas));
 
         //下面是异常处理以及canal连接的一些参数设置, 都有默认值, 需要设置之~~~
         tableSectionHandle.setHandleExceptionFunction(new Function<HandleExceptionContext, Boolean>() {
@@ -185,7 +165,7 @@ public class CanalClientDemo {
         tableSectionHandle.setMessageBatchSize(1000);
         tableSectionHandle.setMessageTimeout(500L);
 
-        INSTANCE.getInstance().addInstanceHandle(tableSectionHandle);
+        CANAL_EXECUTOR.addInstanceHandle(tableSectionHandle);
 
     }
 
@@ -193,103 +173,94 @@ public class CanalClientDemo {
      * 添加{@link EventTypeSectionHandle}
      */
     private void addEventTypeSectionCanalInstance() {
-        SchemaTables.Builder<EventTypeAction> schemaTablesBuilder = SchemaTables.builder();
-        List<SchemaTables.Table<EventTypeAction>> tableList = new ArrayList<>();
+        ActionFactory<EventTypeAction> actionFactory = Schemas.<EventTypeAction>buildFactory()
+                //添加legend表中的legend_shop和legend_shop_service_info表处理
+                .addSchema(Schemas.<EventTypeAction>buildSchema("legend")
+                        .addTable(Schemas.buildTable("legend_shop")
+                                .action(new EventTypeAction() {
+                                    //legend-shop表改动对应的处理
+                                    @Override
+                                    public void onUpdateAction(List<RowChangedData.Update> updatedData) {
+                                        //do some work or call some function~~~
+                                    }
 
-        //添加legend表中的legend_shop和legend_shop_service_info表处理
-        tableList.add(SchemaTables.Table.<EventTypeAction>build("legend_shop")
-                .action(new EventTypeAction() {
-                    //legend-shop表改动对应的处理
-                    @Override
-                    public void onUpdateAction(List<RowChangedData.Update> updatedData) {
-                        //do some work or call some function~~~
-                    }
+                                    @Override
+                                    public void onInsertAction(List<RowChangedData.Insert> insertedData) {
+                                        //do some work or call some function~~~
+                                    }
 
-                    @Override
-                    public void onInsertAction(List<RowChangedData.Insert> insertedData) {
-                        //do some work or call some function~~~
-                    }
+                                    @Override
+                                    public void onDeleteAction(List<RowChangedData.Delete> deletedData) {
+                                        //do some work or call some function~~~
+                                    }
+                                })
+                                .columns("id", "shop_id")
+                                .columnCondition(TableColumnCondition.DEFAULT_DELETE_COLUMN_CONDITION))
+                        .addTable(Schemas.buildTable("legend_shop_service_info")
+                                .action(new EventTypeAction() {
+                                    //legend_shop_service_info表改动对应的处理
+                                    @Override
+                                    public void onUpdateAction(List<RowChangedData.Update> updatedData) {
+                                        //do some work or call some function~~~
+                                    }
 
-                    @Override
-                    public void onDeleteAction(List<RowChangedData.Delete> deletedData) {
-                        //do some work or call some function~~~
-                    }
-                })
-                .create()
-        );
-        tableList.add(SchemaTables.Table.<EventTypeAction>build("legend_shop_service_info")
-                .action(new EventTypeAction() {
-                    //legend_shop_service_info表改动对应的处理
+                                    @Override
+                                    public void onInsertAction(List<RowChangedData.Insert> insertedData) {
+                                        //do some work or call some function~~~
+                                    }
 
-                    @Override
-                    public void onUpdateAction(List<RowChangedData.Update> updatedData) {
-                        //do some work or call some function~~~
-                    }
+                                    @Override
+                                    public void onDeleteAction(List<RowChangedData.Delete> deletedData) {
+                                        //do some work or call some function~~~
+                                    }
+                                })
+                                .columnCondition(TableColumnCondition.DEFAULT_DELETE_COLUMN_CONDITION)))
+                //添加dandelion表中的activity, member表处理
+                .addSchema(Schemas.<EventTypeAction>buildSchema("dandelion")
+                        .addTable(Schemas.buildTable("activity")
+                                .action(new EventTypeAction() {
+                                    //activity表改动对应的处理
 
-                    @Override
-                    public void onInsertAction(List<RowChangedData.Insert> insertedData) {
-                        //do some work or call some function~~~
-                    }
+                                    @Override
+                                    public void onUpdateAction(List<RowChangedData.Update> updatedData) {
+                                        //do some work or call some function~~~
+                                    }
 
-                    @Override
-                    public void onDeleteAction(List<RowChangedData.Delete> deletedData) {
-                        //do some work or call some function~~~
-                    }
-                })
-                .columns("id", "is_deleted", "name", "service_sn") //目前还不支持列过滤~~~不过很快了~~~
-                .create()
-        );
-        String schemaName = "legend";
-        schemaTablesBuilder.add(schemaName, tableList);
+                                    @Override
+                                    public void onInsertAction(List<RowChangedData.Insert> insertedData) {
+                                        //do some work or call some function~~~
+                                    }
 
-        //添加dandelion表中的activity, member表处理
-        schemaName = "dandelion";
-        schemaTablesBuilder.add(schemaName,
-                SchemaTables.Table.<EventTypeAction>build("activity")
-                        .action(new EventTypeAction() {
-                            //activity表改动对应的处理
+                                    @Override
+                                    public void onDeleteAction(List<RowChangedData.Delete> deletedData) {
+                                        //do some work or call some function~~~
+                                    }
+                                }))
+                        .addTable(Schemas.buildTable("member")
+                                .action(new EventTypeAction() {
+                                    //member表改动对应的处理
 
-                            @Override
-                            public void onUpdateAction(List<RowChangedData.Update> updatedData) {
-                                //do some work or call some function~~~
-                            }
+                                    @Override
+                                    public void onUpdateAction(List<RowChangedData.Update> updatedData) {
+                                        //do some work or call some function~~~
+                                    }
 
-                            @Override
-                            public void onInsertAction(List<RowChangedData.Insert> insertedData) {
-                                //do some work or call some function~~~
-                            }
+                                    @Override
+                                    public void onInsertAction(List<RowChangedData.Insert> insertedData) {
+                                        //do some work or call some function~~~
+                                    }
 
-                            @Override
-                            public void onDeleteAction(List<RowChangedData.Delete> deletedData) {
-                                //do some work or call some function~~~
-                            }
-                        })
-                        .create(),
-                SchemaTables.Table.<EventTypeAction>build("member")
-                        .action(new EventTypeAction() {
-                            //member表改动对应的处理
-
-                            @Override
-                            public void onUpdateAction(List<RowChangedData.Update> updatedData) {
-                                //do some work or call some function~~~
-                            }
-
-                            @Override
-                            public void onInsertAction(List<RowChangedData.Insert> insertedData) {
-                                //do some work or call some function~~~
-                            }
-
-                            @Override
-                            public void onDeleteAction(List<RowChangedData.Delete> deletedData) {
-                                //do some work or call some function~~~
-                            }
-                            //member表改动对应的处理
-                        })
-                        .create());
+                                    @Override
+                                    public void onDeleteAction(List<RowChangedData.Delete> deletedData) {
+                                        //do some work or call some function~~~
+                                    }
+                                    //member表改动对应的处理
+                                })))
+                .create();
 
         //canal实例名称
         String instanceName = "legend-event-type-section";
-        EventTypeSectionHandle eventTypeSectionHandle = new EventTypeSectionHandle(LOCAL_ADDRESS, instanceName, schemaTablesBuilder.create());
+        EventTypeSectionHandle eventTypeSectionHandle = new EventTypeSectionHandle(LOCAL_ADDRESS, instanceName, actionFactory);
 
         //下面是异常处理以及canal连接的一些参数设置, 都有默认值, 需要设置之~~~
         eventTypeSectionHandle.setHandleExceptionFunction(new Function<HandleExceptionContext, Boolean>() {
@@ -304,7 +275,7 @@ public class CanalClientDemo {
         eventTypeSectionHandle.setMessageBatchSize(1000);
         eventTypeSectionHandle.setMessageTimeout(500L);
 
-        INSTANCE.getInstance().addInstanceHandle(eventTypeSectionHandle);
+        CANAL_EXECUTOR.addInstanceHandle(eventTypeSectionHandle);
     }
 
     private static final long START_TIMESTAMP = System.currentTimeMillis();
@@ -314,22 +285,22 @@ public class CanalClientDemo {
      */
     private void startInstance() {
         //启动指定的canalInstance
-        INSTANCE.getInstance().startInstance("legend-table-section");
+        CANAL_EXECUTOR.startInstance("legend-table-section");
 
         //启动所有的canalInstance
-        for (String instanceName : INSTANCE.getInstance().allCanalInstance()) {
-            INSTANCE.getInstance().startInstance(instanceName);
+        for (String instanceName : CANAL_EXECUTOR.allCanalInstance()) {
+            CANAL_EXECUTOR.startInstance(instanceName);
         }
 
         //停止Instance
-        for (String instanceName : INSTANCE.getInstance().allCanalInstance()) {
-            INSTANCE.getInstance().stopInstance(instanceName);
+        for (String instanceName : CANAL_EXECUTOR.allCanalInstance()) {
+            CANAL_EXECUTOR.stopInstance(instanceName);
         }
 
         //指定开始时间启动
         //启动所有的canalInstance
-        for (String instanceName : INSTANCE.getInstance().allCanalInstance()) {
-            INSTANCE.getInstance().startInstance(instanceName, START_TIMESTAMP);
+        for (String instanceName : CANAL_EXECUTOR.allCanalInstance()) {
+            CANAL_EXECUTOR.startInstance(instanceName, START_TIMESTAMP);
         }
     }
 

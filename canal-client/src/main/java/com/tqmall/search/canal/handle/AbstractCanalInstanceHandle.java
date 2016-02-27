@@ -35,14 +35,10 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
     private Long messageTimeout = 1000L;
 
     /**
-     * 当前这在处理的schema.table
-     * 每个canalHandle都是单个线程负责调用, 所以这儿也就不用考虑多线程, 如果以后添加了多线程处理, 引入{@link ThreadLocal}
-     *
-     * @see #startHandle(CanalEntry.Header)
+     * 轮询获取变更数据的时间间隔, 默认500ms, 如果对于实时性要求较高可以设置小一些
+     * @see #fetchInterval()
      */
-    protected String currentHandleSchema, currentHandleTable;
-
-    protected CanalEntry.EventType currentEventType;
+    private long fetchInterval = 500L;
 
     /**
      * @param address     canal服务器地址
@@ -119,14 +115,6 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
     }
 
     @Override
-    public boolean startHandle(CanalEntry.Header header) {
-        currentHandleSchema = header.getSchemaName();
-        currentHandleTable = header.getTableName();
-        currentEventType = header.getEventType();
-        return true;
-    }
-
-    @Override
     public final void rowChangeHandle(CanalEntry.RowChange rowChange) {
         try {
             List<RowChangedData> changedData = changedDataParse(rowChange);
@@ -185,4 +173,16 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
         this.messageTimeout = messageTimeout;
     }
 
+    /**
+     * 轮询获取变更数据的时间间隔, 默认500ms, 如果对于实时性要求较高可以设置小一些
+     * @see #fetchInterval()
+     */
+    public void setFetchInterval(long fetchInterval) {
+        this.fetchInterval = fetchInterval;
+    }
+
+    @Override
+    public long fetchInterval() {
+        return fetchInterval;
+    }
 }

@@ -9,7 +9,7 @@ import java.util.List;
  * Table 级别对应的处理Action, 对应{@link com.tqmall.search.canal.handle.TableSectionHandle}
  *
  */
-public interface TableAction {
+public interface TableAction extends Actionable {
 
     void onAction(List<? extends RowChangedData> changedData);
 }

@@ -36,7 +36,7 @@ public final class StrValueConverts {
      * @see DateStrValueConvert
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static <T extends Comparable<T>> StrValueConvert<T> getConvert(Class<T> cls) {
+    public static <T> StrValueConvert<T> getConvert(Class<T> cls) {
         StrValueConvert ret;
         if (cls == Integer.class || cls == Integer.TYPE) {
             ret = IntStrValueConvert.INSTANCE;
@@ -171,7 +171,7 @@ public final class StrValueConverts {
         @Override
         protected Boolean innerConvert(String str) {
             return str.equals("1") || str.equalsIgnoreCase("true") || str.equalsIgnoreCase("on") ||
-                    str.equalsIgnoreCase("yes") || str.equals("y");
+                    str.equalsIgnoreCase("yes") || str.equalsIgnoreCase("y");
         }
 
         @Override

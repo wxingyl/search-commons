@@ -2,9 +2,9 @@ package com.tqmall.search.canal.handle;
 
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.canal.RowChangedData;
-import com.tqmall.search.canal.action.SchemaTables;
-import com.tqmall.search.canal.action.TableAction;
-import com.tqmall.search.canal.action.TableColumnCondition;
+import com.tqmall.search.canal.Schema;
+import com.tqmall.search.canal.TableColumnCondition;
+import com.tqmall.search.canal.action.*;
 import com.tqmall.search.commons.lang.Function;
 
 import java.net.SocketAddress;
@@ -22,15 +22,10 @@ import java.util.ListIterator;
  */
 public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
     /**
-     * 最近处理的schema
-     * 只能canal获取数据的线程访问, 线程不安全的
-     */
-    private String lastSchema;
-    /**
      * 最近处理的table
      * 只能canal获取数据的线程访问, 线程不安全的
      */
-    private String lastTable;
+    private Schema<TableAction>.Table lastTable;
 
     /**
      * 待处理数据集合列表
@@ -38,21 +33,21 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
      */
     private final List<RowChangedData> rowChangedDataList = new LinkedList<>();
 
-    public TableSectionHandle(SocketAddress address, String destination, SchemaTables<TableAction> schemaTables) {
+    public TableSectionHandle(SocketAddress address, String destination, ActionFactory<TableAction> schemaTables) {
         super(address, destination, schemaTables);
     }
 
     private void runRowChangeAction() {
         if (rowChangedDataList.isEmpty()) return;
-        currentSchemaTable.getAction().onAction(rowChangedDataList);
+        currentTable.getAction().onAction(rowChangedDataList);
         rowChangedDataList.clear();
     }
 
     @Override
     protected HandleExceptionContext buildHandleExceptionContext(RuntimeException exception) {
         return HandleExceptionContext.build(exception)
-                .schema(lastSchema)
-                .table(lastTable)
+                .schema(lastTable.getSchemaName())
+                .table(lastTable.getTableName())
                 .changedData(rowChangedDataList)
                 .create();
     }
@@ -60,14 +55,13 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
     @Override
     protected void doRowChangeHandle(List<RowChangedData> changedData) {
         //尽量集中处理
-        if (!currentHandleTable.equals(lastTable) || !currentHandleSchema.equals(lastSchema)) {
+        if (!currentTable.equals(lastTable)) {
             runRowChangeAction();
-            lastSchema = currentHandleSchema;
-            lastTable = currentHandleTable;
+            lastTable = currentTable;
         }
         TableColumnCondition columnCondition;
         if (currentEventType == CanalEntry.EventType.UPDATE
-                && (columnCondition = currentSchemaTable.getColumnCondition()) != null) {
+                && (columnCondition = currentTable.getColumnCondition()) != null) {
             ListIterator<RowChangedData> it = changedData.listIterator();
             Function<String, String> beforeFunction = UpdateDataFunction.before();
             Function<String, String> afterFunction = UpdateDataFunction.after();
@@ -96,7 +90,7 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
     }
 
     /**
-     * 如果出现异常, 可以肯定方法{@link #runRowChangeAction()}至少调用过一次, 那么对应的{@link #lastSchema}, {@link #lastTable}需要更新
+     * 如果出现异常, 可以肯定方法{@link #runRowChangeAction()}至少调用过一次, 那么对应的{@link #lastTable}需要更新
      *
      * @param exception      具体异常
      * @param inFinishHandle 标识是否在{@link #doFinishHandle()}中产生的异常
@@ -105,8 +99,7 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
     @Override
     protected boolean exceptionHandle(RuntimeException exception, boolean inFinishHandle) {
         if (super.exceptionHandle(exception, inFinishHandle)) {
-            lastSchema = currentHandleSchema;
-            lastTable = currentHandleTable;
+            lastTable = currentTable;
             return true;
         } else {
             return false;

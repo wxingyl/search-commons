@@ -10,7 +10,7 @@ import java.util.List;
  * 处理数据更新, 单个表某一事件类型的action, 粒度为table中某一事件类型, 最小粒度
  * 对应{@link EventTypeSectionHandle}
  */
-public interface EventTypeAction {
+public interface EventTypeAction extends Actionable {
 
     /**
      * table 记录更新的Action处理

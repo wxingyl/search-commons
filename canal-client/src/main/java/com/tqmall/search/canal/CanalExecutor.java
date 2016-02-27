@@ -241,6 +241,7 @@ public class CanalExecutor {
                     Message message = handle.getWithoutAck();
                     lastBatchId = message.getId();
                     if (message.getId() <= 0 || message.getEntries().isEmpty()) continue;
+                    long nextFetchTime = System.currentTimeMillis() + handle.fetchInterval();
                     try {
                         for (CanalEntry.Entry e : message.getEntries()) {
                             if (e.getEntryType() != CanalEntry.EntryType.ROWDATA || !e.hasStoreValue()) continue;
@@ -259,6 +260,14 @@ public class CanalExecutor {
                         handle.ack(lastBatchId);
                     } finally {
                         handle.finishMessageHandle();
+                    }
+                    long sleepTime = nextFetchTime - System.currentTimeMillis();
+                    //超过20ms那我们就先sleep一下~~~
+                    if (sleepTime > 20L) {
+                        try {
+                            Thread.sleep(sleepTime);
+                        } catch (InterruptedException ignored) {
+                        }
                     }
                 }
             } catch (RuntimeException e) {

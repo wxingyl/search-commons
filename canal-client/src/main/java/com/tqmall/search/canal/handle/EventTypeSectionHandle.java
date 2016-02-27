@@ -3,12 +3,16 @@ package com.tqmall.search.canal.handle;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.canal.RowChangedData;
 import com.tqmall.search.canal.action.EventTypeAction;
-import com.tqmall.search.canal.action.SchemaTables;
-import com.tqmall.search.canal.action.TableColumnCondition;
+import com.tqmall.search.canal.Schema;
+import com.tqmall.search.canal.action.ActionFactory;
+import com.tqmall.search.canal.TableColumnCondition;
 import com.tqmall.search.commons.lang.Function;
 
 import java.net.SocketAddress;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
  * Created by xing on 16/2/23.
@@ -20,15 +24,10 @@ import java.util.*;
  */
 public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAction> {
     /**
-     * 最近处理的schema
-     * 只能canal获取数据的线程访问, 线程不安全的
-     */
-    private String lastSchema;
-    /**
      * 最近处理的table
      * 只能canal获取数据的线程访问, 线程不安全的
      */
-    private String lastTable;
+    private Schema<EventTypeAction>.Table lastTable;
     /**
      * 最近处理的tableEvent
      * 只能canal获取数据的线程访问, 线程不安全的
@@ -45,18 +44,18 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
      * @param address     canal服务器地址
      * @param destination canal实例名称
      */
-    public EventTypeSectionHandle(SocketAddress address, String destination, SchemaTables<EventTypeAction> schemaTables) {
+    public EventTypeSectionHandle(SocketAddress address, String destination, ActionFactory<EventTypeAction> schemaTables) {
         super(address, destination, schemaTables);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void runEventTypeOfAction(int eventType, List<? extends RowChangedData> dataList) {
         if (eventType == CanalEntry.EventType.UPDATE_VALUE) {
-            currentSchemaTable.getAction().onUpdateAction(Collections.unmodifiableList((List<RowChangedData.Update>) dataList));
+            currentTable.getAction().onUpdateAction(Collections.unmodifiableList((List<RowChangedData.Update>) dataList));
         } else if (eventType == CanalEntry.EventType.INSERT_VALUE) {
-            currentSchemaTable.getAction().onInsertAction(Collections.unmodifiableList((List<RowChangedData.Insert>) dataList));
+            currentTable.getAction().onInsertAction(Collections.unmodifiableList((List<RowChangedData.Insert>) dataList));
         } else {
-            currentSchemaTable.getAction().onDeleteAction(Collections.unmodifiableList((List<RowChangedData.Delete>) dataList));
+            currentTable.getAction().onDeleteAction(Collections.unmodifiableList((List<RowChangedData.Delete>) dataList));
         }
         //这儿清楚掉
         dataList.clear();
@@ -70,7 +69,7 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
     private void runRowChangeAction() {
         if (rowChangedDataList.isEmpty()) return;
         TableColumnCondition columnCondition;
-        if (lastEventType == CanalEntry.EventType.UPDATE && (columnCondition = currentSchemaTable.getColumnCondition()) != null) {
+        if (lastEventType == CanalEntry.EventType.UPDATE && (columnCondition = currentTable.getColumnCondition()) != null) {
             ListIterator<RowChangedData> it = rowChangedDataList.listIterator();
             Function<String, String> beforeFunction = UpdateDataFunction.before();
             Function<String, String> afterFunction = UpdateDataFunction.after();
@@ -121,18 +120,16 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
     @Override
     protected void doRowChangeHandle(List<RowChangedData> changedData) {
         //尽量集中处理
-        if (!currentHandleTable.equals(lastTable) || !currentEventType.equals(lastEventType)
-                || !currentHandleSchema.equals(lastSchema)) {
+        if (!currentTable.equals(lastTable) || currentEventType != lastEventType) {
             runRowChangeAction();
-            lastSchema = currentHandleSchema;
-            lastTable = currentHandleTable;
+            lastTable = currentTable;
             lastEventType = currentEventType;
         }
         rowChangedDataList.addAll(changedData);
     }
 
     /**
-     * 如果出现异常, 可以肯定方法{@link #runRowChangeAction()}至少调用过一次, 那么对应的{@link #lastSchema}, {@link #lastTable},
+     * 如果出现异常, 可以肯定方法{@link #runRowChangeAction()}至少调用过一次, 那么对应的, {@link #lastTable},
      * {@link #lastEventType} 需要更新
      *
      * @param exception      具体异常
@@ -142,8 +139,7 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
     @Override
     protected boolean exceptionHandle(RuntimeException exception, boolean inFinishHandle) {
         if (super.exceptionHandle(exception, inFinishHandle)) {
-            lastSchema = currentHandleSchema;
-            lastTable = currentHandleTable;
+            lastTable = currentTable;
             lastEventType = currentEventType;
             return true;
         } else {
@@ -165,8 +161,8 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
     @Override
     protected HandleExceptionContext buildHandleExceptionContext(RuntimeException exception) {
         return HandleExceptionContext.build(exception)
-                .schema(lastSchema)
-                .table(lastTable)
+                .schema(lastTable.getSchemaName())
+                .table(lastTable.getTableName())
                 .eventType(lastEventType)
                 .changedData(rowChangedDataList)
                 .create();

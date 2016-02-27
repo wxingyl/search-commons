@@ -1,5 +1,6 @@
 package com.tqmall.search.canal.handle;
 
+import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.canal.RowChangedData;
 import com.tqmall.search.canal.action.InstanceAction;
 import com.tqmall.search.commons.lang.Function;
@@ -31,6 +32,17 @@ public class InstanceSectionHandle extends AbstractCanalInstanceHandle {
     private final List<InstanceRowChangedData> rowChangedData = new LinkedList<>();
 
     private final InstanceAction instanceAction;
+
+
+    /**
+     * 当前这在处理的schema.table
+     * 每个canalHandle都是单个线程负责调用, 所以这儿也就不用考虑多线程, 如果以后添加了多线程处理, 引入{@link ThreadLocal}
+     *
+     * @see #startHandle(CanalEntry.Header)
+     */
+    protected String currentHandleSchema, currentHandleTable;
+
+    protected CanalEntry.EventType currentEventType;
 
     /**
      * 异常处理方法, 返回结果表示是否忽略, 如果返回null 则为false, 即不忽略, 默认不忽略
@@ -86,6 +98,17 @@ public class InstanceSectionHandle extends AbstractCanalInstanceHandle {
         } finally {
             if (!rowChangedData.isEmpty()) rowChangedData.clear();
         }
+    }
+
+    /**
+     * 不做筛选
+     */
+    @Override
+    public boolean startHandle(CanalEntry.Header header) {
+        currentHandleSchema = header.getSchemaName();
+        currentHandleTable = header.getTableName();
+        currentEventType = header.getEventType();
+        return true;
     }
 
     public static class ExceptionContext {

@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Set;
 
 /**
  * Created by xing on 16/2/8.
@@ -24,12 +24,7 @@ public class Segment {
 
     private final AcStrBinaryTrie acBinaryTrie;
 
-    /**
-     * 给下面的{@link #stopWords}使用, 实现ConcurrentSet的功能
-     */
-    private final Object PRESENT = new Object();
-
-    private final ConcurrentMap<String, Object> stopWords;
+    private final Set<String> stopWords;
 
     private BinaryMatchTrie<Void> binaryMatchTrie;
 
@@ -75,32 +70,32 @@ public class Segment {
 
         });
         log.info("加载词库: " + lexicon + "完成, 共耗时: " + (System.currentTimeMillis() - startTime) + "ms");
-        stopWords = new ConcurrentHashMap<>();
+        stopWords = new HashSet<>();
         NlpUtils.loadLexicon(NlpConst.STOPWORD_FILE_NAME, new NlpUtils.LineHandle() {
             @Override
             public boolean onHandle(String line) {
-                stopWords.put(line, PRESENT);
+                stopWords.add(line);
                 return true;
             }
         });
     }
 
     /**
-     * 新加指定停止词
+     * 新加指定停止词, 这儿修改不做多线程同步, 没加该停止词之前也在分词, 一样的~~~
      *
      * @return 添加是否成功
      */
     public boolean addStopWord(String word) {
-        return stopWords.put(word, PRESENT) == null;
+        return stopWords.add(word);
     }
 
     /**
-     * 删除停止词
+     * 删除停止词, 这儿修改不做多线程同步, 没加该停止词之前也在分词, 一样的~~~
      *
      * @return 删除是否成功
      */
     public boolean removeStopWord(String word) {
-        return stopWords.remove(word) == PRESENT;
+        return stopWords.remove(word);
     }
 
     /**
@@ -139,13 +134,13 @@ public class Segment {
     private List<Hit<Void>> hitsFilter(Hits<Void> hits) {
         List<Hit<Void>> segmentList = new ArrayList<>();
         for (Hit<Void> h : hits) {
-            if (stopWords.containsKey(h.getMatchKey())) continue;
+            if (stopWords.contains(h.getMatchKey())) continue;
             segmentList.add(h);
         }
         if (hits.getUnknownCharacters() != null) {
             for (MatchCharacter m : hits.getUnknownCharacters()) {
                 String str = String.valueOf(m.getCharacter());
-                if (stopWords.containsKey(str)) continue;
+                if (stopWords.contains(str)) continue;
                 segmentList.add(new Hit<Void>(m.getSrcPos(), str, null));
             }
         }

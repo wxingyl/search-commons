@@ -1,7 +1,9 @@
-package com.tqmall.search.canal.action;
+package com.tqmall.search.canal;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import com.tqmall.search.canal.action.Actionable;
 import com.tqmall.search.commons.param.condition.Condition;
 import com.tqmall.search.commons.param.condition.ConditionContainer;
 import com.tqmall.search.commons.utils.CommonsUtils;
@@ -10,9 +12,15 @@ import java.util.*;
 
 /**
  * Created by xing on 16/2/26.
- * schema 对象封装
+ * schema 对象封装, 为了保证table在创建完成之后不可修改, 做了只能通过提供的静态方法构造的限制
+ * <p/>
+ * {@link #iterator()}不可修改的, 即{@link Iterator#remove()}操纵不支持
+ *
+ * @see Schemas#buildSchema(String)
+ * @see Schemas.Builder
+ * @see Schemas#buildTable(String)
  */
-public class Schema<V> implements Iterable<Schema<V>.Table> {
+public class Schema<V extends Actionable> implements Iterable<Schema<V>.Table> {
 
     private final String schemaName;
 
@@ -21,7 +29,13 @@ public class Schema<V> implements Iterable<Schema<V>.Table> {
      */
     private final Map<String, Table> tableMap = new HashMap<>();
 
-    public Schema(String schemaName) {
+    /**
+     * 为了保证table在创建完成之后不可修改, 做了只能通过提供的静态方法构造的限制
+     *
+     * @see Schemas#buildSchema(String)
+     * @see Schemas#buildTable(String)
+     */
+    Schema(String schemaName) {
         this.schemaName = schemaName;
     }
 
@@ -34,7 +48,7 @@ public class Schema<V> implements Iterable<Schema<V>.Table> {
     }
 
     /**
-     * 不可更改
+     * 获取所有table集合, 不可更改
      */
     public Collection<Table> tables() {
         return Collections.unmodifiableCollection(tableMap.values());
@@ -48,7 +62,6 @@ public class Schema<V> implements Iterable<Schema<V>.Table> {
         Schema<?> schema = (Schema<?>) o;
 
         return schemaName.equals(schema.schemaName);
-
     }
 
     @Override
@@ -56,16 +69,21 @@ public class Schema<V> implements Iterable<Schema<V>.Table> {
         return schemaName.hashCode();
     }
 
+    /**
+     * {@link Iterator#remove()}操纵不支持
+     */
     @Override
     public Iterator<Table> iterator() {
-        return tableMap.values().iterator();
+        return Iterators.unmodifiableIterator(tableMap.values().iterator());
     }
 
     /**
      * 创建一个Table对象
      */
-    public Schema<V> addTable(TableBuilder<V> builder) {
-        tableMap.put(builder.tableName, new Table(builder.tableName, builder.action, builder.columns, builder.columnCondition));
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    Schema<V> addTable(Schemas.TableBuilder builder) {
+        tableMap.put(builder.tableName, new Table(builder.tableName, (V) builder.action,
+                builder.columns, builder.columnCondition));
         return this;
     }
 
@@ -147,45 +165,19 @@ public class Schema<V> implements Iterable<Schema<V>.Table> {
             return columnCondition;
         }
 
-    }
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Schema.Table)) return false;
 
+            Schema.Table table = (Schema.Table) o;
 
-    public static <V> TableBuilder<V> buildTable(String tableName) {
-        return new TableBuilder<>(tableName);
-    }
-
-    public static class TableBuilder<V> {
-        private String tableName;
-        private V action;
-        private Set<String> columns = new HashSet<>();
-        private TableColumnCondition columnCondition;
-
-        public TableBuilder(String tableName) {
-            this.tableName = tableName;
+            return tableName.equals(table.tableName) && schemaName.equals(table.getSchemaName());
         }
 
-        public TableBuilder<V> action(V action) {
-            this.action = action;
-            return this;
-        }
-
-        public TableBuilder<V> columns(String... columns) {
-            if (columns.length > 0) {
-                Collections.addAll(this.columns, columns);
-            }
-            return this;
-        }
-
-        public TableBuilder<V> columns(Collection<String> columns) {
-            if (!CommonsUtils.isEmpty(columns)) {
-                this.columns.addAll(columns);
-            }
-            return this;
-        }
-
-        public TableBuilder<V> columnCondition(TableColumnCondition columnCondition) {
-            this.columnCondition = columnCondition;
-            return this;
+        @Override
+        public int hashCode() {
+            return 31 * tableName.hashCode() + schemaName.hashCode();
         }
     }
 

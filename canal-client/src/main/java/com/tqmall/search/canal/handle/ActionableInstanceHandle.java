@@ -3,9 +3,10 @@ package com.tqmall.search.canal.handle;
 import com.alibaba.otter.canal.client.CanalConnector;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.canal.RowChangedData;
-import com.tqmall.search.canal.action.Schema;
-import com.tqmall.search.canal.action.SchemaTables;
-import com.tqmall.search.canal.action.TableColumnCondition;
+import com.tqmall.search.canal.Schema;
+import com.tqmall.search.canal.action.ActionFactory;
+import com.tqmall.search.canal.TableColumnCondition;
+import com.tqmall.search.canal.action.Actionable;
 import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.utils.CommonsUtils;
 import org.slf4j.Logger;
@@ -21,9 +22,9 @@ import java.util.Set;
  * Created by xing on 16/2/22.
  * 收集了每个schema.table{@link CanalInstanceHandle}
  *
- * @see #schemaTables
+ * @see #actionFactory
  */
-public abstract class ActionableInstanceHandle<V> extends AbstractCanalInstanceHandle {
+public abstract class ActionableInstanceHandle<V extends Actionable> extends AbstractCanalInstanceHandle {
 
     private static final Logger log = LoggerFactory.getLogger(ActionableInstanceHandle.class);
 
@@ -37,20 +38,28 @@ public abstract class ActionableInstanceHandle<V> extends AbstractCanalInstanceH
      */
     private boolean ignoreHandleException = true;
 
-    protected final SchemaTables<V> schemaTables;
+    protected final ActionFactory<V> actionFactory;
 
-    protected Schema<V>.Table currentSchemaTable;
+    /**
+     * 当前这在处理的schema.table
+     * 每个canalHandle都是单个线程负责调用, 所以这儿也就不用考虑多线程, 如果以后添加了多线程处理, 引入{@link ThreadLocal}
+     *
+     * @see #startHandle(CanalEntry.Header)
+     */
+    protected Schema<V>.Table currentTable;
+
+    protected CanalEntry.EventType currentEventType;
 
     private boolean userLocalTableFilter = true;
 
     /**
-     * @param address      canal服务器地址
-     * @param destination  canal实例名称
-     * @param schemaTables table对应action实例
+     * @param address            canal服务器地址
+     * @param destination        canal实例名称
+     * @param actionFactory table对应action实例
      */
-    public ActionableInstanceHandle(SocketAddress address, String destination, SchemaTables<V> schemaTables) {
+    public ActionableInstanceHandle(SocketAddress address, String destination, ActionFactory<V> actionFactory) {
         super(address, destination);
-        this.schemaTables = schemaTables;
+        this.actionFactory = actionFactory;
     }
 
     protected abstract HandleExceptionContext buildHandleExceptionContext(RuntimeException exception);
@@ -60,7 +69,7 @@ public abstract class ActionableInstanceHandle<V> extends AbstractCanalInstanceH
         canalConnector.connect();
         if (userLocalTableFilter) {
             StringBuilder sb = new StringBuilder();
-            for (Schema<V> s : schemaTables) {
+            for (Schema<V> s : actionFactory) {
                 String schemaName = s.getSchemaName();
                 for (Schema<V>.Table t : s) {
                     sb.append(schemaName).append('.').append(t.getTableName()).append(',');
@@ -85,7 +94,7 @@ public abstract class ActionableInstanceHandle<V> extends AbstractCanalInstanceH
     protected List<RowChangedData> changedDataParse(CanalEntry.RowChange rowChange) {
         List<RowChangedData> dataList;
         Set<String> columns;
-        if (currentEventType == CanalEntry.EventType.UPDATE && (columns = currentSchemaTable.getColumns()) != null) {
+        if (currentEventType == CanalEntry.EventType.UPDATE && (columns = currentTable.getColumns()) != null) {
             dataList = new ArrayList<>();
             Iterator<CanalEntry.RowData> it = rowChange.getRowDatasList().iterator();
             next:
@@ -109,7 +118,7 @@ public abstract class ActionableInstanceHandle<V> extends AbstractCanalInstanceH
         if (CommonsUtils.isEmpty(dataList)) return null;
         TableColumnCondition columnCondition;
         if (currentEventType != CanalEntry.EventType.UPDATE
-                && (columnCondition = currentSchemaTable.getColumnCondition()) != null) {
+                && (columnCondition = currentTable.getColumnCondition()) != null) {
             //对于INSERT类型的记录更新, 如果条件判断没有通过, 可以认为该更新事件没有发生~~~~
             //对于DELETE类型的记录更新, 如果条件判断没有通过, 可以认为该数据删除之前就不关心, 那这次删除我们更不关心了~~~
             Iterator<RowChangedData> it = dataList.iterator();
@@ -157,7 +166,7 @@ public abstract class ActionableInstanceHandle<V> extends AbstractCanalInstanceH
 
     /**
      * {@link #canalConnector}连接时, 需要执行订阅{@link CanalConnector#subscribe()} / {@link CanalConnector#subscribe(String)}
-     * 该变量标识是否使用本地, 即在{@link #schemaTables}中注册的schema, table
+     * 该变量标识是否使用本地, 即在{@link #actionFactory}中注册的schema, table
      * 如果为true, 订阅时生成filter, 提交直接替换canal server服务端配置的filter信息
      * 如果为false, 以canal server服务端配置的filter信息为准
      * 默认为true, 使用本地的filter配置
@@ -168,7 +177,7 @@ public abstract class ActionableInstanceHandle<V> extends AbstractCanalInstanceH
 
     @Override
     public boolean startHandle(CanalEntry.Header header) {
-        super.startHandle(header);
-        return (currentSchemaTable = schemaTables.getTable(currentHandleSchema, currentHandleTable)) != null;
+        currentEventType = header.getEventType();
+        return (currentTable = actionFactory.getTable(header.getSchemaName(), header.getTableName())) != null;
     }
 }
