@@ -14,17 +14,17 @@ import java.util.Iterator;
  * @see TableAction
  * @see EventTypeAction
  */
-public interface ActionFactory<V extends Actionable> extends Iterable<Schema<V>> {
+public interface ActionFactory<T extends Actionable> extends Iterable<Schema<T>> {
 
     /**
      * 通过schemaName, tableName获取对应的{@link Schema.Table}对象
      * 如果对应的table不存在, 返回null
      */
-    Schema<V>.Table getTable(String schemaName, String tableName);
+    Schema<T>.Table getTable(String schemaName, String tableName);
 
     /**
      * 通过schemaName获得对应的{@link Schema}对象
      * 如果对应的table不存在, 返回null
      */
-    Schema<V> getSchema(String schemaName);
+    Schema<T> getSchema(String schemaName);
 }

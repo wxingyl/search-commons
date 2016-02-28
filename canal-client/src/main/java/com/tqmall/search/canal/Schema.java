@@ -20,7 +20,7 @@ import java.util.*;
  * @see Schemas.Builder
  * @see Schemas#buildTable(String)
  */
-public class Schema<V extends Actionable> implements Iterable<Schema<V>.Table> {
+public class Schema<T extends Actionable> implements Iterable<Schema<T>.Table> {
 
     private final String schemaName;
 
@@ -81,8 +81,8 @@ public class Schema<V extends Actionable> implements Iterable<Schema<V>.Table> {
      * 创建一个Table对象
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
-    Schema<V> addTable(Schemas.TableBuilder builder) {
-        tableMap.put(builder.tableName, new Table(builder.tableName, (V) builder.action,
+    Schema<T> addTable(Schemas.TableBuilder builder) {
+        tableMap.put(builder.tableName, new Table(builder.tableName, (T) builder.action,
                 builder.columns, builder.columnCondition));
         return this;
     }
@@ -99,14 +99,14 @@ public class Schema<V extends Actionable> implements Iterable<Schema<V>.Table> {
         /**
          * 该表对应事件
          */
-        private final V action;
+        private final T action;
 
         /**
          * 列条件筛选容器
          */
         private final TableColumnCondition columnCondition;
 
-        Table(String tableName, V action, Collection<String> columns, TableColumnCondition columnCondition) {
+        Table(String tableName, T action, Collection<String> columns, TableColumnCondition columnCondition) {
             Objects.requireNonNull(action);
             Objects.requireNonNull(tableName);
             this.tableName = tableName;
@@ -139,15 +139,15 @@ public class Schema<V extends Actionable> implements Iterable<Schema<V>.Table> {
             } else this.columns = null;
         }
 
-        public String getSchemaName() {
+        public final String getSchemaName() {
             return schemaName;
         }
 
-        public String getTableName() {
+        public final String getTableName() {
             return tableName;
         }
 
-        public V getAction() {
+        public final T getAction() {
             return action;
         }
 
@@ -157,11 +157,11 @@ public class Schema<V extends Actionable> implements Iterable<Schema<V>.Table> {
          *
          * @see Collections#unmodifiableSet(Set)
          */
-        public Set<String> getColumns() {
+        public final Set<String> getColumns() {
             return columns;
         }
 
-        public TableColumnCondition getColumnCondition() {
+        public final TableColumnCondition getColumnCondition() {
             return columnCondition;
         }
 

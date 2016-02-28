@@ -7,6 +7,7 @@ import com.tqmall.search.canal.Schema;
 import com.tqmall.search.canal.action.ActionFactory;
 import com.tqmall.search.canal.TableColumnCondition;
 import com.tqmall.search.canal.action.Actionable;
+import com.tqmall.search.canal.action.CurrentHandleTable;
 import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.utils.CommonsUtils;
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ import java.util.Set;
  *
  * @see #actionFactory
  */
-public abstract class ActionableInstanceHandle<V extends Actionable> extends AbstractCanalInstanceHandle {
+public abstract class ActionableInstanceHandle<T extends Actionable> extends AbstractCanalInstanceHandle {
 
     private static final Logger log = LoggerFactory.getLogger(ActionableInstanceHandle.class);
 
@@ -38,7 +39,7 @@ public abstract class ActionableInstanceHandle<V extends Actionable> extends Abs
      */
     private boolean ignoreHandleException = true;
 
-    protected final ActionFactory<V> actionFactory;
+    protected final ActionFactory<T> actionFactory;
 
     /**
      * 当前这在处理的schema.table
@@ -46,18 +47,18 @@ public abstract class ActionableInstanceHandle<V extends Actionable> extends Abs
      *
      * @see #startHandle(CanalEntry.Header)
      */
-    protected Schema<V>.Table currentTable;
+    protected Schema<T>.Table currentTable;
 
     protected CanalEntry.EventType currentEventType;
 
     private boolean userLocalTableFilter = true;
 
     /**
-     * @param address            canal服务器地址
-     * @param destination        canal实例名称
+     * @param address       canal服务器地址
+     * @param destination   canal实例名称
      * @param actionFactory table对应action实例
      */
-    public ActionableInstanceHandle(SocketAddress address, String destination, ActionFactory<V> actionFactory) {
+    public ActionableInstanceHandle(SocketAddress address, String destination, ActionFactory<T> actionFactory) {
         super(address, destination);
         this.actionFactory = actionFactory;
     }
@@ -69,9 +70,9 @@ public abstract class ActionableInstanceHandle<V extends Actionable> extends Abs
         canalConnector.connect();
         if (userLocalTableFilter) {
             StringBuilder sb = new StringBuilder();
-            for (Schema<V> s : actionFactory) {
+            for (Schema<T> s : actionFactory) {
                 String schemaName = s.getSchemaName();
-                for (Schema<V>.Table t : s) {
+                for (Schema<T>.Table t : s) {
                     sb.append(schemaName).append('.').append(t.getTableName()).append(',');
                 }
             }
@@ -175,9 +176,16 @@ public abstract class ActionableInstanceHandle<V extends Actionable> extends Abs
         this.userLocalTableFilter = userLocalTableFilter;
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public boolean startHandle(CanalEntry.Header header) {
         currentEventType = header.getEventType();
-        return (currentTable = actionFactory.getTable(header.getSchemaName(), header.getTableName())) != null;
+        currentTable = actionFactory.getTable(header.getSchemaName(), header.getTableName());
+        if (currentTable == null) return false;
+        T action = currentTable.getAction();
+        if (action instanceof CurrentHandleTable) {
+            ((CurrentHandleTable<T>) action).setCurrentTable(currentTable);
+        }
+        return true;
     }
 }

@@ -10,27 +10,27 @@ import java.util.Objects;
  * Created by xing on 16/2/27.
  * 只有单个schema的TableActionFactory
  */
-public class SingleSchemaActionFactory<V extends Actionable> implements ActionFactory<V> {
+public class SingleSchemaActionFactory<T extends Actionable> implements ActionFactory<T> {
 
-    private final Schema<V> schema;
+    private final Schema<T> schema;
 
-    public SingleSchemaActionFactory(Schema<V> schema) {
+    public SingleSchemaActionFactory(Schema<T> schema) {
         Objects.requireNonNull(schema);
         this.schema = schema;
     }
 
     @Override
-    public Schema<V>.Table getTable(String schemaName, String tableName) {
+    public Schema<T>.Table getTable(String schemaName, String tableName) {
         return schema.getSchemaName().equals(schemaName) ? schema.getTable(tableName) : null;
     }
 
     @Override
-    public Schema<V> getSchema(String schemaName) {
+    public Schema<T> getSchema(String schemaName) {
         return schema.getSchemaName().equals(schemaName) ? schema : null;
     }
 
     @Override
-    public Iterator<Schema<V>> iterator() {
+    public Iterator<Schema<T>> iterator() {
         return Iterators.singletonIterator(schema);
     }
 }

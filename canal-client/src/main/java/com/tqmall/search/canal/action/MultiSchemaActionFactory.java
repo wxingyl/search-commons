@@ -11,13 +11,13 @@ import java.util.Map;
  * Created by xing on 16/2/27.
  * 多个schema的TableActionFactory
  */
-public class MultiSchemaActionFactory<V extends Actionable> implements ActionFactory<V> {
+public class MultiSchemaActionFactory<T extends Actionable> implements ActionFactory<T> {
 
-    private final Map<String, Schema<V>> schemaMap;
+    private final Map<String, Schema<T>> schemaMap;
 
-    public MultiSchemaActionFactory(Iterable<Schema<V>> schemas) {
-        Map<String, Schema<V>> schemaMap = new HashMap<>();
-        for (Schema<V> s : schemas) {
+    public MultiSchemaActionFactory(Iterable<Schema<T>> schemas) {
+        Map<String, Schema<T>> schemaMap = new HashMap<>();
+        for (Schema<T> s : schemas) {
             schemaMap.put(s.getSchemaName(), s);
         }
         if (schemaMap.isEmpty()) throw new IllegalArgumentException("schemas is null or empty: " + schemas);
@@ -25,18 +25,18 @@ public class MultiSchemaActionFactory<V extends Actionable> implements ActionFac
     }
 
     @Override
-    public Schema<V>.Table getTable(String schemaName, String tableName) {
-        Schema<V> schema = schemaMap.get(schemaName);
+    public Schema<T>.Table getTable(String schemaName, String tableName) {
+        Schema<T> schema = schemaMap.get(schemaName);
         return schema == null ? null : schema.getTable(tableName);
     }
 
     @Override
-    public Schema<V> getSchema(String schemaName) {
+    public Schema<T> getSchema(String schemaName) {
         return schemaMap.get(schemaName);
     }
 
     @Override
-    public Iterator<Schema<V>> iterator() {
+    public Iterator<Schema<T>> iterator() {
         return schemaMap.values().iterator();
     }
 }

@@ -7,7 +7,6 @@ import com.tqmall.search.commons.lang.HostInfo;
 import com.tqmall.search.commons.param.NotifyChangeParam;
 import com.tqmall.search.commons.result.MapResult;
 import com.tqmall.search.commons.result.ResultUtils;
-import com.tqmall.search.commons.utils.Filterable;
 import com.tqmall.search.commons.utils.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +17,7 @@ import java.util.*;
  * Created by xing on 15/12/23.
  * AbstractRtCacheReceive
  */
-public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implements RtCacheReceive, Filterable<RtCacheSlaveHandle> {
+public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implements RtCacheReceive {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractRtCacheReceive.class);
 
@@ -32,7 +31,7 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
      */
     private final Map<T, List<String>> masterHostMap = new HashMap<>();
 
-    private volatile Predicate<RtCacheSlaveHandle> filter;
+    private Predicate<RtCacheSlaveHandle> filter;
 
     /**
      * 注册master次数, 等同于调用{@link #registerMaster(HostInfo)}, 除了参数错误之外的次数
@@ -281,7 +280,6 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
     /**
      * 添加filter
      */
-    @Override
     public void setFilter(Predicate<RtCacheSlaveHandle> filter) {
         this.filter = filter;
     }

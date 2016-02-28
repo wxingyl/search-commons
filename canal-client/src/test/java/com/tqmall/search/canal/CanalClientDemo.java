@@ -42,10 +42,10 @@ public class CanalClientDemo {
     public void runCanalInstanceTest() {
         final ActionFactory<TableAction> actionFactory = new SingleSchemaActionFactory<>(Schemas.<TableAction>buildSchema("dev_autoparts")
                 .addTable(Schemas.buildTable("db_goods_stock")
-                        .action(new TableAction() {
+                        .action(new AbstractTableAction(new SingleThreadCurrentHandleTable<TableAction>()) {
                             @Override
                             public void onAction(List<? extends RowChangedData> changedData) {
-                                System.out.println(changedData);
+                                System.out.println(RowChangedData.toString(getCurrentTable(), changedData));
                             }
                         })
                         .columns("id", "goods_id", "goods_number")

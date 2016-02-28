@@ -9,7 +9,7 @@ import java.util.List;
  * Created by xing on 16/2/23.
  * canalInstance 级别对应的处理方法, 对应{@link InstanceSectionHandle}
  */
-public interface InstanceAction {
+public interface InstanceAction extends Actionable {
 
     /**
      * 实例名

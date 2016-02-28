@@ -17,11 +17,11 @@ public final class Schemas {
     /**
      * 方便创建{@link MultiSchemaActionFactory}对象搞的
      */
-    public static <V extends Actionable> ActionFactoryBuilder<V> buildFactory() {
+    public static <T extends Actionable> ActionFactoryBuilder<T> buildFactory() {
         return new ActionFactoryBuilder<>();
     }
 
-    public static <V extends Actionable> Builder<V> buildSchema(String schemaName) {
+    public static <T extends Actionable> Builder<T> buildSchema(String schemaName) {
         return new Builder<>(schemaName);
     }
 
@@ -32,33 +32,33 @@ public final class Schemas {
     /**
      * 方便创建{@link MultiSchemaActionFactory}对象搞的
      */
-    public static class ActionFactoryBuilder<V extends Actionable> {
+    public static class ActionFactoryBuilder<T extends Actionable> {
 
-        private Map<String, Builder<V>> schemaBuilderMap = new HashMap<>();
+        private Map<String, Builder<T>> schemaBuilderMap = new HashMap<>();
 
-        public final ActionFactoryBuilder<V> addSchema(Builder<V> schema) {
+        public final ActionFactoryBuilder<T> addSchema(Builder<T> schema) {
             schemaBuilderMap.put(schema.schemaName, schema);
             return this;
         }
 
         @SafeVarargs
-        public final ActionFactoryBuilder<V> addSchema(Builder<V>... schemas) {
-            for (Builder<V> b : schemas) {
+        public final ActionFactoryBuilder<T> addSchema(Builder<T>... schemas) {
+            for (Builder<T> b : schemas) {
                 schemaBuilderMap.put(b.schemaName, b);
             }
             return this;
         }
 
-        public ActionFactoryBuilder<V> addSchema(Collection<Builder<V>> schemas) {
-            for (Builder<V> b : schemas) {
+        public ActionFactoryBuilder<T> addSchema(Collection<Builder<T>> schemas) {
+            for (Builder<T> b : schemas) {
                 schemaBuilderMap.put(b.schemaName, b);
             }
             return this;
         }
 
-        public ActionFactory<V> create() {
-            List<Schema<V>> schemaList = new ArrayList<>(schemaBuilderMap.size());
-            for (Builder<V> b : schemaBuilderMap.values()) {
+        public ActionFactory<T> create() {
+            List<Schema<T>> schemaList = new ArrayList<>(schemaBuilderMap.size());
+            for (Builder<T> b : schemaBuilderMap.values()) {
                 schemaList.add(b.create());
             }
             if (schemaList.size() == 1) {
@@ -71,9 +71,9 @@ public final class Schemas {
 
     /**
      * {@link Schema}构造器
-     * @param <V>
+     * @param <T>
      */
-    public static class Builder<V extends Actionable> {
+    public static class Builder<T extends Actionable> {
 
         private final String schemaName;
 
@@ -86,7 +86,7 @@ public final class Schemas {
         /**
          * @see #buildTable(String)
          */
-        public final Builder<V> addTable(TableBuilder tb) {
+        public final Builder<T> addTable(TableBuilder tb) {
             tableBuilderMap.put(tb.tableName, tb);
             return this;
         }
@@ -94,7 +94,7 @@ public final class Schemas {
         /**
          * @see #buildTable(String)
          */
-        public final Builder<V> addTable(TableBuilder... tableBuilders) {
+        public final Builder<T> addTable(TableBuilder... tableBuilders) {
             for (TableBuilder tb : tableBuilders) {
                 tableBuilderMap.put(tb.tableName, tb);
             }
@@ -104,15 +104,15 @@ public final class Schemas {
         /**
          * @see #buildTable(String)
          */
-        public Builder<V> addTable(Iterable<TableBuilder> tableBuilders) {
+        public Builder<T> addTable(Iterable<TableBuilder> tableBuilders) {
             for (TableBuilder tb : tableBuilders) {
                 tableBuilderMap.put(tb.tableName, tb);
             }
             return this;
         }
 
-        public Schema<V> create() {
-            Schema<V> schema = new Schema<>(schemaName);
+        public Schema<T> create() {
+            Schema<T> schema = new Schema<>(schemaName);
             for (TableBuilder tb : tableBuilderMap.values()) {
                 schema.addTable(tb);
             }
