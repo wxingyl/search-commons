@@ -24,6 +24,19 @@ import java.util.Objects;
 public abstract class ConditionContainer implements Serializable {
 
     private static final long serialVersionUID = 8536199694404404344L;
+
+    /**
+     * must条件标记位
+     */
+    public static final byte MUST_TYPE = 1;
+    /**
+     * should条件标记位
+     */
+    public static final byte SHOULD_TYPE = 1 << 1;
+    /**
+     * must not条件标记位
+     */
+    public static final byte MUST_NOT_TYPE = 1 << 2;
     /**
      * 且关系条件集合
      */

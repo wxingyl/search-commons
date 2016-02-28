@@ -69,7 +69,6 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
                 while (it.hasNext()) {
                     RowChangedData.Update update = (RowChangedData.Update) it.next();
                     UpdateDataFunction.setUpdateData(update);
-
                     boolean beforeInvalid = !columnCondition.validation(beforeFunction);
                     boolean afterInvalid = !columnCondition.validation(afterFunction);
                     if (beforeInvalid && afterInvalid) {

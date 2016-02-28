@@ -110,9 +110,7 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
      * @param rowChange 更改的数据
      * @return 构建的{@link RowChangedData} list
      */
-    protected List<RowChangedData> changedDataParse(CanalEntry.RowChange rowChange) {
-        return RowChangedData.build(rowChange);
-    }
+    protected abstract List<RowChangedData> changedDataParse(CanalEntry.RowChange rowChange);
 
     @Override
     public final void rowChangeHandle(CanalEntry.RowChange rowChange) {

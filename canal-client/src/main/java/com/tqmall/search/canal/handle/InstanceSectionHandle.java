@@ -100,6 +100,11 @@ public class InstanceSectionHandle extends AbstractCanalInstanceHandle {
         }
     }
 
+    @Override
+    protected List<RowChangedData> changedDataParse(CanalEntry.RowChange rowChange) {
+        return RowChangedData.build(rowChange, null);
+    }
+
     /**
      * 不做筛选
      */

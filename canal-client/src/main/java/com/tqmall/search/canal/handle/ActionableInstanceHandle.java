@@ -92,10 +92,10 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
-    protected List<RowChangedData> changedDataParse(CanalEntry.RowChange rowChange) {
+    protected final List<RowChangedData> changedDataParse(CanalEntry.RowChange rowChange) {
         List<RowChangedData> dataList;
-        Set<String> columns;
-        if (currentEventType == CanalEntry.EventType.UPDATE && (columns = currentTable.getColumns()) != null) {
+        Set<String> columns = currentTable.getColumns();
+        if (currentEventType == CanalEntry.EventType.UPDATE && columns != null) {
             dataList = new ArrayList<>();
             Iterator<CanalEntry.RowData> it = rowChange.getRowDatasList().iterator();
             next:
@@ -106,15 +106,15 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
                     for (CanalEntry.Column ce : columnList) {
                         if (ce.getName().equals(c) && ce.getUpdated()) {
                             //存在更新, 那直接初始化, 搞定
-                            RowChangedData.Update update = RowChangedData.Update.CONVERT.apply(rowData);
-                            if (update != null) dataList.add(update);
+                            dataList.add(new RowChangedData.Update(rowData, columns));
+                            //直接跳到最外面, 看下一个
                             break next;
                         }
                     }
                 }
             }
         } else {
-            dataList = super.changedDataParse(rowChange);
+            dataList = RowChangedData.build(rowChange, columns);
         }
         if (CommonsUtils.isEmpty(dataList)) return null;
         TableColumnCondition columnCondition;

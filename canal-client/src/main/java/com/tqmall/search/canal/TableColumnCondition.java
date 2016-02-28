@@ -2,6 +2,7 @@ package com.tqmall.search.canal;
 
 import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.lang.StrValueConvert;
+import com.tqmall.search.commons.param.condition.Condition;
 import com.tqmall.search.commons.param.condition.ConditionContainer;
 import com.tqmall.search.commons.param.condition.EqualCondition;
 import com.tqmall.search.commons.param.condition.UnmodifiableConditionContainer;
@@ -20,18 +21,18 @@ public class TableColumnCondition {
 
     /**
      * 字段名: "is_deleted"
-     * 有效值: "N"
+     * 有效值: false
+     *
+     * @see com.tqmall.search.commons.utils.StrValueConverts.BoolStrValueConvert
      */
-    public static final EqualCondition<String> IS_DELETED_CONDITION = EqualCondition.build("is_deleted", "N");
+    public static final EqualCondition<Boolean> NOT_DELETED_CONDITION = EqualCondition.build("is_deleted", false);
 
     /**
      * 默认的逻辑删除表字段过滤器
-     * 字段名: "is_deleted"
-     * 有效值: "N"
      */
-    public static final TableColumnCondition DEFAULT_DELETE_COLUMN_CONDITION = new TableColumnCondition(UnmodifiableConditionContainer.build()
-            .addMust(IS_DELETED_CONDITION)
-            .create());
+    public static final TableColumnCondition DEFAULT_DELETE_COLUMN_CONDITION = build()
+            .condition(NOT_DELETED_CONDITION, Boolean.TYPE)
+            .create();
 
     private final ConditionContainer conditionContainer;
 
@@ -99,27 +100,64 @@ public class TableColumnCondition {
 
     public static class Builder {
 
-        private ConditionContainer conditionContainer;
+        private UnmodifiableConditionContainer.Builder conditionContainerBuilder = UnmodifiableConditionContainer.build();
 
         private final Map<String, StrValueConvert> columnConvertMap = new HashMap<>();
 
-        public Builder conditionContainer(ConditionContainer conditionContainer) {
-            this.conditionContainer = conditionContainer;
+        /**
+         * must 条件
+         */
+        public Builder condition(Condition condition) {
+            conditionContainerBuilder.addCondition(condition);
             return this;
         }
 
-        public <T> Builder columnConvert(String column, StrValueConvert<T> convert) {
-            columnConvertMap.put(column, convert);
+        /**
+         * must 条件
+         *
+         * @see ConditionContainer#MUST_TYPE
+         * @see ConditionContainer#SHOULD_TYPE
+         * @see ConditionContainer#MUST_NOT_TYPE
+         */
+        public Builder condition(byte type, Condition condition) {
+            conditionContainerBuilder.addCondition(type, condition);
             return this;
         }
 
-        public <T> Builder columnConvert(String column, Class<T> tClass) {
-            columnConvertMap.put(column, StrValueConverts.getConvert(tClass));
+        /**
+         * must 条件
+         */
+        public <T> Builder condition(Condition condition, Class<T> cls) {
+            return condition(ConditionContainer.MUST_TYPE, condition, cls);
+        }
+
+        /**
+         * @see ConditionContainer#MUST_TYPE
+         * @see ConditionContainer#SHOULD_TYPE
+         * @see ConditionContainer#MUST_NOT_TYPE
+         */
+        public <T> Builder condition(byte type, Condition condition, Class<T> cls) {
+            StrValueConvert<T> convert = StrValueConverts.getConvert(cls);
+            if (convert != null) {
+                return condition(type, condition, convert);
+            } else {
+                throw new IllegalArgumentException("there is not a StrValueConvert for class: " + cls);
+            }
+        }
+
+        public <T> Builder condition(byte type, Condition condition, StrValueConvert<T> convert) {
+            columnConvertMap.put(condition.getField(), convert);
+            conditionContainerBuilder.addCondition(type, condition);
+            return this;
+        }
+
+        public Builder minimumShouldMatch(int minimumShouldMatch) {
+            conditionContainerBuilder.minimumShouldMatch(minimumShouldMatch);
             return this;
         }
 
         public TableColumnCondition create() {
-            return new TableColumnCondition(conditionContainer, columnConvertMap);
+            return new TableColumnCondition(conditionContainerBuilder.create(), columnConvertMap);
         }
     }
 }

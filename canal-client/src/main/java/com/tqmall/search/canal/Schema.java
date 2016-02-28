@@ -7,6 +7,7 @@ import com.tqmall.search.canal.action.Actionable;
 import com.tqmall.search.commons.param.condition.Condition;
 import com.tqmall.search.commons.param.condition.ConditionContainer;
 import com.tqmall.search.commons.utils.CommonsUtils;
+import com.tqmall.search.commons.utils.SearchStringUtils;
 
 import java.util.*;
 
@@ -178,6 +179,11 @@ public class Schema<T extends Actionable> implements Iterable<Schema<T>.Table> {
         @Override
         public int hashCode() {
             return 31 * tableName.hashCode() + schemaName.hashCode();
+        }
+
+        @Override
+        public String toString() {
+            return schemaName + '.' + tableName + (columns == null ? "" : ',' + SearchStringUtils.join(columns, ','));
         }
     }
 

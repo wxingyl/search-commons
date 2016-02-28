@@ -42,8 +42,8 @@ public class CanalExecutor {
         Runtime.getRuntime().addShutdownHook(threadFactory.newThread(new Runnable() {
             @Override
             public void run() {
-                lock.writeLock().lock();
                 log.info("run shutdown, going to stop all running canalInstances");
+                lock.writeLock().lock();
                 try {
                     List<CanalInstance> needStoppedInstances = new ArrayList<>();
                     for (Map.Entry<String, CanalInstance> e : canalInstanceMap.entrySet()) {
@@ -139,6 +139,9 @@ public class CanalExecutor {
      * @param startRtTime  处理实时数据变化的起始时间点, 为0则从canal服务器记录的上次更新点获取Message
      */
     public void startInstance(String instanceName, long startRtTime) {
+        if (startRtTime < 0) {
+            throw new IllegalArgumentException("zero is the min value of startRtTime");
+        }
         lock.writeLock().lock();
         try {
             CanalInstance instance = canalInstanceMap.get(instanceName);
@@ -155,6 +158,49 @@ public class CanalExecutor {
                         instance.lock.wait();
                     } catch (InterruptedException e) {
                         log.error("start canal: " + instanceName + " have exception when waiting thread running", e);
+                    }
+                }
+            }
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * 开启所有为开启的canalInstance
+     *
+     * @param startRtTime 处理实时数据变化的起始时间点, 为0则从canal服务器记录的上次更新点获取Message
+     */
+    public void startAllInstance(long startRtTime) {
+        if (startRtTime < 0) {
+            throw new IllegalArgumentException("zero is the min value of startRtTime");
+        }
+        lock.writeLock().lock();
+        try {
+            List<CanalInstance> startedInstances = new ArrayList<>();
+            for (CanalInstance instance : canalInstanceMap.values()) {
+                if (!instance.runningSwitch) {
+                    Thread thread = threadFactory.newThread(instance);
+                    instance.startRtTime = startRtTime;
+                    thread.start();
+                    startedInstances.add(instance);
+                }
+            }
+            while (!startedInstances.isEmpty()) {
+                Iterator<CanalInstance> it = startedInstances.iterator();
+                while (it.hasNext()) {
+                    CanalInstance c = it.next();
+                    synchronized (c.lock) {
+                        if (c.running) {
+                            it.remove();
+                        } else {
+                            try {
+                                //最起码我要等这个canalInstance执行结束, 那就等等吧
+                                c.lock.wait();
+                            } catch (InterruptedException e) {
+                                log.error("there is a exception when starting canal: " + c.handle.instanceName() + " thread", e);
+                            }
+                        }
                     }
                 }
             }

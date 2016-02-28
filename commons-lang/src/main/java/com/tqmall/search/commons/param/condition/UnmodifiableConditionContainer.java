@@ -52,44 +52,52 @@ public class UnmodifiableConditionContainer extends ConditionContainer {
             return this;
         }
 
-        public Builder addMust(Condition... conditions) {
+        /**
+         * must 条件
+         */
+        public Builder addCondition(Condition condition) {
+            must.add(condition);
+            return this;
+        }
+
+        /**
+         * must 条件
+         */
+        public Builder addCondition(Condition... conditions) {
+            Collections.addAll(must, conditions);
+            return this;
+        }
+
+        /**
+         * 根据type 添加条件, 默认{@link #MUST_TYPE}
+         */
+        public Builder addCondition(byte type, Condition condition) {
+            if (type == SHOULD_TYPE) should.add(condition);
+            else if (type == MUST_NOT_TYPE) mustNot.add(condition);
+            else must.add(condition);
+            return this;
+        }
+
+        /**
+         * 根据type 添加条件, 默认{@link #MUST_TYPE}
+         */
+        public Builder addCondition(byte type, Condition... conditions) {
             if (conditions.length > 0) {
-                Collections.addAll(must, conditions);
+                if (type == SHOULD_TYPE) Collections.addAll(should, conditions);
+                else if (type == MUST_NOT_TYPE) Collections.addAll(mustNot, conditions);
+                else Collections.addAll(must, conditions);
             }
             return this;
         }
 
-        public Builder addMust(Collection<? extends Condition> conditions) {
+        /**
+         * 根据type 添加条件, 默认{@link #MUST_TYPE}
+         */
+        public Builder addCondition(byte type, Collection<? extends Condition> conditions) {
             if (!CommonsUtils.isEmpty(conditions)) {
-                must.addAll(conditions);
-            }
-            return this;
-        }
-
-        public Builder addShould(Condition... conditions) {
-            if (conditions.length > 0) {
-                Collections.addAll(should, conditions);
-            }
-            return this;
-        }
-
-        public Builder addShould(Collection<? extends Condition> conditions) {
-            if (!CommonsUtils.isEmpty(conditions)) {
-                should.addAll(conditions);
-            }
-            return this;
-        }
-
-        public Builder addMustNot(Condition... conditions) {
-            if (conditions.length > 0) {
-                Collections.addAll(mustNot, conditions);
-            }
-            return this;
-        }
-
-        public Builder addMustNot(Collection<? extends Condition> conditions) {
-            if (!CommonsUtils.isEmpty(conditions)) {
-                mustNot.addAll(conditions);
+                if (type == SHOULD_TYPE) should.addAll(conditions);
+                else if (type == MUST_NOT_TYPE) mustNot.addAll(conditions);
+                else must.addAll(conditions);
             }
             return this;
         }

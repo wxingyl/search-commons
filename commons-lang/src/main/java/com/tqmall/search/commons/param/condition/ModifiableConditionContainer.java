@@ -36,20 +36,20 @@ public class ModifiableConditionContainer extends ConditionContainer {
     }
 
     /**
-     * 清理现有条件, 通过flag控制, 各个标记位:
-     * must 001
-     * should 010
-     * mustNot 100
+     * 清理现有条件, 通过flag控制
      * 可以自由组合, 比如:
-     * 清除 must和mustNot, 101, 即5[十进制]
-     * 清楚所有, 111, 即7[十进制]
+     * 清除 must和mustNot, {@link #MUST_TYPE} | {@link #MUST_NOT_TYPE}
+     * 清楚所有, {@link #MUST_TYPE} | {@link #SHOULD_TYPE} {@link #MUST_NOT_TYPE}
      *
      * @param flag 标记位
+     * @see #MUST_TYPE
+     * @see #SHOULD_TYPE
+     * @see #MUST_NOT_TYPE
      */
     public void clear(byte flag) {
-        if (must != null && (flag & 1) != 0) must.clear();
-        if (should != null && (flag & 0x2) != 0) should.clear();
-        if (mustNot != null && (flag & 0x4) != 0) mustNot.clear();
+        if (must != null && (flag & MUST_TYPE) != 0) must.clear();
+        if (should != null && (flag & SHOULD_TYPE) != 0) should.clear();
+        if (mustNot != null && (flag & MUST_NOT_TYPE) != 0) mustNot.clear();
     }
 
     public ModifiableConditionContainer setMinimumShouldMatch(int minimumShouldMatch) {

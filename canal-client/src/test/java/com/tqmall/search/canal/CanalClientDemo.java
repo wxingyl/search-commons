@@ -4,14 +4,15 @@ import com.alibaba.otter.canal.common.utils.AddressUtils;
 import com.tqmall.search.canal.action.*;
 import com.tqmall.search.canal.handle.*;
 import com.tqmall.search.commons.lang.Function;
+import com.tqmall.search.commons.param.condition.EqualCondition;
 import com.tqmall.search.commons.param.condition.RangeCondition;
-import com.tqmall.search.commons.param.condition.UnmodifiableConditionContainer;
 import org.junit.Test;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by xing on 16/2/24.
@@ -40,20 +41,50 @@ public class CanalClientDemo {
 
     @Test
     public void runCanalInstanceTest() {
-        final ActionFactory<TableAction> actionFactory = new SingleSchemaActionFactory<>(Schemas.<TableAction>buildSchema("dev_autoparts")
+        ActionFactory<TableAction> actionFactory = new SingleSchemaActionFactory<>(Schemas.<TableAction>buildSchema("autoparts")
                 .addTable(Schemas.buildTable("db_goods_stock")
                         .action(new AbstractTableAction(new SingleThreadCurrentHandleTable<TableAction>()) {
                             @Override
                             public void onAction(List<? extends RowChangedData> changedData) {
-                                System.out.println(RowChangedData.toString(getCurrentTable(), changedData));
+                                System.out.println("currentTable: " + getCurrentTable());
+                                System.out.println(changedData);
                             }
                         })
                         .columns("id", "goods_id", "goods_number")
                         .columnCondition(TableColumnCondition.DEFAULT_DELETE_COLUMN_CONDITION))
                 .create());
-        TableSectionHandle tableSectionHandle = new TableSectionHandle(LOCAL_ADDRESS, "shop", actionFactory);
-        CANAL_EXECUTOR.addInstanceHandle(tableSectionHandle);
-        CANAL_EXECUTOR.startInstance("shop");
+        CANAL_EXECUTOR.addInstanceHandle(new TableSectionHandle(LOCAL_ADDRESS, "shop", actionFactory));
+        ActionFactory<EventTypeAction> eventTypeFactory = new SingleSchemaActionFactory<>(Schemas.<EventTypeAction>buildSchema("autoparts")
+                .addTable(Schemas.buildTable("db_goods")
+                        .action(new EventTypeAction() {
+                            @Override
+                            public void onUpdateAction(List<RowChangedData.Update> updatedData) {
+                                System.out.println("db_goods.onUpdateAction: " + updatedData);
+                            }
+
+                            @Override
+                            public void onInsertAction(List<RowChangedData.Insert> insertedData) {
+                                System.out.println("db_goods.onInsertAction: " + insertedData);
+                            }
+
+                            @Override
+                            public void onDeleteAction(List<RowChangedData.Delete> deletedData) {
+                                System.out.println("db_goods.onDeleteAction: " + deletedData);
+                            }
+                        })
+                        .columns("goods_id", "goods_name", "cat_id", "new_goods_sn")
+                        .columnCondition(TableColumnCondition.build()
+                                .condition(EqualCondition.build("is_delete", false), Boolean.TYPE)
+                                .condition(EqualCondition.build("seller_id", 1), Integer.TYPE)
+                                .create()))
+                .create());
+        CANAL_EXECUTOR.addInstanceHandle(new EventTypeSectionHandle(LOCAL_ADDRESS, "shop_goods", eventTypeFactory));
+        CANAL_EXECUTOR.startAllInstance(0L);
+        try {
+            TimeUnit.MINUTES.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -115,10 +146,8 @@ public class CanalClientDemo {
                 .columns("id", "is_deleted", "name", "service_sn") //目前还不支持列过滤~~~不过很快了~~~
                 //id 取值返回在[10, 100], 并且is_deleted = 'N'
                 .columnCondition(TableColumnCondition.build()
-                        .conditionContainer(UnmodifiableConditionContainer.build()
-                                .addMust(RangeCondition.build("id", 10, 100), TableColumnCondition.IS_DELETED_CONDITION)
-                                .create())
-                        .columnConvert("id", Integer.class)
+                        .condition(RangeCondition.build("id", 10, 100), Integer.class)
+                        .condition(TableColumnCondition.NOT_DELETED_CONDITION, Boolean.class)
                         .create())
         );
         String schemaName = "legend";
