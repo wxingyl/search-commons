@@ -2,6 +2,7 @@ package com.tqmall.search.canal;
 
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.alibaba.otter.canal.protocol.Message;
+import com.alibaba.otter.canal.protocol.exception.CanalClientException;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.tqmall.search.canal.handle.CanalInstanceHandle;
 import org.slf4j.Logger;
@@ -27,7 +28,12 @@ public class CanalExecutor {
 
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
-    private Map<String, CanalInstance> canalInstanceMap = new HashMap<>();
+    private final Map<String, CanalInstance> canalInstanceMap = new HashMap<>();
+
+    /**
+     * 运行的canal 获取数据异常之后等待的时间, 单位ms, 默认2s
+     */
+    private long retryFetchInterval = 2000L;
 
     /**
      * 默认使用{@link Executors#defaultThreadFactory()}
@@ -77,6 +83,15 @@ public class CanalExecutor {
                 }
             }
         }));
+    }
+
+    /**
+     * 运行的canal 获取数据异常之后等待的时间
+     *
+     * @param retryFetchInterval 单位ms, 默认2s
+     */
+    public void setRetryFetchInterval(long retryFetchInterval) {
+        this.retryFetchInterval = retryFetchInterval;
     }
 
     /**
@@ -239,7 +254,7 @@ public class CanalExecutor {
     /**
      * 一个canal实例
      */
-    static class CanalInstance implements Runnable {
+    private class CanalInstance implements Runnable {
 
         final CanalInstanceHandle handle;
         /**
@@ -284,7 +299,18 @@ public class CanalExecutor {
             long lastBatchId = 0L;
             try {
                 while (runningSwitch) {
-                    Message message = handle.getWithoutAck();
+                    Message message;
+                    try {
+                        message = handle.getWithoutAck();
+                    } catch (CanalClientException e) {
+                        log.error("read message from canalInstance: " + handle.instanceName() + " have exception, need wait "
+                                + retryFetchInterval + "ms", e);
+                        try {
+                            Thread.sleep(retryFetchInterval);
+                        } catch (InterruptedException ignore) {
+                        }
+                        continue;
+                    }
                     lastBatchId = message.getId();
                     if (message.getId() <= 0 || message.getEntries().isEmpty()) continue;
                     long nextFetchTime = System.currentTimeMillis() + handle.fetchInterval();
