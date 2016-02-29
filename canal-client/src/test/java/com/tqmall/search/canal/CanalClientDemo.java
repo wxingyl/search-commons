@@ -182,7 +182,7 @@ public class CanalClientDemo {
         TableSectionHandle tableSectionHandle = new TableSectionHandle(LOCAL_ADDRESS, instanceName, new MultiSchemaActionFactory<>(schemas));
 
         //下面是异常处理以及canal连接的一些参数设置, 都有默认值, 需要设置之~~~
-        tableSectionHandle.setHandleExceptionFunction(new Function<HandleExceptionContext, Boolean>() {
+        tableSectionHandle.setExceptionHandleFunction(new Function<HandleExceptionContext, Boolean>() {
             @Override
             public Boolean apply(HandleExceptionContext input) {
                 //do some exception handle
@@ -292,7 +292,7 @@ public class CanalClientDemo {
         EventTypeSectionHandle eventTypeSectionHandle = new EventTypeSectionHandle(LOCAL_ADDRESS, instanceName, actionFactory);
 
         //下面是异常处理以及canal连接的一些参数设置, 都有默认值, 需要设置之~~~
-        eventTypeSectionHandle.setHandleExceptionFunction(new Function<HandleExceptionContext, Boolean>() {
+        eventTypeSectionHandle.setExceptionHandleFunction(new Function<HandleExceptionContext, Boolean>() {
             @Override
             public Boolean apply(HandleExceptionContext input) {
                 //do some exception handle

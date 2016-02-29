@@ -15,28 +15,16 @@ public class RpcPageParam extends RpcParam {
 
     private int start;
 
-    public RpcPageParam(String source) {
-        this(10, source);
+    public RpcPageParam() {
+        this(10);
     }
 
-    public RpcPageParam(int size, String source) {
-        this(size, source, 0);
-    }
-
-    public RpcPageParam(int size, String source, Integer uid) {
-        super(source, uid);
+    public RpcPageParam(int size) {
         this.size = size;
     }
 
-    public RpcPageParam(PageParam param) {
-        super(param);
-        start = param.getStart();
-        size = param.getSize();
-    }
-
-    public RpcPageParam setStart(int start) {
+    public void setStart(int start) {
         this.start = start;
-        return this;
     }
 
     public int getSize() {

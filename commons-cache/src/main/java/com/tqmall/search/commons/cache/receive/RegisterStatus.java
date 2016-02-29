@@ -16,5 +16,5 @@ public enum RegisterStatus {
     //注册中断
     INTERRUPT,
     //完成注销
-    UNREGISTER;
+    UNREGISTER
 }

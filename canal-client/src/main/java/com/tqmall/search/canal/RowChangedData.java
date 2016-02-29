@@ -18,7 +18,7 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
 
     private static final long serialVersionUID = -8712239138384357603L;
 
-    protected final Map<String, V> fieldValueMap = new HashMap<>();
+    final Map<String, V> fieldValueMap = new HashMap<>();
 
     RowChangedData() {
     }
@@ -49,7 +49,7 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
 
         private static final long serialVersionUID = -2687037454927572799L;
 
-        public Insert() {
+        Insert() {
         }
 
         public Insert(CanalEntry.RowData rowData, Set<String> interestedColumns) {
@@ -76,7 +76,7 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
 
         private static final long serialVersionUID = 6254540878604970123L;
 
-        public Delete() {
+        Delete() {
         }
 
         public Delete(CanalEntry.RowData rowData, Set<String> interestedColumns) {

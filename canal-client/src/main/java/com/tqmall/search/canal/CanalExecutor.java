@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -35,11 +36,21 @@ public class CanalExecutor {
      */
     private long retryFetchInterval = 2000L;
 
-    /**
-     * 默认使用{@link Executors#defaultThreadFactory()}
-     */
+    private static final AtomicInteger EXECUTOR_NUMBER = new AtomicInteger(1);
+
     public CanalExecutor() {
-        this(Executors.defaultThreadFactory());
+        this(new ThreadFactory() {
+            private final ThreadFactory defaultFactory = Executors.defaultThreadFactory();
+            private final AtomicInteger threadNumber = new AtomicInteger(1);
+            private final String namePrefix = "canal-" + EXECUTOR_NUMBER.getAndIncrement() + "-thread-";
+
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread thread = defaultFactory.newThread(r);
+                thread.setName(namePrefix + threadNumber.getAndIncrement());
+                return thread;
+            }
+        });
     }
 
     public CanalExecutor(ThreadFactory threadFactory) {
@@ -48,41 +59,48 @@ public class CanalExecutor {
         Runtime.getRuntime().addShutdownHook(threadFactory.newThread(new Runnable() {
             @Override
             public void run() {
-                log.info("run shutdown, going to stop all running canalInstances");
-                lock.writeLock().lock();
-                try {
-                    List<CanalInstance> needStoppedInstances = new ArrayList<>();
-                    for (Map.Entry<String, CanalInstance> e : canalInstanceMap.entrySet()) {
-                        if (e.getValue().runningSwitch) {
-                            log.warn("shutdown canal instance " + e.getKey());
-                            e.getValue().runningSwitch = false;
-                            needStoppedInstances.add(e.getValue());
-                        }
-                    }
-                    while (!needStoppedInstances.isEmpty()) {
-                        Iterator<CanalInstance> it = needStoppedInstances.iterator();
-                        while (it.hasNext()) {
-                            CanalInstance c = it.next();
-                            synchronized (c.lock) {
-                                if (c.running) {
-                                    try {
-                                        //最起码我要等这个canalInstance执行结束, 那就等等吧
-                                        c.lock.wait();
-                                    } catch (InterruptedException e) {
-                                        log.error("there is a exception when waiting canal: " + c.handle.instanceName() + " thread stop", e);
-                                    }
-                                } else {
-                                    it.remove();
-                                }
-                            }
-                        }
-                    }
-                    log.info("run shutdown finish, all canalInstances have been stopped");
-                } finally {
-                    lock.writeLock().unlock();
-                }
+                stopAll();
             }
         }));
+    }
+
+    /**
+     * jvm进程退出, stop所有canal实例
+     */
+    private void stopAll() {
+        log.info("run shutdown, going to stop all running canalInstances");
+        lock.writeLock().lock();
+        try {
+            List<CanalInstance> needStoppedInstances = new ArrayList<>();
+            for (Map.Entry<String, CanalInstance> e : canalInstanceMap.entrySet()) {
+                if (e.getValue().runningSwitch) {
+                    log.warn("shutdown canal instance " + e.getKey());
+                    e.getValue().runningSwitch = false;
+                    needStoppedInstances.add(e.getValue());
+                }
+            }
+            while (!needStoppedInstances.isEmpty()) {
+                Iterator<CanalInstance> it = needStoppedInstances.iterator();
+                while (it.hasNext()) {
+                    CanalInstance c = it.next();
+                    synchronized (c.lock) {
+                        if (c.running) {
+                            try {
+                                //最起码我要等这个canalInstance执行结束, 那就等等吧
+                                c.lock.wait();
+                            } catch (InterruptedException e) {
+                                log.error("there is a exception when waiting canal: " + c.handle.instanceName() + " thread stop", e);
+                            }
+                        } else {
+                            it.remove();
+                        }
+                    }
+                }
+            }
+            log.info("run shutdown finish, all canalInstances have been stopped");
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     /**
@@ -335,15 +353,7 @@ public class CanalExecutor {
          */
         @Override
         public void run() {
-            synchronized (lock) {
-                if (running) {
-                    throw new IllegalStateException("canalInstance: " + handle.instanceName() + " has running, it must be have error");
-                }
-            }
             log.info("start launching canalInstance: " + handle.instanceName());
-            //如果连接出现异常, 相关配置,变量还没有修改, 所以不用做任何处理,当前线程退出就行
-            handle.connect();
-            //下面2条代码的顺便不要随意更换~~~
             runningSwitch = true;
             synchronized (lock) {
                 running = true;
@@ -351,6 +361,8 @@ public class CanalExecutor {
             }
             long lastBatchId = 0L;
             try {
+                //如果连接出现异常, 相关配置,变量还没有修改, 所以不用做任何处理,当前线程退出就行
+                handle.connect();
                 while (runningSwitch) {
                     Message message;
                     try {
@@ -379,7 +391,9 @@ public class CanalExecutor {
                 runningSwitch = false;
                 log.error("canalInstance: " + handle.instanceName() + " occurring a serious RuntimeException and lead to stop this canalInstance", e);
                 //既然处理失败了, 那就回滚呗~~~
-                handle.rollback(lastBatchId);
+                if (lastBatchId > 0) {
+                    handle.rollback(lastBatchId);
+                }
             } finally {
                 synchronized (lock) {
                     running = false;
@@ -393,6 +407,14 @@ public class CanalExecutor {
         @Override
         public String toString() {
             return "CanalInstance{" + handle.instanceName() + ", running=" + runningSwitch + "startRtTime=" + startRtTime + '}';
+        }
+    }
+
+    public static class CanalClientThreadFactory implements ThreadFactory {
+
+        @Override
+        public Thread newThread(Runnable r) {
+            return null;
         }
     }
 }

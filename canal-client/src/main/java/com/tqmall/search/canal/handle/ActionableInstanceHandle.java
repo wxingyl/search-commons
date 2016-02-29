@@ -161,7 +161,7 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
      * @param handleExceptionFunction 该function的返回结果标识是否忽略该异常, 同{@link #ignoreHandleException}
      * @see #ignoreHandleException
      */
-    public void setHandleExceptionFunction(Function<HandleExceptionContext, Boolean> handleExceptionFunction) {
+    public void setExceptionHandleFunction(Function<HandleExceptionContext, Boolean> handleExceptionFunction) {
         this.handleExceptionFunction = handleExceptionFunction;
     }
 

@@ -138,24 +138,24 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
      */
     @Override
     protected boolean exceptionHandle(RuntimeException exception, boolean inFinishHandle) {
-        if (super.exceptionHandle(exception, inFinishHandle)) {
-            lastTable = currentTable;
-            lastEventType = currentEventType;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    protected void doFinishHandle() {
         try {
-            runRowChangeAction();
+            if (super.exceptionHandle(exception, inFinishHandle)) {
+                lastTable = currentTable;
+                lastEventType = currentEventType;
+                return true;
+            } else {
+                return false;
+            }
         } finally {
             if (!rowChangedDataList.isEmpty()) {
                 rowChangedDataList.clear();
             }
         }
+    }
+
+    @Override
+    protected void doFinishHandle() {
+        runRowChangeAction();
     }
 
     @Override

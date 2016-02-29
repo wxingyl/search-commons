@@ -17,28 +17,15 @@ public class RpcParam implements Serializable {
     /**
      * 记录系统调用来源
      */
-    private final String source;
+    private String source;
     /**
      * 请求用来表示用户唯一的参数, 这个用户具体业务中区分用户的id, 比如电商的userId, UC的shopId等
      */
-    private final int uid;
+    private int uid;
 
     private ConditionContainer conditionContainer;
 
     private List<FieldSort> sort;
-
-    public RpcParam(String source) {
-        this(source, 0);
-    }
-
-    public RpcParam(Param param) {
-        this(param.getSource(), param.getUid());
-    }
-
-    public RpcParam(String source, int uid) {
-        this.source = source;
-        this.uid = uid;
-    }
 
     /**
      * 如果原先已经添加过SortCondition, 则追加
@@ -61,12 +48,20 @@ public class RpcParam implements Serializable {
         return this;
     }
 
-    public ConditionContainer getConditionContainer() {
-        return conditionContainer;
-    }
-
     public void setConditionContainer(ConditionContainer conditionContainer) {
         this.conditionContainer = conditionContainer;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public void setUid(int uid) {
+        this.uid = uid;
+    }
+
+    public ConditionContainer getConditionContainer() {
+        return conditionContainer;
     }
 
     public List<FieldSort> getSort() {
