@@ -278,6 +278,29 @@ public class CanalExecutor {
         }
 
         /**
+         * 当前链接出现异常, 重新链接~~~
+         */
+        private void reconnect() {
+            boolean reconnectSucceed = false;
+            while (!reconnectSucceed && runningSwitch) {
+                try {
+                    handle.disConnect();
+                } catch (CanalClientException ignore) {
+                }
+                try {
+                    Thread.sleep(retryFetchInterval);
+                } catch (InterruptedException ignore) {
+                }
+                try {
+                    handle.connect();
+                    reconnectSucceed = true;
+                } catch (CanalClientException rc) {
+                    log.warn("canalInstance: " + handle.instanceName() + " reconnect server failed: " + rc.getMessage());
+                }
+            }
+        }
+
+        /**
          * 不断从canal server获取数据
          */
         @Override
@@ -305,10 +328,7 @@ public class CanalExecutor {
                     } catch (CanalClientException e) {
                         log.error("read message from canalInstance: " + handle.instanceName() + " have exception, need wait "
                                 + retryFetchInterval + "ms", e);
-                        try {
-                            Thread.sleep(retryFetchInterval);
-                        } catch (InterruptedException ignore) {
-                        }
+                        reconnect();
                         continue;
                     }
                     lastBatchId = message.getId();

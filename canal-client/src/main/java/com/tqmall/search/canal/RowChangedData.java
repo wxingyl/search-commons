@@ -167,7 +167,7 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
 
         @Override
         public String toString() {
-            return CanalEntry.EventType.UPDATE.toString() + ' ' + super.toString();
+            return CanalEntry.EventType.UPDATE.toString() + ':' + super.toString();
         }
     }
 

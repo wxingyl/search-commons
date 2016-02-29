@@ -23,7 +23,9 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
 
     private static final Logger log = LoggerFactory.getLogger(AbstractCanalInstanceHandle.class);
 
-    protected final CanalConnector canalConnector;
+    protected CanalConnector canalConnector;
+
+    private final SocketAddress address;
 
     protected final String instanceName;
 
@@ -39,14 +41,12 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
      * @see #fetchInterval()
      */
     private long fetchInterval = 500L;
-
     /**
      * @param address     canal服务器地址
      * @param destination canal实例名称
      */
     public AbstractCanalInstanceHandle(SocketAddress address, String destination) {
-        //canal中对于Connector中的用户名和密码不做校验, 所以设置也没有意义
-        canalConnector = CanalConnectors.newSingleConnector(address, destination, null, null);
+        this.address = address;
         this.instanceName = destination;
     }
 
@@ -75,6 +75,8 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
     @Override
     public final void connect() {
         log.info("canal instance: " + instanceName + " start connect");
+        //canal中对于Connector中的用户名和密码不做校验, 所以设置也没有意义
+        canalConnector = CanalConnectors.newSingleConnector(address, instanceName, null, null);
         doConnect();
         log.info("canal instance: " + instanceName + " connect succeed");
     }
