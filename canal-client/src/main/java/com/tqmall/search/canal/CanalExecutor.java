@@ -124,14 +124,19 @@ public class CanalExecutor {
     }
 
     /**
-     * 新添加canal实例处理对象, 如果原先添加过, 则被覆盖~~~
+     * 新添加canal实例处理对象, 如果原先添加过, 并且当前没有正在运行, 则被覆盖, 如果当前实例正在运行, 则抛出{@link IllegalArgumentException}
      *
      * @param handle 实例处理对象
      */
     public void addInstanceHandle(CanalInstanceHandle handle) {
         lock.writeLock().lock();
         try {
-            canalInstanceMap.put(handle.instanceName(), new CanalInstance(handle));
+            CanalInstance canalInstance = canalInstanceMap.get(handle.instanceName());
+            if (canalInstance == null || !canalInstance.runningSwitch) {
+                canalInstanceMap.put(handle.instanceName(), new CanalInstance(handle));
+            } else {
+                throw new IllegalArgumentException("CanalInstanceHandle " + handle.instanceName() + " is running, you should stop it first");
+            }
         } finally {
             lock.writeLock().unlock();
         }
@@ -301,6 +306,31 @@ public class CanalExecutor {
         }
 
         /**
+         * 消费当前消息
+         */
+        private void consumerMessage(Message message) {
+            try {
+                for (CanalEntry.Entry e : message.getEntries()) {
+                    if (e.getEntryType() != CanalEntry.EntryType.ROWDATA || !e.hasStoreValue()) continue;
+                    CanalEntry.Header header = e.getHeader();
+                    if (header.getExecuteTime() < startRtTime
+                            || header.getEventType().getNumber() > CanalEntry.EventType.DELETE_VALUE
+                            || !handle.startHandle(header)) continue;
+                    try {
+                        CanalEntry.RowChange rowChange = CanalEntry.RowChange.parseFrom(e.getStoreValue());
+                        if (rowChange.getIsDdl()) continue;
+                        handle.rowChangeHandle(rowChange);
+                    } catch (InvalidProtocolBufferException e1) {
+                        log.error("canal instance: " + handle.instanceName() + " parse store value have exception: ", e1);
+                    }
+                }
+                handle.ack(message.getId());
+            } finally {
+                handle.finishMessageHandle();
+            }
+        }
+
+        /**
          * 不断从canal server获取数据
          */
         @Override
@@ -331,27 +361,10 @@ public class CanalExecutor {
                         reconnect();
                         continue;
                     }
-                    lastBatchId = message.getId();
-                    if (message.getId() <= 0 || message.getEntries().isEmpty()) continue;
                     long nextFetchTime = System.currentTimeMillis() + handle.fetchInterval();
-                    try {
-                        for (CanalEntry.Entry e : message.getEntries()) {
-                            if (e.getEntryType() != CanalEntry.EntryType.ROWDATA || !e.hasStoreValue()) continue;
-                            CanalEntry.Header header = e.getHeader();
-                            if (header.getExecuteTime() < startRtTime
-                                    || header.getEventType().getNumber() > CanalEntry.EventType.DELETE_VALUE
-                                    || !handle.startHandle(header)) continue;
-                            try {
-                                CanalEntry.RowChange rowChange = CanalEntry.RowChange.parseFrom(e.getStoreValue());
-                                if (rowChange.getIsDdl()) continue;
-                                handle.rowChangeHandle(rowChange);
-                            } catch (InvalidProtocolBufferException e1) {
-                                log.error("canal instance: " + handle.instanceName() + " parse store value have exception: ", e1);
-                            }
-                        }
-                        handle.ack(lastBatchId);
-                    } finally {
-                        handle.finishMessageHandle();
+                    lastBatchId = message.getId();
+                    if (lastBatchId > 0 && !message.getEntries().isEmpty()) {
+                        consumerMessage(message);
                     }
                     long sleepTime = nextFetchTime - System.currentTimeMillis();
                     //超过20ms那我们就先sleep一下~~~
