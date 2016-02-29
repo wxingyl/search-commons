@@ -8,6 +8,12 @@
 
 目前最新版本1.0-rc2
 
+##canal-client
+
+基于阿里 [Canal](https://github.com/alibaba/canal) mysql数据库binlog的增量订阅&消费组件，封装其基本使用，统一维护canal instance运行，自定义实例，表，行改动的事件处理以及改动的数据过滤, 具体使用参见[文档](canal-client)
+
+目前最新版本1.0-rc1
+
 ## commons-component
 
 依赖`commons-lang`，搜索公共组件包，目前只是一些简单的Utils方法，里面依赖了一些第三方jar包：
@@ -72,12 +78,6 @@
 
 目前最新版本1.0-rc1
 
-## commons-db
-
-封装数据库常用操作，主要使用datasource链接数据库，通过db-utils操作。
-
-目前还未实现，后续添加完善
-
 ## commons-nlp
 
 依赖`commons-lang`，简单的nlp相关工具类封装，包括：
@@ -100,11 +100,12 @@
 
 查询时识别关键字信息，其跟上面的分词息息相关，目前还没有，后续添加完善
 
-##canal-client
+## commons-db
 
-基于阿里 [Canal](https://github.com/alibaba/canal) mysql数据库binlog的增量订阅&消费组件，封装其基本使用，统一维护canal instance运行，自定义实例，表，行改动的事件处理以及改动的数据过滤, 具体使用参见[文档](canal-client)
+封装数据库常用操作，主要使用datasource链接数据库，通过db-utils操作。
 
-目前最新版本1.0-rc1
+目前还未实现，后续添加完善
+
 
 
 
