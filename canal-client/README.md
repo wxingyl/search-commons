@@ -10,7 +10,7 @@ pom依赖
 <dependency>
 	<groupId>com.tqmall.search</groupId>
 	<artifactId>canal-client</artifactId>
-	<version>dev-1.0-SNAPSHOT</version>
+	<version>1.0-rc1</version>
 </dependency>
 ```
 
@@ -22,7 +22,7 @@ pom依赖
    <dependency>
        <groupId>com.tqmall.search</groupId>
        <artifactId>commons-lang</artifactId>
-       <version>1.0-rc1</version>
+       <version>1.0-rc2</version>
    </dependency>
    ```
 
@@ -94,4 +94,3 @@ pom依赖
 ##Demo Class
 
 [CanalClientDemo.java](src/test/java/com/tqmall/search/canal/CanalClientDemo.java)
-

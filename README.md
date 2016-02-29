@@ -6,7 +6,7 @@
 
 另外还封装了作为搜索参数和简单返回结果的工具包，比如RangeFilter，Sort等。
 
-目前最新版本1.0-rc1
+目前最新版本1.0-rc2
 
 ## commons-component
 
@@ -104,6 +104,8 @@
 
 基于阿里 [Canal](https://github.com/alibaba/canal) mysql数据库binlog的增量订阅&消费组件，封装其基本使用，统一维护canal instance运行，自定义实例，表，行改动的事件处理以及改动的数据过滤, 具体使用参见[文档](canal-client)
 
+目前最新版本1.0-rc1
+
 
 
 更多内容，不断添加~~~~~~
@@ -126,7 +128,7 @@ rc版本为预发版本，未达到上线标准，能用，但是存在很多已
 <dependency>
     <groupId>com.tqmall.search</groupId>
     <artifactId>commons-lang</artifactId>
-    <version>1.0-rc1</version>
+    <version>1.0-rc2</version>
 </dependency>
 ```
 
