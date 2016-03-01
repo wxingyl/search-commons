@@ -71,19 +71,19 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
         TableColumnCondition columnCondition;
         if (lastEventType == CanalEntry.EventType.UPDATE && (columnCondition = currentTable.getColumnCondition()) != null) {
             ListIterator<RowChangedData> it = rowChangedDataList.listIterator();
-            Function<String, String> beforeFunction = UpdateDataFunction.before();
-            Function<String, String> afterFunction = UpdateDataFunction.after();
-            boolean insertForbid = (currentTable.getForbidEventType() & RowChangedData.INSERT_TYPE_FLAG) != 0;
-            boolean deleteForbid = (currentTable.getForbidEventType() & RowChangedData.DELETE_TYPE_FLAG) != 0;
-            boolean updateForbid = (currentTable.getForbidEventType() & RowChangedData.UPDATE_TYPE_FLAG) != 0;
+            final Function<String, String> beforeFunction = UpdateDataFunction.before();
+            final Function<String, String> afterFunction = UpdateDataFunction.after();
+            final boolean insertForbid = (currentTable.getForbidEventType() & RowChangedData.INSERT_TYPE_FLAG) != 0;
+            final boolean deleteForbid = (currentTable.getForbidEventType() & RowChangedData.DELETE_TYPE_FLAG) != 0;
+            final boolean updateForbid = (currentTable.getForbidEventType() & RowChangedData.UPDATE_TYPE_FLAG) != 0;
             try {
                 int lastType = -1, i = 0;
                 while (it.hasNext()) {
                     RowChangedData.Update update = (RowChangedData.Update) it.next();
                     UpdateDataFunction.setUpdateData(update);
-                    boolean beforeInvalid = !columnCondition.validation(beforeFunction);
-                    boolean afterInvalid = !columnCondition.validation(afterFunction);
-                    int curType;
+                    final boolean beforeInvalid = !columnCondition.validation(beforeFunction);
+                    final boolean afterInvalid = !columnCondition.validation(afterFunction);
+                    final int curType;
                     if ((beforeInvalid && afterInvalid)
                             || (updateForbid && !beforeInvalid && !afterInvalid)
                             || (beforeInvalid && insertForbid)

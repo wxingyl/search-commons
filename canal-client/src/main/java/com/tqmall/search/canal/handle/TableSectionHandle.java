@@ -63,17 +63,17 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
         if (currentEventType == CanalEntry.EventType.UPDATE
                 && (columnCondition = currentTable.getColumnCondition()) != null) {
             ListIterator<RowChangedData> it = changedData.listIterator();
-            Function<String, String> beforeFunction = UpdateDataFunction.before();
-            Function<String, String> afterFunction = UpdateDataFunction.after();
-            boolean insertable = (currentTable.getForbidEventType() & RowChangedData.INSERT_TYPE_FLAG) == 0;
-            boolean deletable = (currentTable.getForbidEventType() & RowChangedData.DELETE_TYPE_FLAG) == 0;
-            boolean updateForbid = (currentTable.getForbidEventType() & RowChangedData.UPDATE_TYPE_FLAG) != 0;
+            final Function<String, String> beforeFunction = UpdateDataFunction.before();
+            final Function<String, String> afterFunction = UpdateDataFunction.after();
+            final boolean insertable = (currentTable.getForbidEventType() & RowChangedData.INSERT_TYPE_FLAG) == 0;
+            final boolean deletable = (currentTable.getForbidEventType() & RowChangedData.DELETE_TYPE_FLAG) == 0;
+            final boolean updateForbid = (currentTable.getForbidEventType() & RowChangedData.UPDATE_TYPE_FLAG) != 0;
             try {
                 while (it.hasNext()) {
                     RowChangedData.Update update = (RowChangedData.Update) it.next();
                     UpdateDataFunction.setUpdateData(update);
-                    boolean beforeInvalid = !columnCondition.validation(beforeFunction);
-                    boolean afterInvalid = !columnCondition.validation(afterFunction);
+                    final boolean beforeInvalid = !columnCondition.validation(beforeFunction);
+                    final boolean afterInvalid = !columnCondition.validation(afterFunction);
                     if ((beforeInvalid && afterInvalid)
                             || (updateForbid && !beforeInvalid && !afterInvalid)) {
                         //没有数据, 删除
