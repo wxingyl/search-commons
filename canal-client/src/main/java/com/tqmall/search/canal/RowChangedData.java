@@ -103,25 +103,14 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
 
         private static final long serialVersionUID = 585376007150297603L;
 
-        public Update(CanalEntry.RowData rowData, Set<String> interestedColumns) {
-            super(rowData, interestedColumns);
+        public Update(Map<String, Pair> dataMap) {
+            super();
+            fieldValueMap.putAll(dataMap);
         }
 
         @Override
         final void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
-            final boolean isEmpty = CommonsUtils.isEmpty(interestedColumns);
-            for (CanalEntry.Column c : rowData.getBeforeColumnsList()) {
-                if (isEmpty || interestedColumns.contains(c.getName())) {
-                    fieldValueMap.put(c.getName(), new Pair(c.getValue(), null, false));
-                }
-            }
-            for (CanalEntry.Column c : rowData.getAfterColumnsList()) {
-                Pair p = fieldValueMap.get(c.getName());
-                if (p != null) {
-                    p.after = c.getValue();
-                    p.changed = c.getUpdated();
-                }
-            }
+            //do nothing
         }
 
         public String getBefore(String column) {
@@ -233,11 +222,37 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
                     resultList.add(new Delete(r, interestedColumns));
                 }
                 break;
-            case UPDATE:
-                for (CanalEntry.RowData r : rowChange.getRowDatasList()) {
-                    resultList.add(new Update(r, interestedColumns));
+            case UPDATE: {
+                Map<String, Pair> dataMap = new HashMap<>();
+                final boolean isEmpty = CommonsUtils.isEmpty(interestedColumns);
+                for (CanalEntry.RowData rowData : rowChange.getRowDatasList()) {
+                    if (isEmpty) {
+                        for (CanalEntry.Column c : rowData.getAfterColumnsList()) {
+                            dataMap.put(c.getName(), new Pair(null, c.getValue(), c.getUpdated()));
+                        }
+                    } else {
+                        boolean useless = true;
+                        for (CanalEntry.Column c : rowData.getAfterColumnsList()) {
+                            if (interestedColumns.contains(c.getName())) {
+                                dataMap.put(c.getName(), new Pair(null, c.getValue(), c.getUpdated()));
+                                if (useless && c.getUpdated()) {
+                                    useless = false;
+                                }
+                            }
+                        }
+                        if (useless) continue;
+                    }
+                    for (CanalEntry.Column c : rowData.getBeforeColumnsList()) {
+                        Pair p = dataMap.get(c.getName());
+                        if (p != null) {
+                            p.before = c.getValue();
+                        }
+                    }
+                    resultList.add(new Update(dataMap));
+                    dataMap.clear();
                 }
                 break;
+            }
             default:
                 return null;
         }
@@ -253,7 +268,9 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
     }
 
     public static final byte INSERT_TYPE_FLAG = 1;
+
     public static final byte UPDATE_TYPE_FLAG = 1 << 1;
+
     public static final byte DELETE_TYPE_FLAG = 1 << 2;
 
     public static byte getEventTypeFlag(CanalEntry.EventType eventType) {
