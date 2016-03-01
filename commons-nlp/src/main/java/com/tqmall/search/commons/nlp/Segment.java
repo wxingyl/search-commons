@@ -48,14 +48,13 @@ public class Segment {
         long startTime = System.currentTimeMillis();
         log.info("开始初始化词库: " + lexicon);
         try {
-            NlpUtils.loadLexicon(lexicon, new NlpUtils.LineHandle() {
+            NlpUtils.loadLexicon(lexicon, new Function<String, Boolean>() {
                 @Override
-                public boolean onHandle(String line) {
-                    builder.add(line);
+                public Boolean apply(String s) {
+                    builder.add(s);
                     return true;
                 }
             }, true);
-
         } catch (IOException e) {
             log.error("读取词库: " + lexicon + " 存在IOException", e);
             throw new LoadLexiconException("初始化分词Segment: " + lexicon + ", 读取词库异常", e);
@@ -71,9 +70,9 @@ public class Segment {
         });
         log.info("加载词库: " + lexicon + "完成, 共耗时: " + (System.currentTimeMillis() - startTime) + "ms");
         stopWords = new HashSet<>();
-        NlpUtils.loadLexicon(NlpConst.STOPWORD_FILE_NAME, new NlpUtils.LineHandle() {
+        NlpUtils.loadLexicon(NlpConst.STOPWORD_FILE_NAME, new Function<String, Boolean>() {
             @Override
-            public boolean onHandle(String line) {
+            public Boolean apply(String line) {
                 stopWords.add(line);
                 return true;
             }

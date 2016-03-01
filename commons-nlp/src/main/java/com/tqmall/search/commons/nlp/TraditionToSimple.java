@@ -1,5 +1,6 @@
 package com.tqmall.search.commons.nlp;
 
+import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,9 +23,9 @@ final class TraditionToSimple {
         final int indexOffset = NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST;
         //都是本地加载, 数据格式的校验就不要太严格了~~~
         chars = new char[NlpConst.CJK_UNIFIED_SIZE];
-        NlpUtils.loadLexicon(NlpConst.F2J_FILE_NAME, new NlpUtils.LineHandle() {
+        NlpUtils.loadLexicon(NlpConst.F2J_FILE_NAME, new Function<String, Boolean>() {
             @Override
-            public boolean onHandle(String line) {
+            public Boolean apply(String line) {
                 String[] array = SearchStringUtils.split(line, '=');
                 if (array.length < 2) {
                     log.warn("加载繁体转简体词库, 词" + line + "格式存在异常");

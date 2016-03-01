@@ -1,5 +1,6 @@
 package com.tqmall.search.commons.nlp;
 
+import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.nlp.trie.BinaryMatchTrie;
 import com.tqmall.search.commons.nlp.trie.Node;
 import com.tqmall.search.commons.utils.CommonsUtils;
@@ -17,9 +18,9 @@ final class PinyinConvert {
 
     PinyinConvert() {
         binaryMatchTrie = new BinaryMatchTrie<>(Node.<String[]>defaultCjkTrieNodeFactory());
-        NlpUtils.loadLexicon(NlpConst.PINYIN_FILE_NAME, new NlpUtils.LineHandle() {
+        NlpUtils.loadLexicon(NlpConst.PINYIN_FILE_NAME, new Function<String, Boolean>() {
             @Override
-            public boolean onHandle(String line) {
+            public Boolean apply(String line) {
                 String[] array = SearchStringUtils.split(line, '=');
                 String[] value;
                 if (array[0].length() > 1) {
