@@ -9,7 +9,7 @@ import java.util.Map;
  * Created by xing on 16/1/29.
  * 字符较多的root节点
  */
-public class LargeRootNode<V> extends Node<V> {
+public class BigRootNode<V> extends Node<V> {
 
     /**
      * 子节点
@@ -24,7 +24,7 @@ public class LargeRootNode<V> extends Node<V> {
      * @param minChar  最小的字符
      * @param capacity 容量
      */
-    public LargeRootNode(char minChar, int capacity) {
+    public BigRootNode(char minChar, int capacity) {
         super('\0', Status.NORMAL, null);
         this.minChar = minChar;
         long max = minChar + (long) capacity - 1;
@@ -104,8 +104,8 @@ public class LargeRootNode<V> extends Node<V> {
      *
      * @param <V> value对应的泛型
      */
-    public static <V> LargeRootNode<V> createCjkRootNode() {
-        return new LargeRootNode<>(NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST, NlpConst.CJK_UNIFIED_SIZE);
+    public static <V> BigRootNode<V> createCjkRootNode() {
+        return new BigRootNode<>(NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST, NlpConst.CJK_UNIFIED_SIZE);
     }
 
     /**
@@ -113,8 +113,8 @@ public class LargeRootNode<V> extends Node<V> {
      *
      * @param <V> value对应的泛型
      */
-    public static <V> LargeRootNode<V> createAsciiRootNode() {
-        return new LargeRootNode<>(Character.MIN_VALUE, 0xFF);
+    public static <V> BigRootNode<V> createAsciiRootNode() {
+        return new BigRootNode<>(Character.MIN_VALUE, 0xFF);
     }
 
     /**
@@ -122,8 +122,8 @@ public class LargeRootNode<V> extends Node<V> {
      *
      * @param <V> value对应的泛型
      */
-    public static <V> LargeRootNode<V> createAllRootNode() {
-        return new LargeRootNode<>(Character.MIN_VALUE, Character.MAX_VALUE);
+    public static <V> BigRootNode<V> createAllRootNode() {
+        return new BigRootNode<>(Character.MIN_VALUE, Character.MAX_VALUE);
     }
 
 }

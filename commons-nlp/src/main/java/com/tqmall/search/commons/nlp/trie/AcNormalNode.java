@@ -162,7 +162,7 @@ public class AcNormalNode<V> extends NormalNode<V> {
     private static final AcTrieNodeFactory<?> DEFAULT_CJK_AC_NODE_FACTORY = new AcTrieNodeFactory<Object>() {
         @Override
         public Node<Object> createRootNode() {
-            return LargeRootNode.createCjkRootNode();
+            return BigRootNode.createCjkRootNode();
         }
 
         @Override
