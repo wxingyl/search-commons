@@ -16,7 +16,7 @@ import java.util.Set;
 /**
  * Created by xing on 16/2/8.
  * 分词, 通过{@link AcStrBinaryTrie}实现
- * 该类应该是单例的
+ * 该类建议最好单例
  */
 public class Segment {
 
