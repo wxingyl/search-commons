@@ -73,6 +73,8 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
             ListIterator<RowChangedData> it = rowChangedDataList.listIterator();
             Function<String, String> beforeFunction = UpdateDataFunction.before();
             Function<String, String> afterFunction = UpdateDataFunction.after();
+            boolean insertForbid = (currentTable.getForbidEventType() & RowChangedData.INSERT_TYPE_FLAG) != 0;
+            boolean deleteForbid = (currentTable.getForbidEventType() & RowChangedData.DELETE_TYPE_FLAG) != 0;
             try {
                 int lastType = -1, i = 0;
                 while (it.hasNext()) {
@@ -81,7 +83,8 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
                     boolean beforeInvalid = !columnCondition.validation(beforeFunction);
                     boolean afterInvalid = !columnCondition.validation(afterFunction);
                     int curType;
-                    if (beforeInvalid && afterInvalid) {
+                    if ((beforeInvalid && afterInvalid) || (beforeInvalid && insertForbid)
+                            || (afterInvalid && deleteForbid)) {
                         //没有数据, 删除
                         it.remove();
                         continue;

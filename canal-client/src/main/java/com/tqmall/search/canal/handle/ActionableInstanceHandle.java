@@ -182,6 +182,9 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
         currentEventType = header.getEventType();
         currentTable = actionFactory.getTable(header.getSchemaName(), header.getTableName());
         if (currentTable == null) return false;
+        //排除事件类型过滤
+        if ((RowChangedData.getEventTypeFlag(currentEventType)
+                & currentTable.getForbidEventType()) != 0) return false;
         T action = currentTable.getAction();
         if (action instanceof CurrentHandleTable) {
             ((CurrentHandleTable<T>) action).setCurrentTable(currentTable);

@@ -252,4 +252,20 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
                 data instanceof RowChangedData.Insert ? CanalEntry.EventType.INSERT : CanalEntry.EventType.DELETE;
     }
 
+    public static final byte INSERT_TYPE_FLAG = 1;
+    public static final byte UPDATE_TYPE_FLAG = 1 << 1;
+    public static final byte DELETE_TYPE_FLAG = 1 << 2;
+
+    public static byte getEventTypeFlag(CanalEntry.EventType eventType) {
+        if (eventType == CanalEntry.EventType.INSERT) {
+            return INSERT_TYPE_FLAG;
+        } else if (eventType == CanalEntry.EventType.UPDATE) {
+            return UPDATE_TYPE_FLAG;
+        } else if (eventType == CanalEntry.EventType.DELETE) {
+            return DELETE_TYPE_FLAG;
+        } else {
+            throw new UnsupportedOperationException(eventType + " is unsupported, only support INSERT, UPDATE, DELETE types");
+        }
+    }
+
 }

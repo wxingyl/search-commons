@@ -65,6 +65,8 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
             ListIterator<RowChangedData> it = changedData.listIterator();
             Function<String, String> beforeFunction = UpdateDataFunction.before();
             Function<String, String> afterFunction = UpdateDataFunction.after();
+            boolean insertable = (currentTable.getForbidEventType() & RowChangedData.INSERT_TYPE_FLAG) == 0;
+            boolean deletable = (currentTable.getForbidEventType() & RowChangedData.DELETE_TYPE_FLAG) == 0;
             try {
                 while (it.hasNext()) {
                     RowChangedData.Update update = (RowChangedData.Update) it.next();
@@ -74,9 +76,9 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
                     if (beforeInvalid && afterInvalid) {
                         //没有数据, 删除
                         it.remove();
-                    } else if (beforeInvalid) {
+                    } else if (beforeInvalid && insertable) {
                         it.set(update.transferToInsert());
-                    } else if (afterInvalid) {
+                    } else if (afterInvalid && deletable) {
                         it.set(update.transferToDelete());
                     }
                 }

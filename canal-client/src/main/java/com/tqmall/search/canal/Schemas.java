@@ -1,5 +1,6 @@
 package com.tqmall.search.canal;
 
+import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.canal.action.*;
 import com.tqmall.search.commons.utils.CommonsUtils;
 
@@ -71,6 +72,7 @@ public final class Schemas {
 
     /**
      * {@link Schema}构造器
+     *
      * @param <T>
      */
     public static class Builder<T extends Actionable> {
@@ -128,6 +130,7 @@ public final class Schemas {
         Object action;
         Set<String> columns = new HashSet<>();
         TableColumnCondition columnCondition;
+        byte forbidEventType;
 
         TableBuilder(String tableName) {
             this.tableName = tableName;
@@ -161,6 +164,14 @@ public final class Schemas {
 
         public TableBuilder columnCondition(TableColumnCondition columnCondition) {
             this.columnCondition = columnCondition;
+            return this;
+        }
+
+        /**
+         * 添加需要排除的事件类型
+         */
+        public TableBuilder forbidEventType(CanalEntry.EventType eventType) {
+            forbidEventType |= RowChangedData.getEventTypeFlag(eventType);
             return this;
         }
     }

@@ -33,6 +33,15 @@ public class InstanceSectionHandle extends AbstractCanalInstanceHandle {
 
     private final InstanceAction instanceAction;
 
+    /**
+     * 异常处理方法, 返回结果表示是否忽略, 如果返回null 则为false, 即不忽略, 默认不忽略
+     */
+    private Function<ExceptionContext, Boolean> exceptionHandleFunction;
+
+    /**
+     * 需要排除的更新事件类型
+     */
+    private byte forbidEventType;
 
     /**
      * 当前这在处理的schema.table
@@ -40,14 +49,9 @@ public class InstanceSectionHandle extends AbstractCanalInstanceHandle {
      *
      * @see #startHandle(CanalEntry.Header)
      */
-    protected String currentHandleSchema, currentHandleTable;
+    private String currentHandleSchema, currentHandleTable;
 
-    protected CanalEntry.EventType currentEventType;
-
-    /**
-     * 异常处理方法, 返回结果表示是否忽略, 如果返回null 则为false, 即不忽略, 默认不忽略
-     */
-    private Function<ExceptionContext, Boolean> exceptionHandleFunction;
+    private CanalEntry.EventType currentEventType;
 
     /**
      * @param address        canal服务器地址
@@ -110,10 +114,26 @@ public class InstanceSectionHandle extends AbstractCanalInstanceHandle {
      */
     @Override
     public boolean startHandle(CanalEntry.Header header) {
+        currentEventType = header.getEventType();
+        //事件类型排除处理
+        if ((forbidEventType & RowChangedData.getEventTypeFlag(currentEventType)) != 0) return false;
         currentHandleSchema = header.getSchemaName();
         currentHandleTable = header.getTableName();
-        currentEventType = header.getEventType();
         return true;
+    }
+
+    /**
+     * 添加需要排除的事件类型
+     */
+    public void addForbidEventType(CanalEntry.EventType eventType) {
+        forbidEventType |= RowChangedData.getEventTypeFlag(eventType);
+    }
+
+    /**
+     * 事件类型从排除列表中移除
+     */
+    public void removeForbidEventType(CanalEntry.EventType eventType) {
+        forbidEventType &= ~RowChangedData.getEventTypeFlag(eventType);
     }
 
     public static class ExceptionContext {
