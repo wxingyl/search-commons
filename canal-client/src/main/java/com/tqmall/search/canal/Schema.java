@@ -108,7 +108,7 @@ public class Schema<T extends Actionable> implements Iterable<Schema<T>.Table> {
          */
         private final TableColumnCondition columnCondition;
         /**
-         * 排除的时间类型, 目前只支持{@link CanalEntry.EventType#UPDATE}, {@link CanalEntry.EventType#DELETE}, {@link CanalEntry.EventType#INSERT}
+         * 排除的事件类型, 目前只支持{@link CanalEntry.EventType#UPDATE}, {@link CanalEntry.EventType#DELETE}, {@link CanalEntry.EventType#INSERT}
          */
         private final byte forbidEventType;
 
@@ -145,7 +145,7 @@ public class Schema<T extends Actionable> implements Iterable<Schema<T>.Table> {
             } else this.columns = null;
             if ((forbidEventType & 7) == 7) {
                 throw new IllegalArgumentException("forbidEventType: " + Integer.toBinaryString(forbidEventType)
-                        + " should not contain all type of UPDATE, INSERT, DELETE");
+                        + " should not contain all types of UPDATE, INSERT, DELETE");
             }
             this.forbidEventType = forbidEventType;
         }
