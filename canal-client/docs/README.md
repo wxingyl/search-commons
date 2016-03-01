@@ -19,7 +19,7 @@ com.tqmall.search.canal.CanalExecutor, canal实例执行器，管理各个canal�
 
 ```java
     private static final AtomicInteger EXECUTOR_NUMBER = new AtomicInteger(1);
-    
+
     public CanalExecutor() {
         this(new ThreadFactory() {
             private final ThreadFactory defaultFactory = Executors.defaultThreadFactory();
@@ -205,6 +205,9 @@ public interface ActionFactory<T extends Actionable> extends Iterable<Schema<T>>
 1. `MultiThreadCurrentHandleTable`和`SingleThreadCurrentHandleTable`
 2. `AbstractTableAction`和`AbstractEventTypeAction`
 
+###UML图
+
+详细的[UML图](canal-client_UML.png), 另外有文件`canal-client.mdj`，通过软件[StarUML](http://staruml.io/)编辑
 
 
 ##使用
@@ -301,3 +304,4 @@ pom依赖
 ###Demo Class
 
 [CanalClientDemo.java](src/test/java/com/tqmall/search/canal/CanalClientDemo.java)
+
