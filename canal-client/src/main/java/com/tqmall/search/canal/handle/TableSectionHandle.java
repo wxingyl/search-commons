@@ -67,13 +67,15 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
             Function<String, String> afterFunction = UpdateDataFunction.after();
             boolean insertable = (currentTable.getForbidEventType() & RowChangedData.INSERT_TYPE_FLAG) == 0;
             boolean deletable = (currentTable.getForbidEventType() & RowChangedData.DELETE_TYPE_FLAG) == 0;
+            boolean updateForbid = (currentTable.getForbidEventType() & RowChangedData.UPDATE_TYPE_FLAG) != 0;
             try {
                 while (it.hasNext()) {
                     RowChangedData.Update update = (RowChangedData.Update) it.next();
                     UpdateDataFunction.setUpdateData(update);
                     boolean beforeInvalid = !columnCondition.validation(beforeFunction);
                     boolean afterInvalid = !columnCondition.validation(afterFunction);
-                    if (beforeInvalid && afterInvalid) {
+                    if ((beforeInvalid && afterInvalid)
+                            || (updateForbid && !beforeInvalid && !afterInvalid)) {
                         //没有数据, 删除
                         it.remove();
                     } else if (beforeInvalid && insertable) {
