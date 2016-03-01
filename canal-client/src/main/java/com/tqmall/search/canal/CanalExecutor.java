@@ -409,12 +409,4 @@ public class CanalExecutor {
             return "CanalInstance{" + handle.instanceName() + ", running=" + runningSwitch + "startRtTime=" + startRtTime + '}';
         }
     }
-
-    public static class CanalClientThreadFactory implements ThreadFactory {
-
-        @Override
-        public Thread newThread(Runnable r) {
-            return null;
-        }
-    }
 }
