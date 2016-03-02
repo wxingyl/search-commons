@@ -119,7 +119,7 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
                 UpdateDataFunction.setUpdateData(null);
             }
         } else {
-            runLastEventTypeOfAction(currentEventType.getNumber(), rowChangedDataList);
+            runLastEventTypeOfAction(lastEventType.getNumber(), rowChangedDataList);
         }
     }
 
