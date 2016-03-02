@@ -50,6 +50,15 @@ public class HttpUtilsTest {
 
         private String err_msg;
 
+        @Override
+        public String toString() {
+            return "TinyUrl{" +
+                    "err_msg='" + err_msg + '\'' +
+                    ", tinyurl='" + tinyurl + '\'' +
+                    ", status=" + status +
+                    ", longurl='" + longurl + '\'' +
+                    '}';
+        }
     }
 
 }
