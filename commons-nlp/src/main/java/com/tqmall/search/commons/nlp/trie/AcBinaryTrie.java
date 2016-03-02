@@ -143,7 +143,7 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
 
         private TreeMap<String, V> dataMap = new TreeMap<>();
         /**
-         * 默认rootNode为{@link LargeRootNode#createAsciiRootNode()} ()}
+         * 默认rootNode为{@link BigRootNode#createAsciiRootNode()} ()}
          * 子node为{@link AcNormalNode}
          */
         private AcTrieNodeFactory<V> nodeFactory;
@@ -178,7 +178,7 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
 
                     @Override
                     public Node<V> createRootNode() {
-                        return LargeRootNode.createAsciiRootNode();
+                        return BigRootNode.createAsciiRootNode();
                     }
                 };
             }

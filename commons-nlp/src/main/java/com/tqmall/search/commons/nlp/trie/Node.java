@@ -190,7 +190,7 @@ public abstract class Node<V> {
     private static final TrieNodeFactory<?> DEFAULT_CJK_NODE_FACTORY = new TrieNodeFactory<Object>() {
         @Override
         public Node<Object> createRootNode() {
-            return LargeRootNode.createCjkRootNode();
+            return BigRootNode.createCjkRootNode();
         }
 
         @Override

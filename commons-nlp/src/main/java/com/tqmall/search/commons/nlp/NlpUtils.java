@@ -1,6 +1,7 @@
 package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.exception.LoadLexiconException;
+import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.lang.LazyInit;
 import com.tqmall.search.commons.lang.Supplier;
 import org.slf4j.Logger;
@@ -174,9 +175,9 @@ public final class NlpUtils {
      * 加载词库文件, 通过{@link StandardCharsets#UTF_8}编码打开文件
      *
      * @param filename   词库加载
-     * @param lineHandle 每行的处理函数
+     * @param lineHandle 每行的处理函数, 入参String: 一行内容, 出参Boolean: true 继续, false 停止后续加载
      */
-    public static void loadLexicon(String filename, LineHandle lineHandle) {
+    public static void loadLexicon(String filename, Function<String, Boolean> lineHandle) {
         loadLexicon(filename, lineHandle, false);
     }
 
@@ -184,11 +185,11 @@ public final class NlpUtils {
      * 加载词库文件, 通过{@link StandardCharsets#UTF_8}编码打开文件
      *
      * @param filename   词库加载
-     * @param lineHandle 每行的处理函数
+     * @param lineHandle 每行的处理函数, 入参String: 一行内容, 出参Boolean: true 继续, false 停止后续加载
      * @param lineTrim   每行数据是否需要trim处理, 即使该值为false, 也会判断line是否为空{@link String#isEmpty()}
      *                   作为词库文件, 都应该尽可能的稍作一些字符串的处理操作
      */
-    public static void loadLexicon(String filename, LineHandle lineHandle, boolean lineTrim) {
+    public static void loadLexicon(String filename, Function<String, Boolean> lineHandle, boolean lineTrim) {
         if (filename.charAt(0) != '/') {
             filename = '/' + filename;
         }
@@ -206,13 +207,13 @@ public final class NlpUtils {
      * 加载词库文件, 通过{@link StandardCharsets#UTF_8}编码打开文件
      *
      * @param in         input输入流, 加载完会执行关闭
-     * @param lineHandle 每行的处理函数
+     * @param lineHandle 每行的处理函数, 入参String: 一行内容, 出参Boolean: true 继续, false 停止后续加载
      * @param lineTrim   每行数据是否需要trim处理, 即使该值为false, 也会判断line是否为空{@link String#isEmpty()}
      *                   作为词库文件, 都应该尽可能的稍作一些字符串的处理操作
      * @return 加载的行数统计
      * @throws IOException 读取文件发生异常
      */
-    public static int loadLexicon(InputStream in, LineHandle lineHandle, boolean lineTrim) throws IOException {
+    public static int loadLexicon(InputStream in, Function<String, Boolean> lineHandle, boolean lineTrim) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
             int lineCount = 0;
             String line;
@@ -222,22 +223,10 @@ public final class NlpUtils {
                 if (line.charAt(0) == '#') continue;
                 //如果通知, 那就走
                 lineCount++;
-                if (!lineHandle.onHandle(line)) break;
+                if (!lineHandle.apply(line)) break;
             }
             return lineCount;
         }
-    }
-
-    /**
-     * 行处理接口
-     */
-    public interface LineHandle {
-
-        /**
-         * @param line 一行内容
-         * @return true 继续, false 停止后续加载
-         */
-        boolean onHandle(String line);
     }
 
 }

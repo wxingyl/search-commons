@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public final class ResultJsonConverts {
 
-    private ResultJsonConverts(){
+    private ResultJsonConverts() {
     }
 
     /**
@@ -139,15 +139,10 @@ public final class ResultJsonConverts {
         if (dataIndex < 0) {
             return buildErrorSimpleResult("Can not find data field");
         }
-        int i;
+        int i = dataIndex - 1;
         //找data前面的位置
-//        while (--i > 0 && ',' != json.charAt(i));
-        //上面是简单的写法, 但是空循环据说可能被jit编译优化给干掉,所以还是别装逼了吧
-        for (i = dataIndex; ; ) {
-            i--;
-            if (i <= 0 || ',' == json.charAt(i)) {
-                break;
-            }
+        for (; i > 0; i--) {
+            if (',' == json.charAt(i)) break;
         }
         //这儿能够处理数组格式,但是对于单个对象的就无能为力了,比如Result<String>类型, 这儿需要做特殊处理
         final int startIndex = i;
