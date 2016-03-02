@@ -19,7 +19,7 @@ import java.util.ListIterator;
  * 基于表级别, 每个事件如果
  * 连续的事件更新, 发现不同schema, table, eventType 则处理掉
  *
- * @see #runRowChangeAction()
+ * @see #runLastRowChangeAction()
  * @see EventTypeAction
  */
 public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAction> {
@@ -49,13 +49,13 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private void runEventTypeOfAction(int eventType, List<? extends RowChangedData> dataList) {
+    private void runLastEventTypeOfAction(int eventType, List<? extends RowChangedData> dataList) {
         if (eventType == CanalEntry.EventType.UPDATE_VALUE) {
-            currentTable.getAction().onUpdateAction(Collections.unmodifiableList((List<RowChangedData.Update>) dataList));
+            lastTable.getAction().onUpdateAction(Collections.unmodifiableList((List<RowChangedData.Update>) dataList));
         } else if (eventType == CanalEntry.EventType.INSERT_VALUE) {
-            currentTable.getAction().onInsertAction(Collections.unmodifiableList((List<RowChangedData.Insert>) dataList));
+            lastTable.getAction().onInsertAction(Collections.unmodifiableList((List<RowChangedData.Insert>) dataList));
         } else {
-            currentTable.getAction().onDeleteAction(Collections.unmodifiableList((List<RowChangedData.Delete>) dataList));
+            lastTable.getAction().onDeleteAction(Collections.unmodifiableList((List<RowChangedData.Delete>) dataList));
         }
         //这儿清楚掉
         dataList.clear();
@@ -66,16 +66,16 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
      * {@link EventTypeAction#onUpdateAction(List)}, 由于{@link RowChangedData.Update}转换, 分隔成多个List, 调用多次各自事
      * 件处理方法
      */
-    private void runRowChangeAction() {
+    private void runLastRowChangeAction() {
         if (rowChangedDataList.isEmpty()) return;
         TableColumnCondition columnCondition;
-        if (lastEventType == CanalEntry.EventType.UPDATE && (columnCondition = currentTable.getColumnCondition()) != null) {
+        if (lastEventType == CanalEntry.EventType.UPDATE && (columnCondition = lastTable.getColumnCondition()) != null) {
             ListIterator<RowChangedData> it = rowChangedDataList.listIterator();
             final Function<String, String> beforeFunction = UpdateDataFunction.before();
             final Function<String, String> afterFunction = UpdateDataFunction.after();
-            final boolean insertForbid = (currentTable.getForbidEventType() & RowChangedData.INSERT_TYPE_FLAG) != 0;
-            final boolean deleteForbid = (currentTable.getForbidEventType() & RowChangedData.DELETE_TYPE_FLAG) != 0;
-            final boolean updateForbid = (currentTable.getForbidEventType() & RowChangedData.UPDATE_TYPE_FLAG) != 0;
+            final boolean insertForbid = (lastTable.getForbidEventType() & RowChangedData.INSERT_TYPE_FLAG) != 0;
+            final boolean deleteForbid = (lastTable.getForbidEventType() & RowChangedData.DELETE_TYPE_FLAG) != 0;
+            final boolean updateForbid = (lastTable.getForbidEventType() & RowChangedData.UPDATE_TYPE_FLAG) != 0;
             try {
                 int lastType = -1, i = 0;
                 while (it.hasNext()) {
@@ -104,7 +104,7 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
                     if (lastType == -1) {
                         lastType = curType;
                     } else if (lastType != curType) {
-                        runEventTypeOfAction(lastType, rowChangedDataList.subList(0, i));
+                        runLastEventTypeOfAction(lastType, rowChangedDataList.subList(0, i));
                         //从头开始
                         it = rowChangedDataList.listIterator();
                         i = 0;
@@ -112,14 +112,14 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
                     }
                 }
                 if (i > 0) {
-                    runEventTypeOfAction(lastType, rowChangedDataList);
+                    runLastEventTypeOfAction(lastType, rowChangedDataList);
                 }
             } finally {
                 //要记得清楚掉, 避免内存泄露
                 UpdateDataFunction.setUpdateData(null);
             }
         } else {
-            runEventTypeOfAction(currentEventType.getNumber(), rowChangedDataList);
+            runLastEventTypeOfAction(currentEventType.getNumber(), rowChangedDataList);
         }
     }
 
@@ -127,7 +127,7 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
     protected void doRowChangeHandle(List<RowChangedData> changedData) {
         //尽量集中处理
         if (!currentTable.equals(lastTable) || currentEventType != lastEventType) {
-            runRowChangeAction();
+            runLastRowChangeAction();
             lastTable = currentTable;
             lastEventType = currentEventType;
         }
@@ -135,7 +135,7 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
     }
 
     /**
-     * 如果出现异常, 可以肯定方法{@link #runRowChangeAction()}至少调用过一次, 那么对应的, {@link #lastTable},
+     * 如果出现异常, 可以肯定方法{@link #runLastRowChangeAction()}至少调用过一次, 那么对应的, {@link #lastTable},
      * {@link #lastEventType} 需要更新
      *
      * @param exception      具体异常
@@ -161,7 +161,7 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
 
     @Override
     protected void doFinishHandle() {
-        runRowChangeAction();
+        runLastRowChangeAction();
     }
 
     @Override

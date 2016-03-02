@@ -35,7 +35,7 @@ public abstract class AbstractStrongCache<K, V> implements StrongCache<K, V> {
      *      如果是删除操作,看原先是否为null,如果就是null活着不存在,则认为没有更改,返回false
      *      如果是更新操作, 看原先两者是不是{@link Objects#equals(Object, Object)}
      */
-    final protected boolean updateValue(K key, V val) {
+    protected final boolean updateValue(K key, V val) {
         V before;
         if (val == null) {
             before = cache.remove(key);
@@ -62,7 +62,7 @@ public abstract class AbstractStrongCache<K, V> implements StrongCache<K, V> {
     }
 
     @Override
-    public V getValue(K key) {
+    public final V getValue(K key) {
         if(key == null) return null;
         if (cache == null) {
             init();
@@ -82,7 +82,7 @@ public abstract class AbstractStrongCache<K, V> implements StrongCache<K, V> {
     }
 
     @Override
-    final public boolean initialized() {
+    public final boolean initialized() {
         return cache != null;
     }
 
@@ -90,7 +90,7 @@ public abstract class AbstractStrongCache<K, V> implements StrongCache<K, V> {
      * 提供reload 函数
      */
     @Override
-    final public synchronized int reload() {
+    public final synchronized int reload() {
         clear();
         return init();
     }

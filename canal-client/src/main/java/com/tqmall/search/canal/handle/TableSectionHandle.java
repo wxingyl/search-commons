@@ -17,7 +17,7 @@ import java.util.ListIterator;
  * table处理级别的{@link CanalInstanceHandle}
  * 连续的事件更新, 发现不同schema, table则处理掉
  *
- * @see #runRowChangeAction()
+ * @see #runLastRowChangeAction()
  * @see TableAction
  */
 public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
@@ -37,9 +37,9 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
         super(address, destination, schemaTables);
     }
 
-    private void runRowChangeAction() {
+    private void runLastRowChangeAction() {
         if (rowChangedDataList.isEmpty()) return;
-        currentTable.getAction().onAction(rowChangedDataList);
+        lastTable.getAction().onAction(rowChangedDataList);
         rowChangedDataList.clear();
     }
 
@@ -56,7 +56,7 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
     protected void doRowChangeHandle(List<RowChangedData> changedData) {
         //尽量集中处理
         if (!currentTable.equals(lastTable)) {
-            runRowChangeAction();
+            runLastRowChangeAction();
             lastTable = currentTable;
         }
         TableColumnCondition columnCondition;
@@ -93,7 +93,7 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
     }
 
     /**
-     * 如果出现异常, 可以肯定方法{@link #runRowChangeAction()}至少调用过一次, 那么对应的{@link #lastTable}需要更新
+     * 如果出现异常, 可以肯定方法{@link #runLastRowChangeAction()}至少调用过一次, 那么对应的{@link #lastTable}需要更新
      *
      * @param exception      具体异常
      * @param inFinishHandle 标识是否在{@link #doFinishHandle()}中产生的异常
@@ -117,6 +117,6 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
 
     @Override
     protected void doFinishHandle() {
-        runRowChangeAction();
+        runLastRowChangeAction();
     }
 }
