@@ -360,9 +360,11 @@ public class CanalExecutor {
                 lock.notifyAll();
             }
             long lastBatchId = 0L;
+            boolean connectSucceed = false;
             try {
                 //如果连接出现异常, 相关配置,变量还没有修改, 所以不用做任何处理,当前线程退出就行
                 handle.connect();
+                connectSucceed = true;
                 while (runningSwitch) {
                     Message message;
                     try {
@@ -399,7 +401,9 @@ public class CanalExecutor {
                     running = false;
                     lock.notifyAll();
                 }
-                handle.disConnect();
+                if (connectSucceed) {
+                    handle.disConnect();
+                }
             }
             log.info("canalInstance: " + handle.instanceName() + " has stopped");
         }
