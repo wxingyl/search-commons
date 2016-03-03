@@ -226,6 +226,7 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
                 Map<String, Pair> dataMap = new HashMap<>();
                 final boolean isEmpty = CommonsUtils.isEmpty(interestedColumns);
                 for (CanalEntry.RowData rowData : rowChange.getRowDatasList()) {
+                    dataMap.clear();
                     if (isEmpty) {
                         for (CanalEntry.Column c : rowData.getAfterColumnsList()) {
                             dataMap.put(c.getName(), new Pair(null, c.getValue(), c.getUpdated()));
@@ -249,7 +250,6 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
                         }
                     }
                     resultList.add(new Update(dataMap));
-                    dataMap.clear();
                 }
                 break;
             }
