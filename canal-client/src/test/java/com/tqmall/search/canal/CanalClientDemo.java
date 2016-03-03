@@ -6,7 +6,7 @@ import com.tqmall.search.canal.handle.*;
 import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.param.condition.EqualCondition;
 import com.tqmall.search.commons.param.condition.RangeCondition;
-import org.junit.Test;
+import org.junit.Ignore;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -39,7 +39,7 @@ public class CanalClientDemo {
      */
     private final static SocketAddress LOCAL_ADDRESS = new InetSocketAddress(AddressUtils.getHostAddress(), CANAL_PORT);
 
-    @Test
+    @Ignore
     public void runCanalInstanceTest() {
         ActionFactory<TableAction> actionFactory = new SingleSchemaActionFactory<>(Schemas.<TableAction>buildSchema("autoparts")
                 .addTable(Schemas.buildTable("db_goods_stock")
