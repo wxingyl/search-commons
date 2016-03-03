@@ -246,60 +246,8 @@ pom依赖
    </dependency>
    ```
 
-   canal.client里面依赖了很多第三方jar，所以使用时注意冲突，主要有
+   canal.client里面依赖了很多第三方jar，我们仅仅使用canal-client,  避免冲突，排除了部分不使用的jar包，具体如下：
 
-   ```xml
-    <!-- zk -->
-    <dependency>
-        <groupId>org.apache.zookeeper</groupId>
-        <artifactId>zookeeper</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>com.github.sgroschupf</groupId>
-        <artifactId>zkclient</artifactId>
-    </dependency>
-    <!-- external -->
-    <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <version>2.6</version>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>com.alibaba</groupId>
-        <artifactId>fastjson</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-    </dependency>
-    <!-- log -->
-    <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-core</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>jcl-over-slf4j</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-    </dependency>
-   ```
-
-避免冲突，我们仅仅使用canal-client, 所以排除了部分jar包，具体如下：
 
 ```xml
         <dependency>
@@ -333,6 +281,28 @@ pom依赖
                 </exclusion>
             </exclusions>
         </dependency>
+```
+
+目前包含的jar包有：
+
+```xml
+ <!-- zk -->
+  <dependency>
+      <groupId>org.apache.zookeeper</groupId>
+      <artifactId>zookeeper</artifactId>
+  </dependency>
+ <dependency>
+     <groupId>com.github.sgroschupf</groupId>
+     <artifactId>zkclient</artifactId>
+ </dependency>
+ <dependency>
+     <groupId>com.google.guava</groupId>
+     <artifactId>guava</artifactId>
+ </dependency>
+ <dependency>
+     <groupId>org.slf4j</groupId>
+     <artifactId>slf4j-api</artifactId>
+ </dependency>
 ```
 
 
