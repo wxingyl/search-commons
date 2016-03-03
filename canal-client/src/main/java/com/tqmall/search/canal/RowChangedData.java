@@ -2,7 +2,9 @@ package com.tqmall.search.canal;
 
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.commons.lang.Function;
+import com.tqmall.search.commons.lang.StrValueConvert;
 import com.tqmall.search.commons.utils.CommonsUtils;
+import com.tqmall.search.commons.utils.StrValueConverts;
 
 import java.io.Serializable;
 import java.util.*;
@@ -45,7 +47,29 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
      */
     protected abstract void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns);
 
-    public static final class Insert extends RowChangedData<String> {
+    public static abstract class StrRowChangedData extends RowChangedData<String> {
+
+        public StrRowChangedData() {
+        }
+
+        public StrRowChangedData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
+            super(rowData, interestedColumns);
+        }
+
+        private static final long serialVersionUID = -6170440278516894897L;
+
+        public final <T> T getValue(String column, Class<T> cls) {
+            StrValueConvert<T> convert = StrValueConverts.getConvert(cls);
+            return convert != null ? getValue(column, convert) : null;
+        }
+
+        public final <T> T getValue(String column, StrValueConvert<T> convert) {
+            String str = fieldValueMap.get(column);
+            return str != null ? convert.convert(str) : null;
+        }
+    }
+
+    public static final class Insert extends StrRowChangedData {
 
         private static final long serialVersionUID = -2687037454927572799L;
 
@@ -75,9 +99,10 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
                 }
             }
         }
+
     }
 
-    public static final class Delete extends RowChangedData<String> {
+    public static final class Delete extends StrRowChangedData {
 
         private static final long serialVersionUID = 6254540878604970123L;
 
@@ -107,6 +132,7 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
                 }
             }
         }
+
     }
 
     public static final class Update extends RowChangedData<Pair> {
@@ -128,9 +154,29 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
             return (pair = fieldValueMap.get(column)) == null ? null : pair.before;
         }
 
+        public <T> T getBefore(String column, Class<T> cls) {
+            StrValueConvert<T> convert = StrValueConverts.getConvert(cls);
+            return convert != null ? getAfter(column, convert) : null;
+        }
+
+        public <T> T getBefore(String column, StrValueConvert<T> convert) {
+            String str = fieldValueMap.get(column) != null ? fieldValueMap.get(column).getBefore() : null;
+            return str != null ? convert.convert(str) : null;
+        }
+
         public String getAfter(String column) {
             Pair pair;
             return (pair = fieldValueMap.get(column)) == null ? null : pair.after;
+        }
+
+        public <T> T getAfter(String column, Class<T> cls) {
+            StrValueConvert<T> convert = StrValueConverts.getConvert(cls);
+            return convert != null ? getAfter(column, convert) : null;
+        }
+
+        public <T> T getAfter(String column, StrValueConvert<T> convert) {
+            String str = fieldValueMap.get(column) != null ? fieldValueMap.get(column).getAfter() : null;
+            return str != null ? convert.convert(str) : null;
         }
 
         public boolean isChanged(String column) {
