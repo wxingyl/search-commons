@@ -58,14 +58,22 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
 
         private static final long serialVersionUID = -6170440278516894897L;
 
+        /**
+         * 常用的基本类型class会通过{@link StrValueConverts#getBasicConvert(Class)}获取对应的{@link StrValueConvert}对象
+         * 对于没有实现的class会抛出{@link IllegalArgumentException}
+         *
+         * @see StrValueConverts#getBasicConvert(Class)
+         * @see StrValueConvert
+         */
         public final <T> T getValue(String column, Class<T> cls) {
-            StrValueConvert<T> convert = StrValueConverts.getConvert(cls);
-            return convert != null ? getValue(column, convert) : null;
+            return getValue(column, StrValueConverts.getBasicConvert(cls));
         }
 
+        /**
+         * 基本的数据类型建议调用{@link #getValue(String, Class)}
+         */
         public final <T> T getValue(String column, StrValueConvert<T> convert) {
-            String str = fieldValueMap.get(column);
-            return str != null ? convert.convert(str) : null;
+            return convert.convert(fieldValueMap.get(column));
         }
     }
 
@@ -144,24 +152,33 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
             fieldValueMap.putAll(dataMap);
         }
 
+        @Deprecated
         @Override
         protected final void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
             //do nothing
         }
 
-        public String getBefore(String column) {
+        public final String getBefore(String column) {
             Pair pair;
             return (pair = fieldValueMap.get(column)) == null ? null : pair.before;
         }
 
-        public <T> T getBefore(String column, Class<T> cls) {
-            StrValueConvert<T> convert = StrValueConverts.getConvert(cls);
-            return convert != null ? getAfter(column, convert) : null;
+        /**
+         * 常用的基本类型class会通过{@link StrValueConverts#getBasicConvert(Class)}获取对应的{@link StrValueConvert}对象
+         * 对于没有实现的class会抛出{@link IllegalArgumentException}
+         *
+         * @see StrValueConverts#getBasicConvert(Class)
+         * @see StrValueConvert
+         */
+        public final <T> T getBefore(String column, Class<T> cls) {
+            return getBefore(column, StrValueConverts.getBasicConvert(cls));
         }
 
-        public <T> T getBefore(String column, StrValueConvert<T> convert) {
-            String str = fieldValueMap.get(column) != null ? fieldValueMap.get(column).getBefore() : null;
-            return str != null ? convert.convert(str) : null;
+        /**
+         * 基本的数据类型建议调用{@link #getBefore(String)}
+         */
+        public final <T> T getBefore(String column, StrValueConvert<T> convert) {
+            return convert.convert(fieldValueMap.get(column) != null ? fieldValueMap.get(column).getBefore() : null);
         }
 
         public String getAfter(String column) {
@@ -169,14 +186,22 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
             return (pair = fieldValueMap.get(column)) == null ? null : pair.after;
         }
 
+        /**
+         * 常用的基本类型class会通过{@link StrValueConverts#getBasicConvert(Class)}获取对应的{@link StrValueConvert}对象
+         * 对于没有实现的class会抛出{@link IllegalArgumentException}
+         *
+         * @see StrValueConverts#getBasicConvert(Class)
+         * @see StrValueConvert
+         */
         public <T> T getAfter(String column, Class<T> cls) {
-            StrValueConvert<T> convert = StrValueConverts.getConvert(cls);
-            return convert != null ? getAfter(column, convert) : null;
+            return getAfter(column, StrValueConverts.getBasicConvert(cls));
         }
 
+        /**
+         * 基本的数据类型建议调用{@link #getAfter(String)}
+         */
         public <T> T getAfter(String column, StrValueConvert<T> convert) {
-            String str = fieldValueMap.get(column) != null ? fieldValueMap.get(column).getAfter() : null;
-            return str != null ? convert.convert(str) : null;
+            return convert.convert(fieldValueMap.get(column) != null ? fieldValueMap.get(column).getAfter() : null);
         }
 
         public boolean isChanged(String column) {

@@ -22,6 +22,10 @@ public final class StrValueConverts {
 
     /**
      * 获取指定class的{@link StrValueConvert}实例, 如果内部没有实现返回null
+     * 具体实现的类型有:
+     * {@link Integer}, {@link Boolean}, {@link Double}, {@link Long}, {@link BigInteger},
+     * {@link BigDecimal}, {@link Date}(默认格式: yyyy-MM-dd HH:mm:ss), {@link String}
+     * <p/>
      * {@link Float}, 类型是故意整没的~~~~~~
      *
      * @param cls 对应类型的class对象
@@ -58,6 +62,19 @@ public final class StrValueConverts {
             return null;
         }
         return ret;
+    }
+
+    /**
+     * 获取基本的数据类型的{@link StrValueConvert}, 没有则抛出{@link IllegalArgumentException}
+     *
+     * @see #getConvert(Class)
+     */
+    public static <T> StrValueConvert<T> getBasicConvert(Class<T> cls) {
+        StrValueConvert<T> convert = StrValueConverts.getConvert(cls);
+        if (convert == null) {
+            throw new IllegalArgumentException("can not find basic StrValueConvert instance of " + cls);
+        }
+        return convert;
     }
 
     public static <T extends Comparable<T>> StrValueConvert<T> getConvert(Class<T> cls, final T defaultValue) {
@@ -127,6 +144,7 @@ public final class StrValueConverts {
 
     /**
      * String类型的时间转换为{@link Date}对象
+     *
      * @param input 时间字符串格式yyyy-MM-dd HH:mm:ss
      */
     public static Date dateConvert(String input) {

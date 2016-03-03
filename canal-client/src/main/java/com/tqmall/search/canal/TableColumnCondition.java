@@ -137,12 +137,8 @@ public class TableColumnCondition {
          * @see ConditionContainer#MUST_NOT_TYPE
          */
         public <T> Builder condition(byte type, Condition condition, Class<T> cls) {
-            StrValueConvert<T> convert = StrValueConverts.getConvert(cls);
-            if (convert != null) {
-                return condition(type, condition, convert);
-            } else {
-                throw new IllegalArgumentException("there is not a StrValueConvert for class: " + cls);
-            }
+            condition(type, condition, StrValueConverts.getBasicConvert(cls));
+            return this;
         }
 
         public <T> Builder condition(byte type, Condition condition, StrValueConvert<T> convert) {

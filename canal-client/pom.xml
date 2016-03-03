@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>canal-client</artifactId>
-    <version>1.0-rc4</version>
+    <version>1.0-rc5</version>
     <packaging>jar</packaging>
 
     <dependencies>
