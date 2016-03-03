@@ -43,7 +43,7 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
      * @param rowData           canal变化的列值
      * @param interestedColumns 感兴趣的列, 如果{@link CommonsUtils#isEmpty(Collection)}为true则全部包含
      */
-    abstract void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns);
+    protected abstract void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns);
 
     public static final class Insert extends RowChangedData<String> {
 
@@ -63,10 +63,15 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
 
         @Override
         protected final void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
-            final boolean isEmpty = CommonsUtils.isEmpty(interestedColumns);
-            for (CanalEntry.Column c : rowData.getAfterColumnsList()) {
-                if (isEmpty || interestedColumns.contains(c.getName())) {
+            if (CommonsUtils.isEmpty(interestedColumns)) {
+                for (CanalEntry.Column c : rowData.getAfterColumnsList()) {
                     fieldValueMap.put(c.getName(), c.getValue());
+                }
+            } else {
+                for (CanalEntry.Column c : rowData.getAfterColumnsList()) {
+                    if (interestedColumns.contains(c.getName())) {
+                        fieldValueMap.put(c.getName(), c.getValue());
+                    }
                 }
             }
         }
@@ -89,11 +94,16 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
         }
 
         @Override
-        void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
-            final boolean isEmpty = CommonsUtils.isEmpty(interestedColumns);
-            for (CanalEntry.Column c : rowData.getBeforeColumnsList()) {
-                if (isEmpty || interestedColumns.contains(c.getName())) {
+        protected final void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
+            if (CommonsUtils.isEmpty(interestedColumns)) {
+                for (CanalEntry.Column c : rowData.getBeforeColumnsList()) {
                     fieldValueMap.put(c.getName(), c.getValue());
+                }
+            } else {
+                for (CanalEntry.Column c : rowData.getBeforeColumnsList()) {
+                    if (interestedColumns.contains(c.getName())) {
+                        fieldValueMap.put(c.getName(), c.getValue());
+                    }
                 }
             }
         }
@@ -109,7 +119,7 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
         }
 
         @Override
-        final void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
+        protected final void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
             //do nothing
         }
 
@@ -223,10 +233,9 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
                 }
                 break;
             case UPDATE: {
-                Map<String, Pair> dataMap = new HashMap<>();
+                final Map<String, Pair> dataMap = new HashMap<>();
                 final boolean isEmpty = CommonsUtils.isEmpty(interestedColumns);
                 for (CanalEntry.RowData rowData : rowChange.getRowDatasList()) {
-                    dataMap.clear();
                     if (isEmpty) {
                         for (CanalEntry.Column c : rowData.getAfterColumnsList()) {
                             dataMap.put(c.getName(), new Pair(null, c.getValue(), c.getUpdated()));
@@ -251,6 +260,8 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
                     }
                     resultList.add(new Update(dataMap));
                 }
+                //这儿clear掉吧还是
+                dataMap.clear();
                 break;
             }
             default:
