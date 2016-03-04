@@ -144,7 +144,7 @@ public final class NlpUtils {
      * @param word             需要转换的汉字
      * @param ignoreWhitespace 是否忽略空白符, 如果不忽略则保留
      */
-    public static String pyNormalConvert(String word, boolean ignoreWhitespace) {
+    public static String pyNormalConvert(char[] word, boolean ignoreWhitespace) {
         Map.Entry<String, String> e = PINYIN_CONVERT.getInstance().normalConvert(word, ignoreWhitespace, false);
         return e == null ? null : e.getKey();
     }
@@ -156,7 +156,7 @@ public final class NlpUtils {
      * @param ignoreWhitespace 是否忽略空白符, 如果不忽略则保留
      * @return {@link Map.Entry#getKey()} 为转换的拼音text, {@link Map.Entry#getValue()} 为拼音首字母字符串
      */
-    public static Map.Entry<String, String> pyNormalFirstLetterConvert(String word, boolean ignoreWhitespace) {
+    public static Map.Entry<String, String> pyNormalFirstLetterConvert(char[] word, boolean ignoreWhitespace) {
         return PINYIN_CONVERT.getInstance().normalConvert(word, ignoreWhitespace, true);
     }
 
@@ -167,7 +167,7 @@ public final class NlpUtils {
      * @param word 需要转换的汉字
      * @return 转换结果, 如果没有一个拼音匹配, 则返回null, 不再做任何处理
      */
-    public static PinyinConvert.Result pyFullConvert(String word) {
+    public static PinyinConvert.Result pyFullConvert(char[] word) {
         return PINYIN_CONVERT.getInstance().fullConvert(word);
     }
 

@@ -38,7 +38,7 @@ final class PinyinConvert {
      * 单个cjk字符转化, 对于多音字, 只返回词库中的第一个
      */
     public String cjkConvert(char cjkChar) {
-        Hits<String[]> hits = binaryMatchTrie.textMaxMatch(cjkChar + "");
+        Hits<String[]> hits = binaryMatchTrie.textMaxMatch(new char[]{cjkChar});
         if (hits == null || CommonsUtils.isEmpty(hits.getHits())) return null;
         return hits.getHits().get(0).getValue()[0];
     }
@@ -52,7 +52,7 @@ final class PinyinConvert {
      * @param needFirstLetter  是否需要拼音首字母
      * @return {@link Map.Entry#getKey()} 为转换的拼音text, {@link Map.Entry#getValue()} 为拼音首字母字符串. 当然此时needFirstLetter = true才有效
      */
-    public Map.Entry<String, String> normalConvert(String word, boolean ignoreWhitespace, boolean needFirstLetter) {
+    public Map.Entry<String, String> normalConvert(char[] word, boolean ignoreWhitespace, boolean needFirstLetter) {
         Hits<String[]> hits = binaryMatchTrie.textMaxMatch(word);
         if (hits == null || CommonsUtils.isEmpty(hits.getHits())) return null;
         StringBuilder pyStr = new StringBuilder();
@@ -62,7 +62,7 @@ final class PinyinConvert {
             int curStartPos = h.getStartPos();
             if (curStartPos != lastEndPos && !ignoreWhitespace) {
                 while (lastEndPos < curStartPos) {
-                    char ch = word.charAt(lastEndPos);
+                    char ch = word[lastEndPos];
                     if (Character.isWhitespace(ch) || NlpUtils.isSpecialChar(ch)) {
                         pyStr.append(ch);
                     }
@@ -85,7 +85,7 @@ final class PinyinConvert {
      * @param word 需要转换的汉字
      * @return 转换结果, 如果没有一个拼音匹配, 则返回null, 不再做任何处理
      */
-    public Result fullConvert(String word) {
+    public Result fullConvert(char[] word) {
         Hits<String[]> hits = binaryMatchTrie.textMaxMatch(word);
         if (hits == null || CommonsUtils.isEmpty(hits.getHits())) return null;
         Result result = new Result(word);
@@ -115,7 +115,7 @@ final class PinyinConvert {
         /**
          * 原始text
          */
-        private final String srcText;
+        private final char[] srcText;
 
         /**
          * 拼音转换结果list
@@ -134,7 +134,7 @@ final class PinyinConvert {
          */
         private List<MatchCharacter> unknownOther;
 
-        public Result(String srcText) {
+        public Result(char[] srcText) {
             this.srcText = srcText;
             pinyinList = new ArrayList<>();
         }
@@ -150,7 +150,7 @@ final class PinyinConvert {
             return pinyinList;
         }
 
-        public String getSrcText() {
+        public char[] getSrcText() {
             return srcText;
         }
 

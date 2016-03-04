@@ -35,7 +35,7 @@ public class AcStrBinaryTrie implements AcTrie<Void> {
     }
 
     @Override
-    public Hits<Void> textMatch(String text) {
+    public Hits<Void> textMatch(char[] text) {
         return acBinaryTrie.textMatch(text);
     }
 

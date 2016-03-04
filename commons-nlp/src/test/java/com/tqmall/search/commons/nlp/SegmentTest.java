@@ -31,7 +31,7 @@ public class SegmentTest {
         runSegment(new Function<String, List<Hit<Void>>>() {
             @Override
             public List<Hit<Void>> apply(String text) {
-                return segment.fullSegment(text);
+                return segment.fullSegment(text.toCharArray());
             }
         });
         System.out.println();
@@ -39,7 +39,7 @@ public class SegmentTest {
         runSegment(new Function<String, List<Hit<Void>>>() {
             @Override
             public List<Hit<Void>> apply(String text) {
-                return segment.minSegment(text);
+                return segment.minSegment(text.toCharArray());
             }
         });
         System.out.println();
@@ -47,7 +47,7 @@ public class SegmentTest {
         runSegment(new Function<String, List<Hit<Void>>>() {
             @Override
             public List<Hit<Void>> apply(String text) {
-                return segment.maxSegment(text);
+                return segment.maxSegment(text.toCharArray());
             }
         });
         System.out.println();

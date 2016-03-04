@@ -103,7 +103,7 @@ public class Segment {
      * @param text 待分词文本
      * @return 分词结果
      */
-    public List<Hit<Void>> fullSegment(String text) {
+    public List<Hit<Void>> fullSegment(char[] text) {
         Hits<Void> hits = acBinaryTrie.textMatch(text);
         return hitsFilter(hits);
     }
@@ -114,7 +114,7 @@ public class Segment {
      * @param text 待输入文本
      * @return 最大分词结果
      */
-    public List<Hit<Void>> maxSegment(String text) {
+    public List<Hit<Void>> maxSegment(char[] text) {
         Hits<Void> hits = binaryMatchTrie.textMaxMatch(text);
         return hitsFilter(hits);
     }
@@ -125,12 +125,13 @@ public class Segment {
      * @param text 待输入文本
      * @return 最小分词结果
      */
-    public List<Hit<Void>> minSegment(String text) {
+    public List<Hit<Void>> minSegment(char[] text) {
         Hits<Void> hits = binaryMatchTrie.textMinMatch(text);
         return hitsFilter(hits);
     }
 
     private List<Hit<Void>> hitsFilter(Hits<Void> hits) {
+        if (hits == null) return null;
         List<Hit<Void>> segmentList = new ArrayList<>();
         for (Hit<Void> h : hits) {
             if (stopWords.contains(h.getMatchKey())) continue;

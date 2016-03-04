@@ -9,7 +9,7 @@ import java.util.*;
  * Created by xing on 16/2/20.
  * 字符串匹配器, 将算法抽取出来, 与数据隔离
  */
-public abstract class TextMatcher<V> {
+public abstract class TextMatcher<V> implements TextMatch<V> {
 
     protected final Node<V> root;
 
@@ -47,12 +47,12 @@ public abstract class TextMatcher<V> {
     /**
      * 文本匹配
      */
-    public Hits<V> textMatch(String text) {
-        char[] charArray = BinaryTrie.argCheck(text);
-        if (charArray == null) return null;
-        Collection<Hit<V>> list = match(charArray);
+    @Override
+    public Hits<V> textMatch(char[] text) {
+        if (text == null || text.length == 0) return null;
+        Collection<Hit<V>> list = match(text);
         if (list == null) return null;
-        return hitsResultHandle(charArray, list);
+        return hitsResultHandle(text, list);
     }
 
     public static <V> TextMatcher<V> minTextMatcher(Node<V> root) {

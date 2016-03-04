@@ -4,7 +4,7 @@ import com.tqmall.search.commons.nlp.Hits;
 
 /**
  * Created by xing on 16/2/2.
- * 实现了模式匹配的二分查找前缀树,默认方法是最大匹配, 当然可以最小匹配{@link #textMinMatch(String)}
+ * 实现了模式匹配的二分查找前缀树,默认方法是最大匹配, 当然可以最小匹配{@link #textMinMatch(char[])}
  * 如果需要最大,最小匹配都要, 那就用{@link AcTrie}吧
  *
  * @see AcTrie
@@ -22,11 +22,11 @@ public class BinaryMatchTrie<V> extends BinaryTrie<V> {
         maxTextMatcher = TextMatcher.maxTextMatcher(root);
     }
 
-    public Hits<V> textMaxMatch(String text) {
+    public Hits<V> textMaxMatch(char[] text) {
         return maxTextMatcher.textMatch(text);
     }
 
-    public Hits<V> textMinMatch(String text) {
+    public Hits<V> textMinMatch(char[] text) {
         return minTextMatcher.textMatch(text);
     }
 

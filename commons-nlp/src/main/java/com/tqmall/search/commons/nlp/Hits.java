@@ -1,5 +1,7 @@
 package com.tqmall.search.commons.nlp;
 
+import com.sun.org.apache.xalan.internal.xsltc.dom.BitArray;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -54,16 +56,17 @@ public class Hits<V> implements Iterable<Hit<V>> {
     /**
      * 初始化{@link Hits#unknownCharacters}
      *
-     * @param charArray 解析text的原数组, 该函数会修改char
+     * @param charArray 解析text的原数组
      */
     public static <V> void initUnknownCharacters(Hits<V> hits, char[] charArray) {
+        BitArray bitArray = new BitArray(charArray.length);
         for (Hit h : hits) {
             for (int i = h.getStartPos(); i < h.getEndPos(); i++) {
-                charArray[i] = '\0';
+                bitArray.setBit(i);
             }
         }
         for (int i = 0; i < charArray.length; i++) {
-            if (charArray[i] != '\0') {
+            if (!bitArray.getBit(i)) {
                 hits.addUnknownCharacter(charArray[i], i);
             }
         }

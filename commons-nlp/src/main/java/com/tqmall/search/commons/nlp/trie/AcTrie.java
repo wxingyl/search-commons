@@ -1,13 +1,11 @@
 package com.tqmall.search.commons.nlp.trie;
 
-import com.tqmall.search.commons.nlp.Hits;
-
 /**
  * Created by xing on 16/1/28.
  * Aho-Corasick 模式匹配树 接口定义
  * 接收态的值即为泛型V
  */
-public interface AcTrie<V> {
+public interface AcTrie<V> extends TextMatch<V> {
 
     /**
      * 获取对应key的值
@@ -28,13 +26,6 @@ public interface AcTrie<V> {
      * 构建failed字段
      */
     void initFailed();
-    /**
-     * 匹配字符串
-     *
-     * @param text 需要匹配的文本
-     * @return 匹配结果
-     */
-    Hits<V> textMatch(String text);
 
     int size();
 
