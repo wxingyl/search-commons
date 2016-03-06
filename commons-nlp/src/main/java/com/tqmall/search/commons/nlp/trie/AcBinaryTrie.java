@@ -98,8 +98,8 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
                     //匹配到了
                     cursor++;
                     if (nextNode.accept()) {
-                        //匹配到, 讲所有结果添加进来
-                        hits.addHits(Hit.createHits(cursor, nextNode));
+                        //匹配到, 将所有结果添加进来
+                        Hit.appendHits(hits, cursor, nextNode);
                     }
                     currentNode = nextNode;
                 }

@@ -28,27 +28,13 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
     /**
      * 匹配结果处理, 返回{@link Hits}对象
      */
-    protected Hits<V> hitsResultHandle(char[] charArray, Collection<Hit<V>> collection) {
-        Hits<V> hits = new Hits<>();
-        if (!collection.isEmpty()) {
-            List<Hit<V>> list;
-            if (collection instanceof List) {
-                list = (List<Hit<V>>) collection;
-            } else {
-                list = new ArrayList<>(collection);
-            }
-            Collections.sort(list);
-            hits.addHits(collection);
-        }
-        Hits.initUnknownCharacters(hits, charArray);
-        return hits;
-    }
+    protected abstract Hits<V> hitsResultHandle(char[] charArray, Collection<Hit<V>> collection);
 
     /**
      * 文本匹配
      */
     @Override
-    public Hits<V> textMatch(char[] text) {
+    public final Hits<V> textMatch(char[] text) {
         if (text == null || text.length == 0) return null;
         Collection<Hit<V>> list = match(text);
         if (list == null) return null;
@@ -102,6 +88,23 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
                     }
                 }
             }
+            return hits;
+        }
+
+        @Override
+        protected final Hits<V> hitsResultHandle(char[] charArray, Collection<Hit<V>> collection) {
+            Hits<V> hits = new Hits<>();
+            if (!collection.isEmpty()) {
+                List<Hit<V>> list;
+                if (collection instanceof List) {
+                    list = (List<Hit<V>>) collection;
+                } else {
+                    list = new ArrayList<>(collection);
+                }
+                Collections.sort(list);
+                hits.addHits(collection);
+            }
+            Hits.initUnknownCharacters(hits, charArray);
             return hits;
         }
     }
@@ -168,7 +171,7 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
         }
 
         @Override
-        protected Hits<V> hitsResultHandle(char[] charArray, Collection<Hit<V>> collection) {
+        protected final Hits<V> hitsResultHandle(char[] charArray, Collection<Hit<V>> collection) {
             Hits<V> hits = new Hits<>();
             //不做排序, 匹配的时候已经做过了
             hits.addHits(collection);

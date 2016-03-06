@@ -2,9 +2,6 @@ package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.nlp.trie.AcNormalNode;
 
-import java.util.LinkedList;
-import java.util.List;
-
 /**
  * Created by xing on 16/1/28.
  * 匹配到的结果
@@ -88,41 +85,19 @@ public class Hit<V> implements Comparable<Hit<V>> {
     }
 
     /**
-     * 命中结果处理
-     *
-     * @param <V>
-     */
-    public interface IHit<V> {
-
-        /**
-         * 处理函数
-         *
-         * @param startPos 匹配到的开始位置, 包含startPos, 即左开右闭格式
-         * @param endPos   匹配到的结束位置 不包含endPos, 即左开右闭格式
-         * @param value    对应的value
-         * @return Hit对象
-         */
-        Hit<V> onHit(int startPos, int endPos, V value);
-
-    }
-
-    /**
-     * 根据匹配到的node创建hits, 函数中对node.status, 即{@link AcNormalNode#accept()}不做判断
+     * 将匹配到的node添加到hits中, 函数中对node.status, 即{@link AcNormalNode#accept()}不做判断
      *
      * @param endPos 匹配文本中的结束位置
      * @param node   匹配到的node, 其status不做判断
      * @param <V>    value泛型
-     * @return hits
      */
-    public static <V> List<Hit<V>> createHits(final int endPos, final AcNormalNode<V> node) {
-        List<Hit<V>> ret = new LinkedList<>();
-        ret.add(new Hit<>(endPos, node.getSingleOutput(), node.getValue()));
+    public static <V> void appendHits(Hits<V> hits, final int endPos, final AcNormalNode<V> node) {
+        hits.addHit(new Hit<>(endPos, node.getSingleOutput(), node.getValue()));
         if (node.getFailed() instanceof AcNormalNode) {
             AcNormalNode<V> failed = (AcNormalNode<V>) node.getFailed();
             if (failed.accept()) {
-                ret.add(new Hit<>(endPos, failed.getSingleOutput(), failed.getValue()));
+                hits.addHit(new Hit<>(endPos, failed.getSingleOutput(), failed.getValue()));
             }
         }
-        return ret;
     }
 }
