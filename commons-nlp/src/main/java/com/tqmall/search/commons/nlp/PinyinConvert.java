@@ -5,6 +5,8 @@ import com.tqmall.search.commons.nlp.trie.BinaryMatchTrie;
 import com.tqmall.search.commons.nlp.trie.Node;
 import com.tqmall.search.commons.utils.CommonsUtils;
 import com.tqmall.search.commons.utils.SearchStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -14,10 +16,13 @@ import java.util.*;
  */
 public final class PinyinConvert {
 
+    private static final Logger log = LoggerFactory.getLogger(PinyinConvert.class);
+
     private final BinaryMatchTrie<String[]> binaryMatchTrie;
 
     public PinyinConvert() {
         binaryMatchTrie = new BinaryMatchTrie<>(Node.<String[]>defaultCjkTrieNodeFactory());
+        log.info("start loading pinyin lexicon file: " + NlpConst.PINYIN_FILE_NAME);
         NlpUtils.loadLexicon(NlpConst.PINYIN_FILE_NAME, new Function<String, Boolean>() {
             @Override
             public Boolean apply(String line) {
@@ -32,6 +37,7 @@ public final class PinyinConvert {
                 return true;
             }
         });
+        log.info("load pinyin lexicon file: " + NlpConst.PINYIN_FILE_NAME + " finish");
     }
 
     /**

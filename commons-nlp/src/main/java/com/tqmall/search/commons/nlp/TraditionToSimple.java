@@ -21,6 +21,7 @@ public final class TraditionToSimple {
 
     public TraditionToSimple() {
         final int indexOffset = NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST;
+        log.info("start loading TraditionToSimple lexicon file: " + NlpConst.F2J_FILE_NAME);
         //都是本地加载, 数据格式的校验就不要太严格了~~~
         chars = new char[NlpConst.CJK_UNIFIED_SIZE];
         NlpUtils.loadLexicon(NlpConst.F2J_FILE_NAME, new Function<String, Boolean>() {
@@ -40,6 +41,7 @@ public final class TraditionToSimple {
                 chars[i] = (char) (indexOffset + i);
             }
         }
+        log.info("load TraditionToSimple lexicon file: " + NlpConst.F2J_FILE_NAME + " finish");
     }
 
     /**
