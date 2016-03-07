@@ -1,6 +1,8 @@
 package com.tqmall.search.commons.nlp.trie;
 
-import com.tqmall.search.commons.nlp.Hits;
+import com.tqmall.search.commons.nlp.Hit;
+
+import java.util.List;
 
 /**
  * Created by xing on 16/2/2.
@@ -22,12 +24,20 @@ public class BinaryMatchTrie<V> extends BinaryTrie<V> {
         maxTextMatcher = TextMatcher.maxTextMatcher(root);
     }
 
-    public Hits<V> textMaxMatch(char[] text) {
+    public List<Hit<V>> textMaxMatch(char[] text) {
         return maxTextMatcher.textMatch(text);
     }
 
-    public Hits<V> textMinMatch(char[] text) {
+    public List<Hit<V>> textMaxMatch(char[] text, int startPos, int length) {
+        return maxTextMatcher.textMatch(text, startPos, length);
+    }
+
+    public List<Hit<V>> textMinMatch(char[] text) {
         return minTextMatcher.textMatch(text);
+    }
+
+    public List<Hit<V>> textMinMatch(char[] text, int startPos, int length) {
+        return minTextMatcher.textMatch(text, startPos, length);
     }
 
 }

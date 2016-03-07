@@ -45,12 +45,12 @@ public class PyTest {
     public void pyTest() {
         String text = "小时了了，大未必佳";
         String excepted = "xiaoshiliaoliao，daweibijia";
-        String pyText = NlpUtils.pyNormalConvert(text.toCharArray(), false);
+        String pyText = NlpUtils.pyConvert(text.toCharArray(), NlpConst.APPEND_CHAR_OTHER);
         System.out.println("text: " + text + ": " + pyText);
         Assert.assertEquals(excepted, pyText);
         text = "长沙";
         Map.Entry<String, String> exceptedEntry = new AbstractMap.SimpleEntry<>("changsha", "cs");
-        Map.Entry<String, String> flResult = NlpUtils.pyNormalFirstLetterConvert(text.toCharArray(), true);
+        Map.Entry<String, String> flResult = NlpUtils.firstLetterConvert(text.toCharArray(), 0);
         System.out.println("text: " + text + ": " + exceptedEntry);
         Assert.assertEquals(exceptedEntry, flResult);
     }

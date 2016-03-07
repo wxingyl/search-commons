@@ -2,6 +2,8 @@ package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.nlp.trie.AcNormalNode;
 
+import java.util.List;
+
 /**
  * Created by xing on 16/1/28.
  * 匹配到的结果
@@ -91,12 +93,12 @@ public class Hit<V> implements Comparable<Hit<V>> {
      * @param node   匹配到的node, 其status不做判断
      * @param <V>    value泛型
      */
-    public static <V> void appendHits(Hits<V> hits, final int endPos, final AcNormalNode<V> node) {
-        hits.addHit(new Hit<>(endPos, node.getSingleOutput(), node.getValue()));
+    public static <V> void appendHits(List<Hit<V>> hits, final int endPos, final AcNormalNode<V> node) {
+        hits.add(new Hit<>(endPos, node.getSingleOutput(), node.getValue()));
         if (node.getFailed() instanceof AcNormalNode) {
             AcNormalNode<V> failed = (AcNormalNode<V>) node.getFailed();
             if (failed.accept()) {
-                hits.addHit(new Hit<>(endPos, failed.getSingleOutput(), failed.getValue()));
+                hits.add(new Hit<>(endPos, failed.getSingleOutput(), failed.getValue()));
             }
         }
     }

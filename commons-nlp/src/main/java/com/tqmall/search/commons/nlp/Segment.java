@@ -104,8 +104,7 @@ public class Segment {
      * @return 分词结果
      */
     public List<Hit<Void>> fullSegment(char[] text) {
-        Hits<Void> hits = acBinaryTrie.textMatch(text);
-        return hitsFilter(hits);
+        return hitsFilter(acBinaryTrie.textMatch(text));
     }
 
     /**
@@ -115,8 +114,7 @@ public class Segment {
      * @return 最大分词结果
      */
     public List<Hit<Void>> maxSegment(char[] text) {
-        Hits<Void> hits = binaryMatchTrie.textMaxMatch(text);
-        return hitsFilter(hits);
+        return hitsFilter(binaryMatchTrie.textMaxMatch(text));
     }
 
     /**
@@ -126,23 +124,15 @@ public class Segment {
      * @return 最小分词结果
      */
     public List<Hit<Void>> minSegment(char[] text) {
-        Hits<Void> hits = binaryMatchTrie.textMinMatch(text);
-        return hitsFilter(hits);
+        return hitsFilter(binaryMatchTrie.textMinMatch(text));
     }
 
-    private List<Hit<Void>> hitsFilter(Hits<Void> hits) {
+    private List<Hit<Void>> hitsFilter(List<Hit<Void>> hits) {
         if (hits == null) return null;
         List<Hit<Void>> segmentList = new ArrayList<>();
         for (Hit<Void> h : hits) {
             if (stopWords.contains(h.getMatchKey())) continue;
             segmentList.add(h);
-        }
-        if (hits.getUnknownCharacters() != null) {
-            for (MatchCharacter m : hits.getUnknownCharacters()) {
-                String str = String.valueOf(m.getCharacter());
-                if (stopWords.contains(str)) continue;
-                segmentList.add(new Hit<Void>(m.getSrcPos(), str, null));
-            }
         }
         return segmentList;
     }

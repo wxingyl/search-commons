@@ -12,9 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by xing on 16/1/26.
@@ -23,18 +21,6 @@ import java.util.Set;
 public final class NlpUtils {
 
     private static final Logger log = LoggerFactory.getLogger(NlpUtils.class);
-
-    /**
-     * 标点符号列表
-     */
-    private static final Set<Character> PUNCTUATIONS_SET;
-
-    static {
-        PUNCTUATIONS_SET = new HashSet<>();
-        for (char ch : "`~!@#$%^&*()_+-={}|[]\\:\";'<>?,./·~！@#￥%……&*（）——+-={}|【】、：“；‘《》？，。、".toCharArray()) {
-            PUNCTUATIONS_SET.add(ch);
-        }
-    }
 
     /**
      * 繁体转简体实例
@@ -70,22 +56,6 @@ public final class NlpUtils {
      */
     public static boolean isCjkChar(char ch) {
         return ch >= NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST && ch <= NlpConst.CJK_UNIFIED_IDEOGRAPHS_LAST;
-    }
-
-    /**
-     * 是否为特殊字符, 主要判断:
-     * 1. 是否一些常用标点, 即{@link #PUNCTUATIONS_SET}
-     * 2. 判断{@link Character.UnicodeBlock}是否为{@link Character.UnicodeBlock#CJK_SYMBOLS_AND_PUNCTUATION}
-     * 或者{@link Character.UnicodeBlock#GENERAL_PUNCTUATION}
-     * 判断字符是否为标点符号
-     */
-    public static boolean isSpecialChar(char ch) {
-        if (PUNCTUATIONS_SET.contains(ch)) {
-            return true;
-        }
-        Character.UnicodeBlock ub = Character.UnicodeBlock.of(ch);
-        return ub == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION
-                || ub == Character.UnicodeBlock.GENERAL_PUNCTUATION;
     }
 
     /**
@@ -134,41 +104,36 @@ public final class NlpUtils {
     /**
      * 单个cjk字符转化, 对于多音字, 只返回词库中的第一个
      */
-    public static String pyCjkConvert(char cjkChar) {
-        return PINYIN_CONVERT.getInstance().cjkConvert(cjkChar);
+    public static String pyConvert(char cjkChar) {
+        return PINYIN_CONVERT.getInstance().convert(cjkChar);
     }
 
     /**
-     * 只将汉字转换为对应拼音, 其他未识别字符都忽略
+     * 字符串拼音转换
      *
-     * @param word             需要转换的汉字
-     * @param ignoreWhitespace 是否忽略空白符, 如果不忽略则保留
+     * @param word       需要转换的汉字
+     * @param appendFlag 需要包含的字符: 数字,空格等字符标记位
+     * @return 转换结果
+     * @see NlpConst#APPEND_CHAR_WHITESPACE
+     * @see NlpConst#APPEND_CHAR_LETTER
+     * @see NlpConst#APPEND_CHAR_DIGIT
      */
-    public static String pyNormalConvert(char[] word, boolean ignoreWhitespace) {
-        Map.Entry<String, String> e = PINYIN_CONVERT.getInstance().normalConvert(word, ignoreWhitespace, false);
-        return e == null ? null : e.getKey();
+    public static String pyConvert(char[] word, int appendFlag) {
+        return PINYIN_CONVERT.getInstance().convert(word, appendFlag);
     }
 
     /**
-     * 将汉字转换为对应拼音以及首字母字符串, 其他未识别字符都忽略
+     * 字符串拼音转换, 并且返回汉字拼音首字母
      *
-     * @param word             需要转换的汉字
-     * @param ignoreWhitespace 是否忽略空白符, 如果不忽略则保留
-     * @return {@link Map.Entry#getKey()} 为转换的拼音text, {@link Map.Entry#getValue()} 为拼音首字母字符串
+     * @param word       需要转换的汉字
+     * @param appendFlag 需要包含的字符: 数字,空格等字符标记位
+     * @return 转换结果 {@link Map.Entry#getKey()} 拼音转换结果, {@link Map.Entry#getValue()} 拼音首字母
+     * @see NlpConst#APPEND_CHAR_WHITESPACE
+     * @see NlpConst#APPEND_CHAR_LETTER
+     * @see NlpConst#APPEND_CHAR_DIGIT
      */
-    public static Map.Entry<String, String> pyNormalFirstLetterConvert(char[] word, boolean ignoreWhitespace) {
-        return PINYIN_CONVERT.getInstance().normalConvert(word, ignoreWhitespace, true);
-    }
-
-    /**
-     * 输入的汉字转换为拼音, 拼配结果中包括: 转换完的拼音字符串, 每个汉字的拼音首字母字符串以及未能识别的字符列表(分为cjk和非cjk)
-     * 注意: 如果没有一个拼音匹配, 则返回null, 不再做任何处理
-     *
-     * @param word 需要转换的汉字
-     * @return 转换结果, 如果没有一个拼音匹配, 则返回null, 不再做任何处理
-     */
-    public static PinyinConvert.Result pyFullConvert(char[] word) {
-        return PINYIN_CONVERT.getInstance().fullConvert(word);
+    public static Map.Entry<String, String> firstLetterConvert(char[] word, int appendFlag) {
+        return PINYIN_CONVERT.getInstance().firstLetterConvert(word, appendFlag);
     }
 
     /**

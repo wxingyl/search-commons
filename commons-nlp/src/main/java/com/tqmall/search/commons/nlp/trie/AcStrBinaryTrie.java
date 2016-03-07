@@ -1,9 +1,10 @@
 package com.tqmall.search.commons.nlp.trie;
 
 import com.tqmall.search.commons.lang.Function;
-import com.tqmall.search.commons.nlp.Hits;
+import com.tqmall.search.commons.nlp.Hit;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by xing on 16/2/1.
@@ -35,8 +36,13 @@ public class AcStrBinaryTrie implements AcTrie<Void> {
     }
 
     @Override
-    public Hits<Void> textMatch(char[] text) {
+    public List<Hit<Void>> textMatch(char[] text) {
         return acBinaryTrie.textMatch(text);
+    }
+
+    @Override
+    public List<Hit<Void>> textMatch(char[] text, int startPos, int length) {
+        return acBinaryTrie.textMatch(text, startPos, length);
     }
 
     @Override

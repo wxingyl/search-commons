@@ -1,6 +1,8 @@
 package com.tqmall.search.commons.nlp.trie;
 
-import com.tqmall.search.commons.nlp.Hits;
+import com.tqmall.search.commons.nlp.Hit;
+
+import java.util.List;
 
 /**
  * Created by xing on 16/3/4.
@@ -13,5 +15,15 @@ public interface TextMatch<V> {
      * @param text 需要匹配的文本
      * @return 匹配结果
      */
-    Hits<V> textMatch(char[] text);
+    List<Hit<V>> textMatch(char[] text);
+
+    /**
+     * 匹配字符串
+     *
+     * @param text     需要匹配的文本
+     * @param startPos 开始下标
+     * @param length   char数组的长度
+     * @return 匹配结果
+     */
+    List<Hit<V>> textMatch(char[] text, int startPos, int length);
 }

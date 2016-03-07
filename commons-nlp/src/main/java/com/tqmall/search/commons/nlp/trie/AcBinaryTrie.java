@@ -2,7 +2,6 @@ package com.tqmall.search.commons.nlp.trie;
 
 import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.nlp.Hit;
-import com.tqmall.search.commons.nlp.Hits;
 
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -77,14 +76,25 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
      * @return 匹配结果
      */
     @Override
-    public Hits<V> textMatch(char[] text) {
-        if (text == null || text.length == 0) return null;
+    public List<Hit<V>> textMatch(char[] text) {
+        Objects.requireNonNull(text);
+        return textMatch(text, 0, text.length);
+    }
+
+    @Override
+    public final List<Hit<V>> textMatch(char[] text, final int startPos, final int length) {
+        final int endPos = startPos + length;
+        if (text == null || startPos < 0 || startPos > endPos) {
+            throw new ArrayIndexOutOfBoundsException("text.length: " + (text == null ? 0 : text.length) + ", startPos: "
+                    + startPos + ", endPos: " + endPos);
+        }
+        if (length == 0) return null;
         failedRwLock.readLock().lock();
         try {
-            Hits<V> hits = new Hits<>();
+            List<Hit<V>> hits = new ArrayList<>();
             Node<V> currentNode = trie.root;
-            int cursor = 0;
-            while (cursor < text.length) {
+            int cursor = startPos;
+            while (cursor < endPos) {
                 AcNormalNode<V> nextNode = (AcNormalNode<V>) currentNode.getChild(text[cursor]);
                 if (nextNode == null) {
                     if (currentNode == trie.root) {
@@ -104,7 +114,6 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
                     currentNode = nextNode;
                 }
             }
-            Hits.initUnknownCharacters(hits, text);
             return hits;
         } finally {
             failedRwLock.readLock().unlock();
