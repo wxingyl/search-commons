@@ -56,7 +56,7 @@ public final class PinyinConvert {
     }
 
     private String convert(char[] word, final int appendFlag, StringBuilder firstLetter) {
-        List<Hit<String[]>> hits = binaryMatchTrie.textMaxMatch(word);
+        List<Hit<String[]>> hits = binaryMatchTrie.maxMatch(word);
         if (CommonsUtils.isEmpty(hits)) return null;
         StringBuilder py = new StringBuilder();
         int lastEndIndex = 0;
@@ -91,7 +91,7 @@ public final class PinyinConvert {
      * 单个cjk字符转化, 对于多音字, 只返回词库中的第一个
      */
     public String convert(char cjkChar) {
-        List<Hit<String[]>> hits = binaryMatchTrie.textMaxMatch(new char[]{cjkChar});
+        List<Hit<String[]>> hits = binaryMatchTrie.maxMatch(new char[]{cjkChar});
         if (CommonsUtils.isEmpty(hits)) return null;
         return hits.get(0).getValue()[0];
     }

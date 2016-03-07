@@ -15,12 +15,12 @@ import java.util.Set;
 
 /**
  * Created by xing on 16/2/8.
- * 分词, 通过{@link AcStrBinaryTrie}实现
+ * 分词词库, 包括汉语词库以及停止词, 通过{@link AcStrBinaryTrie}实现
  * 该类建议最好单例
  */
-public class Segment {
+public class SegmentLexicon {
 
-    private static final Logger log = LoggerFactory.getLogger(Segment.class);
+    private static final Logger log = LoggerFactory.getLogger(SegmentLexicon.class);
 
     private final AcStrBinaryTrie acBinaryTrie;
 
@@ -31,7 +31,7 @@ public class Segment {
     /**
      * 使用默认的{@link AcNormalNode#defaultCjkAcTrieNodeFactory()} 也就是词的开通只支持汉字
      */
-    public Segment(InputStream lexicon) {
+    public SegmentLexicon(InputStream lexicon) {
         this(AcNormalNode.<Void>defaultCjkAcTrieNodeFactory(), lexicon);
     }
 
@@ -42,11 +42,11 @@ public class Segment {
      * @param lexicon     词库输入流
      * @see LoadLexiconException
      */
-    public Segment(AcTrieNodeFactory<Void> nodeFactory, InputStream lexicon) {
+    public SegmentLexicon(AcTrieNodeFactory<Void> nodeFactory, InputStream lexicon) {
         final AcStrBinaryTrie.Builder builder = AcStrBinaryTrie.build();
         builder.nodeFactory(nodeFactory);
         long startTime = System.currentTimeMillis();
-        log.info("开始初始化词库: " + lexicon);
+        log.info("start loading cjk lexicon: " + lexicon);
         try {
             NlpUtils.loadLexicon(lexicon, new Function<String, Boolean>() {
                 @Override
@@ -68,7 +68,7 @@ public class Segment {
             }
 
         });
-        log.info("加载词库: " + lexicon + "完成, 共耗时: " + (System.currentTimeMillis() - startTime) + "ms");
+        log.info("load cjk lexicon: " + lexicon + " finish, total cost: " + (System.currentTimeMillis() - startTime) + "ms");
         stopWords = new HashSet<>();
         NlpUtils.loadLexicon(NlpConst.STOPWORD_FILE_NAME, new Function<String, Boolean>() {
             @Override
@@ -80,21 +80,12 @@ public class Segment {
     }
 
     /**
-     * 新加指定停止词, 这儿修改不做多线程同步, 没加该停止词之前也在分词, 一样的~~~
+     * 获取停止词列表, 返回的Set可以被修改
      *
-     * @return 添加是否成功
+     * @return 可以修改的停止词列表
      */
-    public boolean addStopWord(String word) {
-        return stopWords.add(word);
-    }
-
-    /**
-     * 删除停止词, 这儿修改不做多线程同步, 没加该停止词之前也在分词, 一样的~~~
-     *
-     * @return 删除是否成功
-     */
-    public boolean removeStopWord(String word) {
-        return stopWords.remove(word);
+    public Set<String> getStopWords() {
+        return stopWords;
     }
 
     /**
@@ -103,8 +94,8 @@ public class Segment {
      * @param text 待分词文本
      * @return 分词结果
      */
-    public List<Hit<Void>> fullSegment(char[] text) {
-        return hitsFilter(acBinaryTrie.textMatch(text));
+    public List<Hit<Void>> fullMatch(char[] text) {
+        return hitsFilter(acBinaryTrie.match(text));
     }
 
     /**
@@ -113,8 +104,8 @@ public class Segment {
      * @param text 待输入文本
      * @return 最大分词结果
      */
-    public List<Hit<Void>> maxSegment(char[] text) {
-        return hitsFilter(binaryMatchTrie.textMaxMatch(text));
+    public List<Hit<Void>> maxMatch(char[] text) {
+        return hitsFilter(binaryMatchTrie.maxMatch(text));
     }
 
     /**
@@ -123,8 +114,8 @@ public class Segment {
      * @param text 待输入文本
      * @return 最小分词结果
      */
-    public List<Hit<Void>> minSegment(char[] text) {
-        return hitsFilter(binaryMatchTrie.textMinMatch(text));
+    public List<Hit<Void>> minMatch(char[] text) {
+        return hitsFilter(binaryMatchTrie.minMatch(text));
     }
 
     private List<Hit<Void>> hitsFilter(List<Hit<Void>> hits) {

@@ -15,7 +15,7 @@ public interface TextMatch<V> {
      * @param text 需要匹配的文本
      * @return 匹配结果
      */
-    List<Hit<V>> textMatch(char[] text);
+    List<Hit<V>> match(char[] text);
 
     /**
      * 匹配字符串
@@ -25,5 +25,5 @@ public interface TextMatch<V> {
      * @param length   char数组的长度
      * @return 匹配结果
      */
-    List<Hit<V>> textMatch(char[] text, int startPos, int length);
+    List<Hit<V>> match(char[] text, int startPos, int length);
 }

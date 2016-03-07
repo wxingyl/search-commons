@@ -22,7 +22,7 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
      * @param text 待匹配的字符数组
      * @return 匹配结果, 如果返回的list认为错误,整个文本处理结果返回null
      */
-    protected abstract Collection<Hit<V>> match(char[] text, int startPos, int endPos);
+    protected abstract Collection<Hit<V>> runMatch(char[] text, int startPos, int endPos);
 
     /**
      * 匹配结果处理
@@ -33,29 +33,29 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
      * 文本匹配
      */
     @Override
-    public final List<Hit<V>> textMatch(char[] text) {
+    public final List<Hit<V>> match(char[] text) {
         Objects.requireNonNull(text);
-        return textMatch(text, 0, text.length);
+        return match(text, 0, text.length);
     }
 
     @Override
-    public final List<Hit<V>> textMatch(char[] text, int startPos, int length) {
+    public final List<Hit<V>> match(char[] text, int startPos, int length) {
         final int endPos = startPos + length;
         if (text == null || startPos < 0 || startPos > endPos) {
             throw new ArrayIndexOutOfBoundsException("text.length: " + (text == null ? 0 : text.length) + ", startPos: "
                     + startPos + ", endPos: " + endPos);
         }
         if (length == 0) return null;
-        Collection<Hit<V>> list = match(text, startPos, endPos);
+        Collection<Hit<V>> list = runMatch(text, startPos, endPos);
         if (list == null) return null;
         return hitsResultHandle(text, startPos, endPos, list);
     }
 
-    public static <V> TextMatcher<V> minTextMatcher(Node<V> root) {
+    public static <V> TextMatcher<V> minMatcher(Node<V> root) {
         return new MinBackTextMatcher<>(root);
     }
 
-    public static <V> TextMatcher<V> maxTextMatcher(Node<V> root) {
+    public static <V> TextMatcher<V> maxMatcher(Node<V> root) {
         return new MaxBackTextMatcher<>(root);
     }
 
@@ -69,7 +69,7 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
         }
 
         @Override
-        protected Collection<Hit<V>> match(char[] text, int startPos, int endPos) {
+        protected Collection<Hit<V>> runMatch(char[] text, int startPos, int endPos) {
             List<Hit<V>> hits = new ArrayList<>();
             Node<V> currentNode = root;
             int i = endPos - 1, matchStartPos = endPos, lastPos = endPos;
@@ -130,7 +130,7 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
         }
 
         @Override
-        protected Collection<Hit<V>> match(char[] text, final int startPos, final int endPos) {
+        protected Collection<Hit<V>> runMatch(char[] text, final int startPos, final int endPos) {
             Node<V> currentNode = root;
             int i = endPos - 1, hitStartPos = endPos, hitEndPos = endPos;
             boolean lastAccept = false;

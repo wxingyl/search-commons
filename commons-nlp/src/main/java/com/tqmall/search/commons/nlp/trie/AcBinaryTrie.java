@@ -76,13 +76,13 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
      * @return 匹配结果
      */
     @Override
-    public List<Hit<V>> textMatch(char[] text) {
+    public List<Hit<V>> match(char[] text) {
         Objects.requireNonNull(text);
-        return textMatch(text, 0, text.length);
+        return match(text, 0, text.length);
     }
 
     @Override
-    public final List<Hit<V>> textMatch(char[] text, final int startPos, final int length) {
+    public final List<Hit<V>> match(char[] text, final int startPos, final int length) {
         final int endPos = startPos + length;
         if (text == null || startPos < 0 || startPos > endPos) {
             throw new ArrayIndexOutOfBoundsException("text.length: " + (text == null ? 0 : text.length) + ", startPos: "

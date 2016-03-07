@@ -36,13 +36,13 @@ public class AcStrBinaryTrie implements AcTrie<Void> {
     }
 
     @Override
-    public List<Hit<Void>> textMatch(char[] text) {
-        return acBinaryTrie.textMatch(text);
+    public List<Hit<Void>> match(char[] text) {
+        return acBinaryTrie.match(text);
     }
 
     @Override
-    public List<Hit<Void>> textMatch(char[] text, int startPos, int length) {
-        return acBinaryTrie.textMatch(text, startPos, length);
+    public List<Hit<Void>> match(char[] text, int startPos, int length) {
+        return acBinaryTrie.match(text, startPos, length);
     }
 
     @Override
