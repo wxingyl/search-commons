@@ -1,7 +1,7 @@
 package com.tqmall.search.commons.param.condition;
 
-import com.tqmall.search.commons.lang.CommonsConst;
 import com.tqmall.search.commons.lang.StrValueConvert;
+import com.tqmall.search.commons.param.Param;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 
 /**
@@ -80,12 +80,12 @@ public class RangeCondition<T extends Comparable<T>> extends Condition {
      */
     public static <T extends Comparable<T>> RangeCondition<T> build(final String field, final String rangeStr, final StrValueConvert<T> strValueConvert) {
         if (rangeStr == null || rangeStr.isEmpty()) return null;
-        String[] rangeArray = SearchStringUtils.split(rangeStr, CommonsConst.RANGE_FILTER_CHAR);
+        String[] rangeArray = SearchStringUtils.split(rangeStr, Param.RANGE_FILTER_CHAR);
         if (rangeArray.length == 0) return null;
         rangeArray = SearchStringUtils.stringArrayTrim(rangeArray);
         int startIndex = 0, endIndex = 1;
         if (rangeArray.length == 1) {
-            if (rangeStr.charAt(0) == CommonsConst.RANGE_FILTER_CHAR) {
+            if (rangeStr.charAt(0) == Param.RANGE_FILTER_CHAR) {
                 startIndex = -1;
                 endIndex = 0;
             } else {

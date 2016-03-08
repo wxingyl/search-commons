@@ -10,6 +10,20 @@ public abstract class Param implements Serializable {
 
     private static final long serialVersionUID = 1L;
     /**
+     * 默认的分割符separator
+     */
+    public static final char SEPARATOR_CHAR = ',';
+    /**
+     * 默认的区间范围字符
+     */
+    public static final char RANGE_FILTER_CHAR = '~';
+
+    /**
+     * 赋值操作符号, 指定字段赋值, 比如排序的时候,按照id升序排序: "id:asc"
+     */
+    public static final char ASSIGNMENT_CHAR = ':';
+
+    /**
      * 记录系统调用来源
      */
     private String source;
