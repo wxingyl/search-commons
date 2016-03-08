@@ -2,7 +2,6 @@ package com.tqmall.search.commons.nlp.trie;
 
 import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.nlp.Hit;
-import com.tqmall.search.commons.nlp.Hits;
 
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -73,46 +72,49 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
     }
 
     /**
-     * 注意 会对charArray做修改
-     *
-     * @param charArray 文本数组
+     * @param text 文本数组
      * @return 匹配结果
      */
-    private Hits<V> textMatch(char[] charArray) {
-        Hits<V> hits = new Hits<>();
-        Node<V> currentNode = trie.root;
-        int cursor = 0;
-        while (cursor < charArray.length) {
-            AcNormalNode<V> nextNode = (AcNormalNode<V>) currentNode.getChild(charArray[cursor]);
-            if (nextNode == null) {
-                if (currentNode == trie.root) {
-                    //当前节点已经是rootNode, 则不匹配
-                    cursor++;
-                } else {
-                    //当前节点不是rootNode, 可以尝试failed节点, 再来一次查找
-                    currentNode = ((AcNormalNode<V>) currentNode).getFailed();
-                }
-            } else {
-                //匹配到了
-                cursor++;
-                if (nextNode.accept()) {
-                    //匹配到, 讲所有结果添加进来
-                    hits.addHits(Hit.createHits(cursor, nextNode));
-                }
-                currentNode = nextNode;
-            }
-        }
-        Hits.initUnknownCharacters(hits, charArray);
-        return hits;
+    @Override
+    public List<Hit<V>> match(char[] text) {
+        Objects.requireNonNull(text);
+        return match(text, 0, text.length);
     }
 
     @Override
-    public Hits<V> textMatch(String text) {
-        char[] charArray = BinaryTrie.argCheck(text);
-        if (charArray == null) return null;
+    public final List<Hit<V>> match(char[] text, final int startPos, final int length) {
+        final int endPos = startPos + length;
+        if (text == null || startPos < 0 || startPos > endPos) {
+            throw new ArrayIndexOutOfBoundsException("text.length: " + (text == null ? 0 : text.length) + ", startPos: "
+                    + startPos + ", endPos: " + endPos);
+        }
+        if (length == 0) return null;
         failedRwLock.readLock().lock();
         try {
-            return textMatch(charArray);
+            List<Hit<V>> hits = new ArrayList<>();
+            Node<V> currentNode = trie.root;
+            int cursor = startPos;
+            while (cursor < endPos) {
+                AcNormalNode<V> nextNode = (AcNormalNode<V>) currentNode.getChild(text[cursor]);
+                if (nextNode == null) {
+                    if (currentNode == trie.root) {
+                        //当前节点已经是rootNode, 则不匹配
+                        cursor++;
+                    } else {
+                        //当前节点不是rootNode, 可以尝试failed节点, 再来一次查找
+                        currentNode = ((AcNormalNode<V>) currentNode).getFailed();
+                    }
+                } else {
+                    //匹配到了
+                    cursor++;
+                    if (nextNode.accept()) {
+                        //匹配到, 将所有结果添加进来
+                        Hit.appendHits(hits, cursor, nextNode);
+                    }
+                    currentNode = nextNode;
+                }
+            }
+            return hits;
         } finally {
             failedRwLock.readLock().unlock();
         }

@@ -1,9 +1,8 @@
 package com.tqmall.search.commons.nlp;
 
+import com.sun.org.apache.xalan.internal.xsltc.dom.BitArray;
 import com.tqmall.search.commons.exception.LoadLexiconException;
 import com.tqmall.search.commons.lang.Function;
-import com.tqmall.search.commons.lang.LazyInit;
-import com.tqmall.search.commons.lang.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,9 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * Created by xing on 16/1/26.
@@ -23,42 +21,6 @@ import java.util.Set;
 public final class NlpUtils {
 
     private static final Logger log = LoggerFactory.getLogger(NlpUtils.class);
-
-    /**
-     * 标点符号列表
-     */
-    private static final Set<Character> PUNCTUATIONS_SET;
-
-    static {
-        PUNCTUATIONS_SET = new HashSet<>();
-        for (char ch : "`~!@#$%^&*()_+-={}|[]\\:\";'<>?,./·~！@#￥%……&*（）——+-={}|【】、：“；‘《》？，。、".toCharArray()) {
-            PUNCTUATIONS_SET.add(ch);
-        }
-    }
-
-    /**
-     * 繁体转简体实例
-     */
-    private static final LazyInit<TraditionToSimple> TRADITION_TO_SIMPLE = new LazyInit<>(new Supplier<TraditionToSimple>() {
-        @Override
-        public TraditionToSimple get() {
-            return new TraditionToSimple();
-        }
-    });
-
-    /**
-     * 拼音转换实例
-     */
-    private static final LazyInit<PinyinConvert> PINYIN_CONVERT = new LazyInit<>(new Supplier<PinyinConvert>() {
-        @Override
-        public PinyinConvert get() {
-            log.info("开始加载拼音词库");
-            long startTime = System.currentTimeMillis();
-            PinyinConvert convert = new PinyinConvert();
-            log.info("加载拼音词库完成, 耗时: " + (System.currentTimeMillis() - startTime) + "ms");
-            return convert;
-        }
-    });
 
     private NlpUtils() {
     }
@@ -70,22 +32,6 @@ public final class NlpUtils {
      */
     public static boolean isCjkChar(char ch) {
         return ch >= NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST && ch <= NlpConst.CJK_UNIFIED_IDEOGRAPHS_LAST;
-    }
-
-    /**
-     * 是否为特殊字符, 主要判断:
-     * 1. 是否一些常用标点, 即{@link #PUNCTUATIONS_SET}
-     * 2. 判断{@link Character.UnicodeBlock}是否为{@link Character.UnicodeBlock#CJK_SYMBOLS_AND_PUNCTUATION}
-     * 或者{@link Character.UnicodeBlock#GENERAL_PUNCTUATION}
-     * 判断字符是否为标点符号
-     */
-    public static boolean isSpecialChar(char ch) {
-        if (PUNCTUATIONS_SET.contains(ch)) {
-            return true;
-        }
-        Character.UnicodeBlock ub = Character.UnicodeBlock.of(ch);
-        return ub == Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION
-                || ub == Character.UnicodeBlock.GENERAL_PUNCTUATION;
     }
 
     /**
@@ -105,70 +51,25 @@ public final class NlpUtils {
     }
 
     /**
-     * 是否为繁体字符
-     * 该函数跟{@link #cjkConvert(char)}的性能一样一样的, 并没有
+     * 获取未匹配的字符
      *
-     * @param ch 判断字符
-     * @return true 为繁体
+     * @return key为下表, value为对应字符, 返回结果为LinkedHashMap
      */
-    public static boolean isTraditional(char ch) {
-        return TRADITION_TO_SIMPLE.getInstance().isTraditional(ch);
-    }
-
-    /**
-     * 如果是CJK字符, 返回对应的转换字符, 如果不是则返回入参ch
-     */
-    public static char cjkConvert(char ch) {
-        return TRADITION_TO_SIMPLE.getInstance().convert(ch);
-    }
-
-    /**
-     * 如果传入的字符串有繁体, 则转换成简体字符串
-     * 如果没有繁体, 则不做装换, 原样返回
-     * 很对情况下, 砸门的字符串里面没有繁体字符的
-     */
-    public static String traditionalConvert(String str) {
-        return TRADITION_TO_SIMPLE.getInstance().convert(str);
-    }
-
-    /**
-     * 单个cjk字符转化, 对于多音字, 只返回词库中的第一个
-     */
-    public static String pyCjkConvert(char cjkChar) {
-        return PINYIN_CONVERT.getInstance().cjkConvert(cjkChar);
-    }
-
-    /**
-     * 只将汉字转换为对应拼音, 其他未识别字符都忽略
-     *
-     * @param word             需要转换的汉字
-     * @param ignoreWhitespace 是否忽略空白符, 如果不忽略则保留
-     */
-    public static String pyNormalConvert(String word, boolean ignoreWhitespace) {
-        Map.Entry<String, String> e = PINYIN_CONVERT.getInstance().normalConvert(word, ignoreWhitespace, false);
-        return e == null ? null : e.getKey();
-    }
-
-    /**
-     * 将汉字转换为对应拼音以及首字母字符串, 其他未识别字符都忽略
-     *
-     * @param word             需要转换的汉字
-     * @param ignoreWhitespace 是否忽略空白符, 如果不忽略则保留
-     * @return {@link Map.Entry#getKey()} 为转换的拼音text, {@link Map.Entry#getValue()} 为拼音首字母字符串
-     */
-    public static Map.Entry<String, String> pyNormalFirstLetterConvert(String word, boolean ignoreWhitespace) {
-        return PINYIN_CONVERT.getInstance().normalConvert(word, ignoreWhitespace, true);
-    }
-
-    /**
-     * 输入的汉字转换为拼音, 拼配结果中包括: 转换完的拼音字符串, 每个汉字的拼音首字母字符串以及未能识别的字符列表(分为cjk和非cjk)
-     * 注意: 如果没有一个拼音匹配, 则返回null, 不再做任何处理
-     *
-     * @param word 需要转换的汉字
-     * @return 转换结果, 如果没有一个拼音匹配, 则返回null, 不再做任何处理
-     */
-    public static PinyinConvert.Result pyFullConvert(String word) {
-        return PINYIN_CONVERT.getInstance().fullConvert(word);
+    public static LinkedHashMap<Integer, Character> unHitCharacter(char[] text, final int startPos, final int length, List<Hit> hits) {
+        BitArray bitArray = new BitArray(length);
+        for (Hit h : hits) {
+            for (int i = h.getStartPos(); i < h.getEndPos(); i++) {
+                bitArray.setBit(i - startPos);
+            }
+        }
+        LinkedHashMap<Integer, Character> map = new LinkedHashMap<>();
+        int endPos = startPos + length;
+        for (int i = startPos; i < endPos; i++) {
+            if (!bitArray.getBit(i - startPos)) {
+                map.put(i, text[i]);
+            }
+        }
+        return map;
     }
 
     /**
@@ -193,13 +94,13 @@ public final class NlpUtils {
         if (filename.charAt(0) != '/') {
             filename = '/' + filename;
         }
-        log.info("开始加载词库文件: " + filename);
+        log.info("start load lexicon file: " + filename);
         try {
             int lineCount = loadLexicon(NlpUtils.class.getResourceAsStream(filename), lineHandle, lineTrim);
-            log.info("加载词库文件: " + filename + " 完成, 共加载了" + lineCount + "行");
+            log.info("load lexicon file: " + filename + " finish, total load " + lineCount + " lines");
         } catch (IOException e) {
-            log.error("加载词库文件: " + filename + "时存在异常", e);
-            throw new LoadLexiconException("加载词库文件" + filename + "发生异常", e);
+            log.error("load lexicon file: " + filename + " have exception", e);
+            throw new LoadLexiconException("load lexicon file: " + filename + " have exception", e);
         }
     }
 

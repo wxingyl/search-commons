@@ -25,4 +25,21 @@ public interface NlpConst {
 
     String STOPWORD_FILE_NAME = "stopword.txt";
 
+    /**
+     * 拼音, 分词等转化时添加空白字符flag, 具体通过{@link Character#isWhitespace(char)}判断
+     */
+    int APPEND_CHAR_WHITESPACE = 1;
+    /**
+     * 拼音, 分词等转化时添加ASCII英文字母flag, 英文字母判断'a' - 'z' / 'A' - 'Z'
+     */
+    int APPEND_CHAR_LETTER = 1 << 1;
+    /**
+     * 拼音, 分词等转化时添加ASCII数字flag, 数字判断'0' - '9'
+     */
+    int APPEND_CHAR_DIGIT = 1 << 2;
+    /**
+     * 拼音, 分词等转化时添加其他字符, 非空白, ASCII英文字母, 数字字符为其他字符
+     */
+    int APPEND_CHAR_OTHER = 1 << 3;
+
 }

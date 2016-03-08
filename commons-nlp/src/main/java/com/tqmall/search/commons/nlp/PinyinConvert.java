@@ -5,6 +5,8 @@ import com.tqmall.search.commons.nlp.trie.BinaryMatchTrie;
 import com.tqmall.search.commons.nlp.trie.Node;
 import com.tqmall.search.commons.utils.CommonsUtils;
 import com.tqmall.search.commons.utils.SearchStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -12,12 +14,15 @@ import java.util.*;
  * Created by xing on 16/1/24.
  * 汉字转拼音
  */
-final class PinyinConvert {
+public final class PinyinConvert {
+
+    private static final Logger log = LoggerFactory.getLogger(PinyinConvert.class);
 
     private final BinaryMatchTrie<String[]> binaryMatchTrie;
 
-    PinyinConvert() {
+    public PinyinConvert() {
         binaryMatchTrie = new BinaryMatchTrie<>(Node.<String[]>defaultCjkTrieNodeFactory());
+        log.info("start loading pinyin lexicon file: " + NlpConst.PINYIN_FILE_NAME);
         NlpUtils.loadLexicon(NlpConst.PINYIN_FILE_NAME, new Function<String, Boolean>() {
             @Override
             public Boolean apply(String line) {
@@ -32,200 +37,96 @@ final class PinyinConvert {
                 return true;
             }
         });
+        log.info("load pinyin lexicon file: " + NlpConst.PINYIN_FILE_NAME + " finish");
+    }
+
+    /**
+     * 是否添加字符
+     */
+    private boolean appendChar(char ch, final int appendFlag) {
+        if (ch >= '0' && ch <= '9') {
+            return (appendFlag & NlpConst.APPEND_CHAR_DIGIT) != 0;
+        } else if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')) {
+            return (appendFlag & NlpConst.APPEND_CHAR_LETTER) != 0;
+        } else if (Character.isWhitespace(ch)) {
+            return (appendFlag & NlpConst.APPEND_CHAR_WHITESPACE) != 0;
+        } else {
+            return (appendFlag & NlpConst.APPEND_CHAR_OTHER) != 0;
+        }
+    }
+
+    private String convert(char[] word, final int appendFlag, StringBuilder firstLetter) {
+        List<Hit<String[]>> hits = binaryMatchTrie.maxMatch(word);
+        if (CommonsUtils.isEmpty(hits)) return null;
+        StringBuilder py = new StringBuilder();
+        int lastEndIndex = 0;
+        for (Hit<String[]> h : hits) {
+            int curStartPos = h.getStartPos();
+            if (appendFlag != 0) {
+                while (lastEndIndex < curStartPos) {
+                    if (appendChar(word[lastEndIndex], appendFlag)) {
+                        py.append(word[lastEndIndex]);
+                    }
+                    lastEndIndex++;
+                }
+            }
+            for (String s : h.getValue()) {
+                py.append(s);
+                if (firstLetter != null) firstLetter.append(s.charAt(0));
+            }
+            lastEndIndex = h.getEndPos();
+        }
+        if (appendFlag != 0) {
+            while (lastEndIndex < word.length) {
+                if (appendChar(word[lastEndIndex], appendFlag)) {
+                    py.append(word[lastEndIndex]);
+                }
+                lastEndIndex++;
+            }
+        }
+        return py.toString();
     }
 
     /**
      * 单个cjk字符转化, 对于多音字, 只返回词库中的第一个
      */
-    public String cjkConvert(char cjkChar) {
-        Hits<String[]> hits = binaryMatchTrie.textMaxMatch(cjkChar + "");
-        if (hits == null || CommonsUtils.isEmpty(hits.getHits())) return null;
-        return hits.getHits().get(0).getValue()[0];
+    public String convert(char cjkChar) {
+        List<Hit<String[]>> hits = binaryMatchTrie.maxMatch(new char[]{cjkChar});
+        if (CommonsUtils.isEmpty(hits)) return null;
+        return hits.get(0).getValue()[0];
     }
 
     /**
-     * 将汉字转换为对应拼音以及首字母字符串, 其他未识别字符都忽略
-     * 如果忽略拼音首字母, 则返回结果中的{@link Map.Entry#getValue()}为null
+     * 字符串拼音转换
      *
-     * @param word             需要转换的汉字
-     * @param ignoreWhitespace 是否忽略空白符, 如果不忽略则保留
-     * @param needFirstLetter  是否需要拼音首字母
-     * @return {@link Map.Entry#getKey()} 为转换的拼音text, {@link Map.Entry#getValue()} 为拼音首字母字符串. 当然此时needFirstLetter = true才有效
+     * @param word       需要转换的汉字
+     * @param appendFlag 需要包含的字符: 数字,空格等字符标记位
+     * @return 转换结果
+     * @see NlpConst#APPEND_CHAR_WHITESPACE
+     * @see NlpConst#APPEND_CHAR_LETTER
+     * @see NlpConst#APPEND_CHAR_DIGIT
+     * @see NlpConst#APPEND_CHAR_OTHER
      */
-    public Map.Entry<String, String> normalConvert(String word, boolean ignoreWhitespace, boolean needFirstLetter) {
-        Hits<String[]> hits = binaryMatchTrie.textMaxMatch(word);
-        if (hits == null || CommonsUtils.isEmpty(hits.getHits())) return null;
-        StringBuilder pyStr = new StringBuilder();
-        StringBuilder firstLetter = needFirstLetter ? new StringBuilder() : null;
-        int lastEndPos = 0;
-        for (Hit<String[]> h : hits) {
-            int curStartPos = h.getStartPos();
-            if (curStartPos != lastEndPos && !ignoreWhitespace) {
-                while (lastEndPos < curStartPos) {
-                    char ch = word.charAt(lastEndPos);
-                    if (Character.isWhitespace(ch) || NlpUtils.isSpecialChar(ch)) {
-                        pyStr.append(ch);
-                    }
-                    lastEndPos++;
-                }
-            }
-            for (String s : h.getValue()) {
-                pyStr.append(s);
-                if (needFirstLetter) firstLetter.append(s.charAt(0));
-            }
-            lastEndPos = h.getEndPos();
-        }
-        return new AbstractMap.SimpleEntry<>(pyStr.toString(), firstLetter == null ? null : firstLetter.toString());
+    public String convert(char[] word, final int appendFlag) {
+        return convert(word, appendFlag, null);
     }
 
     /**
-     * 输入的汉字转换为拼音, 拼配结果中包括: 转换完的拼音字符串, 每个汉字的拼音首字母字符串以及未能识别的字符列表(分为cjk和非cjk)
-     * 注意: 如果没有一个拼音匹配, 则返回null, 不再做任何处理
+     * 字符串拼音转换, 并且返回汉字拼音首字母
      *
-     * @param word 需要转换的汉字
-     * @return 转换结果, 如果没有一个拼音匹配, 则返回null, 不再做任何处理
+     * @param word       需要转换的汉字
+     * @param appendFlag 需要包含的字符: 数字,空格等字符标记位
+     * @return 转换结果 {@link Map.Entry#getKey()} 拼音转换结果, {@link Map.Entry#getValue()} 拼音首字母
+     * @see NlpConst#APPEND_CHAR_WHITESPACE
+     * @see NlpConst#APPEND_CHAR_LETTER
+     * @see NlpConst#APPEND_CHAR_DIGIT
+     * @see NlpConst#APPEND_CHAR_OTHER
      */
-    public Result fullConvert(String word) {
-        Hits<String[]> hits = binaryMatchTrie.textMaxMatch(word);
-        if (hits == null || CommonsUtils.isEmpty(hits.getHits())) return null;
-        Result result = new Result(word);
-        StringBuilder firstLetter = new StringBuilder();
-        for (Hit<String[]> h : hits) {
-            final int startPos = h.getStartPos();
-            int i = 0;
-            for (String s : h.getValue()) {
-                result.pinyinList.add(new PinyinCharacter(h.getMatchKey().charAt(i), startPos, s));
-                firstLetter.append(s.charAt(0));
-                i++;
-            }
-        }
-        result.pinyinFirstLetter = firstLetter.toString();
-        if (hits.getUnknownCharacters() != null) {
-            for (MatchCharacter e : hits.getUnknownCharacters()) {
-                result.addUnknown(e);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * 拼音转化结果类封装
-     */
-    public static class Result {
-        /**
-         * 原始text
-         */
-        private final String srcText;
-
-        /**
-         * 拼音转换结果list
-         */
-        private final List<PinyinCharacter> pinyinList;
-        /**
-         * 拼音首字母列表
-         */
-        private String pinyinFirstLetter;
-        /**
-         * 未能正常转换的cjk字符
-         */
-        private List<MatchCharacter> unknownCjk;
-        /**
-         * 其他不能转换的字符, 即非cjk字符
-         */
-        private List<MatchCharacter> unknownOther;
-
-        public Result(String srcText) {
-            this.srcText = srcText;
-            pinyinList = new ArrayList<>();
-        }
-
-        /**
-         * 是否所有的{@link #srcText}都转换, 没有不能被识别的字符
-         */
-        public boolean isFullConvert() {
-            return unknownCjk == null && unknownOther == null;
-        }
-
-        public List<PinyinCharacter> getPinyinList() {
-            return pinyinList;
-        }
-
-        public String getSrcText() {
-            return srcText;
-        }
-
-        void addUnknown(MatchCharacter ch) {
-            if (NlpUtils.isCjkChar(ch.getCharacter())) {
-                if (unknownCjk == null) unknownCjk = new LinkedList<>();
-                unknownCjk.add(ch);
-            } else {
-                if (unknownOther == null) unknownOther = new LinkedList<>();
-                unknownOther.add(ch);
-            }
-        }
-
-        public List<MatchCharacter> getUnknownCjk() {
-            return unknownCjk;
-        }
-
-        public List<MatchCharacter> getUnknownOther() {
-            return unknownOther;
-        }
-
-        public String getPinyinFirstLetter() {
-            return pinyinFirstLetter;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder(256);
-            sb.append(srcText).append("->").append(pinyinList);
-            if (unknownCjk != null) {
-                sb.append(", cjkUnknown=").append(unknownCjk);
-            }
-            if (unknownOther != null) {
-                sb.append(", otherUnknown=").append(unknownOther);
-            }
-            return sb.toString();
-        }
-    }
-
-    public static class PinyinCharacter extends MatchCharacter {
-
-        private String pinyin;
-
-        public PinyinCharacter(char c, int srcTextPos, String pinyin) {
-            super(c, srcTextPos);
-            this.pinyin = pinyin;
-        }
-
-        public String getPinyin() {
-            return pinyin;
-        }
-
-        @Override
-        public String toString() {
-            return super.toString() + ':' + pinyin;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof PinyinCharacter)) return false;
-            if (!super.equals(o)) return false;
-
-            PinyinCharacter that = (PinyinCharacter) o;
-
-            return pinyin.equals(that.pinyin);
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = super.hashCode();
-            result = 31 * result + pinyin.hashCode();
-            return result;
-        }
+    public Map.Entry<String, String> firstLetterConvert(char[] word, final int appendFlag) {
+        StringBuilder sb = new StringBuilder();
+        String py = convert(word, appendFlag, sb);
+        if (py == null) return null;
+        else return new AbstractMap.SimpleImmutableEntry<>(py, sb.toString());
     }
 
 }

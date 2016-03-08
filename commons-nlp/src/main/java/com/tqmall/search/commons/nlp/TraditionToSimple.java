@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
  * 繁体转简体, 按需加载词库
  * 目前我们只用到繁体转简体, 至于简体转繁体,暂时不care, 没有用到
  */
-final class TraditionToSimple {
+public final class TraditionToSimple {
 
     private static final Logger log = LoggerFactory.getLogger(TraditionToSimple.class);
 
@@ -19,8 +19,9 @@ final class TraditionToSimple {
      */
     private final char[] chars;
 
-    TraditionToSimple() {
+    public TraditionToSimple() {
         final int indexOffset = NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST;
+        log.info("start loading TraditionToSimple lexicon file: " + NlpConst.F2J_FILE_NAME);
         //都是本地加载, 数据格式的校验就不要太严格了~~~
         chars = new char[NlpConst.CJK_UNIFIED_SIZE];
         NlpUtils.loadLexicon(NlpConst.F2J_FILE_NAME, new Function<String, Boolean>() {
@@ -40,6 +41,7 @@ final class TraditionToSimple {
                 chars[i] = (char) (indexOffset + i);
             }
         }
+        log.info("load TraditionToSimple lexicon file: " + NlpConst.F2J_FILE_NAME + " finish");
     }
 
     /**

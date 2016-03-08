@@ -11,18 +11,18 @@ import java.util.List;
  * Created by xing on 16/2/11.
  * segment分词测试
  */
-public class SegmentTest {
+public class SegmentLexiconTest {
 
-    private static Segment segment;
+    private static SegmentLexicon segmentLexicon;
 
     @BeforeClass
     public static void init() {
-        segment = new Segment(SegmentTest.class.getResourceAsStream("/segment.txt"));
+        segmentLexicon = new SegmentLexicon(SegmentLexiconTest.class.getResourceAsStream("/segment.txt"));
     }
 
     @AfterClass
     public static void destroy() {
-        segment = null;
+        segmentLexicon = null;
     }
 
     @Test
@@ -31,7 +31,7 @@ public class SegmentTest {
         runSegment(new Function<String, List<Hit<Void>>>() {
             @Override
             public List<Hit<Void>> apply(String text) {
-                return segment.fullSegment(text);
+                return segmentLexicon.fullMatch(text.toCharArray());
             }
         });
         System.out.println();
@@ -39,7 +39,7 @@ public class SegmentTest {
         runSegment(new Function<String, List<Hit<Void>>>() {
             @Override
             public List<Hit<Void>> apply(String text) {
-                return segment.minSegment(text);
+                return segmentLexicon.minMatch(text.toCharArray());
             }
         });
         System.out.println();
@@ -47,7 +47,7 @@ public class SegmentTest {
         runSegment(new Function<String, List<Hit<Void>>>() {
             @Override
             public List<Hit<Void>> apply(String text) {
-                return segment.maxSegment(text);
+                return segmentLexicon.maxMatch(text.toCharArray());
             }
         });
         System.out.println();

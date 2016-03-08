@@ -105,7 +105,7 @@ public class TrieTest {
         matchTrie.put("王星星", "xingxing.wang");
 
         String word = "长沙王星星";
-        List<Hit<String>> result = matchTrie.textMaxMatch(word).getHits();
+        List<Hit<String>> result = matchTrie.maxMatch(word.toCharArray());
         System.out.println("word: " + word + " binaryMatchTrie result: " + result);
         List<Hit<String>> expectedResult = new ArrayList<>();
         expectedResult.add(new Hit<>(2, "长沙", "chang sha"));
@@ -114,7 +114,7 @@ public class TrieTest {
         expectedResult.clear();
 
         word = "长沙王星艳王星星";
-        result = matchTrie.textMaxMatch(word).getHits();
+        result = matchTrie.maxMatch(word.toCharArray());
         System.out.println("word: " + word + " binaryMatchTrie result: " + result);
         expectedResult.add(new Hit<>(2, "长沙", "chang sha"));
         expectedResult.add(new Hit<>(3, "王", "wang"));
@@ -123,7 +123,7 @@ public class TrieTest {
         expectedResult.clear();
 
         word = "长沙王星艳王星星";
-        result = matchTrie.textMinMatch(word).getHits();
+        result = matchTrie.minMatch(word.toCharArray());
         System.out.println("word: " + word + " binaryMatchTrie result: " + result);
         expectedResult.add(new Hit<>(1, "长", "zhang"));
         expectedResult.add(new Hit<>(2, "沙", "sha"));
@@ -137,11 +137,10 @@ public class TrieTest {
         matchTrie.put("和服", null);
         matchTrie.put("服务", null);
         word = "商品和服务";
-        Hits<String> hits = matchTrie.textMinMatch(word);
-        System.out.println("word: " + word + " binaryMatchTrie hits: " + hits);
+        result = matchTrie.minMatch(word.toCharArray());
+        System.out.println("word: " + word + " binaryMatchTrie hits: " + result);
         expectedResult.add(new Hit<String>(2, "商品", null));
         expectedResult.add(new Hit<String>(5, "服务", null));
-        Assert.assertEquals(expectedResult, hits.getHits());
-        Assert.assertEquals(Collections.singletonList(new MatchCharacter('和', 2)), hits.getUnknownCharacters());
+        Assert.assertEquals(expectedResult, result);
     }
 }

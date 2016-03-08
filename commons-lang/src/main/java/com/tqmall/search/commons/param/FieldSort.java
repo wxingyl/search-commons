@@ -1,6 +1,5 @@
 package com.tqmall.search.commons.param;
 
-import com.tqmall.search.commons.lang.CommonsConst;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 
 import java.io.Serializable;
@@ -48,7 +47,7 @@ public class FieldSort implements Serializable {
      */
     public static List<FieldSort> build(String sortStr) {
         if (SearchStringUtils.isEmpty(sortStr)) return null;
-        String[] array = SearchStringUtils.split(sortStr, CommonsConst.SEPARATOR_CHAR);
+        String[] array = SearchStringUtils.split(sortStr, Param.SEPARATOR_CHAR);
         if (array.length == 0) return null;
         List<FieldSort> ret = new ArrayList<>();
         for (String s : array) {
@@ -61,7 +60,7 @@ public class FieldSort implements Serializable {
     public static FieldSort parse(String s) {
         s = SearchStringUtils.filterString(s);
         if (s == null) return null;
-        String[] array = SearchStringUtils.split(s, CommonsConst.ASSIGNMENT_CHAR);
+        String[] array = SearchStringUtils.split(s, Param.ASSIGNMENT_CHAR);
         if (array.length == 0) return null;
         array = SearchStringUtils.stringArrayTrim(array);
         return new FieldSort(array[0], (array.length > 1 && "asc".equalsIgnoreCase(array[1])));
