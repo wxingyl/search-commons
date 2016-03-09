@@ -14,45 +14,45 @@ public class Hit<V> implements Comparable<Hit<V>> {
      * startPos通过endPos和outputKey直接搞出来了
      * 符合左开右闭原则,即[startPos, endPos)
      */
-    private final int endPos;
+    private final int startPos;
 
-    private String matchKey;
+    private String key;
 
     private final V value;
 
     /**
      * 进来匹配的字符
      *
-     * @param endPos   匹配到的结束位置, 符合左开右闭原则,即[startPos, endPos)
-     * @param matchKey 匹配到的输出文本
+     * @param startPos 匹配到的开始位置, 符合左开右闭原则,即[startPos, endPos)
+     * @param key      匹配到的输出文本
      * @param value    对应节点的value
      */
-    public Hit(int endPos, String matchKey, V value) {
-        this.endPos = endPos;
-        this.matchKey = matchKey;
+    public Hit(int startPos, String key, V value) {
+        this.startPos = startPos;
+        this.key = key;
         this.value = value;
     }
 
     public int getStartPos() {
-        return endPos - matchKey.length();
+        return startPos;
     }
 
     public int getEndPos() {
-        return endPos;
+        return startPos + key.length();
     }
 
     public V getValue() {
         return value;
     }
 
-    public String getMatchKey() {
-        return matchKey;
+    public String getKey() {
+        return key;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(endPos).append(':').append(matchKey);
+        sb.append(startPos).append(':').append(key);
         if (value != null) {
             sb.append(':').append(value);
         }
@@ -66,22 +66,22 @@ public class Hit<V> implements Comparable<Hit<V>> {
 
         Hit<?> hit = (Hit<?>) o;
 
-        if (endPos != hit.endPos) return false;
-        return matchKey.equals(hit.matchKey);
+        if (startPos != hit.startPos) return false;
+        return key.equals(hit.key);
     }
 
     @Override
     public int hashCode() {
-        int result = endPos;
-        result = 31 * result + matchKey.hashCode();
+        int result = startPos;
+        result = 31 * result + key.hashCode();
         return result;
     }
 
     @Override
     public int compareTo(Hit<V> o) {
-        int cmp = Integer.compare(endPos, o.endPos);
+        int cmp = Integer.compare(startPos, o.startPos);
         if (cmp == 0) {
-            cmp = Integer.compare(getStartPos(), o.getStartPos());
+            cmp = Integer.compare(key.length(), o.key.length());
         }
         return cmp;
     }
@@ -94,11 +94,12 @@ public class Hit<V> implements Comparable<Hit<V>> {
      * @param <V>    value泛型
      */
     public static <V> void appendHits(List<Hit<V>> hits, final int endPos, final AcNormalNode<V> node) {
-        hits.add(new Hit<>(endPos, node.getSingleOutput(), node.getValue()));
+        hits.add(new Hit<>(endPos - node.getSingleOutput().length(), node.getSingleOutput(), node.getValue()));
         if (node.getFailed() instanceof AcNormalNode) {
             AcNormalNode<V> failed = (AcNormalNode<V>) node.getFailed();
             if (failed.accept()) {
-                hits.add(new Hit<>(endPos, failed.getSingleOutput(), failed.getValue()));
+                hits.add(new Hit<>(endPos - node.getSingleOutput().length(), failed.getSingleOutput(),
+                        failed.getValue()));
             }
         }
     }

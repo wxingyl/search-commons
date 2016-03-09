@@ -1,6 +1,6 @@
 package com.tqmall.search.commons.nlp;
 
-import com.tqmall.search.commons.nlp.trie.AcStrBinaryTrie;
+import com.tqmall.search.commons.nlp.trie.AcBinaryTrie;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -15,16 +15,19 @@ import java.util.Set;
  */
 public class AcTrieTest {
 
-    private static AcStrBinaryTrie acStrBinaryTrie;
+    private static AcBinaryTrie<Integer> acStrBinaryTrie;
 
     @BeforeClass
     public static void init() {
-        acStrBinaryTrie = AcStrBinaryTrie.build()
-                .add("he", "she", "his", "hers")
-                .add("nihao")
-                .add("hao")
-                .add("hs")
-                .add("hsr")
+        acStrBinaryTrie = AcBinaryTrie.<Integer>build()
+                .put("he",null)
+                .put("she",null)
+                .put("his",null)
+                .put("hers",null)
+                .put("nihao",null)
+                .put("hao",null)
+                .put("hs",null)
+                .put("hsr",null)
                 .create();
     }
 
@@ -37,9 +40,9 @@ public class AcTrieTest {
     @Test
     public void acBinaryTrieTest() {
         Set<Hit> answerSet = new HashSet<>();
-        answerSet.add(new Hit<>(4, "she", null));
-        answerSet.add(new Hit<>(4, "he", null));
-        answerSet.add(new Hit<>(6, "hers", null));
+        answerSet.add(new Hit<>(1, "she", null));
+        answerSet.add(new Hit<>(2, "he", null));
+        answerSet.add(new Hit<>(2, "hers", null));
 
         String text = "ushers";
         Set<Hit> runRet = new HashSet<Hit>(acStrBinaryTrie.match(text.toCharArray()));
@@ -47,15 +50,15 @@ public class AcTrieTest {
         Assert.assertEquals(answerSet, runRet);
 
         answerSet.clear();
-        answerSet.add(new Hit<>(6, "hs", null));
-        answerSet.add(new Hit<>(11, "she", null));
-        answerSet.add(new Hit<>(11, "he", null));
-        answerSet.add(new Hit<>(19, "nihao", null));
-        answerSet.add(new Hit<>(19, "hao", null));
-        answerSet.add(new Hit<>(22, "hs", null));
-        answerSet.add(new Hit<>(23, "hsr", null));
-        answerSet.add(new Hit<>(28, "nihao", null));
-        answerSet.add(new Hit<>(28, "hao", null));
+        answerSet.add(new Hit<>(4, "hs", null));
+        answerSet.add(new Hit<>(8, "she", null));
+        answerSet.add(new Hit<>(9, "he", null));
+        answerSet.add(new Hit<>(14, "nihao", null));
+        answerSet.add(new Hit<>(16, "hao", null));
+        answerSet.add(new Hit<>(20, "hs", null));
+        answerSet.add(new Hit<>(20, "hsr", null));
+        answerSet.add(new Hit<>(23, "nihao", null));
+        answerSet.add(new Hit<>(25, "hao", null));
         text = "sdmfhsgnshejfgnihaofhsrnihao";
         runRet = new HashSet<Hit>(acStrBinaryTrie.match(text.toCharArray()));
         System.out.printf(text + ": " + runRet);

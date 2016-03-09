@@ -29,7 +29,7 @@ public final class TraditionToSimple {
             public Boolean apply(String line) {
                 String[] array = SearchStringUtils.split(line, '=');
                 if (array.length < 2) {
-                    log.warn("加载繁体转简体词库, 词" + line + "格式存在异常");
+                    log.warn("load tradition to simple lexicon file, word: " + line + " is invalid format");
                 } else {
                     chars[array[0].charAt(0) - indexOffset] = array[1].charAt(0);
                 }

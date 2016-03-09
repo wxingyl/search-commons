@@ -71,10 +71,6 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
         }
     }
 
-    /**
-     * @param text 文本数组
-     * @return 匹配结果
-     */
     @Override
     public List<Hit<V>> match(char[] text) {
         Objects.requireNonNull(text);

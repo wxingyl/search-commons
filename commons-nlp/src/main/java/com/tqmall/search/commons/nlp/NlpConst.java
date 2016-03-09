@@ -42,4 +42,32 @@ public interface NlpConst {
      */
     int APPEND_CHAR_OTHER = 1 << 3;
 
+    /**
+     * 英文单词
+     */
+    int TOKEN_TYPE_ENGLISH = 0;
+    /**
+     * 阿拉伯数字
+     */
+    int TOKEN_TYPE_NUM = 1;
+    /**
+     * 英文与数字混合
+     */
+    int TOKEN_TYPE_NUM_EN = 2;
+    /**
+     * 中文
+     */
+    int TOKEN_TYPE_CN = 3;
+    /**
+     * 其他cjk词组, 非中文
+     */
+    int TOKEN_TYPE_CJK_OTHER = 4;
+    /**
+     * 数量词
+     */
+    int TOCKE_TYPE_NUM_QUANTIFIER = 5;
+    /**
+     * 词类型
+     */
+    String[] TOKEN_TYPES = {"<ENGLISH>", "<NUM>", "<NUM_EN>", "<CN>", "<CJK_OTHER>", "<NUM_QUANTIFIER>"};
 }

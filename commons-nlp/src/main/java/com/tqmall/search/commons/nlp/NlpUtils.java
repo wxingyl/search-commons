@@ -1,6 +1,5 @@
 package com.tqmall.search.commons.nlp;
 
-import com.sun.org.apache.xalan.internal.xsltc.dom.BitArray;
 import com.tqmall.search.commons.exception.LoadLexiconException;
 import com.tqmall.search.commons.lang.Function;
 import org.slf4j.Logger;
@@ -11,8 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
-import java.util.List;
 
 /**
  * Created by xing on 16/1/26.
@@ -48,28 +45,6 @@ public final class NlpUtils {
         } else {
             return ch;
         }
-    }
-
-    /**
-     * 获取未匹配的字符
-     *
-     * @return key为下表, value为对应字符, 返回结果为LinkedHashMap
-     */
-    public static LinkedHashMap<Integer, Character> unHitCharacter(char[] text, final int startPos, final int length, List<Hit> hits) {
-        BitArray bitArray = new BitArray(length);
-        for (Hit h : hits) {
-            for (int i = h.getStartPos(); i < h.getEndPos(); i++) {
-                bitArray.setBit(i - startPos);
-            }
-        }
-        LinkedHashMap<Integer, Character> map = new LinkedHashMap<>();
-        int endPos = startPos + length;
-        for (int i = startPos; i < endPos; i++) {
-            if (!bitArray.getBit(i - startPos)) {
-                map.put(i, text[i]);
-            }
-        }
-        return map;
     }
 
     /**
