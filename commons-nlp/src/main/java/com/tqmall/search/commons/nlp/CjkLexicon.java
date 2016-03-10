@@ -2,9 +2,7 @@ package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.exception.LoadLexiconException;
 import com.tqmall.search.commons.lang.Function;
-import com.tqmall.search.commons.lang.StrValueConvert;
 import com.tqmall.search.commons.nlp.trie.*;
-import com.tqmall.search.commons.utils.StrValueConverts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,15 +20,15 @@ public class CjkLexicon {
 
     private static final Logger log = LoggerFactory.getLogger(CjkLexicon.class);
 
-    private final AcBinaryTrie<Integer> acBinaryTrie;
+    private final AcBinaryTrie<TokenType> acBinaryTrie;
 
-    private BinaryMatchTrie<Integer> binaryMatchTrie;
+    private BinaryMatchTrie<TokenType> binaryMatchTrie;
 
     /**
      * 使用默认的{@link AcNormalNode#defaultCjkAcTrieNodeFactory()} 也就是词的开通只支持汉字
      */
     public CjkLexicon(InputStream lexicon) {
-        this(AcNormalNode.<Integer>defaultCjkAcTrieNodeFactory(), lexicon);
+        this(AcNormalNode.<TokenType>defaultCjkAcTrieNodeFactory(), lexicon);
     }
 
     /**
@@ -40,28 +38,27 @@ public class CjkLexicon {
      * @param lexicon     词库输入流
      * @see LoadLexiconException
      */
-    public CjkLexicon(AcTrieNodeFactory<Integer> nodeFactory, final InputStream lexicon) {
-        final AcBinaryTrie.Builder<Integer> builder = AcBinaryTrie.build();
+    public CjkLexicon(AcTrieNodeFactory<TokenType> nodeFactory, final InputStream lexicon) {
+        final AcBinaryTrie.Builder<TokenType> builder = AcBinaryTrie.build();
         builder.nodeFactory(nodeFactory);
         long startTime = System.currentTimeMillis();
         log.info("start loading cjk lexicon: " + lexicon);
         try {
-            final StrValueConvert<Integer> tokenTypeConvert = StrValueConverts.getConvert(Integer.TYPE, NlpConst.TOKEN_TYPE_CN);
             NlpUtils.loadLexicon(lexicon, new Function<String, Boolean>() {
                 @Override
                 public Boolean apply(String s) {
                     int index = s.indexOf(' ');
+                    TokenType tokenType;
                     if (index < 0) {
-                        builder.put(s, NlpConst.TOKEN_TYPE_CN);
+                        tokenType = TokenType.CN;
                     } else {
-                        Integer type = tokenTypeConvert.convert(s.substring(index + 1).trim());
-                        if (type < 0 || type >= NlpConst.TOKEN_TYPES.length) {
-                            log.warn("load cjk lexicon: " + lexicon + ", word: " + s + " tokenType: " + type + " is invalid, instead of "
-                                    + NlpConst.TOKEN_TYPE_CN);
-                            type = NlpConst.TOKEN_TYPE_CN;
+                        String str = s.substring(index + 1).trim();
+                        tokenType = TokenType.fromString(str);
+                        if (tokenType == null) {
+                            log.warn("load cjk lexicon: " + lexicon + ", word: " + s + " tokenType: " + str + " is invalid, instead of " + TokenType.CN);
                         }
-                        builder.put(s, type);
                     }
+                    builder.put(s, tokenType);
                     return true;
                 }
             }, true);
@@ -69,10 +66,10 @@ public class CjkLexicon {
             log.error("read cjk lexicon: " + lexicon + " break out IOException", e);
             throw new LoadLexiconException("init cjk lexicon: " + lexicon + " break out exception", e);
         }
-        acBinaryTrie = builder.create(new Function<AcTrieNodeFactory<Integer>, AbstractTrie<Integer>>() {
+        acBinaryTrie = builder.create(new Function<AcTrieNodeFactory<TokenType>, AbstractTrie<TokenType>>() {
 
             @Override
-            public AbstractTrie<Integer> apply(AcTrieNodeFactory<Integer> acTrieNodeFactory) {
+            public AbstractTrie<TokenType> apply(AcTrieNodeFactory<TokenType> acTrieNodeFactory) {
                 binaryMatchTrie = new BinaryMatchTrie<>(acTrieNodeFactory);
                 return binaryMatchTrie;
             }
@@ -89,7 +86,7 @@ public class CjkLexicon {
      * @param length   待处理文本的长度
      * @return 匹配结果
      */
-    public List<Hit<Integer>> fullMatch(char[] text, int startPos, int length) {
+    public List<Hit<TokenType>> fullMatch(char[] text, int startPos, int length) {
         return acBinaryTrie.match(text, startPos, length);
     }
 
@@ -101,7 +98,7 @@ public class CjkLexicon {
      * @param length   待处理文本的长度
      * @return 匹配结果
      */
-    public List<Hit<Integer>> maxMatch(char[] text, int startPos, int length) {
+    public List<Hit<TokenType>> maxMatch(char[] text, int startPos, int length) {
         return binaryMatchTrie.maxMatch(text, startPos, length);
     }
 
@@ -113,7 +110,7 @@ public class CjkLexicon {
      * @param length   待处理文本的长度
      * @return 匹配结果
      */
-    public List<Hit<Integer>> minMatch(char[] text, int startPos, int length) {
+    public List<Hit<TokenType>> minMatch(char[] text, int startPos, int length) {
         return binaryMatchTrie.minMatch(text, startPos, length);
     }
 }

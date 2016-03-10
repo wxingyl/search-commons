@@ -28,34 +28,34 @@ public class CjkLexiconTest {
     @Test
     public void segmentTest() {
         System.out.println("fullSegment");
-        runSegment(new Function<String, List<Hit<Integer>>>() {
+        runSegment(new Function<String, List<Hit<TokenType>>>() {
             @Override
-            public List<Hit<Integer>> apply(String text) {
+            public List<Hit<TokenType>> apply(String text) {
                 return cjkLexicon.fullMatch(text.toCharArray(), 0, text.length());
             }
         });
         System.out.println();
         System.out.println("minSegment");
-        runSegment(new Function<String, List<Hit<Integer>>>() {
+        runSegment(new Function<String, List<Hit<TokenType>>>() {
             @Override
-            public List<Hit<Integer>> apply(String text) {
+            public List<Hit<TokenType>> apply(String text) {
                 return cjkLexicon.minMatch(text.toCharArray(), 0, text.length());
             }
         });
         System.out.println();
         System.out.println("maxSegment");
-        runSegment(new Function<String, List<Hit<Integer>>>() {
+        runSegment(new Function<String, List<Hit<TokenType>>>() {
             @Override
-            public List<Hit<Integer>> apply(String text) {
+            public List<Hit<TokenType>> apply(String text) {
                 return cjkLexicon.maxMatch(text.toCharArray(), 0, text.length());
             }
         });
         System.out.println();
     }
 
-    public void runSegment(Function<String, List<Hit<Integer>>> function) {
+    public void runSegment(Function<String, List<Hit<TokenType>>> function) {
         String text = "北京大学";
-        List<Hit<Integer>> list;
+        List<Hit<TokenType>> list;
         list = function.apply(text);
         System.out.println(text + ": " + list);
         text = "北京的大学";

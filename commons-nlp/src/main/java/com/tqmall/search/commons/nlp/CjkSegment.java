@@ -13,7 +13,7 @@ import java.util.Objects;
  *
  * @author xing
  */
-public abstract class CjkSegment implements TextMatch<Integer> {
+public abstract class CjkSegment implements TextMatch<TokenType> {
 
     protected final CjkLexicon cjkLexicon;
 
@@ -21,19 +21,19 @@ public abstract class CjkSegment implements TextMatch<Integer> {
         this.cjkLexicon = cjkLexicon;
     }
 
-    protected abstract List<Hit<Integer>> doMatch(char[] text, int startPos, int length);
+    protected abstract List<Hit<TokenType>> doMatch(char[] text, int startPos, int length);
 
     @Override
-    public final List<Hit<Integer>> match(char[] text) {
+    public final List<Hit<TokenType>> match(char[] text) {
         Objects.requireNonNull(text);
         return match(text, 0, text.length);
     }
 
-    public final List<Hit<Integer>> match(char[] text, int startPos, int length) {
-        List<Hit<Integer>> hits = doMatch(text, startPos, length);
+    public final List<Hit<TokenType>> match(char[] text, int startPos, int length) {
+        List<Hit<TokenType>> hits = doMatch(text, startPos, length);
         if (hits == null) return null;
         BitArray bitArray = new BitArray(length);
-        for (Hit<Integer> h : hits) {
+        for (Hit<TokenType> h : hits) {
             int endPos = h.getEndPos();
             for (int i = h.getStartPos(); i < endPos; i++) {
                 bitArray.setBit(i - startPos);
@@ -42,7 +42,7 @@ public abstract class CjkSegment implements TextMatch<Integer> {
         //没有匹配的中文字符, 只能单独成词了
         for (int i = startPos + length - 1; i >= startPos; i--) {
             if (!bitArray.getBit(i) && NlpUtils.isCjkChar(text[i])) {
-                hits.add(new Hit<>(i, String.valueOf(text[i]), NlpConst.TOKEN_TYPE_CN));
+                hits.add(new Hit<>(i, String.valueOf(text[i]), TokenType.CN));
             }
         }
         //返回结果需要根据下标排序
@@ -53,7 +53,7 @@ public abstract class CjkSegment implements TextMatch<Integer> {
     /**
      * 获取分词器
      */
-    public static CjkSegment getSegment(CjkLexicon cjkLexicon, SegmentType type) {
+    public static CjkSegment createSegment(CjkLexicon cjkLexicon, SegmentType type) {
         switch (type) {
             case MIN:
                 return new Min(cjkLexicon);
@@ -76,7 +76,7 @@ public abstract class CjkSegment implements TextMatch<Integer> {
         }
 
         @Override
-        protected List<Hit<Integer>> doMatch(char[] text, int startPos, int length) {
+        protected List<Hit<TokenType>> doMatch(char[] text, int startPos, int length) {
             return cjkLexicon.fullMatch(text, startPos, length);
         }
     }
@@ -92,7 +92,7 @@ public abstract class CjkSegment implements TextMatch<Integer> {
         }
 
         @Override
-        protected List<Hit<Integer>> doMatch(char[] text, int startPos, int length) {
+        protected List<Hit<TokenType>> doMatch(char[] text, int startPos, int length) {
             return cjkLexicon.minMatch(text, startPos, length);
         }
     }
@@ -107,10 +107,9 @@ public abstract class CjkSegment implements TextMatch<Integer> {
         }
 
         @Override
-        protected List<Hit<Integer>> doMatch(char[] text, int startPos, int length) {
+        protected List<Hit<TokenType>> doMatch(char[] text, int startPos, int length) {
             return cjkLexicon.maxMatch(text, startPos, length);
         }
     }
-
 
 }
