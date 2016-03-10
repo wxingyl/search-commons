@@ -18,12 +18,22 @@ public interface NlpConst {
      * cjk字符个数
      */
     int CJK_UNIFIED_SIZE = CJK_UNIFIED_IDEOGRAPHS_LAST - CJK_UNIFIED_IDEOGRAPHS_FIRST + 1;
-
+    /**
+     * 繁体转简体词库文件名
+     */
     String F2J_FILE_NAME = "tradition-simple.txt";
-
+    /**
+     * 简体拼音词库文件名
+     */
     String PINYIN_FILE_NAME = "pinyin.txt";
-
+    /**
+     * 停止词词库文件名
+     */
     String STOPWORD_FILE_NAME = "stopword.txt";
+    /**
+     * 量词词库文件名
+     */
+    String QUANTIFIER_FILE_NAME = "quantifier.txt";
 
     /**
      * 拼音, 分词等转化时添加空白字符flag, 具体通过{@link Character#isWhitespace(char)}判断

@@ -208,10 +208,38 @@ public abstract class Node<V> {
      * 默认的前缀树cjk node factory
      *
      * @param <V> Node节点泛型
-     * @return factory
+     * @return node factory
      */
     @SuppressWarnings("unchecked")
     public static <V> TrieNodeFactory<V> defaultCjkTrieNodeFactory() {
+        return (TrieNodeFactory<V>) DEFAULT_CJK_NODE_FACTORY;
+    }
+
+    private static final TrieNodeFactory<?> ALL_NORMAL_NODE_FACTORY = new TrieNodeFactory<Object>() {
+
+        @Override
+        public Node<Object> createRootNode() {
+            return new NormalNode<>('\0');
+        }
+
+        @Override
+        public Node<Object> createNormalNode(char c) {
+            return new NormalNode<>(c);
+        }
+
+        @Override
+        public Node<Object> createChildNode(char c, Object value) {
+            return new NormalNode<>(c, value);
+        }
+    };
+
+    /**
+     * 根节点也是{@link NormalNode}的{@link TrieNodeFactory}
+     * @param <V> Node节点泛型
+     * @return node factory
+     */
+    @SuppressWarnings("unchecked")
+    public static <V> TrieNodeFactory<V> allNormalTrieNodeFactory() {
         return (TrieNodeFactory<V>) DEFAULT_CJK_NODE_FACTORY;
     }
 

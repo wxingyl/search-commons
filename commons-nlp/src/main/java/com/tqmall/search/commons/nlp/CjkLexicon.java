@@ -3,6 +3,7 @@ package com.tqmall.search.commons.nlp;
 import com.tqmall.search.commons.exception.LoadLexiconException;
 import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.nlp.trie.*;
+import com.tqmall.search.commons.utils.SearchStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,8 +14,10 @@ import java.util.List;
 /**
  * Created by xing on 16/2/8.
  * 中文分词词库, 包括汉语词库以及停止词, 提供最大, 最小, 全匹配, 通过{@link AcBinaryTrie}实现
- * 词库文件中, 每个词可以指定词的type, 在这儿默认都是{@link NlpConst#TOKEN_TYPE_CN}, 这部分以后可以扩展, 做什么词性标注什么的,
- * 砸门现在的实现要求比较简单, 这些东东都不需要的
+ * 词库文件中, 每个词可以指定词的{@link TokenType}, 通过{@link TokenType#fromString(String)}解析对应类型, 默认{@link TokenType#CN}
+ *
+ * @see TokenType
+ * @see TokenType#fromString(String)
  */
 public class CjkLexicon {
 
@@ -23,6 +26,8 @@ public class CjkLexicon {
     private final AcBinaryTrie<TokenType> acBinaryTrie;
 
     private BinaryMatchTrie<TokenType> binaryMatchTrie;
+
+    private final BinaryMatchTrie<TokenType> quantifierTrie;
 
     /**
      * 使用默认的{@link AcNormalNode#defaultCjkAcTrieNodeFactory()} 也就是词的开通只支持汉字
@@ -43,6 +48,7 @@ public class CjkLexicon {
         builder.nodeFactory(nodeFactory);
         long startTime = System.currentTimeMillis();
         log.info("start loading cjk lexicon: " + lexicon);
+        quantifierTrie = new BinaryMatchTrie<>(Node.<TokenType>allNormalTrieNodeFactory());
         try {
             NlpUtils.loadLexicon(lexicon, new Function<String, Boolean>() {
                 @Override
@@ -54,8 +60,11 @@ public class CjkLexicon {
                     } else {
                         String str = s.substring(index + 1).trim();
                         tokenType = TokenType.fromString(str);
+                        s = s.substring(0, index);
                         if (tokenType == null) {
                             log.warn("load cjk lexicon: " + lexicon + ", word: " + s + " tokenType: " + str + " is invalid, instead of " + TokenType.CN);
+                        } else if (tokenType == TokenType.QUANTIFIER) {
+                            quantifierTrie.put(s, TokenType.QUANTIFIER);
                         }
                     }
                     builder.put(s, tokenType);
@@ -76,6 +85,13 @@ public class CjkLexicon {
 
         });
         log.info("load cjk lexicon: " + lexicon + " finish, total cost: " + (System.currentTimeMillis() - startTime) + "ms");
+        NlpUtils.loadLexicon(NlpConst.QUANTIFIER_FILE_NAME, new Function<String, Boolean>() {
+            @Override
+            public Boolean apply(String s) {
+                quantifierTrie.put(s, TokenType.QUANTIFIER);
+                return true;
+            }
+        });
     }
 
     /**
@@ -113,4 +129,29 @@ public class CjkLexicon {
     public List<Hit<TokenType>> minMatch(char[] text, int startPos, int length) {
         return binaryMatchTrie.minMatch(text, startPos, length);
     }
+
+    /**
+     * 添加量词
+     *
+     * @return 添加是否成功
+     */
+    public boolean addQuantifier(String quantifier) {
+        quantifier = SearchStringUtils.filterString(quantifier);
+        return quantifier != null && quantifierTrie.put(quantifier.toLowerCase(), TokenType.QUANTIFIER);
+    }
+
+    /**
+     * 删除量词
+     *
+     * @return 添加是否成功
+     */
+    public boolean removeQuantifier(String quantifier) {
+        quantifier = SearchStringUtils.filterString(quantifier);
+        return quantifier != null && quantifierTrie.remove(quantifier.toLowerCase());
+    }
+
+    public List<Hit<TokenType>> quantifierMatch(char[] text, int startPos, int length) {
+        return quantifierTrie.maxMatch(text, startPos, length);
+    }
+
 }
