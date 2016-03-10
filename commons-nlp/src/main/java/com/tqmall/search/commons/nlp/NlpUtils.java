@@ -47,6 +47,13 @@ public final class NlpUtils {
         }
     }
 
+    public static void arrayIndexCheck(char[] text, int startPos, int endPos) {
+        if (text == null || startPos < 0 || startPos > endPos) {
+            throw new ArrayIndexOutOfBoundsException("text.length: " + (text == null ? 0 : text.length) + ", startPos: "
+                    + startPos + ", endPos: " + endPos);
+        }
+    }
+
     /**
      * 加载词库文件, 通过{@link StandardCharsets#UTF_8}编码打开文件
      *

@@ -1,6 +1,7 @@
 package com.tqmall.search.commons.nlp.trie;
 
 import com.tqmall.search.commons.nlp.Hit;
+import com.tqmall.search.commons.nlp.NlpUtils;
 
 import java.util.*;
 
@@ -36,10 +37,7 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
     @Override
     public final List<Hit<V>> match(char[] text, int startPos, int length) {
         final int endPos = startPos + length;
-        if (text == null || startPos < 0 || startPos > endPos) {
-            throw new ArrayIndexOutOfBoundsException("text.length: " + (text == null ? 0 : text.length) + ", startPos: "
-                    + startPos + ", endPos: " + endPos);
-        }
+        NlpUtils.arrayIndexCheck(text, startPos, endPos);
         if (length == 0) return null;
         return runMatch(text, startPos, endPos);
     }

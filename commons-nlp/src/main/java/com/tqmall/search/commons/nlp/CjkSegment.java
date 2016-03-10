@@ -3,6 +3,7 @@ package com.tqmall.search.commons.nlp;
 import com.sun.org.apache.xalan.internal.xsltc.dom.BitArray;
 import com.tqmall.search.commons.nlp.trie.TextMatch;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,28 +45,25 @@ public abstract class CjkSegment implements TextMatch<Integer> {
                 hits.add(new Hit<>(i, String.valueOf(text[i]), NlpConst.TOKEN_TYPE_CN));
             }
         }
+        //返回结果需要根据下标排序
+        Collections.sort(hits);
         return hits;
     }
 
     /**
-     * 获取full分词, 尽可能多的返回分词结果, 适用于索引分词
+     * 获取分词器
      */
-    public static CjkSegment full(CjkLexicon cjkLexicon) {
-        return new Full(cjkLexicon);
-    }
-
-    /**
-     * 获取最小分词
-     */
-    public static CjkSegment min(CjkLexicon cjkLexicon) {
-        return new Min(cjkLexicon);
-    }
-
-    /**
-     * 获取最大分词
-     */
-    public static CjkSegment max(CjkLexicon cjkLexicon) {
-        return new Max(cjkLexicon);
+    public static CjkSegment getSegment(CjkLexicon cjkLexicon, SegmentType type) {
+        switch (type) {
+            case MIN:
+                return new Min(cjkLexicon);
+            case MAX:
+                return new Max(cjkLexicon);
+            case FULL:
+                return new Full(cjkLexicon);
+            default:
+                throw new IllegalArgumentException("SegmentType: " + type + " value is invalid");
+        }
     }
 
     /**

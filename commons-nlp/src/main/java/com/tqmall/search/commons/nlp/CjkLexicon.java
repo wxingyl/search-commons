@@ -40,7 +40,7 @@ public class CjkLexicon {
      * @param lexicon     词库输入流
      * @see LoadLexiconException
      */
-    public CjkLexicon(AcTrieNodeFactory<Integer> nodeFactory, InputStream lexicon) {
+    public CjkLexicon(AcTrieNodeFactory<Integer> nodeFactory, final InputStream lexicon) {
         final AcBinaryTrie.Builder<Integer> builder = AcBinaryTrie.build();
         builder.nodeFactory(nodeFactory);
         long startTime = System.currentTimeMillis();
@@ -56,6 +56,8 @@ public class CjkLexicon {
                     } else {
                         Integer type = tokenTypeConvert.convert(s.substring(index + 1).trim());
                         if (type < 0 || type >= NlpConst.TOKEN_TYPES.length) {
+                            log.warn("load cjk lexicon: " + lexicon + ", word: " + s + " tokenType: " + type + " is invalid, instead of "
+                                    + NlpConst.TOKEN_TYPE_CN);
                             type = NlpConst.TOKEN_TYPE_CN;
                         }
                         builder.put(s, type);

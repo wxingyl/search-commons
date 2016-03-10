@@ -171,7 +171,7 @@ public abstract class Node<V> {
      *                  searched
      * @param toIndex   the index of the last element (exclusive) to be searched
      */
-    public static int binarySearch(Node[] array, int fromIndex, int toIndex, char ch) {
+    public static int binarySearch(final Node[] array, final int fromIndex, final int toIndex, final char ch) {
         int low = fromIndex, high = toIndex - 1;
         while (low <= high) {
             int mid = (low + high) >>> 1;

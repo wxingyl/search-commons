@@ -36,27 +36,47 @@ public class CanalExecutor {
      */
     private long retryFetchInterval = 2000L;
 
-    private static final AtomicInteger EXECUTOR_NUMBER = new AtomicInteger(1);
+    /**
+     * 记录当前CanalExecutor对象实例个数, 每次创建, 在构造函数中增加1
+     */
+    private static final AtomicInteger EXECUTOR_NUMBER = new AtomicInteger(0);
 
+    /**
+     * @return 当前CanalExecutor实例对象个数
+     */
+    public static int getExecutorObjNum() {
+        return EXECUTOR_NUMBER.get();
+    }
+
+    /**
+     * 使用默认的ThreadFactory
+     */
     public CanalExecutor() {
-        this(new ThreadFactory() {
-            private final ThreadFactory defaultFactory = Executors.defaultThreadFactory();
-            private final AtomicInteger threadNumber = new AtomicInteger(1);
-            private final String namePrefix = "canal-" + EXECUTOR_NUMBER.getAndIncrement() + "-thread-";
-
-            @Override
-            public Thread newThread(Runnable r) {
-                Thread thread = defaultFactory.newThread(r);
-                thread.setName(namePrefix + threadNumber.getAndIncrement());
-                return thread;
-            }
-        });
+        this(null);
     }
 
     public CanalExecutor(ThreadFactory threadFactory) {
+        final int order = EXECUTOR_NUMBER.incrementAndGet();
+        if (threadFactory == null) {
+            threadFactory = new ThreadFactory() {
+                private final ThreadFactory defaultFactory = Executors.defaultThreadFactory();
+                private final AtomicInteger threadNumber = new AtomicInteger(1);
+                private String namePrefix;
+
+                @Override
+                public Thread newThread(Runnable r) {
+                    if (namePrefix == null) {
+                        namePrefix = "canal-" + order + "-thread-";
+                    }
+                    Thread thread = defaultFactory.newThread(r);
+                    thread.setName(namePrefix + threadNumber.getAndIncrement());
+                    return thread;
+                }
+            };
+        }
         this.threadFactory = threadFactory;
         //jvm退出时执行hook
-        Runtime.getRuntime().addShutdownHook(threadFactory.newThread(new Runnable() {
+        Runtime.getRuntime().addShutdownHook(this.threadFactory.newThread(new Runnable() {
             @Override
             public void run() {
                 stopAll();

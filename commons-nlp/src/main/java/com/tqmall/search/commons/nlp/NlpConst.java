@@ -43,31 +43,31 @@ public interface NlpConst {
     int APPEND_CHAR_OTHER = 1 << 3;
 
     /**
-     * 英文单词
+     * 无法识别的词
      */
-    int TOKEN_TYPE_ENGLISH = 0;
+    int TOKEN_TYPE_UNKNOWN = 0;
     /**
      * 阿拉伯数字
      */
-    int TOKEN_TYPE_NUM = 1;
+    int TOKEN_TYPE_NUM = TOKEN_TYPE_UNKNOWN + 1;
     /**
-     * 英文与数字混合
+     * 英文单词
      */
-    int TOKEN_TYPE_NUM_EN = 2;
+    int TOKEN_TYPE_EN = TOKEN_TYPE_NUM + 1;
+    /**
+     * 通过'-'连接的英文混合词, '-'左边是英文字符才会识别为英文混合词
+     */
+    int TOKEN_TYPE_EN_MIX = TOKEN_TYPE_EN + 1;
     /**
      * 中文
      */
-    int TOKEN_TYPE_CN = 3;
-    /**
-     * 其他cjk词组, 非中文
-     */
-    int TOKEN_TYPE_CJK_OTHER = 4;
+    int TOKEN_TYPE_CN = TOKEN_TYPE_EN_MIX + 1;
     /**
      * 数量词
      */
-    int TOCKE_TYPE_NUM_QUANTIFIER = 5;
+    int TOCKE_TYPE_NUM_QUANTIFIER = TOKEN_TYPE_CN + 1;
     /**
      * 词类型
      */
-    String[] TOKEN_TYPES = {"<ENGLISH>", "<NUM>", "<NUM_EN>", "<CN>", "<CJK_OTHER>", "<NUM_QUANTIFIER>"};
+    String[] TOKEN_TYPES = {"<UNKNOWN>", "<NUM>", "<EN>", "<EN_MIX>", "<CN>", "<NUM_QUANTIFIER>"};
 }
