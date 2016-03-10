@@ -51,7 +51,7 @@ public class PyTest {
         System.out.println("text: " + text + ": " + pyText);
         Assert.assertEquals(excepted, pyText);
         text = "长沙";
-        Map.Entry<String, String> exceptedEntry = new AbstractMap.SimpleEntry<>("changsha", "cs");
+        Map.Entry<String, String> exceptedEntry = new AbstractMap.SimpleImmutableEntry<>("changsha", "cs");
         Map.Entry<String, String> flResult = pinyinConvert.firstLetterConvert(text.toCharArray(), 0);
         System.out.println("text: " + text + ": " + exceptedEntry);
         Assert.assertEquals(exceptedEntry, flResult);

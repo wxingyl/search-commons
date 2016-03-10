@@ -2,6 +2,7 @@ package com.tqmall.search.commons.nlp.trie;
 
 import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.nlp.Hit;
+import com.tqmall.search.commons.nlp.NlpUtils;
 
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -71,10 +72,6 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
         }
     }
 
-    /**
-     * @param text 文本数组
-     * @return 匹配结果
-     */
     @Override
     public List<Hit<V>> match(char[] text) {
         Objects.requireNonNull(text);
@@ -84,10 +81,7 @@ public class AcBinaryTrie<V> implements AcTrie<V> {
     @Override
     public final List<Hit<V>> match(char[] text, final int startPos, final int length) {
         final int endPos = startPos + length;
-        if (text == null || startPos < 0 || startPos > endPos) {
-            throw new ArrayIndexOutOfBoundsException("text.length: " + (text == null ? 0 : text.length) + ", startPos: "
-                    + startPos + ", endPos: " + endPos);
-        }
+        NlpUtils.arrayIndexCheck(text, startPos, endPos);
         if (length == 0) return null;
         failedRwLock.readLock().lock();
         try {

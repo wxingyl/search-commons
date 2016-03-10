@@ -18,7 +18,7 @@ import java.util.*;
  * <p/>
  * {@link #iterator()}不可修改的, 即{@link Iterator#remove()}操纵不支持
  *
- * @see Schemas#buildSchema(String)
+ * @see Schemas#buildSchema(String, Class)
  * @see Schemas.Builder
  * @see Schemas#buildTable(String)
  */
@@ -34,7 +34,7 @@ public class Schema<T extends Actionable> implements Iterable<Schema<T>.Table> {
     /**
      * 为了保证table在创建完成之后不可修改, 做了只能通过提供的静态方法构造的限制
      *
-     * @see Schemas#buildSchema(String)
+     * @see Schemas#buildSchema(String, Class)
      * @see Schemas#buildTable(String)
      */
     Schema(String schemaName) {

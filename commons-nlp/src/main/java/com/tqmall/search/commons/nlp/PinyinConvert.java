@@ -58,6 +58,8 @@ public final class PinyinConvert {
     private String convert(char[] word, final int appendFlag, StringBuilder firstLetter) {
         List<Hit<String[]>> hits = binaryMatchTrie.maxMatch(word);
         if (CommonsUtils.isEmpty(hits)) return null;
+        //后面的算法要求hits有序
+        Collections.sort(hits);
         StringBuilder py = new StringBuilder();
         int lastEndIndex = 0;
         for (Hit<String[]> h : hits) {

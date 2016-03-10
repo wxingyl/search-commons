@@ -41,7 +41,7 @@ public class CanalClientDemo {
 
     @Ignore
     public void runCanalInstanceTest() {
-        ActionFactory<TableAction> actionFactory = new SingleSchemaActionFactory<>(Schemas.<TableAction>buildSchema("autoparts")
+        ActionFactory<TableAction> actionFactory = new SingleSchemaActionFactory<>(Schemas.buildSchema("autoparts", TableAction.class)
                 .addTable(Schemas.buildTable("db_goods_stock")
                         .action(new AbstractTableAction(new SingleThreadCurrentHandleTable<TableAction>()) {
                             @Override
@@ -54,7 +54,7 @@ public class CanalClientDemo {
                         .columnCondition(TableColumnCondition.DEFAULT_DELETE_COLUMN_CONDITION))
                 .create());
         CANAL_EXECUTOR.addInstanceHandle(new TableSectionHandle(LOCAL_ADDRESS, "shop", actionFactory));
-        ActionFactory<EventTypeAction> eventTypeFactory = new SingleSchemaActionFactory<>(Schemas.<EventTypeAction>buildSchema("autoparts")
+        ActionFactory<EventTypeAction> eventTypeFactory = new SingleSchemaActionFactory<>(Schemas.buildSchema("autoparts", EventTypeAction.class)
                 .addTable(Schemas.buildTable("db_goods")
                         .action(new EventTypeAction() {
                             @Override
@@ -151,13 +151,13 @@ public class CanalClientDemo {
                         .create())
         );
         String schemaName = "legend";
-        schemas.add(Schemas.<TableAction>buildSchema(schemaName)
+        schemas.add(Schemas.buildSchema(schemaName, TableAction.class)
                 .addTable(tableList)
                 .create());
 
         //添加dandelion表中的activity, member表处理
         schemaName = "dandelion";
-        schemas.add(Schemas.<TableAction>buildSchema(schemaName)
+        schemas.add(Schemas.buildSchema(schemaName, TableAction.class)
                 .addTable(Schemas.buildTable("activity")
                         .columnCondition(TableColumnCondition.DEFAULT_DELETE_COLUMN_CONDITION)
                         .action(new TableAction() {
@@ -204,7 +204,7 @@ public class CanalClientDemo {
     private void addEventTypeSectionCanalInstance() {
         ActionFactory<EventTypeAction> actionFactory = Schemas.<EventTypeAction>buildFactory()
                 //添加legend表中的legend_shop和legend_shop_service_info表处理
-                .addSchema(Schemas.<EventTypeAction>buildSchema("legend")
+                .addSchema(Schemas.buildSchema("legend", EventTypeAction.class)
                         .addTable(Schemas.buildTable("legend_shop")
                                 .action(new EventTypeAction() {
                                     //legend-shop表改动对应的处理
@@ -245,7 +245,7 @@ public class CanalClientDemo {
                                 })
                                 .columnCondition(TableColumnCondition.DEFAULT_DELETE_COLUMN_CONDITION)))
                 //添加dandelion表中的activity, member表处理
-                .addSchema(Schemas.<EventTypeAction>buildSchema("dandelion")
+                .addSchema(Schemas.buildSchema("dandelion", EventTypeAction.class)
                         .addTable(Schemas.buildTable("activity")
                                 .action(new EventTypeAction() {
                                     //activity表改动对应的处理

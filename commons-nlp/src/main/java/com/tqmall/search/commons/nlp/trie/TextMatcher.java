@@ -1,6 +1,7 @@
 package com.tqmall.search.commons.nlp.trie;
 
 import com.tqmall.search.commons.nlp.Hit;
+import com.tqmall.search.commons.nlp.NlpUtils;
 
 import java.util.*;
 
@@ -22,12 +23,7 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
      * @param text 待匹配的字符数组
      * @return 匹配结果, 如果返回的list认为错误,整个文本处理结果返回null
      */
-    protected abstract Collection<Hit<V>> runMatch(char[] text, int startPos, int endPos);
-
-    /**
-     * 匹配结果处理
-     */
-    protected abstract List<Hit<V>> hitsResultHandle(char[] text, int startPos, int endPos, Collection<Hit<V>> collection);
+    protected abstract List<Hit<V>> runMatch(char[] text, int startPos, int endPos);
 
     /**
      * 文本匹配
@@ -41,14 +37,9 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
     @Override
     public final List<Hit<V>> match(char[] text, int startPos, int length) {
         final int endPos = startPos + length;
-        if (text == null || startPos < 0 || startPos > endPos) {
-            throw new ArrayIndexOutOfBoundsException("text.length: " + (text == null ? 0 : text.length) + ", startPos: "
-                    + startPos + ", endPos: " + endPos);
-        }
+        NlpUtils.arrayIndexCheck(text, startPos, endPos);
         if (length == 0) return null;
-        Collection<Hit<V>> list = runMatch(text, startPos, endPos);
-        if (list == null) return null;
-        return hitsResultHandle(text, startPos, endPos, list);
+        return runMatch(text, startPos, endPos);
     }
 
     public static <V> TextMatcher<V> minMatcher(Node<V> root) {
@@ -69,7 +60,7 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
         }
 
         @Override
-        protected Collection<Hit<V>> runMatch(char[] text, int startPos, int endPos) {
+        protected List<Hit<V>> runMatch(char[] text, int startPos, int endPos) {
             List<Hit<V>> hits = new ArrayList<>();
             Node<V> currentNode = root;
             int i = endPos - 1, matchStartPos = endPos, lastPos = endPos;
@@ -89,7 +80,7 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
                     i++;
                     if (nextNode.accept()) {
                         //匹配到一个词了~~~
-                        hits.add(new Hit<>(i, new String(text, matchStartPos, i - matchStartPos), nextNode.getValue()));
+                        hits.add(new Hit<>(matchStartPos, new String(text, matchStartPos, i - matchStartPos), nextNode.getValue()));
                         i = matchStartPos - 1;
                         lastPos = matchStartPos;
                         currentNode = root;
@@ -97,15 +88,6 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
                         currentNode = nextNode;
                     }
                 }
-            }
-            return hits;
-        }
-
-        @Override
-        protected final List<Hit<V>> hitsResultHandle(char[] text, int startPos, int endPos, Collection<Hit<V>> collection) {
-            List<Hit<V>> hits = (List<Hit<V>>) collection;
-            if (!hits.isEmpty()) {
-                Collections.sort(hits);
             }
             return hits;
         }
@@ -130,12 +112,12 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
         }
 
         @Override
-        protected Collection<Hit<V>> runMatch(char[] text, final int startPos, final int endPos) {
+        protected List<Hit<V>> runMatch(char[] text, final int startPos, final int endPos) {
             Node<V> currentNode = root;
             int i = endPos - 1, hitStartPos = endPos, hitEndPos = endPos;
             boolean lastAccept = false;
             V hitValue = null;
-            Map<Integer, Hit<V>> hitsEndPosMap = new TreeMap<>();
+            Map<Integer, Hit<V>> hitsEndPosMap = new HashMap<>();
             while (i >= startPos) {
                 Node<V> nextNode = i < text.length ? currentNode.getChild(text[i]) : null;
                 if (nextNode == null || nextNode.getStatus() == Node.Status.DELETE) {
@@ -145,7 +127,7 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
                     } else {
                         if (lastAccept) {
                             //匹配到一个词了~~~
-                            addHitToMap(new Hit<>(hitEndPos, new String(text, hitStartPos,
+                            addHitToMap(new Hit<>(hitStartPos, new String(text, hitStartPos,
                                     hitEndPos - hitStartPos), hitValue), hitsEndPosMap);
                             lastAccept = false;
                         }
@@ -165,17 +147,12 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
                 }
             }
             if (lastAccept) {
-                addHitToMap(new Hit<>(hitEndPos, new String(text, hitStartPos,
+                addHitToMap(new Hit<>(hitStartPos, new String(text, hitStartPos,
                         hitEndPos - hitStartPos), hitValue), hitsEndPosMap);
             }
-            return hitsEndPosMap.values();
+            return new ArrayList<>(hitsEndPosMap.values());
         }
 
-        @Override
-        protected final List<Hit<V>> hitsResultHandle(char[] text, int startPos, int endPos, Collection<Hit<V>> collection) {
-            //不做排序, 匹配的时候已经做过了
-            return new ArrayList<>(collection);
-        }
     }
 
 }

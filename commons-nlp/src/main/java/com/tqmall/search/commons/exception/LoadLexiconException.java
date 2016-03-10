@@ -8,8 +8,12 @@ public class LoadLexiconException extends RuntimeException {
 
     private static final long serialVersionUID = 7202255526214130763L;
 
+    public LoadLexiconException(String message) {
+        super(message);
+    }
+
     public LoadLexiconException(String message, Throwable cause) {
-        super("加载词库文件" + message + "发生异常", cause);
+        super(message, cause);
     }
 
 }

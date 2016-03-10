@@ -42,4 +42,32 @@ public interface NlpConst {
      */
     int APPEND_CHAR_OTHER = 1 << 3;
 
+    /**
+     * 无法识别的词
+     */
+    int TOKEN_TYPE_UNKNOWN = 0;
+    /**
+     * 阿拉伯数字
+     */
+    int TOKEN_TYPE_NUM = TOKEN_TYPE_UNKNOWN + 1;
+    /**
+     * 英文单词
+     */
+    int TOKEN_TYPE_EN = TOKEN_TYPE_NUM + 1;
+    /**
+     * 通过'-'连接的英文混合词, '-'左边是英文字符才会识别为英文混合词
+     */
+    int TOKEN_TYPE_EN_MIX = TOKEN_TYPE_EN + 1;
+    /**
+     * 中文
+     */
+    int TOKEN_TYPE_CN = TOKEN_TYPE_EN_MIX + 1;
+    /**
+     * 数量词
+     */
+    int TOCKE_TYPE_NUM_QUANTIFIER = TOKEN_TYPE_CN + 1;
+    /**
+     * 词类型
+     */
+    String[] TOKEN_TYPES = {"<UNKNOWN>", "<NUM>", "<EN>", "<EN_MIX>", "<CN>", "<NUM_QUANTIFIER>"};
 }

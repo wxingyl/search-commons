@@ -11,51 +11,51 @@ import java.util.List;
  * Created by xing on 16/2/11.
  * segment分词测试
  */
-public class SegmentLexiconTest {
+public class CjkLexiconTest {
 
-    private static SegmentLexicon segmentLexicon;
+    private static CjkLexicon cjkLexicon;
 
     @BeforeClass
     public static void init() {
-        segmentLexicon = new SegmentLexicon(SegmentLexiconTest.class.getResourceAsStream("/segment.txt"));
+        cjkLexicon = new CjkLexicon(CjkLexiconTest.class.getResourceAsStream("/segment.txt"));
     }
 
     @AfterClass
     public static void destroy() {
-        segmentLexicon = null;
+        cjkLexicon = null;
     }
 
     @Test
     public void segmentTest() {
         System.out.println("fullSegment");
-        runSegment(new Function<String, List<Hit<Void>>>() {
+        runSegment(new Function<String, List<Hit<Integer>>>() {
             @Override
-            public List<Hit<Void>> apply(String text) {
-                return segmentLexicon.fullMatch(text.toCharArray());
+            public List<Hit<Integer>> apply(String text) {
+                return cjkLexicon.fullMatch(text.toCharArray(), 0, text.length());
             }
         });
         System.out.println();
         System.out.println("minSegment");
-        runSegment(new Function<String, List<Hit<Void>>>() {
+        runSegment(new Function<String, List<Hit<Integer>>>() {
             @Override
-            public List<Hit<Void>> apply(String text) {
-                return segmentLexicon.minMatch(text.toCharArray());
+            public List<Hit<Integer>> apply(String text) {
+                return cjkLexicon.minMatch(text.toCharArray(), 0, text.length());
             }
         });
         System.out.println();
         System.out.println("maxSegment");
-        runSegment(new Function<String, List<Hit<Void>>>() {
+        runSegment(new Function<String, List<Hit<Integer>>>() {
             @Override
-            public List<Hit<Void>> apply(String text) {
-                return segmentLexicon.maxMatch(text.toCharArray());
+            public List<Hit<Integer>> apply(String text) {
+                return cjkLexicon.maxMatch(text.toCharArray(), 0, text.length());
             }
         });
         System.out.println();
     }
 
-    public void runSegment(Function<String, List<Hit<Void>>> function) {
+    public void runSegment(Function<String, List<Hit<Integer>>> function) {
         String text = "北京大学";
-        List<Hit<Void>> list;
+        List<Hit<Integer>> list;
         list = function.apply(text);
         System.out.println(text + ": " + list);
         text = "北京的大学";

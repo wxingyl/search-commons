@@ -11,7 +11,7 @@ import java.util.Objects;
 
 /**
  * Created by xing on 16/1/24.
- * 条件集合, 即各个条件的容器, 主要分3大类: {@link #must}, {@link #should}, {@link #mustNot}, 校验方法{@link #validation(Map)}
+ * 条件集合, 即各个条件的容器, 主要分3大类: {@link #must}, {@link #should}, {@link #mustNot}, 校验方法{@link #validation(Function)}
  * 3类条件都考虑, 这3个大的条件list之间是且的关系
  * <p/>
  * 注意: 获取条件的接口返回的List都是unmodifiableList, 不可修改的
