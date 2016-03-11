@@ -52,12 +52,12 @@ public class BigRootNode<V> extends Node<V> {
      * @return 是否中断删除操作
      */
     @Override
-    public final boolean removeNode(char[] word, int deep) {
+    public final boolean deleteNode(char[] word, int deep) {
         if (deep != 0) {
             throw new IllegalArgumentException("RootNode deep should equals 0");
         }
         Node childNode = getChild(word[0]);
-        return childNode == null || childNode.status != Status.NORMAL || childNode.removeNode(word, 1);
+        return childNode == null || childNode.deleteNode(word, 1);
     }
 
     @SuppressWarnings("unchecked")

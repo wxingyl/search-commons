@@ -54,7 +54,7 @@ public abstract class Node<V> {
      * @param deep 当前节点的深度, 根节点为0
      * @return 是否中断删除操作
      */
-    public abstract boolean removeNode(char[] word, final int deep);
+    public abstract boolean deleteNode(char[] word, final int deep);
 
     public abstract void clear();
 

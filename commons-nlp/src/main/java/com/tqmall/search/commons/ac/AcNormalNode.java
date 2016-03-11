@@ -55,7 +55,7 @@ public class AcNormalNode<V> extends NormalNode<V> {
      * {@link AcNormalNode}不支持节点删除操作
      */
     @Override
-    public boolean removeNode(char[] word, int deep) {
+    public boolean deleteNode(char[] word, int deep) {
         throw new UnsupportedOperationException("AcNode can't support remove");
     }
 

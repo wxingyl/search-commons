@@ -96,7 +96,7 @@ public class NormalNode<V> extends Node<V> {
      * @return 是否中断删除操作
      */
     @Override
-    public boolean removeNode(char[] word, final int deep) {
+    public boolean deleteNode(char[] word, final int deep) {
         //最先检查是否已经删除了~~~
         if (status == Status.DELETE || deep > word.length) return true;
         //到底了~~~
@@ -105,7 +105,7 @@ public class NormalNode<V> extends Node<V> {
             if (status == Status.NORMAL) return true;
         } else {
             Node<?> child = getChild(word[deep]);
-            if (child == null || child.removeNode(word, deep + 1)) return true;
+            if (child == null || child.deleteNode(word, deep + 1)) return true;
             if (status != Status.NORMAL) {
                 //key正常, 只不过其上面的节点被其他词占用, 此时需要停止删除操作
                 return true;

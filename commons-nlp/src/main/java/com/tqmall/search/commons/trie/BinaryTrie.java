@@ -81,7 +81,7 @@ public class BinaryTrie<V> implements Trie<V> {
         Node<V> node = getNode(word);
         //如果不是词节点, 返回
         if (node == null || node.getStatus() == Node.Status.NORMAL) return false;
-        root.removeNode(word.toCharArray(), 0);
+        root.deleteNode(word.toCharArray(), 0);
         size--;
         return true;
     }
