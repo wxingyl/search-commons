@@ -82,9 +82,4 @@ public class CjkLexiconTest {
         System.out.println(text + ": " + list);
     }
 
-    @Test
-    public void quantifierTest() {
-        String text = "手星星秒秒钟立方公尺";
-        System.out.println(cjkLexicon.quantifierMatch(text.toCharArray(), 0, text.length()));
-    }
 }

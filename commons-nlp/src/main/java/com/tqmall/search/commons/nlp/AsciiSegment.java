@@ -22,6 +22,9 @@ public class AsciiSegment implements TextMatch<TokenType> {
 
     private final boolean isMaxSegment;
 
+    /**
+     * 默认最小分词{@link SegmentType#MIN}
+     */
     public AsciiSegment() {
         this(SegmentType.MIN);
     }

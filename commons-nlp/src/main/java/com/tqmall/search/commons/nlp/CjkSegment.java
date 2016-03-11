@@ -4,9 +4,7 @@ import com.sun.org.apache.xalan.internal.xsltc.dom.BitArray;
 import com.tqmall.search.commons.match.Hit;
 import com.tqmall.search.commons.match.TextMatch;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created by xing on 16/3/8.
@@ -30,6 +28,7 @@ public abstract class CjkSegment implements TextMatch<TokenType> {
         return match(text, 0, text.length);
     }
 
+    @Override
     public final List<Hit<TokenType>> match(char[] text, int startPos, int length) {
         List<Hit<TokenType>> hits = doMatch(text, startPos, length);
         if (hits == null) return null;
@@ -40,11 +39,26 @@ public abstract class CjkSegment implements TextMatch<TokenType> {
                 bitArray.setBit(i - startPos);
             }
         }
-        //没有匹配的中文字符, 只能单独成词了
+        int numEndIndex = -1;
         for (int i = startPos + length - 1; i >= startPos; i--) {
-            if (!bitArray.getBit(i) && NlpUtils.isCjkChar(text[i])) {
-                hits.add(new Hit<>(i, String.valueOf(text[i]), TokenType.CN));
+            if (bitArray.getBit(i) || !NlpUtils.isCjkChar(text[i])) continue;
+            char c = text[i];
+            if (CjkLexicon.CN_NUM.contains(c)) {
+                if (numEndIndex == -1) numEndIndex = i;
+                continue;
+            } else if (numEndIndex != -1) {
+                //将前面的数字取出来
+                int start = i + 1;
+                //提取数词词组
+                hits.add(new Hit<>(start, new String(text, start, numEndIndex - start + 1), TokenType.NUM));
+                numEndIndex = -1;
             }
+            //没有匹配的中文字符, 只能单独成词了
+            String w = String.valueOf(text[i]);
+            hits.add(new Hit<>(i, w, cjkLexicon.isQuantifier(w) ? TokenType.QUANTIFIER : TokenType.CN));
+        }
+        if (numEndIndex != -1) {
+            hits.add(new Hit<>(startPos, new String(text, startPos, numEndIndex - startPos + 1), TokenType.NUM));
         }
         //返回结果需要根据下标排序
         Collections.sort(hits);
