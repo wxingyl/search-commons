@@ -1,7 +1,9 @@
-package com.tqmall.search.commons.nlp.trie;
+package com.tqmall.search.commons.trie;
 
 import com.tqmall.search.commons.lang.Supplier;
 import com.tqmall.search.commons.nlp.NlpConst;
+import com.tqmall.search.commons.ac.AcNormalNode;
+import com.tqmall.search.commons.ac.AcTrieNodeFactory;
 
 /**
  * Created by xing on 16/3/11.

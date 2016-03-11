@@ -2,7 +2,10 @@ package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.exception.LoadLexiconException;
 import com.tqmall.search.commons.lang.Function;
-import com.tqmall.search.commons.nlp.trie.*;
+import com.tqmall.search.commons.ac.AcBinaryTrie;
+import com.tqmall.search.commons.ac.AcTrieNodeFactory;
+import com.tqmall.search.commons.match.MatchBinaryTrie;
+import com.tqmall.search.commons.trie.*;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +28,9 @@ public class CjkLexicon {
 
     private final AcBinaryTrie<TokenType> acBinaryTrie;
 
-    private final BinaryMatchTrie<TokenType> binaryMatchTrie;
+    private final MatchBinaryTrie<TokenType> matchBinaryTrie;
 
-    private final BinaryMatchTrie<TokenType> quantifierTrie;
+    private final MatchBinaryTrie<TokenType> quantifierTrie;
 
     /**
      * {@link AcTrieNodeFactory}默认使用{@link NodeFactories.RootType#CJK}
@@ -44,10 +47,10 @@ public class CjkLexicon {
      * @see LoadLexiconException
      */
     public CjkLexicon(AcTrieNodeFactory<TokenType> nodeFactory, final InputStream lexicon) {
-        binaryMatchTrie = new BinaryMatchTrie<>(nodeFactory);
+        matchBinaryTrie = new MatchBinaryTrie<>(nodeFactory);
         long startTime = System.currentTimeMillis();
         log.info("start loading cjk lexicon: " + lexicon);
-        quantifierTrie = new BinaryMatchTrie<>(NodeFactories.<TokenType>defaultTrie(NodeFactories.RootType.NORMAL));
+        quantifierTrie = new MatchBinaryTrie<>(NodeFactories.<TokenType>defaultTrie(NodeFactories.RootType.NORMAL));
         final AcBinaryTrie.Builder<TokenType> builder = AcBinaryTrie.build();
         try {
             NlpUtils.loadLexicon(lexicon, new Function<String, Boolean>() {
@@ -75,7 +78,7 @@ public class CjkLexicon {
             log.error("read cjk lexicon: " + lexicon + " break out IOException", e);
             throw new LoadLexiconException("init cjk lexicon: " + lexicon + " break out exception", e);
         }
-        acBinaryTrie = builder.create(binaryMatchTrie);
+        acBinaryTrie = builder.create(matchBinaryTrie);
         log.info("load cjk lexicon: " + lexicon + " finish, total cost: " + (System.currentTimeMillis() - startTime) + "ms");
         NlpUtils.loadLexicon(NlpConst.QUANTIFIER_FILE_NAME, new Function<String, Boolean>() {
             @Override
@@ -107,7 +110,7 @@ public class CjkLexicon {
      * @return 匹配结果
      */
     public List<Hit<TokenType>> maxMatch(char[] text, int startPos, int length) {
-        return binaryMatchTrie.maxMatch(text, startPos, length);
+        return matchBinaryTrie.maxMatch(text, startPos, length);
     }
 
     /**
@@ -119,7 +122,7 @@ public class CjkLexicon {
      * @return 匹配结果
      */
     public List<Hit<TokenType>> minMatch(char[] text, int startPos, int length) {
-        return binaryMatchTrie.minMatch(text, startPos, length);
+        return matchBinaryTrie.minMatch(text, startPos, length);
     }
 
     /**

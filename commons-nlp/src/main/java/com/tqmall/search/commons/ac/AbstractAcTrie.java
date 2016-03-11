@@ -1,6 +1,8 @@
-package com.tqmall.search.commons.nlp.trie;
+package com.tqmall.search.commons.ac;
 
 import com.tqmall.search.commons.nlp.Hit;
+import com.tqmall.search.commons.trie.Node;
+import com.tqmall.search.commons.trie.Trie;
 
 import java.util.List;
 import java.util.Map;

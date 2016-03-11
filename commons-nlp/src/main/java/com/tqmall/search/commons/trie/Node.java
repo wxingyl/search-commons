@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.nlp.trie;
+package com.tqmall.search.commons.trie;
 
 import java.util.List;
 import java.util.Map;
@@ -47,7 +47,7 @@ public abstract class Node<V> {
      *
      * @param handle 处理接口
      */
-    abstract void childHandle(NodeChildHandle<V> handle);
+    public abstract void childHandle(NodeChildHandle<V> handle);
 
     public void clear() {
         value = null;

@@ -1,7 +1,7 @@
 package com.tqmall.search.commons.nlp;
 
 
-import com.tqmall.search.commons.nlp.trie.TextMatch;
+import com.tqmall.search.commons.match.TextMatch;
 import com.tqmall.search.commons.utils.CommonsUtils;
 
 import java.util.ArrayList;

@@ -1,7 +1,7 @@
 package com.tqmall.search.commons.nlp;
 
-import com.tqmall.search.commons.nlp.trie.AcBinaryTrie;
-import com.tqmall.search.commons.nlp.trie.NodeFactories;
+import com.tqmall.search.commons.ac.AcBinaryTrie;
+import com.tqmall.search.commons.trie.NodeFactories;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;

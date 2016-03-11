@@ -1,4 +1,7 @@
-package com.tqmall.search.commons.nlp.trie;
+package com.tqmall.search.commons.ac;
+
+import com.tqmall.search.commons.match.TextMatch;
+import com.tqmall.search.commons.trie.Trie;
 
 /**
  * Created by xing on 16/1/28.

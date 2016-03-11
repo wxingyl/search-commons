@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.nlp.trie;
+package com.tqmall.search.commons.trie;
 
 
 import java.util.List;

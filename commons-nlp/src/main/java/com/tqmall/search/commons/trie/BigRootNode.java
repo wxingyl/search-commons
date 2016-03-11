@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.nlp.trie;
+package com.tqmall.search.commons.trie;
 
 import java.util.List;
 import java.util.Map;
@@ -62,9 +62,9 @@ public class BigRootNode<V> extends Node<V> {
         return true;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    void childHandle(NodeChildHandle<V> handle) {
+    @SuppressWarnings("unchecked")
+    public void childHandle(NodeChildHandle<V> handle) {
         for (Node<?> ch : children) {
             if (ch != null && ch.status != Status.DELETE) {
                 if (!handle.onHandle((Node<V>) ch)) break;

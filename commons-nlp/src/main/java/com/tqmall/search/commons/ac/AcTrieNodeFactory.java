@@ -1,4 +1,6 @@
-package com.tqmall.search.commons.nlp.trie;
+package com.tqmall.search.commons.ac;
+
+import com.tqmall.search.commons.trie.TrieNodeFactory;
 
 /**
  * Created by xing on 16/1/28.

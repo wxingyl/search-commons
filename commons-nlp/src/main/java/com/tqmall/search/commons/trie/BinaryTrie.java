@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.nlp.trie;
+package com.tqmall.search.commons.trie;
 
 import com.tqmall.search.commons.nlp.NlpUtils;
 
@@ -115,11 +115,11 @@ public class BinaryTrie<V> implements Trie<V> {
         root.clear();
     }
 
-    protected final TrieNodeFactory<V> getNodeFactory() {
+    public TrieNodeFactory<V> getNodeFactory() {
         return nodeFactory;
     }
 
-    protected Node<V> getRoot() {
+    public Node<V> getRoot() {
         return root;
     }
 }

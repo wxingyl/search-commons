@@ -1,4 +1,7 @@
-package com.tqmall.search.commons.nlp.trie;
+package com.tqmall.search.commons.ac;
+
+import com.tqmall.search.commons.trie.Node;
+import com.tqmall.search.commons.trie.NormalNode;
 
 import java.util.Deque;
 import java.util.LinkedList;

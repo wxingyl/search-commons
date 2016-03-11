@@ -1,6 +1,6 @@
 package com.tqmall.search.commons.nlp;
 
-import com.tqmall.search.commons.nlp.trie.AcNormalNode;
+import com.tqmall.search.commons.ac.AcNormalNode;
 
 import java.util.List;
 

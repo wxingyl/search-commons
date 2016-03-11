@@ -1,8 +1,8 @@
 package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.lang.Function;
-import com.tqmall.search.commons.nlp.trie.BinaryMatchTrie;
-import com.tqmall.search.commons.nlp.trie.NodeFactories;
+import com.tqmall.search.commons.match.MatchBinaryTrie;
+import com.tqmall.search.commons.trie.NodeFactories;
 import com.tqmall.search.commons.utils.CommonsUtils;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 import org.slf4j.Logger;
@@ -21,10 +21,10 @@ public final class PinyinConvert {
 
     private static final Logger log = LoggerFactory.getLogger(PinyinConvert.class);
 
-    private final BinaryMatchTrie<String[]> binaryMatchTrie;
+    private final MatchBinaryTrie<String[]> matchBinaryTrie;
 
     public PinyinConvert() {
-        binaryMatchTrie = new BinaryMatchTrie<>(NodeFactories.<String[]>defaultTrie(NodeFactories.RootType.CJK));
+        matchBinaryTrie = new MatchBinaryTrie<>(NodeFactories.<String[]>defaultTrie(NodeFactories.RootType.CJK));
         log.info("start loading pinyin lexicon file: " + NlpConst.PINYIN_FILE_NAME);
         NlpUtils.loadLexicon(NlpConst.PINYIN_FILE_NAME, new Function<String, Boolean>() {
             @Override
@@ -36,7 +36,7 @@ public final class PinyinConvert {
                 } else {
                     value = new String[]{array[1]};
                 }
-                binaryMatchTrie.put(array[0], value);
+                matchBinaryTrie.put(array[0], value);
                 return true;
             }
         });
@@ -59,7 +59,7 @@ public final class PinyinConvert {
     }
 
     private String convert(char[] word, final int appendFlag, StringBuilder firstLetter) {
-        List<Hit<String[]>> hits = binaryMatchTrie.maxMatch(word);
+        List<Hit<String[]>> hits = matchBinaryTrie.maxMatch(word);
         if (CommonsUtils.isEmpty(hits)) return null;
         //后面的算法要求hits有序
         Collections.sort(hits);
@@ -96,7 +96,7 @@ public final class PinyinConvert {
      * 单个cjk字符转化, 对于多音字, 只返回词库中的第一个
      */
     public String convert(char cjkChar) {
-        List<Hit<String[]>> hits = binaryMatchTrie.maxMatch(new char[]{cjkChar});
+        List<Hit<String[]>> hits = matchBinaryTrie.maxMatch(new char[]{cjkChar});
         if (CommonsUtils.isEmpty(hits)) return null;
         return hits.get(0).getValue()[0];
     }

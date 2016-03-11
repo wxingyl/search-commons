@@ -1,7 +1,10 @@
-package com.tqmall.search.commons.nlp.trie;
+package com.tqmall.search.commons.ac;
 
 import com.tqmall.search.commons.nlp.Hit;
 import com.tqmall.search.commons.nlp.NlpUtils;
+import com.tqmall.search.commons.trie.BinaryTrie;
+import com.tqmall.search.commons.trie.Node;
+import com.tqmall.search.commons.trie.NodeChildHandle;
 
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;

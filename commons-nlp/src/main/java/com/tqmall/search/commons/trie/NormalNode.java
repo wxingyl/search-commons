@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.nlp.trie;
+package com.tqmall.search.commons.trie;
 
 import com.tqmall.search.commons.utils.SearchStringUtils;
 
@@ -99,9 +99,9 @@ public class NormalNode<V> extends Node<V> {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    void childHandle(NodeChildHandle<V> handle) {
+    @SuppressWarnings("unchecked")
+    public void childHandle(NodeChildHandle<V> handle) {
         if (children == null) return;
         for (int i = 0; i < childCount; i++) {
             if (children[i].status != Status.DELETE) {

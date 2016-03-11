@@ -1,6 +1,10 @@
-package com.tqmall.search.commons.nlp.trie;
+package com.tqmall.search.commons.match;
 
 import com.tqmall.search.commons.nlp.Hit;
+import com.tqmall.search.commons.ac.AcBinaryTrie;
+import com.tqmall.search.commons.ac.AcTrie;
+import com.tqmall.search.commons.trie.BinaryTrie;
+import com.tqmall.search.commons.trie.TrieNodeFactory;
 
 import java.util.List;
 
@@ -12,13 +16,13 @@ import java.util.List;
  * @see AcTrie
  * @see AcBinaryTrie
  */
-public class BinaryMatchTrie<V> extends BinaryTrie<V> {
+public class MatchBinaryTrie<V> extends BinaryTrie<V> {
 
     private final TextMatcher<V> minTextMatcher;
 
     private final TextMatcher<V> maxTextMatcher;
 
-    public BinaryMatchTrie(TrieNodeFactory<V> nodeFactory) {
+    public MatchBinaryTrie(TrieNodeFactory<V> nodeFactory) {
         super(nodeFactory);
         minTextMatcher = TextMatcher.minMatcher(root);
         maxTextMatcher = TextMatcher.maxMatcher(root);
