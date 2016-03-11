@@ -5,20 +5,25 @@ package com.tqmall.search.commons.nlp.trie;
  * Aho-Corasick 模式匹配树 接口定义
  * 接收态的值即为泛型V
  */
-public interface AcTrie<V> extends TextMatch<V> {
-
+public interface AcTrie<V> extends Trie<V>, TextMatch<V> {
     /**
-     * 获取对应key的值
+     * 该接口修改Trie树中的节点结构, 如果要生效, 必须从新{@link #initFailed()}
      *
-     * @param key key
-     * @return 如果key无效, 则返回null
+     * @see #initFailed()
      */
-    V getValue(String key);
+    boolean put(String key, V value);
 
     /**
-     * 更新key对应的value
+     * 该接口修改Trie树中的节点结构, 如果要生效, 必须从新{@link #initFailed()}
      *
-     * @return 是否成功执行了更新, 如果找到了合适的节点, 则更新成功[不做value是否与原先的有变化的判断]
+     * @see #initFailed()
+     */
+    boolean remove(String word);
+
+    /**
+     * 更新key对应的value, 如果key不存在直接返回false, 不会主动创建依赖节点
+     *
+     * @return 是否成功执行了更新, 如果找到了合适的节点, 则更新成功[value是否与原先的有变化不做判断]
      */
     boolean updateValue(String key, V value);
 
@@ -26,11 +31,4 @@ public interface AcTrie<V> extends TextMatch<V> {
      * 构建failed字段
      */
     void initFailed();
-
-    int size();
-
-    /**
-     * 执行clear操作, 删除所有节点数据
-     */
-    void clear();
 }

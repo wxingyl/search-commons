@@ -2,13 +2,16 @@ package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.nlp.trie.BinaryMatchTrie;
-import com.tqmall.search.commons.nlp.trie.Node;
+import com.tqmall.search.commons.nlp.trie.NodeFactories;
 import com.tqmall.search.commons.utils.CommonsUtils;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by xing on 16/1/24.
@@ -21,7 +24,7 @@ public final class PinyinConvert {
     private final BinaryMatchTrie<String[]> binaryMatchTrie;
 
     public PinyinConvert() {
-        binaryMatchTrie = new BinaryMatchTrie<>(Node.<String[]>defaultCjkTrieNodeFactory());
+        binaryMatchTrie = new BinaryMatchTrie<>(NodeFactories.<String[]>defaultTrie(NodeFactories.RootType.CJK));
         log.info("start loading pinyin lexicon file: " + NlpConst.PINYIN_FILE_NAME);
         NlpUtils.loadLexicon(NlpConst.PINYIN_FILE_NAME, new Function<String, Boolean>() {
             @Override

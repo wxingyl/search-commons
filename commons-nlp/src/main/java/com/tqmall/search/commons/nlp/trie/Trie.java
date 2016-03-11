@@ -10,14 +10,11 @@ import java.util.Map;
 public interface Trie<V> {
 
     /**
-     * 添加词
+     * 添加词, 如果存在则更新
      *
      * @return 添加是否成功
      */
     boolean put(String key, V value);
-
-    V getValue(String key);
-
     /**
      * 删除词
      *
@@ -25,6 +22,10 @@ public interface Trie<V> {
      * @return 如果该词存在, 则删除
      */
     boolean remove(String word);
+
+    V getValue(String key);
+
+    Node<V> getNode(String key);
 
     /**
      * 前缀查询

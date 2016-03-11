@@ -33,6 +33,15 @@ public class Hit<V> implements Comparable<Hit<V>> {
         this.value = value;
     }
 
+    public Hit(int endPos, AcNormalNode<V> acNode) {
+        if (!acNode.accept()) {
+            throw new IllegalArgumentException("acNode: " + acNode + " accept is false");
+        }
+        this.key = acNode.getSingleOutput();
+        this.startPos = endPos - this.key.length();
+        this.value = acNode.getValue();
+    }
+
     public int getStartPos() {
         return startPos;
     }
@@ -72,7 +81,6 @@ public class Hit<V> implements Comparable<Hit<V>> {
         if (!(o instanceof Hit)) return false;
 
         Hit<?> hit = (Hit<?>) o;
-
         if (startPos != hit.startPos) return false;
         return key.equals(hit.key);
     }
@@ -101,12 +109,11 @@ public class Hit<V> implements Comparable<Hit<V>> {
      * @param <V>    value泛型
      */
     public static <V> void appendHits(List<Hit<V>> hits, final int endPos, final AcNormalNode<V> node) {
-        hits.add(new Hit<>(endPos - node.getSingleOutput().length(), node.getSingleOutput(), node.getValue()));
+        hits.add(new Hit<>(endPos, node));
         if (node.getFailed() instanceof AcNormalNode) {
             AcNormalNode<V> failed = (AcNormalNode<V>) node.getFailed();
             if (failed.accept()) {
-                hits.add(new Hit<>(endPos - node.getSingleOutput().length(), failed.getSingleOutput(),
-                        failed.getValue()));
+                hits.add(new Hit<>(endPos, failed));
             }
         }
     }

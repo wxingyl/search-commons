@@ -18,7 +18,7 @@ public class TrieTest {
 
     @BeforeClass
     public static void init() {
-        binaryTrie = new BinaryTrie<>(Node.<String>defaultCjkTrieNodeFactory());
+        binaryTrie = new BinaryTrie<>(NodeFactories.<String>defaultTrie(NodeFactories.RootType.CJK));
     }
 
     @AfterClass
@@ -96,7 +96,7 @@ public class TrieTest {
 
     @Test
     public void binaryMatchTrieTest() {
-        BinaryMatchTrie<String> matchTrie = new BinaryMatchTrie<>(Node.<String>defaultCjkTrieNodeFactory());
+        BinaryMatchTrie<String> matchTrie = new BinaryMatchTrie<>(NodeFactories.<String>defaultTrie(NodeFactories.RootType.CJK));
         matchTrie.put("长", "zhang");
         matchTrie.put("长沙", "chang sha");
         matchTrie.put("沙", "sha");

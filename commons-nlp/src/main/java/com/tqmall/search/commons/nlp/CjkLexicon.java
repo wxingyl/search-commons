@@ -25,15 +25,15 @@ public class CjkLexicon {
 
     private final AcBinaryTrie<TokenType> acBinaryTrie;
 
-    private BinaryMatchTrie<TokenType> binaryMatchTrie;
+    private final BinaryMatchTrie<TokenType> binaryMatchTrie;
 
     private final BinaryMatchTrie<TokenType> quantifierTrie;
 
     /**
-     * 使用默认的{@link AcNormalNode#defaultCjkAcTrieNodeFactory()} 也就是词的开通只支持汉字
+     * {@link AcTrieNodeFactory}默认使用{@link NodeFactories.RootType#CJK}
      */
     public CjkLexicon(InputStream lexicon) {
-        this(AcNormalNode.<TokenType>defaultCjkAcTrieNodeFactory(), lexicon);
+        this(NodeFactories.<TokenType>defaultAcTrie(NodeFactories.RootType.CJK), lexicon);
     }
 
     /**
@@ -44,11 +44,11 @@ public class CjkLexicon {
      * @see LoadLexiconException
      */
     public CjkLexicon(AcTrieNodeFactory<TokenType> nodeFactory, final InputStream lexicon) {
-        final AcBinaryTrie.Builder<TokenType> builder = AcBinaryTrie.build();
-        builder.nodeFactory(nodeFactory);
+        binaryMatchTrie = new BinaryMatchTrie<>(nodeFactory);
         long startTime = System.currentTimeMillis();
         log.info("start loading cjk lexicon: " + lexicon);
-        quantifierTrie = new BinaryMatchTrie<>(Node.<TokenType>allNormalTrieNodeFactory());
+        quantifierTrie = new BinaryMatchTrie<>(NodeFactories.<TokenType>defaultTrie(NodeFactories.RootType.NORMAL));
+        final AcBinaryTrie.Builder<TokenType> builder = AcBinaryTrie.build();
         try {
             NlpUtils.loadLexicon(lexicon, new Function<String, Boolean>() {
                 @Override
@@ -75,15 +75,7 @@ public class CjkLexicon {
             log.error("read cjk lexicon: " + lexicon + " break out IOException", e);
             throw new LoadLexiconException("init cjk lexicon: " + lexicon + " break out exception", e);
         }
-        acBinaryTrie = builder.create(new Function<AcTrieNodeFactory<TokenType>, AbstractTrie<TokenType>>() {
-
-            @Override
-            public AbstractTrie<TokenType> apply(AcTrieNodeFactory<TokenType> acTrieNodeFactory) {
-                binaryMatchTrie = new BinaryMatchTrie<>(acTrieNodeFactory);
-                return binaryMatchTrie;
-            }
-
-        });
+        acBinaryTrie = builder.create(binaryMatchTrie);
         log.info("load cjk lexicon: " + lexicon + " finish, total cost: " + (System.currentTimeMillis() - startTime) + "ms");
         NlpUtils.loadLexicon(NlpConst.QUANTIFIER_FILE_NAME, new Function<String, Boolean>() {
             @Override

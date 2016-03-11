@@ -1,7 +1,5 @@
 package com.tqmall.search.commons.nlp.trie;
 
-import com.tqmall.search.commons.nlp.NlpConst;
-
 import java.util.List;
 import java.util.Map;
 
@@ -11,9 +9,7 @@ import java.util.Map;
  */
 public class BigRootNode<V> extends Node<V> {
 
-    /**
-     * 子节点
-     */
+    //子节点
     private final Node<?>[] children;
 
     private final char minChar;
@@ -98,32 +94,4 @@ public class BigRootNode<V> extends Node<V> {
             }
         }
     }
-
-    /**
-     * 创建CJK字符的root节点
-     *
-     * @param <V> value对应的泛型
-     */
-    public static <V> BigRootNode<V> createCjkRootNode() {
-        return new BigRootNode<>(NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST, NlpConst.CJK_UNIFIED_SIZE);
-    }
-
-    /**
-     * 创建ascii字符的root节点
-     *
-     * @param <V> value对应的泛型
-     */
-    public static <V> BigRootNode<V> createAsciiRootNode() {
-        return new BigRootNode<>(Character.MIN_VALUE, 0xFF);
-    }
-
-    /**
-     * 创建所有字符的root节点
-     *
-     * @param <V> value对应的泛型
-     */
-    public static <V> BigRootNode<V> createAllRootNode() {
-        return new BigRootNode<>(Character.MIN_VALUE, Character.MAX_VALUE);
-    }
-
 }

@@ -56,34 +56,36 @@ public abstract class Node<V> {
 
     /**
      * 获取所有child的词
+     * Note: root节点不支持该方法调用, 如果调用抛出{@link UnsupportedOperationException}
      *
      * @param prefixKey 前面已经匹配的key, 注意: 该参数已经包含该节点的字符
      * @return 对应的key已经Value
+     * @see BigRootNode#allChildWords(String)
      */
     public abstract List<Map.Entry<String, V>> allChildWords(String prefixKey);
 
-    final public Status getStatus() {
+    public final Status getStatus() {
         return status;
     }
 
-    final public V getValue() {
+    public final V getValue() {
         return value;
     }
 
-    final public void setValue(V value) {
+    public final void setValue(V value) {
         this.value = value;
     }
 
-    final public char getChar() {
+    public final char getChar() {
         return c;
     }
 
-    final public boolean accept() {
+    public final boolean accept() {
         return status == Status.WORD || status == Status.LEAF_WORD;
     }
 
     /**
-     * @param word       要删除的关键字, word不做空等的校验
+     * @param word       要删除的关键字, word不做空的校验
      * @param startIndex 处理开始删除的节点
      * @return 是否中断删除
      */
@@ -109,9 +111,6 @@ public abstract class Node<V> {
         status = haveChild() ? Status.NORMAL : Status.DELETE;
         return true;
     }
-
-
-//  下面都是一些static方法定义了~~~~~~
 
     /**
      * 节点状态定义
@@ -184,63 +183,6 @@ public abstract class Node<V> {
                 return mid; // key found
         }
         return ~low;  // key not found.
-    }
-
-
-    private static final TrieNodeFactory<?> DEFAULT_CJK_NODE_FACTORY = new TrieNodeFactory<Object>() {
-        @Override
-        public Node<Object> createRootNode() {
-            return BigRootNode.createCjkRootNode();
-        }
-
-        @Override
-        public Node<Object> createNormalNode(char c) {
-            return new NormalNode<>(c);
-        }
-
-        @Override
-        public Node<Object> createChildNode(char c, Object value) {
-            return new NormalNode<>(c, value);
-        }
-    };
-
-    /**
-     * 默认的前缀树cjk node factory
-     *
-     * @param <V> Node节点泛型
-     * @return node factory
-     */
-    @SuppressWarnings("unchecked")
-    public static <V> TrieNodeFactory<V> defaultCjkTrieNodeFactory() {
-        return (TrieNodeFactory<V>) DEFAULT_CJK_NODE_FACTORY;
-    }
-
-    private static final TrieNodeFactory<?> ALL_NORMAL_NODE_FACTORY = new TrieNodeFactory<Object>() {
-
-        @Override
-        public Node<Object> createRootNode() {
-            return new NormalNode<>('\0');
-        }
-
-        @Override
-        public Node<Object> createNormalNode(char c) {
-            return new NormalNode<>(c);
-        }
-
-        @Override
-        public Node<Object> createChildNode(char c, Object value) {
-            return new NormalNode<>(c, value);
-        }
-    };
-
-    /**
-     * 根节点也是{@link NormalNode}的{@link TrieNodeFactory}
-     * @param <V> Node节点泛型
-     * @return node factory
-     */
-    @SuppressWarnings("unchecked")
-    public static <V> TrieNodeFactory<V> allNormalTrieNodeFactory() {
-        return (TrieNodeFactory<V>) DEFAULT_CJK_NODE_FACTORY;
     }
 
 }

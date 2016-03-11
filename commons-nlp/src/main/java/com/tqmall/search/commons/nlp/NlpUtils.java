@@ -2,6 +2,7 @@ package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.exception.LoadLexiconException;
 import com.tqmall.search.commons.lang.Function;
+import com.tqmall.search.commons.utils.SearchStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +46,10 @@ public final class NlpUtils {
         } else {
             return ch;
         }
+    }
+
+    public static char[] stringToCharArray(String key) {
+        return SearchStringUtils.isEmpty(key) ? null : key.toCharArray();
     }
 
     public static void arrayIndexCheck(char[] text, int startPos, int endPos) {

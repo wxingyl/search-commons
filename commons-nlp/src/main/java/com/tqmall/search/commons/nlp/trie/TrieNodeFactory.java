@@ -17,7 +17,7 @@ public interface TrieNodeFactory<V> {
     Node<V> createNormalNode(char c);
 
     /**
-     * 创建叶子节点
+     * 创建叶子节点, 其实该方法跟{@link #createNormalNode(char)}一样, 只是状态不一样而已
      *
      * @param c     对应字符
      * @param value 该叶子节点对用的value
