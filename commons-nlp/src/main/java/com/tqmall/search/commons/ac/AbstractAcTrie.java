@@ -1,6 +1,6 @@
 package com.tqmall.search.commons.ac;
 
-import com.tqmall.search.commons.nlp.Hit;
+import com.tqmall.search.commons.match.Hit;
 import com.tqmall.search.commons.trie.Node;
 import com.tqmall.search.commons.trie.Trie;
 

@@ -75,25 +75,13 @@ public class BinaryTrie<V> implements Trie<V> {
         return (node == null || node.getStatus() == Node.Status.NORMAL) ? null : node.getValue();
     }
 
-
     @Override
     public boolean remove(String word) {
+        //先确保这个词存在, 再执行删除, 这儿里面已经过滤了删除的节点
         Node<V> node = getNode(word);
+        //如果不是词节点, 返回
         if (node == null || node.getStatus() == Node.Status.NORMAL) return false;
-        char[] array = word.toCharArray();
-        node = root;
-        Node<V> startNode = root;
-        int startIndex = 0;
-        //TODO 这儿貌似有BUG, startNode和startIndex应该不正确
-        for (int i = 0; i < array.length; i++) {
-            node = node.getChild(array[i]);
-            //拿到最后一个非NORMAL节点
-            if (node.getStatus() != Node.Status.NORMAL) {
-                startIndex = i;
-                startNode = node;
-            }
-        }
-        startNode.removeNode(array, startIndex);
+        root.removeNode(word.toCharArray(), 0);
         size--;
         return true;
     }

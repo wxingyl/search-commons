@@ -1,6 +1,7 @@
 package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.lang.Function;
+import com.tqmall.search.commons.match.Hit;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;

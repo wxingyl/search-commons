@@ -46,6 +46,20 @@ public class BigRootNode<V> extends Node<V> {
         }
     }
 
+    /**
+     * RootNode 执行删除节点
+     *
+     * @return 是否中断删除操作
+     */
+    @Override
+    public final boolean removeNode(char[] word, int deep) {
+        if (deep != 0) {
+            throw new IllegalArgumentException("RootNode deep should equals 0");
+        }
+        Node childNode = getChild(word[0]);
+        return childNode == null || childNode.status != Status.NORMAL || childNode.removeNode(word, 1);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Node<V> getChild(char ch) {
@@ -85,8 +99,7 @@ public class BigRootNode<V> extends Node<V> {
      * child大数组不置为null, 如果需要直接在外部将该对象置为null
      */
     @Override
-    public void clear() {
-        super.clear();
+    public final void clear() {
         for (int i = 0; i < children.length; i++) {
             if (children[i] != null) {
                 children[i].clear();

@@ -1,6 +1,7 @@
 package com.tqmall.search.commons.nlp;
 
 import com.sun.org.apache.xalan.internal.xsltc.dom.BitArray;
+import com.tqmall.search.commons.match.Hit;
 import com.tqmall.search.commons.match.TextMatch;
 
 import java.util.Collections;

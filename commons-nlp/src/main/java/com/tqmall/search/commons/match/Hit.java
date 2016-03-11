@@ -1,8 +1,6 @@
-package com.tqmall.search.commons.nlp;
+package com.tqmall.search.commons.match;
 
 import com.tqmall.search.commons.ac.AcNormalNode;
-
-import java.util.List;
 
 /**
  * Created by xing on 16/1/28.
@@ -101,20 +99,4 @@ public class Hit<V> implements Comparable<Hit<V>> {
         return cmp;
     }
 
-    /**
-     * 将匹配到的node添加到hits中, 函数中对node.status, 即{@link AcNormalNode#accept()}不做判断
-     *
-     * @param endPos 匹配文本中的结束位置
-     * @param node   匹配到的node, 其status不做判断
-     * @param <V>    value泛型
-     */
-    public static <V> void appendHits(List<Hit<V>> hits, final int endPos, final AcNormalNode<V> node) {
-        hits.add(new Hit<>(endPos, node));
-        if (node.getFailed() instanceof AcNormalNode) {
-            AcNormalNode<V> failed = (AcNormalNode<V>) node.getFailed();
-            if (failed.accept()) {
-                hits.add(new Hit<>(endPos, failed));
-            }
-        }
-    }
 }

@@ -49,10 +49,14 @@ public abstract class Node<V> {
      */
     public abstract void childHandle(NodeChildHandle<V> handle);
 
-    public void clear() {
-        value = null;
-        status = null;
-    }
+    /**
+     * @param word 要删除的关键字, word不做空的校验
+     * @param deep 当前节点的深度, 根节点为0
+     * @return 是否中断删除操作
+     */
+    public abstract boolean removeNode(char[] word, final int deep);
+
+    public abstract void clear();
 
     /**
      * 获取所有child的词
@@ -82,34 +86,6 @@ public abstract class Node<V> {
 
     public final boolean accept() {
         return status == Status.WORD || status == Status.LEAF_WORD;
-    }
-
-    /**
-     * @param word       要删除的关键字, word不做空的校验
-     * @param startIndex 处理开始删除的节点
-     * @return 是否中断删除
-     */
-    public boolean removeNode(char[] word, int startIndex) {
-        int curChildPos = startIndex + 1;
-        //最先检查是否已经删除了~~~
-        if (status == Status.DELETE || curChildPos > word.length) return false;
-        //到底了~~~
-        if (curChildPos == word.length) {
-            //说明该节点没有词, 要删除的key不对
-            if (status == Status.NORMAL) return false;
-        } else {
-            Node<?> child = getChild(word[curChildPos]);
-            if (child == null || !child.removeNode(word, curChildPos)) return false;
-            if (status != Status.NORMAL) {
-                //key正常, 只不过其上面的节点被其他词占用, 我们就不删除这些东东了~~~
-                return false;
-            }
-        }
-
-        //到这儿就说明可以删除了~~~
-        value = null;
-        status = haveChild() ? Status.NORMAL : Status.DELETE;
-        return true;
     }
 
     /**

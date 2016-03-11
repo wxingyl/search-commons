@@ -1,6 +1,6 @@
 package com.tqmall.search.commons.ac;
 
-import com.tqmall.search.commons.nlp.Hit;
+import com.tqmall.search.commons.match.Hit;
 import com.tqmall.search.commons.nlp.NlpUtils;
 import com.tqmall.search.commons.trie.BinaryTrie;
 import com.tqmall.search.commons.trie.Node;
@@ -87,7 +87,13 @@ public class AcBinaryTrie<V> extends AbstractAcTrie<V> {
                     cursor++;
                     if (nextNode.accept()) {
                         //匹配到, 将所有结果添加进来
-                        Hit.appendHits(hits, cursor, nextNode);
+                        hits.add(new Hit<>(cursor, nextNode));
+                        if (nextNode.getFailed() instanceof AcNormalNode) {
+                            AcNormalNode<V> failed = (AcNormalNode<V>) nextNode.getFailed();
+                            if (failed.accept()) {
+                                hits.add(new Hit<>(endPos, failed));
+                            }
+                        }
                     }
                     currentNode = nextNode;
                 }

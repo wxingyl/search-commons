@@ -108,6 +108,7 @@ public final class NodeFactories {
                 return new BigRootNode<>(Character.MIN_VALUE, Character.MAX_VALUE);
             }
         });
+
         private final Supplier<Node> supplier;
 
         RootType(Supplier<Node> supplier) {

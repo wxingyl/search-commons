@@ -4,6 +4,7 @@ import com.tqmall.search.commons.exception.LoadLexiconException;
 import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.ac.AcBinaryTrie;
 import com.tqmall.search.commons.ac.AcTrieNodeFactory;
+import com.tqmall.search.commons.match.Hit;
 import com.tqmall.search.commons.match.MatchBinaryTrie;
 import com.tqmall.search.commons.trie.*;
 import com.tqmall.search.commons.utils.SearchStringUtils;

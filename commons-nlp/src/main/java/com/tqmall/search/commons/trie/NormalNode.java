@@ -13,7 +13,7 @@ public class NormalNode<V> extends Node<V> {
     /**
      * 默认数组扩展大小
      */
-    static final int DEFAULT_INFLATE_SIZE = 16;
+    protected static final int DEFAULT_INFLATE_SIZE = 8;
 
     protected int childCount;
 
@@ -90,6 +90,34 @@ public class NormalNode<V> extends Node<V> {
         return index < 0 ? null : (Node<V>) children[index];
     }
 
+    /**
+     * 普通节点删除
+     *
+     * @return 是否中断删除操作
+     */
+    @Override
+    public boolean removeNode(char[] word, final int deep) {
+        //最先检查是否已经删除了~~~
+        if (status == Status.DELETE || deep > word.length) return true;
+        //到底了~~~
+        if (deep == word.length) {
+            //说明该节点没有词, 要删除的key不对, 这儿一般不会出现, 只是做一个安全校验
+            if (status == Status.NORMAL) return true;
+        } else {
+            Node<?> child = getChild(word[deep]);
+            if (child == null || child.removeNode(word, deep + 1)) return true;
+            if (status != Status.NORMAL) {
+                //key正常, 只不过其上面的节点被其他词占用, 此时需要停止删除操作
+                return true;
+            }
+        }
+
+        //到这儿就说明可以删除了~~~
+        value = null;
+        status = haveChild() ? Status.NORMAL : Status.DELETE;
+        return false;
+    }
+
     @Override
     public boolean haveChild() {
         if (children == null) return false;
@@ -140,7 +168,8 @@ public class NormalNode<V> extends Node<V> {
 
     @Override
     public void clear() {
-        super.clear();
+        value = null;
+        status = Status.DELETE;
         for (int i = 0; i < childCount; i++) {
             children[i].clear();
             children[i] = null;

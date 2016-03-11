@@ -1,5 +1,6 @@
 package com.tqmall.search.commons.nlp;
 
+import com.tqmall.search.commons.match.Hit;
 import com.tqmall.search.commons.match.MatchBinaryTrie;
 import com.tqmall.search.commons.trie.*;
 import org.junit.AfterClass;

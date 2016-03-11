@@ -1,6 +1,7 @@
 package com.tqmall.search.commons.nlp;
 
 
+import com.tqmall.search.commons.match.Hit;
 import com.tqmall.search.commons.match.TextMatch;
 import com.tqmall.search.commons.utils.CommonsUtils;
 

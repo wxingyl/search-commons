@@ -1,7 +1,5 @@
 package com.tqmall.search.commons.match;
 
-import com.tqmall.search.commons.nlp.Hit;
-
 import java.util.List;
 
 /**
