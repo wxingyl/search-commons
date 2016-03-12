@@ -82,8 +82,8 @@ public final class NlpUtils {
             filename = '/' + filename;
         }
         log.info("start load lexicon file: " + filename);
-        try {
-            int lineCount = loadLexicon(NlpUtils.class.getResourceAsStream(filename), lineHandle, lineTrim);
+        try (InputStream in = NlpUtils.class.getResourceAsStream(filename)) {
+            int lineCount = loadLexicon(in, lineHandle, lineTrim);
             log.info("load lexicon file: " + filename + " finish, total load " + lineCount + " lines");
         } catch (IOException e) {
             log.error("load lexicon file: " + filename + " have exception", e);

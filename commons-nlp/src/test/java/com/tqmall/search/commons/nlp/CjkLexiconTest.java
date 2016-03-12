@@ -6,6 +6,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -18,7 +20,12 @@ public class CjkLexiconTest {
 
     @BeforeClass
     public static void init() {
-        cjkLexicon = new CjkLexicon(CjkLexiconTest.class.getResourceAsStream("/segment.txt"));
+        try (InputStream in = CjkLexiconTest.class.getResourceAsStream("/segment.txt")) {
+            cjkLexicon = new CjkLexicon(in);
+        } catch (IOException e) {
+            System.out.println("词库文件加载失败: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @AfterClass
