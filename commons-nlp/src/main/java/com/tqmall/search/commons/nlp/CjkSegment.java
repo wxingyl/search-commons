@@ -39,6 +39,7 @@ public abstract class CjkSegment implements TextMatch<TokenType> {
                 bitArray.setBit(i - startPos);
             }
         }
+        //数词提取, 未匹配的cjk字符单个成词
         int numEndIndex = -1;
         for (int i = startPos + length - 1; i >= startPos; i--) {
             if (bitArray.getBit(i) || !NlpUtils.isCjkChar(text[i])) continue;

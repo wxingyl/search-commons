@@ -61,7 +61,7 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
 
         @Override
         protected List<Hit<V>> runMatch(char[] text, int startPos, int endPos) {
-            List<Hit<V>> hits = new ArrayList<>();
+            List<Hit<V>> hits = new LinkedList<>();
             Node<V> currentNode = root;
             int i = endPos - 1, matchStartPos = endPos, lastPos = endPos;
             while (i >= startPos) {

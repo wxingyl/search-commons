@@ -69,7 +69,7 @@ public class AcBinaryTrie<V> extends AbstractAcTrie<V> {
         if (length == 0) return null;
         failedRwLock.readLock().lock();
         try {
-            List<Hit<V>> hits = new ArrayList<>();
+            List<Hit<V>> hits = new LinkedList<>();
             Node<V> currentNode = trieRoot;
             int cursor = startPos;
             while (cursor < endPos) {
