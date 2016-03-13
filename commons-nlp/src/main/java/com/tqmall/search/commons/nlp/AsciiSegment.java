@@ -172,7 +172,7 @@ public class AsciiSegment implements TextMatch<TokenType> {
         final int endPos = startPos + length;
         NlpUtils.arrayIndexCheck(text, startPos, endPos);
         if (length == 0) return null;
-        List<Integer> mixSymbolPositions = parseEnMix ? null : new ArrayList<Integer>();
+        List<Integer> mixSymbolPositions = parseEnMix ? new ArrayList<Integer>() : null;
         List<Hit<TokenType>> hits = innerMatch(text, startPos, endPos, mixSymbolPositions);
         if (!hits.isEmpty() && !CommonsUtils.isEmpty(mixSymbolPositions)) {
             hitsMixHandle(hits, mixSymbolPositions);

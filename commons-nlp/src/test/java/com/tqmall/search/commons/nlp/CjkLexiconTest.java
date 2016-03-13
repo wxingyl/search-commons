@@ -23,8 +23,7 @@ public class CjkLexiconTest {
         try (InputStream in = CjkLexiconTest.class.getResourceAsStream("/segment.txt")) {
             cjkLexicon = new CjkLexicon(in);
         } catch (IOException e) {
-            System.out.println("词库文件加载失败: " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException("词库文件加载失败", e);
         }
     }
 

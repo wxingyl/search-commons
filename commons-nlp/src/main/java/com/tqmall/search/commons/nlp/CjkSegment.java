@@ -70,6 +70,7 @@ public abstract class CjkSegment implements TextMatch<TokenType> {
      * 获取分词器
      */
     public static CjkSegment createSegment(CjkLexicon cjkLexicon, SegmentType type) {
+        Objects.requireNonNull(type);
         switch (type) {
             case MIN:
                 return new Min(cjkLexicon);
