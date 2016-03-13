@@ -35,13 +35,13 @@ public class AsciiSegmentTest {
 
     @Test
     public void segmentTest() {
-        runTest(new AsciiSegment(SegmentType.MIN));
-        runTest(new AsciiSegment(SegmentType.MAX));
-        runTest(new AsciiSegment(SegmentType.FULL));
+        runTest(new AsciiSegment(true, false, false));
+        runTest(new AsciiSegment(true, true, false));
+        runTest(new AsciiSegment(true, true, true));
     }
 
     private void runTest(AsciiSegment segment) {
-        System.out.println("\nAsciiSegment: " + segment.getSegmentType());
+        System.out.println("\n" + segment);
         for (String str : texts) {
             System.out.println('\"' + str + "\"-->" + segment.match(str.toCharArray()));
         }

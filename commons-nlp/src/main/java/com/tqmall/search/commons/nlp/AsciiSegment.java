@@ -18,24 +18,38 @@ import java.util.Objects;
  */
 public class AsciiSegment implements TextMatch<TokenType> {
 
-    private final SegmentType segmentType;
-
-    private final boolean isMaxSegment;
+    /**
+     * 是否识别小数
+     *
+     * @see TokenType#DECIMAL
+     */
+    private final boolean parseDecimal;
+    /**
+     * 是否识别通过'-'连接的英文单词
+     *
+     * @see TokenType#EN_MIX
+     */
+    private final boolean parseEnMix;
 
     /**
-     * 默认最小分词{@link SegmentType#MIN}
+     * 上面的变量{@link #parseEnMix}为true才有意义, 对于识别到的EnMix词是作为新词添加还是替换原先的词
      */
-    public AsciiSegment() {
-        this(SegmentType.MIN);
-    }
+    private final boolean enMixAppend;
 
-    public AsciiSegment(SegmentType segmentType) {
-        this.segmentType = segmentType;
-        isMaxSegment = segmentType == SegmentType.MAX;
-    }
-
-    public SegmentType getSegmentType() {
-        return segmentType;
+    /**
+     * 如果parseEnMix = false, 但是enMixAppend = true抛出{@link IllegalArgumentException}
+     *
+     * @param parseDecimal 是否识别小数数字
+     * @param parseEnMix   是否识别英文合成词
+     * @param enMixAppend  英文合成词是否作为新词添加, parseEnMix 为true该值才有意义
+     */
+    public AsciiSegment(boolean parseDecimal, boolean parseEnMix, boolean enMixAppend) {
+        this.parseDecimal = parseDecimal;
+        this.parseEnMix = parseEnMix;
+        if (!parseEnMix && enMixAppend) {
+            throw new IllegalArgumentException("parseEnMix is false, enMixAppend is useless, which value should be false");
+        }
+        this.enMixAppend = enMixAppend;
     }
 
     @Override
@@ -45,9 +59,9 @@ public class AsciiSegment implements TextMatch<TokenType> {
     }
 
     /**
-     * 获取当前字符类型, 并且考虑上个字符
+     * 识别小数数字, 获取当前字符类型, 需要考虑上个字符
      */
-    private TokenType tokenType(char c, TokenType preType) {
+    private TokenType tokenTypeOfDecimal(char c, TokenType preType) {
         if (c >= 'a' && c <= 'z') return TokenType.EN;
         else if (c >= '0' && c <= '9') {
             return preType == TokenType.DECIMAL ? TokenType.DECIMAL : TokenType.NUM;
@@ -56,21 +70,29 @@ public class AsciiSegment implements TextMatch<TokenType> {
     }
 
     /**
-     * 对英文, 数字做最小分词
-     *
+     * 不识别小数数字, 获取当前字符类型
+     */
+    private TokenType tokenType(char c) {
+        if (c >= 'a' && c <= 'z') return TokenType.EN;
+        else if (c >= '0' && c <= '9') {
+            return TokenType.NUM;
+        } else return TokenType.UNKNOWN;
+    }
+
+    /**
      * @param text               字符串
      * @param startPos           需要匹配的开始pos
      * @param endPos             需要匹配的终止pos
      * @param mixSymbolPositions 记录通过'-'连接的单词
      * @return 匹配结果
      */
-    private List<Hit<TokenType>> minMatch(final char[] text, final int startPos,
-                                          final int endPos, final List<Integer> mixSymbolPositions) {
+    private List<Hit<TokenType>> innerMatch(final char[] text, final int startPos,
+                                            final int endPos, final List<Integer> mixSymbolPositions) {
         TokenType preType = TokenType.UNKNOWN, curType;
         int start = -1;
         List<Hit<TokenType>> hits = new ArrayList<>();
         for (int i = startPos; i < endPos; i++) {
-            curType = tokenType(text[i], preType);
+            curType = parseDecimal ? tokenTypeOfDecimal(text[i], preType) : tokenType(text[i]);
             if (curType != TokenType.DECIMAL && curType != preType) {
                 if (start != -1) {
                     int count = i - start;
@@ -125,17 +147,17 @@ public class AsciiSegment implements TextMatch<TokenType> {
             if (prefixHit.getValue() == TokenType.EN_MIX) continue;
             Hit<TokenType> mixHit = new Hit<>(prefixHit.getStartPos(), prefixHit.getKey() + '-' + suffixHit.getKey(),
                     TokenType.EN_MIX);
-            if (isMaxSegment) {
+            if (enMixAppend) {
+                //移动带后缀hit, 在其后面添加mixHit
+                it.next();
+                it.next();
+                it.add(mixHit);
+            } else {
                 it.remove();
                 //移动到下一个
                 it.next();
                 //将前缀hit替换掉
                 it.set(mixHit);
-            } else {
-                //移动带后缀hit, 在其后面添加mixHit
-                it.next();
-                it.next();
-                it.add(mixHit);
             }
         }
     }
@@ -150,12 +172,17 @@ public class AsciiSegment implements TextMatch<TokenType> {
         final int endPos = startPos + length;
         NlpUtils.arrayIndexCheck(text, startPos, endPos);
         if (length == 0) return null;
-        List<Integer> mixSymbolPositions = segmentType == SegmentType.MIN ? null : new ArrayList<Integer>();
-        List<Hit<TokenType>> hits = minMatch(text, startPos, endPos, mixSymbolPositions);
+        List<Integer> mixSymbolPositions = parseEnMix ? null : new ArrayList<Integer>();
+        List<Hit<TokenType>> hits = innerMatch(text, startPos, endPos, mixSymbolPositions);
         if (!hits.isEmpty() && !CommonsUtils.isEmpty(mixSymbolPositions)) {
             hitsMixHandle(hits, mixSymbolPositions);
         }
         return hits;
     }
 
+    @Override
+    public String toString() {
+        return "AsciiSegment{" + "parseDecimal=" + parseDecimal + ", enMixAppend=" + enMixAppend
+                + ", parseEnMix=" + parseEnMix + '}';
+    }
 }
