@@ -17,7 +17,6 @@ import java.util.Objects;
  * 注意: 获取条件的接口返回的List都是unmodifiableList, 不可修改的
  *
  * @see InCondition
- * @see GtCondition
  * @see RangeCondition
  * @see EqualCondition
  */
@@ -112,5 +111,17 @@ public abstract class ConditionContainer implements Serializable {
 
     public int getMinimumShouldMatch() {
         return minimumShouldMatch;
+    }
+
+    /**
+     * 条件容器类型
+     */
+    public enum Type {
+        //且关系
+        MUST,
+        //或关系
+        SHOULD,
+        //非关系
+        MUST_NOT
     }
 }
