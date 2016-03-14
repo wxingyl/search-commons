@@ -1,10 +1,13 @@
 package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.lang.Function;
+import com.tqmall.search.commons.match.Hit;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -17,7 +20,11 @@ public class CjkLexiconTest {
 
     @BeforeClass
     public static void init() {
-        cjkLexicon = new CjkLexicon(CjkLexiconTest.class.getResourceAsStream("/segment.txt"));
+        try (InputStream in = CjkLexiconTest.class.getResourceAsStream("/segment.txt")) {
+            cjkLexicon = new CjkLexicon(in);
+        } catch (IOException e) {
+            throw new RuntimeException("词库文件加载失败", e);
+        }
     }
 
     @AfterClass
@@ -28,34 +35,34 @@ public class CjkLexiconTest {
     @Test
     public void segmentTest() {
         System.out.println("fullSegment");
-        runSegment(new Function<String, List<Hit<Integer>>>() {
+        runSegment(new Function<String, List<Hit<TokenType>>>() {
             @Override
-            public List<Hit<Integer>> apply(String text) {
+            public List<Hit<TokenType>> apply(String text) {
                 return cjkLexicon.fullMatch(text.toCharArray(), 0, text.length());
             }
         });
         System.out.println();
         System.out.println("minSegment");
-        runSegment(new Function<String, List<Hit<Integer>>>() {
+        runSegment(new Function<String, List<Hit<TokenType>>>() {
             @Override
-            public List<Hit<Integer>> apply(String text) {
+            public List<Hit<TokenType>> apply(String text) {
                 return cjkLexicon.minMatch(text.toCharArray(), 0, text.length());
             }
         });
         System.out.println();
         System.out.println("maxSegment");
-        runSegment(new Function<String, List<Hit<Integer>>>() {
+        runSegment(new Function<String, List<Hit<TokenType>>>() {
             @Override
-            public List<Hit<Integer>> apply(String text) {
+            public List<Hit<TokenType>> apply(String text) {
                 return cjkLexicon.maxMatch(text.toCharArray(), 0, text.length());
             }
         });
         System.out.println();
     }
 
-    public void runSegment(Function<String, List<Hit<Integer>>> function) {
+    public void runSegment(Function<String, List<Hit<TokenType>>> function) {
         String text = "北京大学";
-        List<Hit<Integer>> list;
+        List<Hit<TokenType>> list;
         list = function.apply(text);
         System.out.println(text + ": " + list);
         text = "北京的大学";

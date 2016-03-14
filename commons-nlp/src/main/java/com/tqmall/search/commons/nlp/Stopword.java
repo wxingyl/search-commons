@@ -1,6 +1,7 @@
 package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.lang.Function;
+import com.tqmall.search.commons.utils.SearchStringUtils;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,7 +34,8 @@ public class Stopword implements Iterable<String> {
      * @return 是否添加完成
      */
     public boolean addStopword(String word) {
-        return stopwordSet.add(word.toLowerCase());
+        word = SearchStringUtils.filterString(word);
+        return word != null && stopwordSet.add(word.toLowerCase());
     }
 
     /**
@@ -42,7 +44,8 @@ public class Stopword implements Iterable<String> {
      * @return 是否删除完成
      */
     public boolean removeStopword(String word) {
-        return stopwordSet.remove(word);
+        word = SearchStringUtils.filterString(word);
+        return word != null && stopwordSet.remove(word);
     }
 
     @Override

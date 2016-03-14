@@ -1,7 +1,7 @@
-package com.tqmall.search.commons.nlp.trie;
+package com.tqmall.search.commons.match;
 
-import com.tqmall.search.commons.nlp.Hit;
 import com.tqmall.search.commons.nlp.NlpUtils;
+import com.tqmall.search.commons.trie.Node;
 
 import java.util.*;
 
@@ -61,7 +61,7 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
 
         @Override
         protected List<Hit<V>> runMatch(char[] text, int startPos, int endPos) {
-            List<Hit<V>> hits = new ArrayList<>();
+            List<Hit<V>> hits = new LinkedList<>();
             Node<V> currentNode = root;
             int i = endPos - 1, matchStartPos = endPos, lastPos = endPos;
             while (i >= startPos) {

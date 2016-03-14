@@ -1,6 +1,4 @@
-package com.tqmall.search.commons.nlp.trie;
-
-import com.tqmall.search.commons.nlp.NlpConst;
+package com.tqmall.search.commons.trie;
 
 import java.util.List;
 import java.util.Map;
@@ -11,9 +9,7 @@ import java.util.Map;
  */
 public class BigRootNode<V> extends Node<V> {
 
-    /**
-     * 子节点
-     */
+    //子节点
     private final Node<?>[] children;
 
     private final char minChar;
@@ -50,6 +46,20 @@ public class BigRootNode<V> extends Node<V> {
         }
     }
 
+    /**
+     * RootNode 执行删除节点
+     *
+     * @return 是否中断删除操作
+     */
+    @Override
+    public final boolean deleteNode(char[] word, int deep) {
+        if (deep != 0) {
+            throw new IllegalArgumentException("RootNode deep should equals 0");
+        }
+        Node childNode = getChild(word[0]);
+        return childNode == null || childNode.deleteNode(word, 1);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Node<V> getChild(char ch) {
@@ -66,9 +76,9 @@ public class BigRootNode<V> extends Node<V> {
         return true;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    void childHandle(NodeChildHandle<V> handle) {
+    @SuppressWarnings("unchecked")
+    public void childHandle(NodeChildHandle<V> handle) {
         for (Node<?> ch : children) {
             if (ch != null && ch.status != Status.DELETE) {
                 if (!handle.onHandle((Node<V>) ch)) break;
@@ -89,8 +99,7 @@ public class BigRootNode<V> extends Node<V> {
      * child大数组不置为null, 如果需要直接在外部将该对象置为null
      */
     @Override
-    public void clear() {
-        super.clear();
+    public final void clear() {
         for (int i = 0; i < children.length; i++) {
             if (children[i] != null) {
                 children[i].clear();
@@ -98,32 +107,4 @@ public class BigRootNode<V> extends Node<V> {
             }
         }
     }
-
-    /**
-     * 创建CJK字符的root节点
-     *
-     * @param <V> value对应的泛型
-     */
-    public static <V> BigRootNode<V> createCjkRootNode() {
-        return new BigRootNode<>(NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST, NlpConst.CJK_UNIFIED_SIZE);
-    }
-
-    /**
-     * 创建ascii字符的root节点
-     *
-     * @param <V> value对应的泛型
-     */
-    public static <V> BigRootNode<V> createAsciiRootNode() {
-        return new BigRootNode<>(Character.MIN_VALUE, 0xFF);
-    }
-
-    /**
-     * 创建所有字符的root节点
-     *
-     * @param <V> value对应的泛型
-     */
-    public static <V> BigRootNode<V> createAllRootNode() {
-        return new BigRootNode<>(Character.MIN_VALUE, Character.MAX_VALUE);
-    }
-
 }

@@ -1,6 +1,8 @@
 package com.tqmall.search.commons.nlp;
 
-import com.tqmall.search.commons.nlp.trie.AcBinaryTrie;
+import com.tqmall.search.commons.ac.AcBinaryTrie;
+import com.tqmall.search.commons.match.Hit;
+import com.tqmall.search.commons.trie.NodeFactories;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -20,15 +22,15 @@ public class AcTrieTest {
     @BeforeClass
     public static void init() {
         acStrBinaryTrie = AcBinaryTrie.<Integer>build()
-                .put("he",null)
-                .put("she",null)
-                .put("his",null)
-                .put("hers",null)
-                .put("nihao",null)
-                .put("hao",null)
-                .put("hs",null)
-                .put("hsr",null)
-                .create();
+                .put("he", null)
+                .put("she", null)
+                .put("his", null)
+                .put("hers", null)
+                .put("nihao", null)
+                .put("hao", null)
+                .put("hs", null)
+                .put("hsr", null)
+                .create(NodeFactories.<Integer>defaultAcTrie(NodeFactories.RootType.ASCII));
     }
 
     @AfterClass
@@ -46,7 +48,7 @@ public class AcTrieTest {
 
         String text = "ushers";
         Set<Hit> runRet = new HashSet<Hit>(acStrBinaryTrie.match(text.toCharArray()));
-        System.out.printf(text + ": " + runRet);
+        System.out.println(text + ": " + runRet);
         Assert.assertEquals(answerSet, runRet);
 
         answerSet.clear();

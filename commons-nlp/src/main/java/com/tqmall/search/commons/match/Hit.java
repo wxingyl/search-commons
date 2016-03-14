@@ -1,24 +1,22 @@
-package com.tqmall.search.commons.nlp;
+package com.tqmall.search.commons.match;
 
-import com.tqmall.search.commons.nlp.trie.AcNormalNode;
-
-import java.util.List;
+import com.tqmall.search.commons.ac.AcNormalNode;
 
 /**
  * Created by xing on 16/1/28.
  * 匹配到的结果
  */
 public class Hit<V> implements Comparable<Hit<V>> {
-    /**
-     * 模式串在母文本中的终止位置
-     * startPos通过endPos和outputKey直接搞出来了
-     * 符合左开右闭原则,即[startPos, endPos)
-     */
+
     private final int startPos;
 
-    private String key;
+    private final String key;
 
-    private final V value;
+    private V value;
+
+    public Hit(int startPos, String key) {
+        this(startPos, key, null);
+    }
 
     /**
      * 进来匹配的字符
@@ -33,12 +31,28 @@ public class Hit<V> implements Comparable<Hit<V>> {
         this.value = value;
     }
 
+    public Hit(int endPos, AcNormalNode<V> acNode) {
+        if (!acNode.accept()) {
+            throw new IllegalArgumentException("acNode: " + acNode + " accept is false");
+        }
+        this.key = acNode.getSingleOutput();
+        this.startPos = endPos - this.key.length();
+        this.value = acNode.getValue();
+    }
+
     public int getStartPos() {
         return startPos;
     }
 
     public int getEndPos() {
         return startPos + key.length();
+    }
+
+    /**
+     * 修改匹配结果的value
+     */
+    public void changeValue(V value) {
+        this.value = value;
     }
 
     public V getValue() {
@@ -65,7 +79,6 @@ public class Hit<V> implements Comparable<Hit<V>> {
         if (!(o instanceof Hit)) return false;
 
         Hit<?> hit = (Hit<?>) o;
-
         if (startPos != hit.startPos) return false;
         return key.equals(hit.key);
     }
@@ -86,21 +99,4 @@ public class Hit<V> implements Comparable<Hit<V>> {
         return cmp;
     }
 
-    /**
-     * 将匹配到的node添加到hits中, 函数中对node.status, 即{@link AcNormalNode#accept()}不做判断
-     *
-     * @param endPos 匹配文本中的结束位置
-     * @param node   匹配到的node, 其status不做判断
-     * @param <V>    value泛型
-     */
-    public static <V> void appendHits(List<Hit<V>> hits, final int endPos, final AcNormalNode<V> node) {
-        hits.add(new Hit<>(endPos - node.getSingleOutput().length(), node.getSingleOutput(), node.getValue()));
-        if (node.getFailed() instanceof AcNormalNode) {
-            AcNormalNode<V> failed = (AcNormalNode<V>) node.getFailed();
-            if (failed.accept()) {
-                hits.add(new Hit<>(endPos - node.getSingleOutput().length(), failed.getSingleOutput(),
-                        failed.getValue()));
-            }
-        }
-    }
 }

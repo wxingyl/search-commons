@@ -1,6 +1,8 @@
 package com.tqmall.search.commons.nlp;
 
-import com.tqmall.search.commons.nlp.trie.*;
+import com.tqmall.search.commons.match.Hit;
+import com.tqmall.search.commons.match.MatchBinaryTrie;
+import com.tqmall.search.commons.trie.*;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -18,7 +20,7 @@ public class TrieTest {
 
     @BeforeClass
     public static void init() {
-        binaryTrie = new BinaryTrie<>(Node.<String>defaultCjkTrieNodeFactory());
+        binaryTrie = new BinaryTrie<>(NodeFactories.<String>defaultTrie(NodeFactories.RootType.CJK));
     }
 
     @AfterClass
@@ -96,7 +98,7 @@ public class TrieTest {
 
     @Test
     public void binaryMatchTrieTest() {
-        BinaryMatchTrie<String> matchTrie = new BinaryMatchTrie<>(Node.<String>defaultCjkTrieNodeFactory());
+        MatchBinaryTrie<String> matchTrie = new MatchBinaryTrie<>(NodeFactories.<String>defaultTrie(NodeFactories.RootType.CJK));
         matchTrie.put("长", "zhang");
         matchTrie.put("长沙", "chang sha");
         matchTrie.put("沙", "sha");

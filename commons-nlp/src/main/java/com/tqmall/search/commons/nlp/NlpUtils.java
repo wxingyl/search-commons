@@ -2,6 +2,7 @@ package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.exception.LoadLexiconException;
 import com.tqmall.search.commons.lang.Function;
+import com.tqmall.search.commons.utils.SearchStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +48,10 @@ public final class NlpUtils {
         }
     }
 
+    public static char[] stringToCharArray(String key) {
+        return SearchStringUtils.isEmpty(key) ? null : key.toCharArray();
+    }
+
     public static void arrayIndexCheck(char[] text, int startPos, int endPos) {
         if (text == null || startPos < 0 || startPos > endPos) {
             throw new ArrayIndexOutOfBoundsException("text.length: " + (text == null ? 0 : text.length) + ", startPos: "
@@ -77,8 +82,8 @@ public final class NlpUtils {
             filename = '/' + filename;
         }
         log.info("start load lexicon file: " + filename);
-        try {
-            int lineCount = loadLexicon(NlpUtils.class.getResourceAsStream(filename), lineHandle, lineTrim);
+        try (InputStream in = NlpUtils.class.getResourceAsStream(filename)) {
+            int lineCount = loadLexicon(in, lineHandle, lineTrim);
             log.info("load lexicon file: " + filename + " finish, total load " + lineCount + " lines");
         } catch (IOException e) {
             log.error("load lexicon file: " + filename + " have exception", e);

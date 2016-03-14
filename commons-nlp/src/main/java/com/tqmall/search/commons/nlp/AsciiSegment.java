@@ -1,12 +1,14 @@
 package com.tqmall.search.commons.nlp;
 
 
-import com.tqmall.search.commons.nlp.trie.TextMatch;
+import com.tqmall.search.commons.match.Hit;
+import com.tqmall.search.commons.match.TextMatch;
 import com.tqmall.search.commons.utils.CommonsUtils;
 
-import java.util.*;
-
-import static com.tqmall.search.commons.nlp.NlpConst.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Objects;
 
 /**
  * Created by xing on 16/3/8.
@@ -14,83 +16,106 @@ import static com.tqmall.search.commons.nlp.NlpConst.*;
  *
  * @author xing
  */
-public class AsciiSegment implements TextMatch<Integer> {
+public class AsciiSegment implements TextMatch<TokenType> {
 
     /**
-     * 本地新增加的小数TOKEN_TYPE, 只是在本地做处理, 不做为分词结果类型, 结果仍然是{@link NlpConst#TOKEN_TYPE_NUM}
+     * 是否识别小数
+     *
+     * @see TokenType#DECIMAL
      */
-    private final static int TOKEN_TYPE_DECIMAL = TOKEN_TYPE_EN_MIX + 1;
+    private final boolean parseDecimal;
+    /**
+     * 是否识别通过'-'连接的英文单词
+     *
+     * @see TokenType#EN_MIX
+     */
+    private final boolean parseEnMix;
 
-    private final SegmentType segmentType;
+    /**
+     * 上面的变量{@link #parseEnMix}为true才有意义, 对于识别到的EnMix词是作为新词添加还是替换原先的词
+     */
+    private final boolean enMixAppend;
 
-    private final boolean isMaxSegment;
-
-    public AsciiSegment() {
-        this(SegmentType.MIN);
-    }
-
-    public AsciiSegment(SegmentType segmentType) {
-        this.segmentType = segmentType;
-        isMaxSegment = segmentType == SegmentType.MAX;
-    }
-
-    public SegmentType getSegmentType() {
-        return segmentType;
+    /**
+     * 如果parseEnMix = false, 但是enMixAppend = true抛出{@link IllegalArgumentException}
+     *
+     * @param parseDecimal 是否识别小数数字
+     * @param parseEnMix   是否识别英文合成词
+     * @param enMixAppend  英文合成词是否作为新词添加, parseEnMix 为true该值才有意义
+     */
+    public AsciiSegment(boolean parseDecimal, boolean parseEnMix, boolean enMixAppend) {
+        this.parseDecimal = parseDecimal;
+        this.parseEnMix = parseEnMix;
+        if (!parseEnMix && enMixAppend) {
+            throw new IllegalArgumentException("parseEnMix is false, enMixAppend is useless, which value should be false");
+        }
+        this.enMixAppend = enMixAppend;
     }
 
     @Override
-    public List<Hit<Integer>> match(char[] text) {
+    public List<Hit<TokenType>> match(char[] text) {
         Objects.requireNonNull(text);
         return match(text, 0, text.length);
     }
 
     /**
-     * 获取当前字符类型, 并且考虑上个字符
+     * 识别小数数字, 获取当前字符类型, 需要考虑上个字符
      */
-    private int tokenType(char c, int preType) {
-        if (c >= 'a' && c <= 'z') return TOKEN_TYPE_EN;
+    private TokenType tokenTypeOfDecimal(char c, TokenType preType) {
+        if (c >= 'a' && c <= 'z') return TokenType.EN;
         else if (c >= '0' && c <= '9') {
-            return preType == TOKEN_TYPE_DECIMAL ? TOKEN_TYPE_DECIMAL : TOKEN_TYPE_NUM;
-        } else if (c == '.' && preType == TOKEN_TYPE_NUM) return TOKEN_TYPE_DECIMAL;
-        else return TOKEN_TYPE_UNKNOWN;
+            return preType == TokenType.DECIMAL ? TokenType.DECIMAL : TokenType.NUM;
+        } else if (c == '.' && preType == TokenType.NUM) return TokenType.DECIMAL;
+        else return TokenType.UNKNOWN;
     }
 
     /**
-     * 对英文, 数字做最小分词
-     *
+     * 不识别小数数字, 获取当前字符类型
+     */
+    private TokenType tokenType(char c) {
+        if (c >= 'a' && c <= 'z') return TokenType.EN;
+        else if (c >= '0' && c <= '9') {
+            return TokenType.NUM;
+        } else return TokenType.UNKNOWN;
+    }
+
+    /**
      * @param text               字符串
      * @param startPos           需要匹配的开始pos
      * @param endPos             需要匹配的终止pos
      * @param mixSymbolPositions 记录通过'-'连接的单词
      * @return 匹配结果
      */
-    private List<Hit<Integer>> minMatch(final char[] text, final int startPos,
-                                        final int endPos, final List<Integer> mixSymbolPositions) {
-        int preType = TOKEN_TYPE_UNKNOWN, curType;
+    private List<Hit<TokenType>> innerMatch(final char[] text, final int startPos,
+                                            final int endPos, final List<Integer> mixSymbolPositions) {
+        TokenType preType = TokenType.UNKNOWN, curType;
         int start = -1;
-        List<Hit<Integer>> hits = new ArrayList<>();
+        List<Hit<TokenType>> hits = new ArrayList<>();
         for (int i = startPos; i < endPos; i++) {
-            curType = tokenType(text[i], preType);
-            if (curType != TOKEN_TYPE_DECIMAL && curType != preType) {
+            curType = parseDecimal ? tokenTypeOfDecimal(text[i], preType) : tokenType(text[i]);
+            if (curType != TokenType.DECIMAL && curType != preType) {
                 if (start != -1) {
                     int count = i - start;
-                    if (preType == TOKEN_TYPE_DECIMAL) {
-                        preType = TOKEN_TYPE_NUM;
-                        if (text[i - 1] == '.') count--;
+                    //前一个字符是'.', 那就不是小数了
+                    if (preType == TokenType.DECIMAL && text[i - 1] == '.') {
+                        preType = TokenType.NUM;
+                        count--;
                     }
                     hits.add(new Hit<>(start, new String(text, start, count), preType));
                     start = -1;
                 }
             }
-            if (start == -1 && curType != TOKEN_TYPE_UNKNOWN) start = i;
-            if (mixSymbolPositions != null && preType == TOKEN_TYPE_EN && text[i] == '-') mixSymbolPositions.add(i);
+            if (start == -1 && curType != TokenType.UNKNOWN) start = i;
+            if (mixSymbolPositions != null && preType == TokenType.EN && text[i] == '-') mixSymbolPositions.add(i);
             preType = curType;
         }
         if (start != -1) {
             int count = endPos - start;
-            if (preType == TOKEN_TYPE_DECIMAL) {
-                preType = TOKEN_TYPE_NUM;
-                if (text[endPos - 1] == '.') count--;
+            //这儿preType和curType基本上是相同的
+            //最后一个字符是'.', 那最后一个词就不是小数了
+            if (preType == TokenType.DECIMAL && text[endPos - 1] == '.') {
+                preType = TokenType.NUM;
+                count--;
             }
             hits.add(new Hit<>(start, new String(text, start, count), preType));
         }
@@ -100,12 +125,12 @@ public class AsciiSegment implements TextMatch<Integer> {
     /**
      * 英文连接词处理
      */
-    private void hitsMixHandle(List<Hit<Integer>> hits, List<Integer> mixSymbolPositions) {
-        ListIterator<Hit<Integer>> it = hits.listIterator();
+    private void hitsMixHandle(List<Hit<TokenType>> hits, List<Integer> mixSymbolPositions) {
+        ListIterator<Hit<TokenType>> it = hits.listIterator();
         for (int pos : mixSymbolPositions) {
-            Hit<Integer> suffixHit = null;
+            Hit<TokenType> suffixHit = null;
             while (it.hasNext()) {
-                Hit<Integer> hit = it.next();
+                Hit<TokenType> hit = it.next();
                 if (hit.getStartPos() > pos) {
                     suffixHit = hit;
                     break;
@@ -117,21 +142,22 @@ public class AsciiSegment implements TextMatch<Integer> {
             //往前移动, 到达suffixHit位置
             it.previous();
             //往前移动, 到达prefixHit位置
-            Hit<Integer> prefixHit = it.previous();
+            Hit<TokenType> prefixHit = it.previous();
             //如果前一个词是合成词, 不干~~~
-            if (prefixHit.getValue() == TOKEN_TYPE_EN_MIX) continue;
-            Hit<Integer> mixHit = new Hit<>(prefixHit.getStartPos(), prefixHit.getKey() + '-' + suffixHit.getKey(), TOKEN_TYPE_EN_MIX);
-            if (isMaxSegment) {
+            if (prefixHit.getValue() == TokenType.EN_MIX) continue;
+            Hit<TokenType> mixHit = new Hit<>(prefixHit.getStartPos(), prefixHit.getKey() + '-' + suffixHit.getKey(),
+                    TokenType.EN_MIX);
+            if (enMixAppend) {
+                //移动带后缀hit, 在其后面添加mixHit
+                it.next();
+                it.next();
+                it.add(mixHit);
+            } else {
                 it.remove();
                 //移动到下一个
                 it.next();
                 //将前缀hit替换掉
                 it.set(mixHit);
-            } else {
-                //移动带后缀hit, 在其后面添加mixHit
-                it.next();
-                it.next();
-                it.add(mixHit);
             }
         }
     }
@@ -142,16 +168,21 @@ public class AsciiSegment implements TextMatch<Integer> {
      * @return Hit中的value对应词的类型
      */
     @Override
-    public List<Hit<Integer>> match(char[] text, int startPos, int length) {
+    public List<Hit<TokenType>> match(char[] text, int startPos, int length) {
         final int endPos = startPos + length;
         NlpUtils.arrayIndexCheck(text, startPos, endPos);
         if (length == 0) return null;
-        List<Integer> mixSymbolPositions = segmentType == SegmentType.MIN ? null : new ArrayList<Integer>();
-        List<Hit<Integer>> hits = minMatch(text, startPos, endPos, mixSymbolPositions);
+        List<Integer> mixSymbolPositions = parseEnMix ? new ArrayList<Integer>() : null;
+        List<Hit<TokenType>> hits = innerMatch(text, startPos, endPos, mixSymbolPositions);
         if (!hits.isEmpty() && !CommonsUtils.isEmpty(mixSymbolPositions)) {
             hitsMixHandle(hits, mixSymbolPositions);
         }
         return hits;
     }
 
+    @Override
+    public String toString() {
+        return "AsciiSegment{" + "parseDecimal=" + parseDecimal + ", enMixAppend=" + enMixAppend
+                + ", parseEnMix=" + parseEnMix + '}';
+    }
 }

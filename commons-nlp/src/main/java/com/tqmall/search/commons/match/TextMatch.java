@@ -1,6 +1,4 @@
-package com.tqmall.search.commons.nlp.trie;
-
-import com.tqmall.search.commons.nlp.Hit;
+package com.tqmall.search.commons.match;
 
 import java.util.List;
 

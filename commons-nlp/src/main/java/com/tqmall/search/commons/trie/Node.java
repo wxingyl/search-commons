@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.nlp.trie;
+package com.tqmall.search.commons.trie;
 
 import java.util.List;
 import java.util.Map;
@@ -47,71 +47,46 @@ public abstract class Node<V> {
      *
      * @param handle 处理接口
      */
-    abstract void childHandle(NodeChildHandle<V> handle);
+    public abstract void childHandle(NodeChildHandle<V> handle);
 
-    public void clear() {
-        value = null;
-        status = null;
-    }
+    /**
+     * @param word 要删除的关键字, word不做空的校验
+     * @param deep 当前节点的深度, 根节点为0
+     * @return 是否中断删除操作
+     */
+    public abstract boolean deleteNode(char[] word, final int deep);
+
+    public abstract void clear();
 
     /**
      * 获取所有child的词
+     * Note: root节点不支持该方法调用, 如果调用抛出{@link UnsupportedOperationException}
      *
      * @param prefixKey 前面已经匹配的key, 注意: 该参数已经包含该节点的字符
      * @return 对应的key已经Value
+     * @see BigRootNode#allChildWords(String)
      */
     public abstract List<Map.Entry<String, V>> allChildWords(String prefixKey);
 
-    final public Status getStatus() {
+    public final Status getStatus() {
         return status;
     }
 
-    final public V getValue() {
+    public final V getValue() {
         return value;
     }
 
-    final public void setValue(V value) {
+    public final void setValue(V value) {
         this.value = value;
     }
 
-    final public char getChar() {
+    public final char getChar() {
         return c;
     }
 
-    final public boolean accept() {
+    public final boolean accept() {
         return status == Status.WORD || status == Status.LEAF_WORD;
     }
-
-    /**
-     * @param word       要删除的关键字, word不做空等的校验
-     * @param startIndex 处理开始删除的节点
-     * @return 是否中断删除
-     */
-    public boolean removeNode(char[] word, int startIndex) {
-        int curChildPos = startIndex + 1;
-        //最先检查是否已经删除了~~~
-        if (status == Status.DELETE || curChildPos > word.length) return false;
-        //到底了~~~
-        if (curChildPos == word.length) {
-            //说明该节点没有词, 要删除的key不对
-            if (status == Status.NORMAL) return false;
-        } else {
-            Node<?> child = getChild(word[curChildPos]);
-            if (child == null || !child.removeNode(word, curChildPos)) return false;
-            if (status != Status.NORMAL) {
-                //key正常, 只不过其上面的节点被其他词占用, 我们就不删除这些东东了~~~
-                return false;
-            }
-        }
-
-        //到这儿就说明可以删除了~~~
-        value = null;
-        status = haveChild() ? Status.NORMAL : Status.DELETE;
-        return true;
-    }
-
-
-//  下面都是一些static方法定义了~~~~~~
 
     /**
      * 节点状态定义
@@ -184,35 +159,6 @@ public abstract class Node<V> {
                 return mid; // key found
         }
         return ~low;  // key not found.
-    }
-
-
-    private static final TrieNodeFactory<?> DEFAULT_CJK_NODE_FACTORY = new TrieNodeFactory<Object>() {
-        @Override
-        public Node<Object> createRootNode() {
-            return BigRootNode.createCjkRootNode();
-        }
-
-        @Override
-        public Node<Object> createNormalNode(char c) {
-            return new NormalNode<>(c);
-        }
-
-        @Override
-        public Node<Object> createChildNode(char c, Object value) {
-            return new NormalNode<>(c, value);
-        }
-    };
-
-    /**
-     * 默认的前缀树cjk node factory
-     *
-     * @param <V> Node节点泛型
-     * @return factory
-     */
-    @SuppressWarnings("unchecked")
-    public static <V> TrieNodeFactory<V> defaultCjkTrieNodeFactory() {
-        return (TrieNodeFactory<V>) DEFAULT_CJK_NODE_FACTORY;
     }
 
 }

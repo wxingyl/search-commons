@@ -1,36 +1,59 @@
 package com.tqmall.search.commons.nlp;
 
+import com.tqmall.search.commons.ac.AcBinaryTrie;
+import com.tqmall.search.commons.ac.AcTrieNodeFactory;
 import com.tqmall.search.commons.exception.LoadLexiconException;
 import com.tqmall.search.commons.lang.Function;
-import com.tqmall.search.commons.lang.StrValueConvert;
-import com.tqmall.search.commons.nlp.trie.*;
-import com.tqmall.search.commons.utils.StrValueConverts;
+import com.tqmall.search.commons.match.Hit;
+import com.tqmall.search.commons.match.MatchBinaryTrie;
+import com.tqmall.search.commons.trie.NodeFactories;
+import com.tqmall.search.commons.utils.SearchStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by xing on 16/2/8.
  * 中文分词词库, 包括汉语词库以及停止词, 提供最大, 最小, 全匹配, 通过{@link AcBinaryTrie}实现
- * 词库文件中, 每个词可以指定词的type, 在这儿默认都是{@link NlpConst#TOKEN_TYPE_CN}, 这部分以后可以扩展, 做什么词性标注什么的,
- * 砸门现在的实现要求比较简单, 这些东东都不需要的
+ * 词库文件中, 每个词可以指定词的{@link TokenType}, 通过{@link TokenType#fromString(String)}解析对应类型, 默认{@link TokenType#CN}
+ *
+ * @see TokenType
+ * @see TokenType#fromString(String)
  */
 public class CjkLexicon {
 
     private static final Logger log = LoggerFactory.getLogger(CjkLexicon.class);
 
-    private final AcBinaryTrie<Integer> acBinaryTrie;
+    /**
+     * 中文数字字符
+     */
+    public static final Set<Character> CN_NUM;
 
-    private BinaryMatchTrie<Integer> binaryMatchTrie;
+    static {
+        Set<Character> set = new HashSet<>();
+        for (char c : "零○〇一二两三四五六七八九十壹贰叁肆伍陆柒捌玖拾百千万亿拾佰仟萬億兆卅廿".toCharArray()) {
+            set.add(c);
+        }
+        CN_NUM = Collections.unmodifiableSet(set);
+    }
+
+    private final AcBinaryTrie<TokenType> acBinaryTrie;
+
+    private final MatchBinaryTrie<TokenType> matchBinaryTrie;
+
+    private final Set<String> quantifiers;
 
     /**
-     * 使用默认的{@link AcNormalNode#defaultCjkAcTrieNodeFactory()} 也就是词的开通只支持汉字
+     * {@link AcTrieNodeFactory}默认使用{@link NodeFactories.RootType#CJK}
      */
     public CjkLexicon(InputStream lexicon) {
-        this(AcNormalNode.<Integer>defaultCjkAcTrieNodeFactory(), lexicon);
+        this(NodeFactories.<TokenType>defaultAcTrie(NodeFactories.RootType.CJK), lexicon);
     }
 
     /**
@@ -40,28 +63,31 @@ public class CjkLexicon {
      * @param lexicon     词库输入流
      * @see LoadLexiconException
      */
-    public CjkLexicon(AcTrieNodeFactory<Integer> nodeFactory, final InputStream lexicon) {
-        final AcBinaryTrie.Builder<Integer> builder = AcBinaryTrie.build();
-        builder.nodeFactory(nodeFactory);
+    public CjkLexicon(AcTrieNodeFactory<TokenType> nodeFactory, final InputStream lexicon) {
+        matchBinaryTrie = new MatchBinaryTrie<>(nodeFactory);
         long startTime = System.currentTimeMillis();
         log.info("start loading cjk lexicon: " + lexicon);
+        quantifiers = new HashSet<>();
+        final AcBinaryTrie.Builder<TokenType> builder = AcBinaryTrie.build();
         try {
-            final StrValueConvert<Integer> tokenTypeConvert = StrValueConverts.getConvert(Integer.TYPE, NlpConst.TOKEN_TYPE_CN);
             NlpUtils.loadLexicon(lexicon, new Function<String, Boolean>() {
                 @Override
                 public Boolean apply(String s) {
                     int index = s.indexOf(' ');
+                    TokenType tokenType;
                     if (index < 0) {
-                        builder.put(s, NlpConst.TOKEN_TYPE_CN);
+                        tokenType = TokenType.CN;
                     } else {
-                        Integer type = tokenTypeConvert.convert(s.substring(index + 1).trim());
-                        if (type < 0 || type >= NlpConst.TOKEN_TYPES.length) {
-                            log.warn("load cjk lexicon: " + lexicon + ", word: " + s + " tokenType: " + type + " is invalid, instead of "
-                                    + NlpConst.TOKEN_TYPE_CN);
-                            type = NlpConst.TOKEN_TYPE_CN;
+                        String str = s.substring(index + 1).trim();
+                        tokenType = TokenType.fromString(str);
+                        s = s.substring(0, index);
+                        if (tokenType == null) {
+                            log.warn("load cjk lexicon: " + lexicon + ", word: " + s + " tokenType: " + str + " is invalid, instead of " + TokenType.CN);
+                        } else if (tokenType == TokenType.QUANTIFIER) {
+                            quantifiers.add(s);
                         }
-                        builder.put(s, type);
                     }
+                    builder.put(s, tokenType);
                     return true;
                 }
             }, true);
@@ -69,16 +95,15 @@ public class CjkLexicon {
             log.error("read cjk lexicon: " + lexicon + " break out IOException", e);
             throw new LoadLexiconException("init cjk lexicon: " + lexicon + " break out exception", e);
         }
-        acBinaryTrie = builder.create(new Function<AcTrieNodeFactory<Integer>, AbstractTrie<Integer>>() {
-
-            @Override
-            public AbstractTrie<Integer> apply(AcTrieNodeFactory<Integer> acTrieNodeFactory) {
-                binaryMatchTrie = new BinaryMatchTrie<>(acTrieNodeFactory);
-                return binaryMatchTrie;
-            }
-
-        });
+        acBinaryTrie = builder.create(matchBinaryTrie);
         log.info("load cjk lexicon: " + lexicon + " finish, total cost: " + (System.currentTimeMillis() - startTime) + "ms");
+        NlpUtils.loadLexicon(NlpConst.QUANTIFIER_FILE_NAME, new Function<String, Boolean>() {
+            @Override
+            public Boolean apply(String s) {
+                quantifiers.add(s);
+                return true;
+            }
+        });
     }
 
     /**
@@ -89,7 +114,7 @@ public class CjkLexicon {
      * @param length   待处理文本的长度
      * @return 匹配结果
      */
-    public List<Hit<Integer>> fullMatch(char[] text, int startPos, int length) {
+    public List<Hit<TokenType>> fullMatch(char[] text, int startPos, int length) {
         return acBinaryTrie.match(text, startPos, length);
     }
 
@@ -101,8 +126,8 @@ public class CjkLexicon {
      * @param length   待处理文本的长度
      * @return 匹配结果
      */
-    public List<Hit<Integer>> maxMatch(char[] text, int startPos, int length) {
-        return binaryMatchTrie.maxMatch(text, startPos, length);
+    public List<Hit<TokenType>> maxMatch(char[] text, int startPos, int length) {
+        return matchBinaryTrie.maxMatch(text, startPos, length);
     }
 
     /**
@@ -113,7 +138,35 @@ public class CjkLexicon {
      * @param length   待处理文本的长度
      * @return 匹配结果
      */
-    public List<Hit<Integer>> minMatch(char[] text, int startPos, int length) {
-        return binaryMatchTrie.minMatch(text, startPos, length);
+    public List<Hit<TokenType>> minMatch(char[] text, int startPos, int length) {
+        return matchBinaryTrie.minMatch(text, startPos, length);
     }
+
+    /**
+     * 添加量词
+     *
+     * @return 添加是否成功
+     */
+    public boolean addQuantifier(String quantifier) {
+        quantifier = SearchStringUtils.filterString(quantifier);
+        return quantifier != null && quantifiers.add(quantifier.toLowerCase());
+    }
+
+    /**
+     * 删除量词
+     *
+     * @return 添加是否成功
+     */
+    public boolean removeQuantifier(String quantifier) {
+        quantifier = SearchStringUtils.filterString(quantifier);
+        return quantifier != null && quantifiers.remove(quantifier.toLowerCase());
+    }
+
+    /**
+     * 判断给定的词是否为量词
+     */
+    public boolean isQuantifier(String word) {
+        return quantifiers.contains(word);
+    }
+
 }

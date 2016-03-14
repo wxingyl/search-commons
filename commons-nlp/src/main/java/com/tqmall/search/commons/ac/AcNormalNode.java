@@ -1,4 +1,7 @@
-package com.tqmall.search.commons.nlp.trie;
+package com.tqmall.search.commons.ac;
+
+import com.tqmall.search.commons.trie.Node;
+import com.tqmall.search.commons.trie.NormalNode;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -48,8 +51,11 @@ public class AcNormalNode<V> extends NormalNode<V> {
         super(ch, status, value);
     }
 
+    /**
+     * {@link AcNormalNode}不支持节点删除操作
+     */
     @Override
-    public boolean removeNode(char[] word, int startIndex) {
+    public boolean deleteNode(char[] word, int deep) {
         throw new UnsupportedOperationException("AcNode can't support remove");
     }
 
@@ -81,6 +87,7 @@ public class AcNormalNode<V> extends NormalNode<V> {
             for (int i = 0; i < childCount; i++) {
                 AcNormalNode acNode = (AcNormalNode) children[i];
                 acNode.parent = this;
+                acNode.failed = null;
                 outputSb.append(acNode.c);
                 acNode.initChildParent(outputSb);
                 outputSb.deleteCharAt(outputSb.length() - 1);
@@ -159,31 +166,4 @@ public class AcNormalNode<V> extends NormalNode<V> {
         }
     }
 
-    private static final AcTrieNodeFactory<?> DEFAULT_CJK_AC_NODE_FACTORY = new AcTrieNodeFactory<Object>() {
-        @Override
-        public Node<Object> createRootNode() {
-            return BigRootNode.createCjkRootNode();
-        }
-
-        @Override
-        public AcNormalNode<Object> createNormalNode(char c) {
-            return new AcNormalNode<>(c);
-        }
-
-        @Override
-        public AcNormalNode<Object> createChildNode(char c, Object value) {
-            return new AcNormalNode<>(c, value);
-        }
-    };
-
-    /**
-     * 默认的前缀树Cjk AcNode Factory
-     *
-     * @param <V> Node节点泛型
-     * @return factory
-     */
-    @SuppressWarnings("unchecked")
-    public static <V> AcTrieNodeFactory<V> defaultCjkAcTrieNodeFactory() {
-        return (AcTrieNodeFactory<V>) DEFAULT_CJK_AC_NODE_FACTORY;
-    }
 }

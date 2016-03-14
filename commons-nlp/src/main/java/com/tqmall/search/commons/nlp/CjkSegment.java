@@ -1,11 +1,10 @@
 package com.tqmall.search.commons.nlp;
 
 import com.sun.org.apache.xalan.internal.xsltc.dom.BitArray;
-import com.tqmall.search.commons.nlp.trie.TextMatch;
+import com.tqmall.search.commons.match.Hit;
+import com.tqmall.search.commons.match.TextMatch;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created by xing on 16/3/8.
@@ -13,7 +12,7 @@ import java.util.Objects;
  *
  * @author xing
  */
-public abstract class CjkSegment implements TextMatch<Integer> {
+public abstract class CjkSegment implements TextMatch<TokenType> {
 
     protected final CjkLexicon cjkLexicon;
 
@@ -21,29 +20,46 @@ public abstract class CjkSegment implements TextMatch<Integer> {
         this.cjkLexicon = cjkLexicon;
     }
 
-    protected abstract List<Hit<Integer>> doMatch(char[] text, int startPos, int length);
+    protected abstract List<Hit<TokenType>> doMatch(char[] text, int startPos, int length);
 
     @Override
-    public final List<Hit<Integer>> match(char[] text) {
+    public final List<Hit<TokenType>> match(char[] text) {
         Objects.requireNonNull(text);
         return match(text, 0, text.length);
     }
 
-    public final List<Hit<Integer>> match(char[] text, int startPos, int length) {
-        List<Hit<Integer>> hits = doMatch(text, startPos, length);
+    @Override
+    public final List<Hit<TokenType>> match(char[] text, int startPos, int length) {
+        List<Hit<TokenType>> hits = doMatch(text, startPos, length);
         if (hits == null) return null;
         BitArray bitArray = new BitArray(length);
-        for (Hit<Integer> h : hits) {
+        for (Hit<TokenType> h : hits) {
             int endPos = h.getEndPos();
             for (int i = h.getStartPos(); i < endPos; i++) {
                 bitArray.setBit(i - startPos);
             }
         }
-        //没有匹配的中文字符, 只能单独成词了
+        //数词提取, 未匹配的cjk字符单个成词
+        int numEndIndex = -1;
         for (int i = startPos + length - 1; i >= startPos; i--) {
-            if (!bitArray.getBit(i) && NlpUtils.isCjkChar(text[i])) {
-                hits.add(new Hit<>(i, String.valueOf(text[i]), NlpConst.TOKEN_TYPE_CN));
+            if (bitArray.getBit(i) || !NlpUtils.isCjkChar(text[i])) continue;
+            char c = text[i];
+            if (CjkLexicon.CN_NUM.contains(c)) {
+                if (numEndIndex == -1) numEndIndex = i;
+                continue;
+            } else if (numEndIndex != -1) {
+                //将前面的数字取出来
+                int start = i + 1;
+                //提取数词词组
+                hits.add(new Hit<>(start, new String(text, start, numEndIndex - start + 1), TokenType.NUM));
+                numEndIndex = -1;
             }
+            //没有匹配的中文字符, 只能单独成词了
+            String w = String.valueOf(text[i]);
+            hits.add(new Hit<>(i, w, cjkLexicon.isQuantifier(w) ? TokenType.QUANTIFIER : TokenType.CN));
+        }
+        if (numEndIndex != -1) {
+            hits.add(new Hit<>(startPos, new String(text, startPos, numEndIndex - startPos + 1), TokenType.NUM));
         }
         //返回结果需要根据下标排序
         Collections.sort(hits);
@@ -53,7 +69,8 @@ public abstract class CjkSegment implements TextMatch<Integer> {
     /**
      * 获取分词器
      */
-    public static CjkSegment getSegment(CjkLexicon cjkLexicon, SegmentType type) {
+    public static CjkSegment createSegment(CjkLexicon cjkLexicon, SegmentType type) {
+        Objects.requireNonNull(type);
         switch (type) {
             case MIN:
                 return new Min(cjkLexicon);
@@ -76,7 +93,7 @@ public abstract class CjkSegment implements TextMatch<Integer> {
         }
 
         @Override
-        protected List<Hit<Integer>> doMatch(char[] text, int startPos, int length) {
+        protected List<Hit<TokenType>> doMatch(char[] text, int startPos, int length) {
             return cjkLexicon.fullMatch(text, startPos, length);
         }
     }
@@ -92,7 +109,7 @@ public abstract class CjkSegment implements TextMatch<Integer> {
         }
 
         @Override
-        protected List<Hit<Integer>> doMatch(char[] text, int startPos, int length) {
+        protected List<Hit<TokenType>> doMatch(char[] text, int startPos, int length) {
             return cjkLexicon.minMatch(text, startPos, length);
         }
     }
@@ -107,10 +124,9 @@ public abstract class CjkSegment implements TextMatch<Integer> {
         }
 
         @Override
-        protected List<Hit<Integer>> doMatch(char[] text, int startPos, int length) {
+        protected List<Hit<TokenType>> doMatch(char[] text, int startPos, int length) {
             return cjkLexicon.maxMatch(text, startPos, length);
         }
     }
-
 
 }
