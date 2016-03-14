@@ -5,14 +5,6 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
     <groupId>com.tqmall.search</groupId>
     <artifactId>commons</artifactId>
     <version>1.2-final</version>
@@ -25,6 +17,34 @@
         <module>commons-cache</module>
         <module>canal-client</module>
     </modules>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <description>some search common utils, such as segment，canal client and so on</description>
+    <name>Search Commons Maven Parent</name>
+    <scm>
+        <connection>scm:git:https://github.com/wxingyl/search-commons.git</connection>
+        <developerConnection>scm:git:https://github.com/wxingyl/search-commons.git</developerConnection>
+        <url>https://github.com/wxingyl/search-commons</url>
+    </scm>
+    <developers>
+        <developer>
+            <name>Xingxing Wang</name>
+            <email>xingxing.wang@live.com</email>
+            <organization>tqmall</organization>
+            <organizationUrl>http://www.tqmall.com</organizationUrl>
+            <roles>
+                <role>owner</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
 
     <dependencies>
         <dependency>
