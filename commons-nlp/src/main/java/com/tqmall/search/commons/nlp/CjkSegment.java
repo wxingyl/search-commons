@@ -28,6 +28,10 @@ public abstract class CjkSegment implements TextMatch<TokenType> {
         return match(text, 0, text.length);
     }
 
+    private Hit<TokenType> getNumHit(char[] text, int startIndex, int numEndIndex) {
+        return new Hit<>(startIndex, new String(text, startIndex, numEndIndex - startIndex + 1), TokenType.NUM);
+    }
+
     @Override
     public final List<Hit<TokenType>> match(char[] text, int startPos, int length) {
         List<Hit<TokenType>> hits = doMatch(text, startPos, length);
@@ -42,16 +46,20 @@ public abstract class CjkSegment implements TextMatch<TokenType> {
         //数词提取, 未匹配的cjk字符单个成词
         int numEndIndex = -1;
         for (int i = startPos + length - 1; i >= startPos; i--) {
-            if (bitArray.getBit(i) || !NlpUtils.isCjkChar(text[i])) continue;
+            if (bitArray.getBit(i) || !NlpUtils.isCjkChar(text[i])) {
+                if (numEndIndex != -1) {
+                    hits.add(getNumHit(text, i + 1, numEndIndex));
+                    numEndIndex = -1;
+                }
+                continue;
+            }
             char c = text[i];
             if (CjkLexicon.CN_NUM.contains(c)) {
                 if (numEndIndex == -1) numEndIndex = i;
                 continue;
             } else if (numEndIndex != -1) {
-                //将前面的数字取出来
-                int start = i + 1;
                 //提取数词词组
-                hits.add(new Hit<>(start, new String(text, start, numEndIndex - start + 1), TokenType.NUM));
+                hits.add(getNumHit(text, i + 1, numEndIndex));
                 numEndIndex = -1;
             }
             //没有匹配的中文字符, 只能单独成词了
@@ -59,7 +67,7 @@ public abstract class CjkSegment implements TextMatch<TokenType> {
             hits.add(new Hit<>(i, w, cjkLexicon.isQuantifier(w) ? TokenType.QUANTIFIER : TokenType.CN));
         }
         if (numEndIndex != -1) {
-            hits.add(new Hit<>(startPos, new String(text, startPos, numEndIndex - startPos + 1), TokenType.NUM));
+            hits.add(getNumHit(text, startPos, numEndIndex));
         }
         //返回结果需要根据下标排序
         Collections.sort(hits);

@@ -91,7 +91,7 @@ public class BigRootNode<V> extends Node<V> {
     }
 
     @Override
-    public List<Map.Entry<String, V>> allChildWords(String prefixKey) {
+    public List<Map.Entry<String, V>> allChildWords(char[] prefixKey) {
         throw new UnsupportedOperationException("root node can not been invoke allChildWords method");
     }
 

@@ -28,8 +28,8 @@ public abstract class AbstractAcTrie<V> implements AcTrie<V> {
     }
 
     @Override
-    public boolean remove(String word) {
-        return trie.remove(word);
+    public boolean remove(String key) {
+        return trie.remove(key);
     }
 
     @Override

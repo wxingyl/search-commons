@@ -2,7 +2,7 @@ package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.ac.AcBinaryTrie;
 import com.tqmall.search.commons.match.Hit;
-import com.tqmall.search.commons.trie.NodeFactories;
+import com.tqmall.search.commons.trie.RootNodeType;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -30,7 +30,7 @@ public class AcTrieTest {
                 .put("hao", null)
                 .put("hs", null)
                 .put("hsr", null)
-                .create(NodeFactories.<Integer>defaultAcTrie(NodeFactories.RootType.ASCII));
+                .create(RootNodeType.ASCII.<Integer>defaultAcTrie());
     }
 
     @AfterClass

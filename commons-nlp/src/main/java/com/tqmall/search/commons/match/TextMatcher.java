@@ -23,7 +23,7 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
      * @param text 待匹配的字符数组
      * @return 匹配结果, 如果返回的list认为错误,整个文本处理结果返回null
      */
-    protected abstract List<Hit<V>> runMatch(char[] text, int startPos, int endPos);
+    protected abstract List<Hit<V>> runMatch(final char[] text, final int startPos, final int endPos);
 
     /**
      * 文本匹配
@@ -42,25 +42,63 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
         return runMatch(text, startPos, endPos);
     }
 
-    public static <V> TextMatcher<V> minMatcher(Node<V> root) {
-        return new MinBackTextMatcher<>(root);
+    public static <V> TextMatcher<V> minMatcher(Node<V> root, boolean reverse) {
+        return reverse ? new MinReverseTextMatcher<>(root) : new MinTextMatcher<>(root);
     }
 
-    public static <V> TextMatcher<V> maxMatcher(Node<V> root) {
-        return new MaxBackTextMatcher<>(root);
+    public static <V> TextMatcher<V> maxMatcher(Node<V> root, boolean reverse) {
+        return reverse ? new MaxReverseTextMatcher<>(root) : new MaxTextMatcher<>(root);
     }
 
     /**
-     * 反向最小匹配
+     * 正向最小匹配
+     * 通过逆向前缀树也可以实现逆向匹配, 而且相率更高
      */
-    public static class MinBackTextMatcher<V> extends TextMatcher<V> {
+    public static class MinTextMatcher<V> extends TextMatcher<V> {
 
-        protected MinBackTextMatcher(Node<V> root) {
+        public MinTextMatcher(Node<V> root) {
             super(root);
         }
 
         @Override
-        protected List<Hit<V>> runMatch(char[] text, int startPos, int endPos) {
+        protected List<Hit<V>> runMatch(final char[] text, final int startPos, final int endPos) {
+            List<Hit<V>> hits = new LinkedList<>();
+            Node<V> currentNode = root;
+            int matchStartPos = -1;
+            int i = startPos;
+            while (i < endPos) {
+                Node<V> nextNode = currentNode.getChild(text[i]);
+                i++;
+                if (nextNode == null || nextNode.getStatus() == Node.Status.DELETE) {
+                    matchStartPos = -1;
+                    currentNode = root;
+                } else {
+                    if (matchStartPos == -1) matchStartPos = i - 1;
+                    if (nextNode.accept()) {
+                        //匹配到一个词了~~~
+                        hits.add(new Hit<>(text, matchStartPos, i, nextNode.getValue()));
+                        currentNode = root;
+                        matchStartPos = -1;
+                    } else {
+                        currentNode = nextNode;
+                    }
+                }
+            }
+            return hits;
+        }
+    }
+
+    /**
+     * 逆向最小匹配, 这个效率不高, 推荐逆向前缀树正向匹配实现之,效率更高
+     */
+    public static class MinReverseTextMatcher<V> extends TextMatcher<V> {
+
+        public MinReverseTextMatcher(Node<V> root) {
+            super(root);
+        }
+
+        @Override
+        protected List<Hit<V>> runMatch(final char[] text, final int startPos, final int endPos) {
             List<Hit<V>> hits = new LinkedList<>();
             Node<V> currentNode = root;
             int i = endPos - 1, matchStartPos = endPos, lastPos = endPos;
@@ -80,7 +118,7 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
                     i++;
                     if (nextNode.accept()) {
                         //匹配到一个词了~~~
-                        hits.add(new Hit<>(matchStartPos, new String(text, matchStartPos, i - matchStartPos), nextNode.getValue()));
+                        hits.add(new Hit<>(text, matchStartPos, i, nextNode.getValue()));
                         i = matchStartPos - 1;
                         lastPos = matchStartPos;
                         currentNode = root;
@@ -93,31 +131,90 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
         }
     }
 
-
     /**
-     * 反向最大匹配
+     * 正向最大匹配
+     * 通过逆向前缀树也可以实现逆向匹配, 而且相率更高
      */
-    public static class MaxBackTextMatcher<V> extends TextMatcher<V> {
+    public static class MaxTextMatcher<V> extends TextMatcher<V> {
 
-        protected MaxBackTextMatcher(Node<V> root) {
+        public MaxTextMatcher(Node<V> root) {
             super(root);
         }
 
-        private void addHitToMap(Hit<V> hit, Map<Integer, Hit<V>> hitsEndPosMap) {
-            int end = hit.getEndPos(), start = hit.getStartPos();
-            hitsEndPosMap.put(end, hit);
-            while (--end > start) {
-                hitsEndPosMap.remove(end);
+        @Override
+        protected List<Hit<V>> runMatch(final char[] text, final int startPos, final int endPos) {
+            List<Hit<V>> hits = new LinkedList<>();
+            Node<V> currentNode = root;
+            int matchStartPos = -1, matchEndPos = -1, i = startPos;
+            V lastMatchValue = null;
+            while (i < endPos) {
+                Node<V> nextNode = currentNode.getChild(text[i]);
+                if (nextNode == null || nextNode.getStatus() == Node.Status.DELETE) {
+                    if (matchEndPos != -1) {
+                        //匹配到一个最大词~~~
+                        hits.add(new Hit<>(text, matchStartPos, matchEndPos, lastMatchValue));
+                        matchEndPos = -1;
+                    } else {
+                        i++;
+                    }
+                    matchStartPos = -1;
+                    currentNode = root;
+                } else {
+                    if (matchStartPos == -1) matchStartPos = i;
+                    i++;
+                    if (nextNode.accept()) {
+                        matchEndPos = i;
+                        lastMatchValue = nextNode.getValue();
+                    }
+                    currentNode = nextNode;
+                }
             }
+            if (matchEndPos != -1) {
+                //捡个漏
+                hits.add(new Hit<>(text, matchStartPos, matchEndPos, lastMatchValue));
+            }
+            return hits;
+        }
+    }
+
+    /**
+     * 逆向最大匹配, 这个效率不高, 推荐逆向前缀树正向匹配实现之,效率更高
+     */
+    public static class MaxReverseTextMatcher<V> extends TextMatcher<V> {
+
+        public MaxReverseTextMatcher(Node<V> root) {
+            super(root);
+        }
+
+        /**
+         * 新加入的词有重叠的小词, 删除
+         */
+        private void appendHit(Hit<V> hit, LinkedList<Hit<V>> hits) {
+            int hitEndPos = hit.getEndPos();
+            Iterator<Hit<V>> it = hits.descendingIterator();
+            int removeCount = 0;
+            while (it.hasNext()) {
+                Hit<V> h = it.next();
+                if (hitEndPos <= h.getStartPos()) break;
+                else if (hitEndPos < h.getEndPos()) return;
+                else {
+                    removeCount++;
+                    if (hitEndPos == h.getEndPos()) break;
+                }
+            }
+            if (removeCount > 0) {
+                while (removeCount-- > 0) hits.pollLast();
+            }
+            hits.add(hit);
         }
 
         @Override
-        protected List<Hit<V>> runMatch(char[] text, final int startPos, final int endPos) {
+        protected List<Hit<V>> runMatch(final char[] text, final int startPos, final int endPos) {
             Node<V> currentNode = root;
             int i = endPos - 1, hitStartPos = endPos, hitEndPos = endPos;
             boolean lastAccept = false;
             V hitValue = null;
-            Map<Integer, Hit<V>> hitsEndPosMap = new HashMap<>();
+            LinkedList<Hit<V>> hits = new LinkedList<>();
             while (i >= startPos) {
                 Node<V> nextNode = i < text.length ? currentNode.getChild(text[i]) : null;
                 if (nextNode == null || nextNode.getStatus() == Node.Status.DELETE) {
@@ -127,8 +224,7 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
                     } else {
                         if (lastAccept) {
                             //匹配到一个词了~~~
-                            addHitToMap(new Hit<>(hitStartPos, new String(text, hitStartPos,
-                                    hitEndPos - hitStartPos), hitValue), hitsEndPosMap);
+                            appendHit(new Hit<>(text, hitStartPos, hitEndPos, hitValue), hits);
                             lastAccept = false;
                         }
                         i = hitStartPos - 1;
@@ -147,10 +243,9 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
                 }
             }
             if (lastAccept) {
-                addHitToMap(new Hit<>(hitStartPos, new String(text, hitStartPos,
-                        hitEndPos - hitStartPos), hitValue), hitsEndPosMap);
+                appendHit(new Hit<>(text, hitStartPos, hitEndPos, hitValue), hits);
             }
-            return new ArrayList<>(hitsEndPosMap.values());
+            return hits;
         }
 
     }

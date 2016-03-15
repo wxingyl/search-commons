@@ -8,14 +8,16 @@ import com.tqmall.search.commons.ac.AcNormalNode;
  */
 public class Hit<V> implements Comparable<Hit<V>> {
 
-    private final int startPos;
+    private int startPos;
 
-    private final String key;
+    private String key;
 
     private V value;
 
-    public Hit(int startPos, String key) {
-        this(startPos, key, null);
+    public Hit(char[] text, int startPos, int endPos, V value) {
+        this.startPos = startPos;
+        this.key = new String(text, startPos, endPos - startPos);
+        this.value = value;
     }
 
     /**
@@ -46,6 +48,11 @@ public class Hit<V> implements Comparable<Hit<V>> {
 
     public int getEndPos() {
         return startPos + key.length();
+    }
+
+    public void changeKey(int startPos, String key) {
+        this.startPos = startPos;
+        this.key = key;
     }
 
     /**

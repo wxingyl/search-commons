@@ -88,7 +88,7 @@ public class Segment implements TextMatch<TokenType> {
 
     public static class Builder {
 
-        private boolean parseDecimal;
+        private boolean parseDecimal = true;
 
         private boolean parseEnMix;
 
@@ -100,13 +100,16 @@ public class Segment implements TextMatch<TokenType> {
 
         private NumQuantifierMerge numQuantifierMerge;
 
+        /**
+         * 默认true
+         */
         public Builder parseDecimal(boolean parseDecimal) {
             this.parseDecimal = parseDecimal;
             return this;
         }
 
         /**
-         * 识别EnMix词
+         * 是否扩展EnMix词
          */
         public Builder enMixAppend(boolean enMixAppend) {
             this.parseEnMix = true;

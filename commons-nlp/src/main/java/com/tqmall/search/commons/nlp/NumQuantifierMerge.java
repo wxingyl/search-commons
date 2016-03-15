@@ -37,18 +37,22 @@ public class NumQuantifierMerge {
             TokenType curType = curHit.getValue();
             if (curType == TokenType.NUM || curType == TokenType.DECIMAL) {
                 preNumHit = curHit;
-            } else if (preNumHit != null && curType == TokenType.QUANTIFIER
-                    && preNumHit.getEndPos() == curHit.getStartPos()) {
-                Hit<TokenType> numQuantifierHit = new Hit<>(preNumHit.getStartPos(), preNumHit.getKey() + curHit.getKey(),
-                        TokenType.NUM_QUANTIFIER);
-                if (!appendNumQuantifier) {
+                continue;
+            } else if (preNumHit != null && preNumHit.getEndPos() == curHit.getStartPos()
+                    && (curType == TokenType.QUANTIFIER || curType == TokenType.NUM_QUANTIFIER)) {
+                if (appendNumQuantifier) {
+                    it.previous();
+                    //需要考虑插入字符的顺序
+                    it.add(new Hit<>(preNumHit.getStartPos(), preNumHit.getKey() + curHit.getKey(), TokenType.NUM_QUANTIFIER));
+                    it.next();
+                } else {
                     it.remove();
-                    it.remove();
+                    Hit<TokenType> h = it.previous();
+                    h.changeKey(preNumHit.getStartPos(), preNumHit.getKey() + curHit.getKey());
+                    h.changeValue(TokenType.NUM_QUANTIFIER);
                 }
-                it.add(numQuantifierHit);
-            } else {
-                preNumHit = null;
             }
+            preNumHit = null;
         }
         return hits;
     }

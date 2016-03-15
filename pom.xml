@@ -32,6 +32,10 @@
         <developerConnection>scm:git:https://github.com/wxingyl/search-commons.git</developerConnection>
         <url>https://github.com/wxingyl/search-commons</url>
     </scm>
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/wxingyl/search-commons.issues</url>
+    </issueManagement>
     <developers>
         <developer>
             <name>Xingxing Wang</name>

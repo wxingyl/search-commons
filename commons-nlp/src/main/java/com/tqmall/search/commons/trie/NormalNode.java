@@ -1,8 +1,9 @@
 package com.tqmall.search.commons.trie;
 
-import com.tqmall.search.commons.utils.SearchStringUtils;
-
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by xing on 16/1/27.
@@ -156,13 +157,13 @@ public class NormalNode<V> extends Node<V> {
     }
 
     @Override
-    public List<Map.Entry<String, V>> allChildWords(String prefixKey) {
-        if (SearchStringUtils.isEmpty(prefixKey)) return null;
-        if (prefixKey.charAt(prefixKey.length() - 1) != c) {
-            throw new IllegalArgumentException("the prefixKey: " + prefixKey + " last char isn't " + c);
+    public List<Map.Entry<String, V>> allChildWords(char[] prefixKey) {
+        if (prefixKey == null || prefixKey.length == 0) return null;
+        if (prefixKey[prefixKey.length - 1] != c) {
+            throw new IllegalArgumentException("the prefixKey: " + String.valueOf(prefixKey) + " last char isn't " + c);
         }
         List<Map.Entry<String, V>> retList = new ArrayList<>();
-        walkAppend(new StringBuilder(prefixKey).deleteCharAt(prefixKey.length() - 1), retList);
+        walkAppend(new StringBuilder().append(prefixKey, 0, prefixKey.length - 1), retList);
         return retList;
     }
 

@@ -64,9 +64,9 @@ public abstract class Node<V> {
      *
      * @param prefixKey 前面已经匹配的key, 注意: 该参数已经包含该节点的字符
      * @return 对应的key已经Value
-     * @see BigRootNode#allChildWords(String)
+     * @see BigRootNode#allChildWords(char[])
      */
-    public abstract List<Map.Entry<String, V>> allChildWords(String prefixKey);
+    public abstract List<Map.Entry<String, V>> allChildWords(char[] prefixKey);
 
     public final Status getStatus() {
         return status;

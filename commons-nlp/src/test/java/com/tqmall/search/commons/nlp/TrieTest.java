@@ -20,7 +20,7 @@ public class TrieTest {
 
     @BeforeClass
     public static void init() {
-        binaryTrie = new BinaryTrie<>(NodeFactories.<String>defaultTrie(NodeFactories.RootType.CJK));
+        binaryTrie = new BinaryTrie<>(RootNodeType.CJK.<String>defaultTrie());
     }
 
     @AfterClass
@@ -98,7 +98,7 @@ public class TrieTest {
 
     @Test
     public void binaryMatchTrieTest() {
-        MatchBinaryTrie<String> matchTrie = new MatchBinaryTrie<>(NodeFactories.<String>defaultTrie(NodeFactories.RootType.CJK));
+        MatchBinaryTrie<String> matchTrie = new MatchBinaryTrie<>(RootNodeType.CJK.<String>defaultTrie(), true);
         matchTrie.put("长", "zhang");
         matchTrie.put("长沙", "chang sha");
         matchTrie.put("沙", "sha");
@@ -107,7 +107,7 @@ public class TrieTest {
         matchTrie.put("王星星", "xingxing.wang");
 
         String word = "长沙王星星";
-        List<Hit<String>> result = matchTrie.maxMatch(word.toCharArray());
+        List<Hit<String>> result = matchTrie.maxMatch(word);
         Collections.sort(result);
         System.out.println("word: " + word + " binaryMatchTrie result: " + result);
         List<Hit<String>> expectedResult = new ArrayList<>();
@@ -117,7 +117,7 @@ public class TrieTest {
         expectedResult.clear();
 
         word = "长沙王星艳王星星";
-        result = matchTrie.maxMatch(word.toCharArray());
+        result = matchTrie.maxMatch(word);
         Collections.sort(result);
         System.out.println("word: " + word + " binaryMatchTrie result: " + result);
         expectedResult.add(new Hit<>(0, "长沙", "chang sha"));
@@ -127,7 +127,7 @@ public class TrieTest {
         expectedResult.clear();
 
         word = "长沙王星艳王星星";
-        result = matchTrie.minMatch(word.toCharArray());
+        result = matchTrie.minMatch(word);
         Collections.sort(result);
         System.out.println("word: " + word + " binaryMatchTrie result: " + result);
         expectedResult.add(new Hit<>(0, "长", "zhang"));
@@ -142,7 +142,7 @@ public class TrieTest {
         matchTrie.put("和服", null);
         matchTrie.put("服务", null);
         word = "商品和服务";
-        result = matchTrie.minMatch(word.toCharArray());
+        result = matchTrie.minMatch(word);
         Collections.sort(result);
         System.out.println("word: " + word + " binaryMatchTrie hits: " + result);
         expectedResult.add(new Hit<String>(0, "商品", null));

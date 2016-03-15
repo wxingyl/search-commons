@@ -5,8 +5,9 @@ import com.tqmall.search.commons.ac.AcTrieNodeFactory;
 import com.tqmall.search.commons.exception.LoadLexiconException;
 import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.match.Hit;
-import com.tqmall.search.commons.match.MatchBinaryTrie;
-import com.tqmall.search.commons.trie.NodeFactories;
+import com.tqmall.search.commons.match.MatchBinaryReverseTrie;
+import com.tqmall.search.commons.trie.RootNodeType;
+import com.tqmall.search.commons.trie.TrieNodeFactory;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,30 +46,32 @@ public class CjkLexicon {
 
     private final AcBinaryTrie<TokenType> acBinaryTrie;
 
-    private final MatchBinaryTrie<TokenType> matchBinaryTrie;
+    private final MatchBinaryReverseTrie<TokenType> matchReverseBinaryTrie;
 
     private final Set<String> quantifiers;
 
     /**
-     * {@link AcTrieNodeFactory}默认使用{@link NodeFactories.RootType#CJK}
+     * {@link AcTrieNodeFactory}默认使用{@link RootNodeType#CJK}
      */
     public CjkLexicon(InputStream lexicon) {
-        this(NodeFactories.<TokenType>defaultAcTrie(NodeFactories.RootType.CJK), lexicon);
+        this(RootNodeType.CJK, lexicon);
     }
 
     /**
      * 读取词库文件, 如果存在异常则抛出{@link LoadLexiconException}
      *
-     * @param nodeFactory 具体初始化节点的Factory
-     * @param lexicon     词库输入流
+     * @param rootNodeType 根节点类型
+     * @param lexicon      词库输入流
      * @see LoadLexiconException
+     * @see TrieNodeFactory
+     * @see AcTrieNodeFactory
      */
-    public CjkLexicon(AcTrieNodeFactory<TokenType> nodeFactory, final InputStream lexicon) {
-        matchBinaryTrie = new MatchBinaryTrie<>(nodeFactory);
+    public CjkLexicon(RootNodeType rootNodeType, final InputStream lexicon) {
+        matchReverseBinaryTrie = new MatchBinaryReverseTrie<>(rootNodeType.<TokenType>defaultTrie());
         long startTime = System.currentTimeMillis();
         log.info("start loading cjk lexicon: " + lexicon);
         quantifiers = new HashSet<>();
-        final AcBinaryTrie.Builder<TokenType> builder = AcBinaryTrie.build();
+        final AcBinaryTrie.Builder<TokenType> acBuilder = AcBinaryTrie.build();
         try {
             NlpUtils.loadLexicon(lexicon, new Function<String, Boolean>() {
                 @Override
@@ -87,7 +90,8 @@ public class CjkLexicon {
                             quantifiers.add(s);
                         }
                     }
-                    builder.put(s, tokenType);
+                    acBuilder.put(s, tokenType);
+                    matchReverseBinaryTrie.put(s, tokenType);
                     return true;
                 }
             }, true);
@@ -95,7 +99,7 @@ public class CjkLexicon {
             log.error("read cjk lexicon: " + lexicon + " break out IOException", e);
             throw new LoadLexiconException("init cjk lexicon: " + lexicon + " break out exception", e);
         }
-        acBinaryTrie = builder.create(matchBinaryTrie);
+        acBinaryTrie = acBuilder.create(rootNodeType.<TokenType>defaultAcTrie());
         log.info("load cjk lexicon: " + lexicon + " finish, total cost: " + (System.currentTimeMillis() - startTime) + "ms");
         NlpUtils.loadLexicon(NlpConst.QUANTIFIER_FILE_NAME, new Function<String, Boolean>() {
             @Override
@@ -127,7 +131,7 @@ public class CjkLexicon {
      * @return 匹配结果
      */
     public List<Hit<TokenType>> maxMatch(char[] text, int startPos, int length) {
-        return matchBinaryTrie.maxMatch(text, startPos, length);
+        return matchReverseBinaryTrie.maxMatch(text, startPos, length);
     }
 
     /**
@@ -139,7 +143,7 @@ public class CjkLexicon {
      * @return 匹配结果
      */
     public List<Hit<TokenType>> minMatch(char[] text, int startPos, int length) {
-        return matchBinaryTrie.minMatch(text, startPos, length);
+        return matchReverseBinaryTrie.minMatch(text, startPos, length);
     }
 
     /**

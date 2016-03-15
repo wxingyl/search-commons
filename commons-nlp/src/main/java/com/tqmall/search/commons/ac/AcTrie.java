@@ -21,7 +21,7 @@ public interface AcTrie<V> extends Trie<V>, TextMatch<V> {
      *
      * @see #initFailed()
      */
-    boolean remove(String word);
+    boolean remove(String key);
 
     /**
      * 更新key对应的value, 如果key不存在直接返回false, 不会主动创建依赖节点

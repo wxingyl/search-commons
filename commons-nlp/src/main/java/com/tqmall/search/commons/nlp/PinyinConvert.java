@@ -2,8 +2,8 @@ package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.match.Hit;
-import com.tqmall.search.commons.match.MatchBinaryTrie;
-import com.tqmall.search.commons.trie.NodeFactories;
+import com.tqmall.search.commons.match.MatchBinaryReverseTrie;
+import com.tqmall.search.commons.trie.RootNodeType;
 import com.tqmall.search.commons.utils.CommonsUtils;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 import org.slf4j.Logger;
@@ -22,22 +22,23 @@ public final class PinyinConvert {
 
     private static final Logger log = LoggerFactory.getLogger(PinyinConvert.class);
 
-    private final MatchBinaryTrie<String[]> matchBinaryTrie;
+    private final MatchBinaryReverseTrie<String[]> matchBinaryReverseTrie;
 
     public PinyinConvert() {
-        matchBinaryTrie = new MatchBinaryTrie<>(NodeFactories.<String[]>defaultTrie(NodeFactories.RootType.CJK));
+        matchBinaryReverseTrie = new MatchBinaryReverseTrie<>(RootNodeType.CJK.<String[]>defaultTrie());
         log.info("start loading pinyin lexicon file: " + NlpConst.PINYIN_FILE_NAME);
         NlpUtils.loadLexicon(NlpConst.PINYIN_FILE_NAME, new Function<String, Boolean>() {
             @Override
             public Boolean apply(String line) {
                 String[] array = SearchStringUtils.split(line, '=');
                 String[] value;
+                //多个汉字的词语拼音, 通过' '分隔
                 if (array[0].length() > 1) {
                     value = SearchStringUtils.split(array[1], ' ');
                 } else {
                     value = new String[]{array[1]};
                 }
-                matchBinaryTrie.put(array[0], value);
+                matchBinaryReverseTrie.put(array[0], value);
                 return true;
             }
         });
@@ -59,8 +60,8 @@ public final class PinyinConvert {
         }
     }
 
-    private String convert(char[] word, final int appendFlag, StringBuilder firstLetter) {
-        List<Hit<String[]>> hits = matchBinaryTrie.maxMatch(word);
+    private String convert(final String word, final int appendFlag, final StringBuilder firstLetter) {
+        List<Hit<String[]>> hits = matchBinaryReverseTrie.maxMatch(word);
         if (CommonsUtils.isEmpty(hits)) return null;
         //后面的算法要求hits有序
         Collections.sort(hits);
@@ -70,8 +71,8 @@ public final class PinyinConvert {
             int curStartPos = h.getStartPos();
             if (appendFlag != 0) {
                 while (lastEndIndex < curStartPos) {
-                    if (appendChar(word[lastEndIndex], appendFlag)) {
-                        py.append(word[lastEndIndex]);
+                    if (appendChar(word.charAt(lastEndIndex), appendFlag)) {
+                        py.append(word.charAt(lastEndIndex));
                     }
                     lastEndIndex++;
                 }
@@ -83,9 +84,9 @@ public final class PinyinConvert {
             lastEndIndex = h.getEndPos();
         }
         if (appendFlag != 0) {
-            while (lastEndIndex < word.length) {
-                if (appendChar(word[lastEndIndex], appendFlag)) {
-                    py.append(word[lastEndIndex]);
+            while (lastEndIndex < word.length()) {
+                if (appendChar(word.charAt(lastEndIndex), appendFlag)) {
+                    py.append(word.charAt(lastEndIndex));
                 }
                 lastEndIndex++;
             }
@@ -97,7 +98,7 @@ public final class PinyinConvert {
      * 单个cjk字符转化, 对于多音字, 只返回词库中的第一个
      */
     public String convert(char cjkChar) {
-        List<Hit<String[]>> hits = matchBinaryTrie.maxMatch(new char[]{cjkChar});
+        List<Hit<String[]>> hits = matchBinaryReverseTrie.maxMatch(new char[]{cjkChar}, 0, 1);
         if (CommonsUtils.isEmpty(hits)) return null;
         return hits.get(0).getValue()[0];
     }
@@ -113,7 +114,7 @@ public final class PinyinConvert {
      * @see NlpConst#APPEND_CHAR_DIGIT
      * @see NlpConst#APPEND_CHAR_OTHER
      */
-    public String convert(char[] word, final int appendFlag) {
+    public String convert(String word, final int appendFlag) {
         return convert(word, appendFlag, null);
     }
 
@@ -128,7 +129,7 @@ public final class PinyinConvert {
      * @see NlpConst#APPEND_CHAR_DIGIT
      * @see NlpConst#APPEND_CHAR_OTHER
      */
-    public Map.Entry<String, String> firstLetterConvert(char[] word, final int appendFlag) {
+    public Map.Entry<String, String> firstLetterConvert(String word, final int appendFlag) {
         StringBuilder sb = new StringBuilder();
         String py = convert(word, appendFlag, sb);
         if (py == null) return null;

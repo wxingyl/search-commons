@@ -60,6 +60,29 @@ public final class NlpUtils {
     }
 
     /**
+     * 将给定的字符数组反转, 我们字符串全部为UTF-8编码, 就不考虑{@link Character#MIN_SURROGATE}, {@link Character#MAX_SURROGATE}
+     */
+    public static void reverseCharArray(char[] text) {
+        if (text != null) {
+            int n = text.length - 1;
+            for (int i = (n - 1) >> 1; i >= 0; --i) {
+                char tmp = text[i];
+                text[i] = text[n - i];
+                text[n - i] = tmp;
+            }
+        }
+    }
+
+    public static String reverseString(String str) {
+        if (SearchStringUtils.isEmpty(str) || str.length() == 1) return str;
+        else {
+            char[] array = str.toCharArray();
+            reverseCharArray(array);
+            return new String(array);
+        }
+    }
+
+    /**
      * 加载词库文件, 通过{@link StandardCharsets#UTF_8}编码打开文件
      *
      * @param filename   词库加载

@@ -41,7 +41,7 @@ public class BinaryTrie<V> implements Trie<V> {
      *
      * @param array 不做参数校验
      */
-    protected final Node<V> getNode(char[] array) {
+    protected Node<V> getNode(char[] array) {
         Node<V> currentNode = root;
         for (char c : array) {
             currentNode = currentNode.getChild(c);
@@ -52,18 +52,21 @@ public class BinaryTrie<V> implements Trie<V> {
 
     @Override
     public boolean put(String key, V value) {
-        char[] charArray = NlpUtils.stringToCharArray(key);
-        if (charArray == null) return false;
+        return put(NlpUtils.stringToCharArray(key), value);
+    }
+
+    protected boolean put(char[] key, V value) {
+        if (key == null || key.length == 0) return false;
         Node<V> current = root;
-        for (int i = 0; i < charArray.length - 1; i++) {
-            Node<V> next = current.getChild(charArray[i]);
+        for (int i = 0; i < key.length - 1; i++) {
+            Node<V> next = current.getChild(key[i]);
             if (next == null) {
-                next = nodeFactory.createNormalNode(charArray[i]);
+                next = nodeFactory.createNormalNode(key[i]);
                 current.addChild(next);
             }
             current = next;
         }
-        if (current.addChild(nodeFactory.createChildNode(charArray[charArray.length - 1], value))) {
+        if (current.addChild(nodeFactory.createChildNode(key[key.length - 1], value))) {
             size++;
         }
         return true;
@@ -76,21 +79,25 @@ public class BinaryTrie<V> implements Trie<V> {
     }
 
     @Override
-    public boolean remove(String word) {
+    public boolean remove(final String key) {
         //先确保这个词存在, 再执行删除, 这儿里面已经过滤了删除的节点
-        Node<V> node = getNode(word);
+        char[] charArray = NlpUtils.stringToCharArray(key);
+        if (charArray == null) return false;
+        Node<V> node = getNode(charArray);
         //如果不是词节点, 返回
         if (node == null || node.getStatus() == Node.Status.NORMAL) return false;
-        root.deleteNode(word.toCharArray(), 0);
+        root.deleteNode(charArray, 0);
         size--;
         return true;
     }
 
     @Override
     public List<Map.Entry<String, V>> prefixSearch(String word) {
-        Node<V> node = getNode(word);
+        char[] charArray = NlpUtils.stringToCharArray(word);
+        if (charArray == null) return null;
+        Node<V> node = getNode(charArray);
         if (node == null) return null;
-        return node.allChildWords(word);
+        return node.allChildWords(charArray);
     }
 
     @Override

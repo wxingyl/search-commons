@@ -15,13 +15,14 @@ public interface Trie<V> {
      * @return 添加是否成功
      */
     boolean put(String key, V value);
+
     /**
      * 删除词
      *
-     * @param word 要删除的词
+     * @param key 要删除的词
      * @return 如果该词存在, 则删除
      */
-    boolean remove(String word);
+    boolean remove(String key);
 
     V getValue(String key);
 
