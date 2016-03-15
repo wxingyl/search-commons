@@ -35,7 +35,7 @@ public class BigRootNode<V> extends Node<V> {
     @Override
     public boolean addChild(Node<V> node) {
         if (!isValidChar(node.c)) {
-            throw new IllegalArgumentException("character '" + c + "' is not in the range of [ " + minChar + ',' + maxChar + ']');
+            throw new IllegalArgumentException("character '" + c + "', \\u" + Integer.toHexString(c) + " is not in the range of [ " + minChar + ',' + maxChar + ']');
         }
         Node<V> preNode;
         if ((preNode = getChild(node.c)) == null) {

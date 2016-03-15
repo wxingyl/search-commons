@@ -1,6 +1,8 @@
 package com.tqmall.search.commons.trie;
 
 import com.tqmall.search.commons.nlp.NlpUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -11,6 +13,8 @@ import java.util.Objects;
  * 二分查找树, 根节点直接分配, 其他的根据需要再添加
  */
 public class BinaryTrie<V> implements Trie<V> {
+
+    private static final Logger log = LoggerFactory.getLogger(BinaryTrie.class);
 
     private final TrieNodeFactory<V> nodeFactory;
 
@@ -52,7 +56,12 @@ public class BinaryTrie<V> implements Trie<V> {
 
     @Override
     public boolean put(String key, V value) {
-        return put(NlpUtils.stringToCharArray(key), value);
+        try {
+            return put(NlpUtils.stringToCharArray(key), value);
+        } catch (RuntimeException e) {
+            log.error("加载词: " + key + ", value: " + value + " 存在异常", e);
+            throw e;
+        }
     }
 
     protected boolean put(char[] key, V value) {
