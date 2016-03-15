@@ -72,7 +72,7 @@ public class MatchBinaryReverseTrie<V> extends BinaryTrie<V> {
     private List<Hit<V>> doMatch(char[] text, int startPos, int length, boolean maxMatch) {
         char[] array = Arrays.copyOfRange(text, startPos, startPos + length);
         NlpUtils.reverseCharArray(array);
-        List<Hit<V>> hits = maxMatch ? maxTextMatcher.match(array, 0, length) : minTextMatcher.match(text, 0, length);
+        List<Hit<V>> hits = maxMatch ? maxTextMatcher.match(array, 0, length) : minTextMatcher.match(array, 0, length);
         if (!CommonsUtils.isEmpty(hits)) {
             int offsetIndex = startPos + length;
             for (Hit<V> h : hits) {

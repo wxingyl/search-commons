@@ -103,8 +103,8 @@ public abstract class Node<V> {
     }
 
     /**
-     * newNode的status为叶子节点, 讲newNode的value赋值给preNode, 但是只有在preNode为null时, 才认为是新添加的节点, 返回值为true
-     * 添加进来的newNode只有两个状态: 普通的status = 0 的节点
+     * 节点替换操作, 将原先的节点挺欢成新加的节点
+     * newNode的status为叶子节点, 将newNode的value赋值给preNode, 但是只有在preNode为null时, 才认为是新添加的节点, 返回值为true
      *
      * @param preNode 子节点上原先的节点
      * @param newNode 子节点上新加的节点
@@ -112,31 +112,25 @@ public abstract class Node<V> {
      * @return 是否这行了添加操作
      */
     protected static <V> boolean handleReplaceChildNode(Node<V> preNode, Node<V> newNode) {
-        boolean add = false;
         Status preStatus = preNode.status;
-        switch (newNode.status) {
-            case LEAF_WORD:
-                if (preStatus == Status.NORMAL || preStatus == Status.DELETE) {
-                    add = true;
-                }
-                if (preStatus != Status.WORD) {
-                    preNode.status = Status.LEAF_WORD;
-                }
-                preNode.value = newNode.value;
-                break;
-            case NORMAL:
-                if (preStatus == Status.LEAF_WORD) {
-                    preNode.status = Status.WORD;
-                } else if (preStatus == Status.DELETE) {
-                    preNode.status = Status.NORMAL;
-                }
-                break;
-            case DELETE:
-            case WORD:
-                throw new IllegalArgumentException("can not replace node which new status is " + Status.WORD
-                        + " or " + Status.DELETE);
+        if (newNode.status == Status.LEAF_WORD) {
+            boolean add = preStatus == Status.NORMAL || preStatus == Status.DELETE;
+            if (preStatus != Status.LEAF_WORD) {
+                preNode.status = Status.WORD;
+            }
+            preNode.value = newNode.value;
+            return add;
+        } else if (newNode.status == Status.NORMAL) {
+            if (preStatus == Status.LEAF_WORD) {
+                preNode.status = Status.WORD;
+            } else if (preStatus == Status.DELETE) {
+                preNode.status = Status.NORMAL;
+            }
+            return false;
+        } else {
+            throw new IllegalArgumentException("can not replace node which new status is " + Status.WORD
+                    + " or " + Status.DELETE);
         }
-        return add;
     }
 
     /**

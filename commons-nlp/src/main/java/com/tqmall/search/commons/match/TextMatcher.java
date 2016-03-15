@@ -68,12 +68,17 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
             int i = startPos;
             while (i < endPos) {
                 Node<V> nextNode = currentNode.getChild(text[i]);
-                i++;
                 if (nextNode == null || nextNode.getStatus() == Node.Status.DELETE) {
-                    matchStartPos = -1;
-                    currentNode = root;
+                    if (currentNode != root) {
+                        //没有对应匹配的词, 跳过, 从记录的matchStartPos开始下一个
+                        i = matchStartPos;
+                        matchStartPos = -1;
+                        currentNode = root;
+                    }
+                    i++;
                 } else {
-                    if (matchStartPos == -1) matchStartPos = i - 1;
+                    if (matchStartPos == -1) matchStartPos = i;
+                    i++;
                     if (nextNode.accept()) {
                         //匹配到一个词了~~~
                         hits.add(new Hit<>(text, matchStartPos, i, nextNode.getValue()));
@@ -153,12 +158,14 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
                     if (matchEndPos != -1) {
                         //匹配到一个最大词~~~
                         hits.add(new Hit<>(text, matchStartPos, matchEndPos, lastMatchValue));
+                        i = matchEndPos;
                         matchEndPos = -1;
-                    } else {
+                    } else if (root == currentNode) {
                         i++;
+                    } else {
+                        currentNode = root;
                     }
                     matchStartPos = -1;
-                    currentNode = root;
                 } else {
                     if (matchStartPos == -1) matchStartPos = i;
                     i++;

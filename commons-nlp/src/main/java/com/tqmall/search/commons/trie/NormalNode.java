@@ -79,6 +79,7 @@ public class NormalNode<V> extends Node<V> {
             childCount++;
             return true;
         } else {
+            //说明原先已经存在了, 替换吧
             return handleReplaceChildNode((Node<V>) children[index], node);
         }
     }
