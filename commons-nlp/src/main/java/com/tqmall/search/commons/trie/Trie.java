@@ -24,15 +24,23 @@ public interface Trie<V> {
      */
     boolean remove(String key);
 
+    /**
+     * 获取指定词key所对应的值
+     */
     V getValue(String key);
 
+    /**
+     * 获取指定字符串所在的节点, 排除删除的节点
+     *
+     * @return 不存在或者已经删除返回null
+     */
     Node<V> getNode(String key);
 
     /**
-     * 前缀查询
+     * 前缀查询, 如果查询的词不存在节点, 返回null
      *
      * @param word 要查询的词
-     * @return 如果没有匹配, 返回null
+     * @return 如果查询的词不存在节点, 返回null
      */
     List<Map.Entry<String, V>> prefixSearch(String word);
 

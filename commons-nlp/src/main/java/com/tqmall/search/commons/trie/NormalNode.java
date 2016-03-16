@@ -145,7 +145,7 @@ public class NormalNode<V> extends Node<V> {
         if (status == Status.DELETE) return;
         preKey.append(c);
         if (accept()) {
-            retList.add(new AbstractMap.SimpleEntry<>(preKey.toString(), value));
+            retList.add(new AbstractMap.SimpleImmutableEntry<>(preKey.toString(), value));
         }
         if (children != null) {
             final int startIndex = preKey.length();
@@ -178,5 +178,17 @@ public class NormalNode<V> extends Node<V> {
         }
         childCount = 0;
         children = null;
+    }
+
+    private final static int HASH_CODE_FACTOR = NormalNode.class.getSimpleName().hashCode();
+
+    @Override
+    public int hashCode() {
+        return 31 * super.hashCode() + HASH_CODE_FACTOR;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof NormalNode && super.equals(o);
     }
 }

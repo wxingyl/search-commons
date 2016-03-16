@@ -166,4 +166,15 @@ public class AcNormalNode<V> extends NormalNode<V> {
         }
     }
 
+    private final static int HASH_CODE_FACTOR = AcNormalNode.class.getSimpleName().hashCode();
+
+    @Override
+    public int hashCode() {
+        return 31 * super.hashCode() + HASH_CODE_FACTOR;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof AcNormalNode && super.equals(o);
+    }
 }

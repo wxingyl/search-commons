@@ -6,9 +6,7 @@ import com.tqmall.search.commons.trie.Node;
 import com.tqmall.search.commons.trie.TrieNodeFactory;
 import com.tqmall.search.commons.utils.CommonsUtils;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by xing on 16/3/15.
@@ -68,6 +66,18 @@ public class MatchBinaryReverseTrie<V> extends BinaryTrie<V> {
         return doMatch(text, startPos, length, false);
     }
 
+    @Override
+    public List<Map.Entry<String, V>> prefixSearch(String word) {
+        List<Map.Entry<String, V>> result = super.prefixSearch(word);
+        if (!CommonsUtils.isEmpty(result)) {
+            ListIterator<Map.Entry<String, V>> it = result.listIterator();
+            while (it.hasNext()) {
+                Map.Entry<String, V> e = it.next();
+                it.set(new AbstractMap.SimpleImmutableEntry<>(NlpUtils.reverseString(e.getKey()), e.getValue()));
+            }
+        }
+        return result;
+    }
 
     private List<Hit<V>> doMatch(char[] text, int startPos, int length, boolean maxMatch) {
         char[] array = Arrays.copyOfRange(text, startPos, startPos + length);
@@ -82,4 +92,6 @@ public class MatchBinaryReverseTrie<V> extends BinaryTrie<V> {
         }
         return hits;
     }
+
+
 }

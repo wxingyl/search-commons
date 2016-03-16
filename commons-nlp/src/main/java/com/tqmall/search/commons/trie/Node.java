@@ -63,8 +63,9 @@ public abstract class Node<V> {
      * Note: root节点不支持该方法调用, 如果调用抛出{@link UnsupportedOperationException}
      *
      * @param prefixKey 前面已经匹配的key, 注意: 该参数已经包含该节点的字符
-     * @return 对应的key已经Value
+     * @return 对应的key.Value, {@link NormalNode}返回的Map.Entry对象为{@link java.util.AbstractMap.SimpleImmutableEntry}
      * @see BigRootNode#allChildWords(char[])
+     * @see java.util.AbstractMap.SimpleImmutableEntry
      */
     public abstract List<Map.Entry<String, V>> allChildWords(char[] prefixKey);
 
@@ -86,6 +87,29 @@ public abstract class Node<V> {
 
     public final boolean accept() {
         return status == Status.WORD || status == Status.LEAF_WORD;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Node)) return false;
+
+        Node<?> node = (Node<?>) o;
+
+        if (c != node.c) return false;
+        return status == node.status;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) c;
+        result = 31 * result + status.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(c) + '.' + status + (value == null ? "" : "." + value);
     }
 
     /**
