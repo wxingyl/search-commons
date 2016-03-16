@@ -35,12 +35,12 @@ public class AsciiSegmentTest {
 
     @Test
     public void segmentTest() {
-        runTest(new AsciiSegment(true, false, false));
-        runTest(new AsciiSegment(true, true, false));
-        runTest(new AsciiSegment(true, true, true));
+        runTest(new AsciiMinSegment(true, false, false));
+        runTest(new AsciiMinSegment(true, true, false));
+        runTest(new AsciiMinSegment(true, true, true));
     }
 
-    private void runTest(AsciiSegment segment) {
+    private void runTest(AsciiMinSegment segment) {
         System.out.println("\n" + segment);
         for (String str : texts) {
             System.out.println('\"' + str + "\"-->" + segment.match(str.toCharArray()));

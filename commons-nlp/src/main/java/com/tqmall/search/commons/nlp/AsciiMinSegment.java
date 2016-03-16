@@ -12,11 +12,11 @@ import java.util.Objects;
 
 /**
  * Created by xing on 16/3/8.
- * ascii相关分词, 包括数字, 英文单词分词, 英文字母只处理小写的~~~
+ * ascii最小分词, 将数字和字母分开, 同时考虑英文合成词
  *
  * @author xing
  */
-public class AsciiSegment implements TextMatch<TokenType> {
+public class AsciiMinSegment implements TextMatch<TokenType> {
 
     /**
      * 是否识别小数
@@ -43,7 +43,7 @@ public class AsciiSegment implements TextMatch<TokenType> {
      * @param parseEnMix   是否识别英文合成词
      * @param enMixAppend  英文合成词是否作为新词添加, parseEnMix 为true该值才有意义
      */
-    public AsciiSegment(boolean parseDecimal, boolean parseEnMix, boolean enMixAppend) {
+    public AsciiMinSegment(boolean parseDecimal, boolean parseEnMix, boolean enMixAppend) {
         this.parseDecimal = parseDecimal;
         this.parseEnMix = parseEnMix;
         if (!parseEnMix && enMixAppend) {

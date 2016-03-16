@@ -15,7 +15,7 @@ import java.util.Objects;
  */
 public class Segment implements TextMatch<TokenType> {
 
-    private final AsciiSegment asciiSegment;
+    private final TextMatch<TokenType> asciiSegment;
 
     private final CjkSegment cjkSegment;
 
@@ -30,7 +30,7 @@ public class Segment implements TextMatch<TokenType> {
      * @param asciiSegment 英文, 数字分词器
      * @param cjkSegment   中文分词器
      */
-    public Segment(AsciiSegment asciiSegment, CjkSegment cjkSegment) {
+    public Segment(TextMatch<TokenType> asciiSegment, CjkSegment cjkSegment) {
         this(asciiSegment, cjkSegment, null);
     }
 
@@ -39,7 +39,7 @@ public class Segment implements TextMatch<TokenType> {
      * @param cjkSegment         中文分词器
      * @param numQuantifierMerge 如果不需要数量词merge, 则为null
      */
-    public Segment(AsciiSegment asciiSegment, CjkSegment cjkSegment, NumQuantifierMerge numQuantifierMerge) {
+    public Segment(TextMatch<TokenType> asciiSegment, CjkSegment cjkSegment, NumQuantifierMerge numQuantifierMerge) {
         this.asciiSegment = asciiSegment;
         this.cjkSegment = cjkSegment;
         this.numQuantifierMerge = numQuantifierMerge;
@@ -100,6 +100,13 @@ public class Segment implements TextMatch<TokenType> {
 
         private NumQuantifierMerge numQuantifierMerge;
 
+        private TextMatch<TokenType> asciiMaxSegment;
+
+        public Builder asciiMaxSegment(TextMatch<TokenType> asciiMaxSegment) {
+            this.asciiMaxSegment = asciiMaxSegment;
+            return this;
+        }
+
         /**
          * 默认true
          */
@@ -134,8 +141,8 @@ public class Segment implements TextMatch<TokenType> {
 
         public Segment create(CjkLexicon cjkLexicon) {
             Objects.requireNonNull(cjkLexicon);
-            return new Segment(new AsciiSegment(parseDecimal, parseEnMix, enMixAppend),
-                    CjkSegment.createSegment(cjkLexicon, cjkSegmentType), this.numQuantifierMerge);
+            return new Segment(asciiMaxSegment == null ? new AsciiMinSegment(parseDecimal, parseEnMix, enMixAppend)
+                    : asciiMaxSegment, CjkSegment.createSegment(cjkLexicon, cjkSegmentType), this.numQuantifierMerge);
         }
     }
 }

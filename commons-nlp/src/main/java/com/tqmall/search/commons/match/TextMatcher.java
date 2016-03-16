@@ -51,7 +51,9 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
     }
 
     /**
-     * 正向最小匹配, 正向顺序匹配时,
+     * 正向最小匹配, 正向顺序匹配到一个词key1, 如果key1非单字符词, 则尝试从key1的第二个字符匹配, 看key1中是否包含更小的词
+     * 这儿只考虑一个字符的偏差, 这个匹配准确率, 多个的不考虑了, 不然效率太低
+     * <p/>
      * 通过逆向前缀树也可以实现逆向匹配
      */
     public static class MinTextMatcher<V> extends TextMatcher<V> {
@@ -71,6 +73,10 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
                 Node<V> nextNode = i >= lastHitMaxIndex ? null : currentNode.getChild(text[i]);
                 if (nextNode == null || nextNode.getStatus() == Node.Status.DELETE) {
                     if (lastHit != null) {
+                        if (i + 1 < lastHitMaxIndex && currentNode == root) {
+                            i++;
+                            continue;
+                        }
                         hits.add(lastHit);
                         i = lastHitMaxIndex;
                         lastHit = null;
