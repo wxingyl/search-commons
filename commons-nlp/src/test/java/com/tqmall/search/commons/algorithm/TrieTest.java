@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.nlp;
+package com.tqmall.search.commons.algorithm;
 
 import com.tqmall.search.commons.match.Hit;
 import com.tqmall.search.commons.match.MatchBinaryTrie;

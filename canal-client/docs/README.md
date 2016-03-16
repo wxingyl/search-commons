@@ -1,6 +1,6 @@
 #canal-client
 
-​			阿里的 [Canal](https://github.com/alibaba/canal)——mysql数据库binlog的增量订阅&消费组件，很好的Java中间件。官方的client中的CanalConnector提供了简单的连接，订阅，获取Message等基本操作，当我们想针对具体的schema, table或者column实现业务代码，如何做到业务代码与操作canal实例代码分离，让开发人员专注于业务开发，不用关心canal实例如何链接，订阅，获取数据，重连等？
+​	阿里的 [Canal](https://github.com/alibaba/canal)——mysql数据库binlog的增量订阅&消费组件，很好的Java中间件。官方的client中的CanalConnector提供了简单的连接，订阅，获取Message等基本操作，当我们想针对具体的schema, table或者column实现业务代码，如何做到业务代码与操作canal实例代码分离，让开发人员专注于业务开发，不用关心canal实例如何链接，订阅，获取数据，重连等？
 
 ##主要功能
 
@@ -220,7 +220,7 @@ pom依赖
 <dependency>
 	<groupId>com.tqmall.search</groupId>
 	<artifactId>canal-client</artifactId>
-	<version>1.0-rc1</version>
+	<version>1.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -232,7 +232,7 @@ pom依赖
    <dependency>
        <groupId>com.tqmall.search</groupId>
        <artifactId>commons-lang</artifactId>
-       <version>1.0-rc2</version>
+       <version>1.0-SNAPSHOT</version>
    </dependency>
    ```
 
@@ -247,7 +247,6 @@ pom依赖
    ```
 
    canal.client里面依赖了很多第三方jar，我们仅仅使用canal-client,  避免冲突，排除了部分不使用的jar包，具体如下：
-
 
 ```xml
         <dependency>

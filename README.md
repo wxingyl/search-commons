@@ -148,7 +148,7 @@ rc版本为预发版本，未达到上线标准，能用，但是存在很多已
 <dependency>
     <groupId>com.tqmall.search</groupId>
     <artifactId>commons-lang</artifactId>
-    <version>1.0-rc2</version>
+    <version>1.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -158,7 +158,7 @@ rc版本为预发版本，未达到上线标准，能用，但是存在很多已
 <dependency>
     <groupId>com.tqmall.search</groupId>
     <artifactId>commons-component</artifactId>
-    <version>1.0-rc1</version>
+    <version>1.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -168,6 +168,6 @@ rc版本为预发版本，未达到上线标准，能用，但是存在很多已
 <dependency>
     <groupId>com.tqmall.search</groupId>
     <artifactId>commons-cache</artifactId>
-    <version>1.0-rc1</version>
+    <version>1.0-SNAPSHOT</version>
 </dependency>
 ```
