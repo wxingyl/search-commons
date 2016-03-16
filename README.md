@@ -138,7 +138,7 @@ rc版本为预发版本，未达到上线标准，能用，但是存在很多已
 
 ### 特殊说明
 
-1. 原先项目只有commons-client和commons-core两个模块，这两个模块目前已经删除，被commons-lang和其他几个功能模块代替，建议不要再使用~~~
+1. 原先项目只有commons-lang和commons-core两个模块，这两个模块目前已经删除，被commons-lang和其他几个功能模块代替，建议不要再使用~~~
 
 ### pom依赖
 
@@ -152,7 +152,19 @@ rc版本为预发版本，未达到上线标准，能用，但是存在很多已
 </dependency>
 ```
 
-`commons-component`, 其依赖`commons-client`
+`canal-client`, 其依赖`commons-lang`
+
+```java
+<dependency>
+    <groupId>com.tqmall.search</groupId>
+    <artifactId>canal-client</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+```
+
+
+
+`commons-component`, 其依赖`commons-lang`
 
 ``` xml
 <dependency>

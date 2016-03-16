@@ -51,8 +51,8 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
     }
 
     /**
-     * 正向最小匹配
-     * 通过逆向前缀树也可以实现逆向匹配, 而且相率更高
+     * 正向最小匹配, 正向顺序匹配时,
+     * 通过逆向前缀树也可以实现逆向匹配
      */
     public static class MinTextMatcher<V> extends TextMatcher<V> {
 
@@ -64,24 +64,40 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
         protected List<Hit<V>> runMatch(final char[] text, final int startPos, final int endPos) {
             List<Hit<V>> hits = new LinkedList<>();
             Node<V> currentNode = root;
-            int matchStartPos = -1;
-            int i = startPos;
+            int matchStartPos = -1, i = startPos, lastHitMaxIndex = endPos;
+            Hit<V> lastHit = null;
             while (i < endPos) {
-                Node<V> nextNode = currentNode.getChild(text[i]);
+                //如果是在尝试, 并且尝试的位置超出最大位置, 就没有必要搞了~~~
+                Node<V> nextNode = i >= lastHitMaxIndex ? null : currentNode.getChild(text[i]);
                 if (nextNode == null || nextNode.getStatus() == Node.Status.DELETE) {
-                    if (currentNode != root) {
+                    if (lastHit != null) {
+                        hits.add(lastHit);
+                        i = lastHitMaxIndex;
+                        lastHit = null;
+                        lastHitMaxIndex = endPos;
+                    } else if (matchStartPos != -1) {
                         //没有对应匹配的词, 跳过, 从记录的matchStartPos开始下一个
-                        i = matchStartPos;
-                        matchStartPos = -1;
-                        currentNode = root;
+                        i = matchStartPos + 1;
+                    } else {
+                        i++;
                     }
-                    i++;
+                    matchStartPos = -1;
+                    currentNode = root;
                 } else {
                     if (matchStartPos == -1) matchStartPos = i;
                     i++;
                     if (nextNode.accept()) {
-                        //匹配到一个词了~~~
-                        hits.add(new Hit<>(text, matchStartPos, i, nextNode.getValue()));
+                        lastHit = new Hit<>(text, matchStartPos, i, nextNode.getValue());
+                        if (i - matchStartPos == 1) {
+                            //如果是一个字符, 就没有必要去尝试了
+                            hits.add(lastHit);
+                            lastHit = null;
+                            lastHitMaxIndex = endPos;
+                        } else {
+                            lastHitMaxIndex = i;
+                            //尝试下一个字符开始是否还有更小的
+                            i = matchStartPos + 1;
+                        }
                         currentNode = root;
                         matchStartPos = -1;
                     } else {
@@ -89,6 +105,7 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
                     }
                 }
             }
+            if (lastHit != null) hits.add(lastHit);
             return hits;
         }
     }

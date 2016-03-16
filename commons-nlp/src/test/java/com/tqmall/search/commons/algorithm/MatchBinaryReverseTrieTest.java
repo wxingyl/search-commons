@@ -135,7 +135,7 @@ public class MatchBinaryReverseTrieTest {
         expectHits = new ArrayList<>();
         expectHits.add(new Hit<Void>(0, "北京", null));
         expectHits.add(new Hit<Void>(2, "大学", null));
-        expectHits.add(new Hit<Void>(4, "地铁站", null));
+        expectHits.add(new Hit<Void>(4, "地铁", null));
         expectHits.add(new Hit<Void>(8, "杭州", null));
         expectHits.add(new Hit<Void>(10, "西湖", null));
         Assert.assertEquals(expectHits, hits);
