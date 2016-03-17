@@ -11,7 +11,7 @@ public class TraditionToSimpleTest {
 
     @Test
     public void convertTest() {
-        TraditionToSimple traditionToSimple = new TraditionToSimple();
+        TraditionToSimple traditionToSimple = TraditionToSimple.instance();
         Assert.assertFalse(traditionToSimple.isTraditional('简'));
         Assert.assertTrue(traditionToSimple.isTraditional('簡'));
         Assert.assertTrue(traditionToSimple.convert('簡') == '简');

@@ -14,6 +14,11 @@ import java.util.List;
  */
 public class AsciiMaxSegment implements TextMatch<TokenType> {
 
+    public static final AsciiMaxSegment INSTANCE = new AsciiMaxSegment();
+
+    AsciiMaxSegment() {
+    }
+
     @Override
     public List<Hit<TokenType>> match(char[] text) {
         return this.match(text, 0, text.length);

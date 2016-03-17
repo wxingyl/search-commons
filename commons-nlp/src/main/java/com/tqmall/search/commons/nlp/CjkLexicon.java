@@ -94,7 +94,7 @@ public class CjkLexicon {
                     matchReverseBinaryTrie.put(s, tokenType);
                     return true;
                 }
-            }, true);
+            });
         } catch (IOException e) {
             log.error("read cjk lexicon: " + lexicon + " break out IOException", e);
             throw new LoadLexiconException("init cjk lexicon: " + lexicon + " break out exception", e);

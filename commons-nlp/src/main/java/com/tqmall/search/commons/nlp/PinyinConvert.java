@@ -1,6 +1,8 @@
 package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.lang.Function;
+import com.tqmall.search.commons.lang.LazyInit;
+import com.tqmall.search.commons.lang.Supplier;
 import com.tqmall.search.commons.match.Hit;
 import com.tqmall.search.commons.match.MatchBinaryReverseTrie;
 import com.tqmall.search.commons.trie.RootNodeType;
@@ -22,9 +24,23 @@ public final class PinyinConvert {
 
     private static final Logger log = LoggerFactory.getLogger(PinyinConvert.class);
 
+    private static final LazyInit<PinyinConvert> INSTANCE = new LazyInit<>(new Supplier<PinyinConvert>() {
+        @Override
+        public PinyinConvert get() {
+            return new PinyinConvert();
+        }
+    });
+
+    /**
+     * 单例, 通过该接口获取实例对象
+     */
+    public static PinyinConvert instance() {
+        return INSTANCE.getInstance();
+    }
+
     private final MatchBinaryReverseTrie<String[]> matchBinaryReverseTrie;
 
-    public PinyinConvert() {
+    PinyinConvert() {
         matchBinaryReverseTrie = new MatchBinaryReverseTrie<>(RootNodeType.CJK.<String[]>defaultTrie());
         log.info("start loading pinyin lexicon file: " + NlpConst.PINYIN_FILE_NAME);
         NlpUtils.loadLexicon(NlpConst.PINYIN_FILE_NAME, new Function<String, Boolean>() {

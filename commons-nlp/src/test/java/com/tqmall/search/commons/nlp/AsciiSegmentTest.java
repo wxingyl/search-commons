@@ -1,5 +1,6 @@
 package com.tqmall.search.commons.nlp;
 
+import com.tqmall.search.commons.match.TextMatch;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,13 +35,17 @@ public class AsciiSegmentTest {
     }
 
     @Test
-    public void segmentTest() {
-        runTest(new AsciiMinSegment(true, false, false));
-        runTest(new AsciiMinSegment(true, true, false));
-        runTest(new AsciiMinSegment(true, true, true));
+    public void minSegmentTest() {
+        runTest(AsciiMinSegment.build().create());
+        runTest(AsciiMinSegment.build()
+                .enMixAppend(false)
+                .create());
+        runTest(AsciiMinSegment.build()
+                .enMixAppend(true)
+                .create());
     }
 
-    private void runTest(AsciiMinSegment segment) {
+    private void runTest(TextMatch<TokenType> segment) {
         System.out.println("\n" + segment);
         for (String str : texts) {
             System.out.println('\"' + str + "\"-->" + segment.match(str.toCharArray()));

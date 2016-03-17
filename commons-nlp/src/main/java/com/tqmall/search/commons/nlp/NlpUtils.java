@@ -28,8 +28,8 @@ public final class NlpUtils {
      *
      * @return true为cjk字符
      */
-    public static boolean isCjkChar(char ch) {
-        return ch >= NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST && ch <= NlpConst.CJK_UNIFIED_IDEOGRAPHS_LAST;
+    public static boolean isCjkChar(char c) {
+        return c >= NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST && c <= NlpConst.CJK_UNIFIED_IDEOGRAPHS_LAST;
     }
 
     /**
@@ -37,15 +37,25 @@ public final class NlpUtils {
      *
      * @return 如果是全角, 则返回对应字符, 如果不是全角则返回自身
      */
-    public static char fullwidthConvert(char ch) {
+    public static char fullwidthConvert(char c) {
         //空格特殊处理
-        if (ch == '\u3000') {
+        if (c == '\u3000') {
             return '\u0020';
-        } else if (ch > 65280 && ch < 65375) {
-            return (char) (ch - 65248);
+        } else if (c > '\uFF00' && c < '\uFF5F') {
+            return (char) (c - 65248);
         } else {
-            return ch;
+            return c;
         }
+    }
+
+    /**
+     * 文本字符过滤, 目前的处理有:
+     * 1. 英文字母大写转小写
+     * 2. 中文全角转半角
+     * 3. 中文字符繁体转简体
+     */
+    public static void textFilter(final char[] text, final int startPos, final int length) {
+
     }
 
     public static char[] stringToCharArray(String key) {
@@ -89,24 +99,12 @@ public final class NlpUtils {
      * @param lineHandle 每行的处理函数, 入参String: 一行内容, 出参Boolean: true 继续, false 停止后续加载
      */
     public static void loadLexicon(String filename, Function<String, Boolean> lineHandle) {
-        loadLexicon(filename, lineHandle, false);
-    }
-
-    /**
-     * 加载词库文件, 通过{@link StandardCharsets#UTF_8}编码打开文件
-     *
-     * @param filename   词库加载
-     * @param lineHandle 每行的处理函数, 入参String: 一行内容, 出参Boolean: true 继续, false 停止后续加载
-     * @param lineTrim   每行数据是否需要trim处理, 即使该值为false, 也会判断line是否为空{@link String#isEmpty()}
-     *                   作为词库文件, 都应该尽可能的稍作一些字符串的处理操作
-     */
-    public static void loadLexicon(String filename, Function<String, Boolean> lineHandle, boolean lineTrim) {
         if (filename.charAt(0) != '/') {
             filename = '/' + filename;
         }
         log.info("start load lexicon file: " + filename);
         try (InputStream in = NlpUtils.class.getResourceAsStream(filename)) {
-            int lineCount = loadLexicon(in, lineHandle, lineTrim);
+            int lineCount = loadLexicon(in, lineHandle);
             log.info("load lexicon file: " + filename + " finish, total load " + lineCount + " lines");
         } catch (IOException e) {
             log.error("load lexicon file: " + filename + " have exception", e);
@@ -119,17 +117,15 @@ public final class NlpUtils {
      *
      * @param in         input输入流, 加载完会执行关闭
      * @param lineHandle 每行的处理函数, 入参String: 一行内容, 出参Boolean: true 继续, false 停止后续加载
-     * @param lineTrim   每行数据是否需要trim处理, 即使该值为false, 也会判断line是否为空{@link String#isEmpty()}
-     *                   作为词库文件, 都应该尽可能的稍作一些字符串的处理操作
      * @return 加载的行数统计
      * @throws IOException 读取文件发生异常
      */
-    public static int loadLexicon(InputStream in, Function<String, Boolean> lineHandle, boolean lineTrim) throws IOException {
+    public static int loadLexicon(InputStream in, Function<String, Boolean> lineHandle) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
             int lineCount = 0;
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.isEmpty() || (lineTrim && (line = line.trim()).isEmpty())) continue;
+                if (line.isEmpty() || (line = line.trim()).isEmpty()) continue;
                 //注释跳过
                 if (line.charAt(0) == '#') continue;
                 //如果通知, 那就走

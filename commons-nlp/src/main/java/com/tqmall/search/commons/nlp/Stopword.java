@@ -1,6 +1,8 @@
 package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.lang.Function;
+import com.tqmall.search.commons.lang.LazyInit;
+import com.tqmall.search.commons.lang.Supplier;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 
 import java.util.HashSet;
@@ -15,9 +17,30 @@ import java.util.Set;
  */
 public class Stopword implements Iterable<String> {
 
+    private static final LazyInit<Stopword> INSTANCE = new LazyInit<>(new Supplier<Stopword>() {
+        @Override
+        public Stopword get() {
+            return new Stopword();
+        }
+    });
+
+    /**
+     * 单例, 通过该接口获取实例对象
+     */
+    public static Stopword instance() {
+        return INSTANCE.getInstance();
+    }
+
+    /**
+     * 判断是否为停止词
+     */
+    public static boolean isStopword(String word) {
+        return INSTANCE.getInstance().stopwordSet.contains(word);
+    }
+
     private final Set<String> stopwordSet;
 
-    public Stopword() {
+    Stopword() {
         stopwordSet = new HashSet<>();
         NlpUtils.loadLexicon(NlpConst.STOPWORD_FILE_NAME, new Function<String, Boolean>() {
             @Override

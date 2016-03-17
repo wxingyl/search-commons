@@ -30,18 +30,26 @@ public class SegmentTest {
             throw new RuntimeException("词库文件加载失败", e);
         }
         fullSegment = Segment.build()
-                .parseDecimal(true)
-                .enMixAppend(true)
+                .segmentFilter(SegmentFilters.hitsFilter())
+                .asciiSegment(AsciiMinSegment.build()
+                        .enMixAppend(true)
+                        .create())
                 .appendNumQuantifier(true)
                 .cjkSegmentType(SegmentType.FULL)
                 .create(cjkLexicon);
         maxSegment = Segment.build()
-                .enMixAppend(false)
+                .segmentFilter(SegmentFilters.textFilter())
+                .asciiSegment(AsciiMinSegment.build()
+                        .enMixAppend(false)
+                        .create())
                 .appendNumQuantifier(false)
                 .cjkSegmentType(SegmentType.MAX)
                 .create(cjkLexicon);
         minSegment = Segment.build()
-                .appendNumQuantifier(false)
+                .segmentFilter(SegmentFilters.hitsFilter())
+                //asciiSegment使用默认的
+                //不使用数量词合并
+//                .appendNumQuantifier(false)
                 .cjkSegmentType(SegmentType.MIN)
                 .create(cjkLexicon);
     }
@@ -49,7 +57,7 @@ public class SegmentTest {
     @Test
     public void segmentTest() {
         List<String> texts = new ArrayList<>();
-        texts.add("xing-wang0.5元, 大连理工大学六十年校庆, 500人参加华中科技大学");
+        texts.add("Xing-Wang0.5元, 大連理工大学六十年校庆, 500人参加华中科技大学");
         for (String text : texts) {
             System.out.println("text: " + text);
             char[] t = text.toCharArray();

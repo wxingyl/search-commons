@@ -24,7 +24,7 @@ public class PyTest {
     @Ignore
     public void setAllZhCnCharacter() {
         List<Character> simpleList = new ArrayList<>();
-        TraditionToSimple traditionToSimple = new TraditionToSimple();
+        TraditionToSimple traditionToSimple = TraditionToSimple.instance();
         for (char ch = NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST; ch <= NlpConst.CJK_UNIFIED_IDEOGRAPHS_LAST; ch++) {
             if (!traditionToSimple.isTraditional(ch)) {
                 simpleList.add(ch);
@@ -44,7 +44,7 @@ public class PyTest {
 
     @Test
     public void pyTest() {
-        PinyinConvert pinyinConvert = new PinyinConvert();
+        PinyinConvert pinyinConvert = PinyinConvert.instance();
         String text = "小时了了，大未必佳";
         String excepted = "xiaoshiliaoliao，daweibijia";
         String pyText = pinyinConvert.convert(text, NlpConst.APPEND_CHAR_OTHER);

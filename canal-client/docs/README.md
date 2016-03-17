@@ -1,6 +1,6 @@
 #canal-client
 
-​	阿里的 [Canal](https://github.com/alibaba/canal)——mysql数据库binlog的增量订阅&消费组件，很好的Java中间件。官方的client中的CanalConnector提供了简单的连接，订阅，获取Message等基本操作，当我们想针对具体的schema, table或者column实现业务代码，如何做到业务代码与操作canal实例代码分离，让开发人员专注于业务开发，不用关心canal实例如何链接，订阅，获取数据，重连等？
+​	阿里的 [Canal](https://github.com/alibaba/canal)——mysql数据库binlog的增量订阅&消费组件，很好的Java中间件。官方的client中的CanalConnector提供了简单的连接，订阅，获取Message等基本操作，当我们想针对具体的schema, table或者column实现业务代码，如何做到业务代码与操作canal实例代码分离，让开发人员专注于业务开发，不用关心canal实例如何链接，订阅，获取数据，重连等
 
 ##主要功能
 
@@ -11,6 +11,7 @@
 5. 表的处理支持多条件筛选
 6. 执行自定义处理函数时发生RuntimeException，提供异常处理扩展接口
 
+目前不支持通过zk连接canal, 后续考虑添加
 ##主要类介绍
 
 ###CanalExecutor
