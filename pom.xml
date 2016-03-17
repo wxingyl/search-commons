@@ -7,7 +7,7 @@
 
     <groupId>com.tqmall.search</groupId>
     <artifactId>commons</artifactId>
-    <version>1.2</version>
+    <version>1.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <licenses>
@@ -42,11 +42,21 @@
         </developer>
     </developers>
 
+    <properties>
+        <lang.version>1.0-SNAPSHOT</lang.version>
+        <canal-client.version>1.0-SNAPSHOT</canal-client.version>
+        <component.version>1.0-SNAPSHOT</component.version>
+        <cache.version>1.0-SNAPSHOT</cache.version>
+        <nlp.version>1.0-SNAPSHOT</nlp.version>
+        <junit.version>4.12</junit.version>
+        <slf4j-version>1.7.12</slf4j-version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -99,4 +109,5 @@
             <url>http://build.tqmall.com/nexus/content/repositories/releases</url>
         </repository>
     </distributionManagement>
+    
 </project>

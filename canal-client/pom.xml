@@ -5,27 +5,25 @@
     <parent>
         <artifactId>commons</artifactId>
         <groupId>com.tqmall.search</groupId>
-        <version>1.2</version>
+        <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>canal-client</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>${canal-client.version}</version>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>com.tqmall.search</groupId>
             <artifactId>commons-lang</artifactId>
-            <version>1.0-rc4</version>
-            <scope>compile</scope>
+            <version>${lang.version}</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba.otter</groupId>
             <artifactId>canal.client</artifactId>
             <version>1.0.21</version>
-            <scope>compile</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework</groupId>
