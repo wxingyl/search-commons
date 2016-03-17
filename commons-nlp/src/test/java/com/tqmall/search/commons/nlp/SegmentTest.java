@@ -31,7 +31,7 @@ public class SegmentTest {
         }
         fullSegment = Segment.build()
                 .segmentFilter(SegmentFilters.hitsFilter())
-                .asciiSegment(AsciiMinSegment.build()
+                .asciiSegment(AsciiSegment.build()
                         .enMixAppend(true)
                         .create())
                 .appendNumQuantifier(true)
@@ -39,7 +39,7 @@ public class SegmentTest {
                 .create(cjkLexicon);
         maxSegment = Segment.build()
                 .segmentFilter(SegmentFilters.textFilter())
-                .asciiSegment(AsciiMinSegment.build()
+                .asciiSegment(AsciiSegment.build()
                         .enMixAppend(false)
                         .create())
                 .appendNumQuantifier(false)

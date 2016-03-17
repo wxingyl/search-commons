@@ -7,16 +7,8 @@
 
     <groupId>com.tqmall.search</groupId>
     <artifactId>commons</artifactId>
-    <version>1.2-final</version>
+    <version>1.2</version>
     <packaging>pom</packaging>
-
-    <modules>
-        <module>commons-lang</module>
-        <module>commons-component</module>
-        <module>commons-nlp</module>
-        <module>commons-cache</module>
-        <module>canal-client</module>
-    </modules>
 
     <licenses>
         <license>
@@ -58,6 +50,14 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <modules>
+        <module>commons-lang</module>
+        <module>commons-component</module>
+        <module>commons-nlp</module>
+        <module>commons-cache</module>
+        <module>canal-client</module>
+    </modules>
 
     <build>
         <plugins>

@@ -25,7 +25,6 @@ public class EventTypeListAction extends AbstractEventTypeAction {
         this.actions = new ArrayList<>(actions);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public final void onUpdateAction(List<RowChangedData.Update> updatedData) {
         callAction(UPDATE_CALL, updatedData);

@@ -12,11 +12,11 @@ import java.util.List;
  *
  * @author xing
  */
-public class AsciiMaxSegment implements TextMatch<TokenType> {
+public class MaxAsciiSegment implements TextMatch<TokenType> {
 
-    public static final AsciiMaxSegment INSTANCE = new AsciiMaxSegment();
+    public static final MaxAsciiSegment INSTANCE = new MaxAsciiSegment();
 
-    AsciiMaxSegment() {
+    MaxAsciiSegment() {
     }
 
     @Override

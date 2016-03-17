@@ -25,7 +25,6 @@ public class TableListAction extends AbstractTableAction {
         this.actions = new ArrayList<>(actions);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public final void onAction(List<? extends RowChangedData> changedData) {
         for (LinkedTableAction action : actions) {

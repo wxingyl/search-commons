@@ -13,7 +13,7 @@ import java.util.Objects;
  *
  * @author xing
  */
-public class Segment implements TextMatch<TokenType> {
+public final class Segment implements TextMatch<TokenType> {
 
     private final SegmentFilter segmentFilter;
 
@@ -121,8 +121,9 @@ public class Segment implements TextMatch<TokenType> {
         public Segment create(CjkLexicon cjkLexicon) {
             Objects.requireNonNull(cjkLexicon);
             return new Segment(segmentFilter == null ? SegmentFilters.hitsFilter() : segmentFilter,
-                    asciiSegment == null ? AsciiMinSegment.build().create() : asciiSegment,
-                    CjkSegment.createSegment(cjkLexicon, cjkSegmentType), this.numQuantifierMerge);
+                    asciiSegment == null ? AsciiSegment.build().create() : asciiSegment,
+                    CjkSegment.createSegment(cjkLexicon, cjkSegmentType),
+                    this.numQuantifierMerge);
         }
     }
 }
