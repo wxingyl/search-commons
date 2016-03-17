@@ -48,16 +48,6 @@ public final class NlpUtils {
         }
     }
 
-    /**
-     * 文本字符过滤, 目前的处理有:
-     * 1. 英文字母大写转小写
-     * 2. 中文全角转半角
-     * 3. 中文字符繁体转简体
-     */
-    public static void textFilter(final char[] text, final int startPos, final int length) {
-
-    }
-
     public static char[] stringToCharArray(String key) {
         return SearchStringUtils.isEmpty(key) ? null : key.toCharArray();
     }
@@ -84,8 +74,9 @@ public final class NlpUtils {
     }
 
     public static String reverseString(String str) {
-        if (SearchStringUtils.isEmpty(str) || str.length() == 1) return str;
-        else {
+        if (SearchStringUtils.isEmpty(str) || str.length() == 1) {
+            return str;
+        } else {
             char[] array = str.toCharArray();
             reverseCharArray(array);
             return new String(array);

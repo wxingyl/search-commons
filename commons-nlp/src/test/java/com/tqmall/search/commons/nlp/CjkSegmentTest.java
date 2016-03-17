@@ -14,13 +14,13 @@ import java.util.List;
  * Created by xing on 16/2/11.
  * segment分词测试
  */
-public class CjkLexiconTest {
+public class CjkSegmentTest {
 
     private static CjkLexicon cjkLexicon;
 
     @BeforeClass
     public static void init() {
-        try (InputStream in = CjkLexiconTest.class.getResourceAsStream("/segment.txt")) {
+        try (InputStream in = CjkSegmentTest.class.getResourceAsStream("/segment.txt")) {
             cjkLexicon = new CjkLexicon(in);
         } catch (IOException e) {
             throw new RuntimeException("词库文件加载失败", e);

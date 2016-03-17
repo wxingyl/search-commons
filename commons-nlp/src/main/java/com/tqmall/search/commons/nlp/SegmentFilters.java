@@ -38,6 +38,10 @@ public final class SegmentFilters {
 
     /**
      * 只处理待分词文本过滤, 返回结果停止词就算了
+     * 目前的处理有:
+     * 1. 英文字母大写转小写
+     * 2. 中文全角转半角
+     * 3. 中文字符繁体转简体
      */
     static class TextFilter implements SegmentFilter {
 

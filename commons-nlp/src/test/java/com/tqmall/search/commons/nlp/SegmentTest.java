@@ -24,7 +24,7 @@ public class SegmentTest {
     @BeforeClass
     public static void init() {
         CjkLexicon cjkLexicon;
-        try (InputStream in = CjkLexiconTest.class.getResourceAsStream("/segment.txt")) {
+        try (InputStream in = CjkSegmentTest.class.getResourceAsStream("/segment.txt")) {
             cjkLexicon = new CjkLexicon(in);
         } catch (IOException e) {
             throw new RuntimeException("词库文件加载失败", e);
