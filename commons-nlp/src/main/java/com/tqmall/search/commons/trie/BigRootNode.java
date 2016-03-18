@@ -23,7 +23,7 @@ public class BigRootNode<V> extends Node<V> {
     public BigRootNode(char minChar, int capacity) {
         super('\0', Status.NORMAL, null);
         this.minChar = minChar;
-        long max = minChar + (long) capacity - 1;
+        int max = capacity + minChar - 1;
         if (max > Character.MAX_VALUE) {
             throw new IllegalArgumentException("minChar: " + minChar + ", capacity: " + capacity
                     + " is so large, and maxChar: " + max + " greater then " + (int) Character.MAX_VALUE);

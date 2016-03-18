@@ -1,7 +1,6 @@
 package com.tqmall.search.commons.trie;
 
 import com.tqmall.search.commons.ac.AcTrieNodeFactory;
-import com.tqmall.search.commons.lang.Supplier;
 import com.tqmall.search.commons.nlp.NlpConst;
 
 /**
@@ -13,40 +12,32 @@ import com.tqmall.search.commons.nlp.NlpConst;
  * @see AcTrieNodeFactory
  */
 public enum RootNodeType {
-    NORMAL(new Supplier<Node>() {
-        @Override
-        public Node get() {
-            return new NormalNode('\0');
-        }
-    }),
-    ASCII(new Supplier<Node>() {
-        @Override
-        public Node get() {
-            return new BigRootNode<>(Character.MIN_VALUE, 0xFF);
-        }
-    }),
-    CJK(new Supplier<Node>() {
-        @Override
-        public Node get() {
-            return new BigRootNode<>(NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST, NlpConst.CJK_UNIFIED_SIZE);
-        }
-    }),
-    ALL(new Supplier<Node>() {
-        @Override
-        public Node get() {
-            return new BigRootNode<>(Character.MIN_VALUE, Character.MAX_VALUE);
-        }
-    });
-
-    private final Supplier<Node> supplier;
-
-    RootNodeType(Supplier<Node> supplier) {
-        this.supplier = supplier;
-    }
+    NORMAL,
+    ASCII,
+    CJK,
+    ALL;
 
     @SuppressWarnings("unchecked")
     public <V> Node<V> createRootNode() {
-        return supplier.get();
+        Node<V> root;
+        switch (this) {
+            case NORMAL:
+                root = new NormalNode('\0');
+                break;
+            case ASCII:
+                root = new BigRootNode<>(Character.MIN_VALUE, 0x100);
+                break;
+            case CJK:
+                root = new BigRootNode<>(NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST, NlpConst.CJK_UNIFIED_SIZE);
+                break;
+            case ALL:
+                root = new BigRootNode<>(Character.MIN_VALUE, 0x10000);
+                break;
+            default:
+                //can not arrive here
+                root = null;
+        }
+        return root;
     }
 
     public <V> TrieNodeFactory<V> defaultTrie() {
