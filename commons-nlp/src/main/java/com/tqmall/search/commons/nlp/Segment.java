@@ -71,7 +71,7 @@ public final class Segment extends AbstractTextMatch<TokenType> {
             }
         }
         if (numQuantifierMerge != null) {
-            hits = numQuantifierMerge.merge(hits);
+            numQuantifierMerge.merge(hits);
         }
         segmentFilter.hitsFilter(hits);
         return hits;
@@ -126,7 +126,6 @@ public final class Segment extends AbstractTextMatch<TokenType> {
             this.asciiAnalyzer = asciiAnalyzer;
             return this;
         }
-
 
         public Builder cjkSegmentType(CjkAnalyzer.Type cjkAnalyzerType) {
             this.cjkAnalyzerType = cjkAnalyzerType;
