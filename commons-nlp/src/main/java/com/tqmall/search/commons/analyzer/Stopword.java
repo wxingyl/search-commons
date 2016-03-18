@@ -1,8 +1,10 @@
-package com.tqmall.search.commons.nlp;
+package com.tqmall.search.commons.analyzer;
 
 import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.lang.LazyInit;
 import com.tqmall.search.commons.lang.Supplier;
+import com.tqmall.search.commons.nlp.NlpConst;
+import com.tqmall.search.commons.nlp.NlpUtils;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 
 import java.util.HashSet;

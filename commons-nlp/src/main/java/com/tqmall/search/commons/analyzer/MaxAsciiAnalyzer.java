@@ -1,7 +1,8 @@
-package com.tqmall.search.commons.nlp;
+package com.tqmall.search.commons.analyzer;
 
+import com.tqmall.search.commons.match.AbstractTextMatch;
 import com.tqmall.search.commons.match.Hit;
-import com.tqmall.search.commons.match.TextMatch;
+import com.tqmall.search.commons.nlp.NlpUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -12,16 +13,11 @@ import java.util.List;
  *
  * @author xing
  */
-public class MaxAsciiSegment implements TextMatch<TokenType> {
+public class MaxAsciiAnalyzer extends AbstractTextMatch<TokenType> {
 
-    public static final MaxAsciiSegment INSTANCE = new MaxAsciiSegment();
+    public static final MaxAsciiAnalyzer INSTANCE = new MaxAsciiAnalyzer();
 
-    MaxAsciiSegment() {
-    }
-
-    @Override
-    public List<Hit<TokenType>> match(char[] text) {
-        return this.match(text, 0, text.length);
+    MaxAsciiAnalyzer() {
     }
 
     private boolean usefulChar(char c) {

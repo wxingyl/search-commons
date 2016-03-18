@@ -3,13 +3,15 @@ package com.tqmall.search.commons.match;
 import com.tqmall.search.commons.nlp.NlpUtils;
 import com.tqmall.search.commons.trie.Node;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by xing on 16/2/20.
  * 字符串匹配器, 将算法抽取出来, 与数据隔离
  */
-public abstract class TextMatcher<V> implements TextMatch<V> {
+public abstract class TextMatcher<V> extends AbstractTextMatch<V> {
 
     protected final Node<V> root;
 
@@ -24,15 +26,6 @@ public abstract class TextMatcher<V> implements TextMatch<V> {
      * @return 匹配结果, 如果返回的list认为错误,整个文本处理结果返回null
      */
     protected abstract List<Hit<V>> runMatch(final char[] text, final int startPos, final int endPos);
-
-    /**
-     * 文本匹配
-     */
-    @Override
-    public final List<Hit<V>> match(char[] text) {
-        Objects.requireNonNull(text);
-        return match(text, 0, text.length);
-    }
 
     @Override
     public final List<Hit<V>> match(char[] text, int startPos, int length) {

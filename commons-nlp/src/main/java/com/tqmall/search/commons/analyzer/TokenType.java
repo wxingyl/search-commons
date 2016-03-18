@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.nlp;
+package com.tqmall.search.commons.analyzer;
 
 /**
  * Created by xing on 16/3/10.

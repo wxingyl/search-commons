@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.nlp;
+package com.tqmall.search.commons.analyzer;
 
 import com.tqmall.search.commons.ac.AcBinaryTrie;
 import com.tqmall.search.commons.ac.AcTrieNodeFactory;
@@ -6,6 +6,8 @@ import com.tqmall.search.commons.exception.LoadLexiconException;
 import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.match.Hit;
 import com.tqmall.search.commons.match.MatchBinaryReverseTrie;
+import com.tqmall.search.commons.nlp.NlpConst;
+import com.tqmall.search.commons.nlp.NlpUtils;
 import com.tqmall.search.commons.trie.RootNodeType;
 import com.tqmall.search.commons.trie.TrieNodeFactory;
 import com.tqmall.search.commons.utils.SearchStringUtils;

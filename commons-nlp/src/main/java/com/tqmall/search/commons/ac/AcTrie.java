@@ -1,14 +1,16 @@
 package com.tqmall.search.commons.ac;
 
-import com.tqmall.search.commons.match.TextMatch;
+import com.tqmall.search.commons.match.Hit;
 import com.tqmall.search.commons.trie.Trie;
+
+import java.util.List;
 
 /**
  * Created by xing on 16/1/28.
  * Aho-Corasick 模式匹配树 接口定义
  * 接收态的值即为泛型V
  */
-public interface AcTrie<V> extends Trie<V>, TextMatch<V> {
+public interface AcTrie<V> extends Trie<V> {
     /**
      * 该接口修改Trie树中的节点结构, 如果要生效, 必须从新{@link #initFailed()}
      *
@@ -34,4 +36,22 @@ public interface AcTrie<V> extends Trie<V>, TextMatch<V> {
      * 构建failed字段
      */
     void initFailed();
+
+    /**
+     * 匹配字符串, 未匹配的字符串不做任何处理, 同{@link #match(char[], int, int)}
+     *
+     * @param text 需要匹配的文本
+     * @return 匹配结果
+     */
+    List<Hit<V>> match(String text);
+
+    /**
+     * 匹配字符串, 未匹配的字符串不做任何处理
+     *
+     * @param text     需要匹配的文本
+     * @param startPos 开始下标
+     * @param length   char数组的长度
+     * @return 匹配结果
+     */
+    List<Hit<V>> match(char[] text, int startPos, int length);
 }

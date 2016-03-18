@@ -1,12 +1,11 @@
 package com.tqmall.search.commons.ac;
 
-import com.tqmall.search.commons.match.Hit;
+import com.tqmall.search.commons.match.AbstractTextMatch;
 import com.tqmall.search.commons.trie.Node;
 import com.tqmall.search.commons.trie.Trie;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Created by xing on 16/3/11.
@@ -14,7 +13,7 @@ import java.util.Objects;
  *
  * @author xing
  */
-public abstract class AbstractAcTrie<V> implements AcTrie<V> {
+public abstract class AbstractAcTrie<V> extends AbstractTextMatch<V> implements AcTrie<V> {
 
     private final Trie<V> trie;
 
@@ -53,12 +52,6 @@ public abstract class AbstractAcTrie<V> implements AcTrie<V> {
         if (node == null || !node.accept()) return false;
         node.setValue(value);
         return true;
-    }
-
-    @Override
-    public final List<Hit<V>> match(char[] text) {
-        Objects.requireNonNull(text);
-        return match(text, 0, text.length);
     }
 
     @Override

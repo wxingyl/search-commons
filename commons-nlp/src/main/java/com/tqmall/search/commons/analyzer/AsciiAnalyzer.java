@@ -1,18 +1,18 @@
-package com.tqmall.search.commons.nlp;
+package com.tqmall.search.commons.analyzer;
 
 
+import com.tqmall.search.commons.match.AbstractTextMatch;
 import com.tqmall.search.commons.match.Hit;
-import com.tqmall.search.commons.match.TextMatch;
+import com.tqmall.search.commons.nlp.NlpUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Objects;
 
 /**
  * Created by xing on 16/3/8.
  * ascii最小分词, 数字和字母分开, 支持小数数字识别和英文合成词识别, 默认识别小数数字
- * 通过构造函数{@link #AsciiSegment(boolean, boolean, boolean)}构造容易出错, 3个参数顺序搞错就跪了,
+ * 通过构造函数{@link #AsciiAnalyzer(boolean, boolean, boolean)}构造容易出错, 3个参数顺序搞错就跪了,
  * 通过{@link Builder}构造即安全又优雅, 何乐而不为了!!!
  *
  * @author xing
@@ -21,7 +21,7 @@ import java.util.Objects;
  * @see #build()
  * @see Builder
  */
-public class AsciiSegment implements TextMatch<TokenType> {
+public class AsciiAnalyzer extends AbstractTextMatch<TokenType> {
 
     /**
      * 是否识别小数
@@ -50,19 +50,13 @@ public class AsciiSegment implements TextMatch<TokenType> {
      * @param parseEnMix   是否识别英文合成词
      * @param enMixAppend  英文合成词是否作为新词添加, parseEnMix 为true该值才有意义
      */
-    AsciiSegment(boolean parseDecimal, boolean parseEnMix, boolean enMixAppend) {
+    AsciiAnalyzer(boolean parseDecimal, boolean parseEnMix, boolean enMixAppend) {
         this.parseDecimal = parseDecimal;
         this.parseEnMix = parseEnMix;
         if (!parseEnMix && enMixAppend) {
             throw new IllegalArgumentException("parseEnMix is false, enMixAppend is useless, which value should be false");
         }
         this.enMixAppend = enMixAppend;
-    }
-
-    @Override
-    public List<Hit<TokenType>> match(char[] text) {
-        Objects.requireNonNull(text);
-        return match(text, 0, text.length);
     }
 
     /**
@@ -193,8 +187,8 @@ public class AsciiSegment implements TextMatch<TokenType> {
             return this;
         }
 
-        public AsciiSegment create() {
-            return new AsciiSegment(parseDecimal, parseEnMix, enMixAppend);
+        public AsciiAnalyzer create() {
+            return new AsciiAnalyzer(parseDecimal, parseEnMix, enMixAppend);
         }
     }
 }

@@ -1,10 +1,13 @@
-package com.tqmall.search.commons.nlp;
+package com.tqmall.search.commons.analyzer;
 
 import com.sun.org.apache.xalan.internal.xsltc.dom.BitArray;
+import com.tqmall.search.commons.match.AbstractTextMatch;
 import com.tqmall.search.commons.match.Hit;
-import com.tqmall.search.commons.match.TextMatch;
+import com.tqmall.search.commons.nlp.NlpUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by xing on 16/3/8.
@@ -12,24 +15,18 @@ import java.util.*;
  *
  * @author xing
  */
-public abstract class CjkSegment implements TextMatch<TokenType> {
+public abstract class CjkAnalyzer extends AbstractTextMatch<TokenType> {
 
     protected final CjkLexicon cjkLexicon;
 
-    protected CjkSegment(CjkLexicon cjkLexicon) {
+    protected CjkAnalyzer(CjkLexicon cjkLexicon) {
         this.cjkLexicon = cjkLexicon;
     }
 
     protected abstract List<Hit<TokenType>> doMatch(char[] text, int startPos, int length);
 
-    @Override
-    public final List<Hit<TokenType>> match(char[] text) {
-        Objects.requireNonNull(text);
-        return match(text, 0, text.length);
-    }
-
     private Hit<TokenType> getNumHit(char[] text, int startIndex, int numEndIndex) {
-        return new Hit<>(startIndex, new String(text, startIndex, numEndIndex - startIndex + 1), TokenType.NUM);
+        return new Hit<>(text, startIndex, numEndIndex + 1, TokenType.NUM);
     }
 
     @Override
@@ -77,7 +74,7 @@ public abstract class CjkSegment implements TextMatch<TokenType> {
     /**
      * 获取分词器
      */
-    public static CjkSegment createSegment(CjkLexicon cjkLexicon, SegmentType type) {
+    public static CjkAnalyzer createSegment(CjkLexicon cjkLexicon, Type type) {
         Objects.requireNonNull(type);
         switch (type) {
             case MIN:
@@ -94,7 +91,7 @@ public abstract class CjkSegment implements TextMatch<TokenType> {
     /**
      * full匹配分词, 尽可能多的返回分词结果, 适用于索引分词
      */
-    public static class Full extends CjkSegment {
+    public static class Full extends CjkAnalyzer {
 
         public Full(CjkLexicon cjkLexicon) {
             super(cjkLexicon);
@@ -110,7 +107,7 @@ public abstract class CjkSegment implements TextMatch<TokenType> {
     /**
      * 最小匹配分词
      */
-    public static class Min extends CjkSegment {
+    public static class Min extends CjkAnalyzer {
 
         public Min(CjkLexicon cjkLexicon) {
             super(cjkLexicon);
@@ -125,7 +122,7 @@ public abstract class CjkSegment implements TextMatch<TokenType> {
     /**
      * 最大匹配分词
      */
-    public static class Max extends CjkSegment {
+    public static class Max extends CjkAnalyzer {
 
         public Max(CjkLexicon cjkLexicon) {
             super(cjkLexicon);
@@ -135,6 +132,18 @@ public abstract class CjkSegment implements TextMatch<TokenType> {
         protected List<Hit<TokenType>> doMatch(char[] text, int startPos, int length) {
             return cjkLexicon.maxMatch(text, startPos, length);
         }
+    }
+
+    /**
+     * cjk分词方式定义
+     */
+    public enum Type {
+        //小粒度分词, 根据词库最小匹配
+        MIN,
+        //大粒度分词, 根据词库最大匹配
+        MAX,
+        //尽可能多的分词, 根据词典匹配所有结果
+        FULL
     }
 
 }

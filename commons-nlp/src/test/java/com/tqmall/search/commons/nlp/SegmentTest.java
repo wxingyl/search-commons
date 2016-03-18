@@ -1,5 +1,8 @@
 package com.tqmall.search.commons.nlp;
 
+import com.tqmall.search.commons.analyzer.AsciiAnalyzer;
+import com.tqmall.search.commons.analyzer.CjkAnalyzer;
+import com.tqmall.search.commons.analyzer.CjkLexicon;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -24,33 +27,33 @@ public class SegmentTest {
     @BeforeClass
     public static void init() {
         CjkLexicon cjkLexicon;
-        try (InputStream in = CjkSegmentTest.class.getResourceAsStream("/segment.txt")) {
+        try (InputStream in = CjkAnalyzerTest.class.getResourceAsStream("/segment.txt")) {
             cjkLexicon = new CjkLexicon(in);
         } catch (IOException e) {
             throw new RuntimeException("词库文件加载失败", e);
         }
-        fullSegment = Segment.build()
+        fullSegment = Segment.build("full")
                 .segmentFilter(SegmentFilters.hitsFilter())
-                .asciiSegment(AsciiSegment.build()
+                .asciiAnalyzer(AsciiAnalyzer.build()
                         .enMixAppend(true)
                         .create())
                 .appendNumQuantifier(true)
-                .cjkSegmentType(SegmentType.FULL)
+                .cjkSegmentType(CjkAnalyzer.Type.FULL)
                 .create(cjkLexicon);
-        maxSegment = Segment.build()
+        maxSegment = Segment.build("max")
                 .segmentFilter(SegmentFilters.textFilter())
-                .asciiSegment(AsciiSegment.build()
+                .asciiAnalyzer(AsciiAnalyzer.build()
                         .enMixAppend(false)
                         .create())
                 .appendNumQuantifier(false)
-                .cjkSegmentType(SegmentType.MAX)
+                .cjkSegmentType(CjkAnalyzer.Type.MAX)
                 .create(cjkLexicon);
-        minSegment = Segment.build()
+        minSegment = Segment.build("min")
                 .segmentFilter(SegmentFilters.hitsFilter())
                 //asciiSegment使用默认的
                 //不使用数量词合并
 //                .appendNumQuantifier(false)
-                .cjkSegmentType(SegmentType.MIN)
+                .cjkSegmentType(CjkAnalyzer.Type.MIN)
                 .create(cjkLexicon);
     }
 
@@ -60,10 +63,9 @@ public class SegmentTest {
         texts.add("Xing-Wang0.5元, 大連理工大学六十年校庆, 500人参加华中科技大学");
         for (String text : texts) {
             System.out.println("text: " + text);
-            char[] t = text.toCharArray();
-            System.out.println("fullSegment: " + fullSegment.match(t));
-            System.out.println("maxSegment: " + maxSegment.match(t));
-            System.out.println("minSegment: " + minSegment.match(t));
+            System.out.println("fullSegment: " + fullSegment.match(text));
+            System.out.println("maxSegment: " + maxSegment.match(text));
+            System.out.println("minSegment: " + minSegment.match(text));
         }
     }
 }

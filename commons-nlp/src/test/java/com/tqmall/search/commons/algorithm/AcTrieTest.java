@@ -8,8 +8,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by xing on 16/2/1.
@@ -17,11 +16,11 @@ import java.util.Set;
  */
 public class AcTrieTest {
 
-    private static AcBinaryTrie<Integer> acStrBinaryTrie;
+    private static AcBinaryTrie<Void> acStrBinaryTrie;
 
     @BeforeClass
     public static void init() {
-        acStrBinaryTrie = AcBinaryTrie.<Integer>build()
+        acStrBinaryTrie = AcBinaryTrie.<Void>build()
                 .put("he", null)
                 .put("she", null)
                 .put("his", null)
@@ -30,7 +29,7 @@ public class AcTrieTest {
                 .put("hao", null)
                 .put("hs", null)
                 .put("hsr", null)
-                .create(RootNodeType.ASCII.<Integer>defaultAcTrie());
+                .create(RootNodeType.ASCII.<Void>defaultAcTrie());
     }
 
     @AfterClass
@@ -41,29 +40,33 @@ public class AcTrieTest {
 
     @Test
     public void acBinaryTrieTest() {
-        Set<Hit> answerSet = new HashSet<>();
-        answerSet.add(new Hit<>(1, "she", null));
-        answerSet.add(new Hit<>(2, "he", null));
-        answerSet.add(new Hit<>(2, "hers", null));
+        List<Hit> expectList = new ArrayList<>();
+        expectList.add(new Hit<>(1, "she", null));
+        expectList.add(new Hit<>(2, "he", null));
+        expectList.add(new Hit<>(2, "hers", null));
 
         String text = "ushers";
-        Set<Hit> runRet = new HashSet<Hit>(acStrBinaryTrie.match(text.toCharArray()));
-        System.out.println(text + ": " + runRet);
-        Assert.assertEquals(answerSet, runRet);
+        List<Hit<Void>> retList = acStrBinaryTrie.match(text);
+        Assert.assertNotNull(retList);
+        Collections.sort(retList);
+        System.out.println(text + ": " + retList);
+        Assert.assertEquals(expectList, retList);
 
-        answerSet.clear();
-        answerSet.add(new Hit<>(4, "hs", null));
-        answerSet.add(new Hit<>(8, "she", null));
-        answerSet.add(new Hit<>(9, "he", null));
-        answerSet.add(new Hit<>(14, "nihao", null));
-        answerSet.add(new Hit<>(16, "hao", null));
-        answerSet.add(new Hit<>(20, "hs", null));
-        answerSet.add(new Hit<>(20, "hsr", null));
-        answerSet.add(new Hit<>(23, "nihao", null));
-        answerSet.add(new Hit<>(25, "hao", null));
+        expectList = new ArrayList<>();
+        expectList.add(new Hit<>(4, "hs", null));
+        expectList.add(new Hit<>(8, "she", null));
+        expectList.add(new Hit<>(9, "he", null));
+        expectList.add(new Hit<>(14, "nihao", null));
+        expectList.add(new Hit<>(16, "hao", null));
+        expectList.add(new Hit<>(20, "hs", null));
+        expectList.add(new Hit<>(20, "hsr", null));
+        expectList.add(new Hit<>(23, "nihao", null));
+        expectList.add(new Hit<>(25, "hao", null));
         text = "sdmfhsgnshejfgnihaofhsrnihao";
-        runRet = new HashSet<Hit>(acStrBinaryTrie.match(text.toCharArray()));
-        System.out.printf(text + ": " + runRet);
-        Assert.assertEquals(answerSet, runRet);
+        retList = acStrBinaryTrie.match(text);
+        Assert.assertNotNull(retList);
+        Collections.sort(retList);
+        System.out.println(text + ": " + retList);
+        Assert.assertEquals(expectList, retList);
     }
 }

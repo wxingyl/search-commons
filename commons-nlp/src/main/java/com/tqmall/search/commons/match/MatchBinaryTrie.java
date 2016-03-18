@@ -33,7 +33,7 @@ public class MatchBinaryTrie<V> extends BinaryTrie<V> {
     }
 
     public List<Hit<V>> maxMatch(String text) {
-        return maxTextMatcher.match(text.toCharArray());
+        return maxTextMatcher.match(text.toCharArray(), 0, text.length());
     }
 
     public List<Hit<V>> maxMatch(char[] text, int startPos, int length) {
@@ -41,7 +41,7 @@ public class MatchBinaryTrie<V> extends BinaryTrie<V> {
     }
 
     public List<Hit<V>> minMatch(String text) {
-        return minTextMatcher.match(text.toCharArray());
+        return minTextMatcher.match(text.toCharArray(), 0, text.length());
     }
 
     public List<Hit<V>> minMatch(char[] text, int startPos, int length) {

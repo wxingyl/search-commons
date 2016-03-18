@@ -1,7 +1,9 @@
 package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.match.Hit;
-import com.tqmall.search.commons.match.TextMatch;
+import com.tqmall.search.commons.analyzer.AsciiAnalyzer;
+import com.tqmall.search.commons.analyzer.MaxAsciiAnalyzer;
+import com.tqmall.search.commons.analyzer.TokenType;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -17,7 +19,7 @@ import java.util.List;
  *
  * @author xing
  */
-public class AsciiSegmentTest {
+public class AsciiAnalyzerTest {
 
     private static final List<TestTextEntry> textEntryList = new ArrayList<>();
 
@@ -85,45 +87,43 @@ public class AsciiSegmentTest {
     }
 
     @Test
-    public void min_1_SegmentTest() {
-        TextMatch<TokenType> segment = AsciiSegment.build().create();
+    public void min_1_AnalyzerTest() {
+        AsciiAnalyzer Analyzer = AsciiAnalyzer.build().create();
         for (TestTextEntry e : textEntryList) {
-            Assert.assertEquals(e.text, e.expect1, segment.match(e.textArray));
+            Assert.assertEquals(e.text, e.expect1, Analyzer.match(e.text));
         }
     }
 
     @Test
-    public void min_2_SegmentTest() {
-        TextMatch<TokenType> segment = AsciiSegment.build()
+    public void min_2_AnalyzerTest() {
+        AsciiAnalyzer Analyzer = AsciiAnalyzer.build()
                 .enMixAppend(false)
                 .create();
         for (TestTextEntry e : textEntryList) {
-            Assert.assertEquals(e.text, e.expect2, segment.match(e.textArray));
+            Assert.assertEquals(e.text, e.expect2, Analyzer.match(e.text));
         }
     }
 
     @Test
-    public void min_3_SegmentTest() {
-        TextMatch<TokenType> segment = AsciiSegment.build()
+    public void min_3_AnalyzerTest() {
+        AsciiAnalyzer Analyzer = AsciiAnalyzer.build()
                 .enMixAppend(true)
                 .create();
         for (TestTextEntry e : textEntryList) {
-            Assert.assertEquals(e.text, e.expect3, segment.match(e.textArray));
+            Assert.assertEquals(e.text, e.expect3, Analyzer.match(e.text));
         }
     }
 
     @Test
-    public void maxSegmentTest() {
+    public void maxAnalyzerTest() {
         for (TestTextEntry e : textEntryList) {
-            Assert.assertEquals(e.text, e.expectMax, MaxAsciiSegment.INSTANCE.match(e.textArray));
+            Assert.assertEquals(e.text, e.expectMax, MaxAsciiAnalyzer.INSTANCE.match(e.text));
         }
     }
 
     static class TestTextEntry {
 
         private final String text;
-
-        private final char[] textArray;
 
         private final List<Hit<TokenType>> expect1 = new ArrayList<>();
 
@@ -135,7 +135,6 @@ public class AsciiSegmentTest {
 
         TestTextEntry(String text) {
             this.text = text;
-            this.textArray = text.toCharArray();
         }
 
     }
