@@ -17,12 +17,11 @@ public enum RootNodeType {
     CJK,
     ALL;
 
-    @SuppressWarnings("unchecked")
     public <V> Node<V> createRootNode() {
         Node<V> root;
         switch (this) {
             case NORMAL:
-                root = new NormalNode('\0');
+                root = new NormalNode<>('\0');
                 break;
             case ASCII:
                 root = new BigRootNode<>(Character.MIN_VALUE, 0x100);
