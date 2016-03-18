@@ -15,7 +15,7 @@ import java.util.ListIterator;
 public class NumQuantifierMerge {
 
     /**
-     * 合成的数量词是否作为扩充的词添加, 也就是原先的数词和两次在匹配结果中是否保留
+     * 合成的数量词是否作为扩充的词添加到分词结果中, 如果为false, 则新的合成词替换原先相连的数词和量词
      */
     private final boolean appendNumQuantifier;
 
@@ -28,8 +28,8 @@ public class NumQuantifierMerge {
      *
      * @param hits 有序的匹配结果
      */
-    public List<Hit<TokenType>> merge(List<Hit<TokenType>> hits) {
-        if (CommonsUtils.isEmpty(hits)) return hits;
+    public void merge(List<Hit<TokenType>> hits) {
+        if (CommonsUtils.isEmpty(hits)) return;
         ListIterator<Hit<TokenType>> it = hits.listIterator();
         Hit<TokenType> preNumHit = null;
         while (it.hasNext()) {
@@ -54,6 +54,5 @@ public class NumQuantifierMerge {
             }
             preNumHit = null;
         }
-        return hits;
     }
 }
