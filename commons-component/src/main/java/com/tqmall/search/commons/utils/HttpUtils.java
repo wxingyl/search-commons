@@ -22,7 +22,7 @@ import java.util.Objects;
  * Http 请求工具类
  * 该类的请求是通过Java的基本方法实现,没有考虑多请求下频繁建立网络连接的情况, 如果需要, 那就直接搞Apache HttpClient
  */
-public abstract class HttpUtils {
+public final class HttpUtils {
 
     private static final Logger log = LoggerFactory.getLogger(HttpUtils.class);
 
@@ -45,6 +45,9 @@ public abstract class HttpUtils {
             ip = null;
         }
         LOCAL_IP = ip;
+    }
+
+    private HttpUtils() {
     }
 
     /**
@@ -270,36 +273,6 @@ public abstract class HttpUtils {
         return postRequest.setBody(body, true).setUrl(url).request(convert);
     }
 
-    public static GetRequest buildGet() {
-        return new GetRequest();
-    }
-
-    public static PostRequest buildPost() {
-        return new PostRequest();
-    }
-
-    public static RequestBase build(String method) {
-        //HTTP 1.1 Method 是区分大小写的,所以这儿不做小写的处理
-        RequestBase request;
-        switch (method) {
-            case GET_METHOD:
-                request = new GetRequest();
-                break;
-            case POST_METHOD:
-                request = new PostRequest();
-                break;
-            case PUT_METHOD:
-                request = new PutRequest();
-                break;
-            case DELETE_METHOD:
-                request = new DeleteRequest();
-                break;
-            default:
-                throw new IllegalArgumentException("Nonsupport for http method: " + method);
-        }
-        return request;
-    }
-
     /**
      * Http请求的一些配置
      */
@@ -351,7 +324,7 @@ public abstract class HttpUtils {
     /**
      * 注意: 同一个该类实例对象,执行request时线程不安全的
      */
-    public static abstract class RequestBase {
+    public static abstract class Request {
 
         private Map<String, String> headerMap = new HashMap<>();
 
@@ -371,7 +344,7 @@ public abstract class HttpUtils {
         /**
          * 默认都为长连接, 以json接收数据
          */
-        public RequestBase() {
+        public Request() {
             addHeader("Connection", "keep-alive");
         }
 
@@ -379,7 +352,7 @@ public abstract class HttpUtils {
 
         protected abstract void doHttpURLConnection(HttpURLConnection httpUrlConnection) throws IOException;
 
-        public RequestBase setUrl(URL url) {
+        public Request setUrl(URL url) {
             Objects.requireNonNull(url);
             this.url = url;
             return this;
@@ -388,17 +361,17 @@ public abstract class HttpUtils {
         /**
          * @param config 为null则使用默认配置{@link Config#DEFAULT}
          */
-        public RequestBase setConfig(Config config) {
+        public Request setConfig(Config config) {
             this.config = config;
             return this;
         }
 
-        public RequestBase setRequestLogSwitch(boolean requestLogSwitch) {
+        public Request setRequestLogSwitch(boolean requestLogSwitch) {
             this.requestLogSwitch = requestLogSwitch;
             return this;
         }
 
-        public RequestBase addHeader(Map<String, String> headers) {
+        public Request addHeader(Map<String, String> headers) {
             if (!CommonsUtils.isEmpty(headers)) {
                 for (Map.Entry<String, String> e : headers.entrySet()) {
                     addHeader(e.getKey(), e.getValue());
@@ -412,7 +385,7 @@ public abstract class HttpUtils {
          *
          * @param name HTTP 1.1 Header 头的name大小写不区分,所以我们全部转为小写
          */
-        public RequestBase addHeader(String name, String value) {
+        public Request addHeader(String name, String value) {
             Objects.requireNonNull(name);
             name = name.toLowerCase();
             if (value == null) {
@@ -437,7 +410,7 @@ public abstract class HttpUtils {
          * @see #setRequestLogSwitch(boolean)
          * @see com.tqmall.search.commons.utils.HttpUtils.Config#DEFAULT
          */
-        public <T> T request(StrValueConvert<T> convert) {
+        public final <T> T request(StrValueConvert<T> convert) {
             Objects.requireNonNull(url);
             HttpURLConnection httpConnection = null;
             try {
@@ -494,16 +467,16 @@ public abstract class HttpUtils {
             }
         }
 
-        protected Config getConfig() {
+        protected final Config getConfig() {
             return config == null ? Config.DEFAULT : config;
         }
 
-        public int getResponseCode() {
+        public final int getResponseCode() {
             return responseCode;
         }
     }
 
-    public static class GetRequest extends RequestBase {
+    public static class GetRequest extends Request {
 
         @Override
         public String getMethod() {
@@ -520,7 +493,7 @@ public abstract class HttpUtils {
     /**
      * 请求中带Body的Http Method
      */
-    public static abstract class HandleBodyRequest extends RequestBase {
+    public static abstract class HandleBodyRequest extends Request {
 
         private String body;
 
@@ -545,6 +518,36 @@ public abstract class HttpUtils {
         }
 
         @Override
+        public HandleBodyRequest addHeader(Map<String, String> headers) {
+            super.addHeader(headers);
+            return this;
+        }
+
+        @Override
+        public HandleBodyRequest addHeader(String name, String value) {
+            super.addHeader(name, value);
+            return this;
+        }
+
+        @Override
+        public HandleBodyRequest setConfig(Config config) {
+            super.setConfig(config);
+            return this;
+        }
+
+        @Override
+        public HandleBodyRequest setRequestLogSwitch(boolean requestLogSwitch) {
+            super.setRequestLogSwitch(requestLogSwitch);
+            return this;
+        }
+
+        @Override
+        public HandleBodyRequest setUrl(URL url) {
+            super.setUrl(url);
+            return this;
+        }
+
+        @Override
         protected void doHttpURLConnection(HttpURLConnection httpUrlConnection) throws IOException {
             httpUrlConnection.setDoOutput(true);
             if (body != null) {
@@ -560,7 +563,7 @@ public abstract class HttpUtils {
     public static class PostRequest extends HandleBodyRequest {
 
         @Override
-        public String getMethod() {
+        public final String getMethod() {
             return POST_METHOD;
         }
 
@@ -571,7 +574,7 @@ public abstract class HttpUtils {
      */
     public static class PutRequest extends HandleBodyRequest {
         @Override
-        public String getMethod() {
+        public final String getMethod() {
             return PUT_METHOD;
         }
     }
@@ -581,7 +584,7 @@ public abstract class HttpUtils {
      */
     public static class DeleteRequest extends HandleBodyRequest {
         @Override
-        public String getMethod() {
+        public final String getMethod() {
             return DELETE_METHOD;
         }
     }
