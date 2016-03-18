@@ -312,7 +312,7 @@ public final class StrValueConverts {
                 if (field != null) {
                     return (StrValueConvert<Date>) field.get(null);
                 }
-            } catch (Exception ignored) {
+            } catch (Throwable ignored) {
             }
             return null;
         }
