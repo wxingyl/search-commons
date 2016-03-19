@@ -57,7 +57,7 @@ public class RangeCondition<T extends Comparable<T>> extends Condition {
         if (value == null) return false;
         T t = start == null ? end : start;
         int cmpValue;
-        if (t.getClass().isAssignableFrom(value.getClass())) {
+        if (t.getClass().isInstance(value)) {
             @SuppressWarnings({"rawtypes", "unchecked"})
             T tValue = (T) value;
             if (start != null) {

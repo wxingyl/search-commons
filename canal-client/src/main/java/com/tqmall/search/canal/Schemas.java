@@ -93,7 +93,7 @@ public final class Schemas {
          */
         public final Builder<T> addTable(TableBuilder tb) {
             Objects.requireNonNull(tb.action);
-            if (actionType != null && !actionType.isAssignableFrom(tb.action.getClass())) {
+            if (actionType != null && !actionType.isInstance(tb.action)) {
                 throw new IllegalArgumentException(schemaName + '.' + tb.tableName + " action: " + tb.action + " is not "
                         + actionType + " object");
             }
