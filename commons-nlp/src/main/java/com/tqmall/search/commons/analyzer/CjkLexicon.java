@@ -116,36 +116,36 @@ public class CjkLexicon {
      * full匹配, 尽可能的返回所有能够匹配到的结果
      *
      * @param text     待分词文本
-     * @param startPos 待处理文本的起始位置
-     * @param length   待处理文本的长度
+     * @param off 待处理文本的起始位置
+     * @param len   待处理文本的长度
      * @return 匹配结果
      */
-    public List<Hit<TokenType>> fullMatch(char[] text, int startPos, int length) {
-        return acBinaryTrie.match(text, startPos, length);
+    public List<Hit<TokenType>> fullMatch(char[] text, int off, int len) {
+        return acBinaryTrie.match(text, off, len);
     }
 
     /**
      * 最大匹配
      *
      * @param text     待分词文本
-     * @param startPos 待处理文本的起始位置
-     * @param length   待处理文本的长度
+     * @param off 待处理文本的起始位置
+     * @param len   待处理文本的长度
      * @return 匹配结果
      */
-    public List<Hit<TokenType>> maxMatch(char[] text, int startPos, int length) {
-        return matchReverseBinaryTrie.maxMatch(text, startPos, length);
+    public List<Hit<TokenType>> maxMatch(char[] text, int off, int len) {
+        return matchReverseBinaryTrie.maxMatch(text, off, len);
     }
 
     /**
      * 最小匹配
      *
      * @param text     待分词文本
-     * @param startPos 待处理文本的起始位置
-     * @param length   待处理文本的长度
+     * @param off 待处理文本的起始位置
+     * @param len   待处理文本的长度
      * @return 匹配结果
      */
-    public List<Hit<TokenType>> minMatch(char[] text, int startPos, int length) {
-        return matchReverseBinaryTrie.minMatch(text, startPos, length);
+    public List<Hit<TokenType>> minMatch(char[] text, int off, int len) {
+        return matchReverseBinaryTrie.minMatch(text, off, len);
     }
 
     /**

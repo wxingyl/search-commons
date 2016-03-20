@@ -25,16 +25,13 @@ public interface Trie<V> {
     boolean remove(String key);
 
     /**
-     * 获取指定词key所对应的值
-     */
-    V getValue(String key);
-
-    /**
      * 获取指定字符串所在的节点, 排除删除的节点
      *
      * @return 不存在或者已经删除返回null
      */
     Node<V> getNode(String key);
+
+    Node<V> getNode(char[] key, int off, int len);
 
     /**
      * 前缀查询, 如果查询的词不存在节点, 返回null

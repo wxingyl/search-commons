@@ -16,16 +16,17 @@ public interface SegmentFilter {
     /**
      * 待分词文本过滤
      *
-     * @param text     字符数组, 过滤的时候直接修改字符数组
-     * @param startPos 开始position
-     * @param length   需要处理的文本长度
+     * @param text 字符数组, 过滤的时候直接修改字符数组
+     * @param off  开始position
+     * @param len  需要处理的文本长度
      */
-    void textFilter(final char[] text, final int startPos, final int length);
+    void textFilter(final char[] text, final int off, final int len);
 
     /**
      * 分词结果过滤, 比如停止词等
      *
+     * @param text 匹配的源文本
      * @param hits 分词结果, 按匹配的源text位置position排序, 该List必须支持修改
      */
-    void hitsFilter(List<Hit<TokenType>> hits);
+    void hitsFilter(char[] text, List<Hit<TokenType>> hits);
 }

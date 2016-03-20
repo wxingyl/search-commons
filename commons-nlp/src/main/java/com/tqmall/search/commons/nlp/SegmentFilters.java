@@ -50,10 +50,10 @@ public final class SegmentFilters {
         private static final TextFilter INSTANCE = new TextFilter();
 
         @Override
-        public final void textFilter(char[] text, int startPos, int length) {
-            final int endPos = startPos + length;
-            NlpUtils.arrayIndexCheck(text, startPos, endPos);
-            for (int i = startPos; i < endPos; i++) {
+        public final void textFilter(char[] text, int off, int len) {
+            final int endPos = off + len;
+            NlpUtils.arrayIndexCheck(text, off, endPos);
+            for (int i = off; i < endPos; i++) {
                 char c = text[i];
                 if (c >= 'A' && c <= 'Z') {
                     //大写转小写
@@ -73,7 +73,7 @@ public final class SegmentFilters {
         }
 
         @Override
-        public void hitsFilter(List<Hit<TokenType>> hits) {
+        public void hitsFilter(char[] text, List<Hit<TokenType>> hits) {
             //do nothing
         }
     }
@@ -89,10 +89,11 @@ public final class SegmentFilters {
         private static final HitsFilter INSTANCE = new HitsFilter();
 
         @Override
-        public final void hitsFilter(List<Hit<TokenType>> hits) {
+        public final void hitsFilter(char[] text, List<Hit<TokenType>> hits) {
             Iterator<Hit<TokenType>> it = hits.iterator();
             while (it.hasNext()) {
-                if (Stopword.isStopword(it.next().getKey())) {
+                Hit<TokenType> hit = it.next();
+                if (Stopword.isStopword(text, hit.getStart(), hit.length())) {
                     //如果是停止词, 删除
                     it.remove();
                 }

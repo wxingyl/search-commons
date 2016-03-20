@@ -28,11 +28,11 @@ public abstract class TextMatcher<V> extends AbstractTextMatch<V> {
     protected abstract List<Hit<V>> runMatch(final char[] text, final int startPos, final int endPos);
 
     @Override
-    public final List<Hit<V>> match(char[] text, int startPos, int length) {
-        final int endPos = startPos + length;
-        NlpUtils.arrayIndexCheck(text, startPos, endPos);
-        if (length == 0) return null;
-        return runMatch(text, startPos, endPos);
+    public final List<Hit<V>> match(char[] text, int off, int len) {
+        final int endPos = off + len;
+        NlpUtils.arrayIndexCheck(text, off, endPos);
+        if (len == 0) return null;
+        return runMatch(text, off, endPos);
     }
 
     public static <V> TextMatcher<V> minMatcher(Node<V> root, boolean reverse) {
@@ -86,7 +86,7 @@ public abstract class TextMatcher<V> extends AbstractTextMatch<V> {
                     if (matchStartPos == -1) matchStartPos = i;
                     i++;
                     if (nextNode.accept()) {
-                        lastHit = new Hit<>(text, matchStartPos, i, nextNode.getValue());
+                        lastHit = new Hit<>(matchStartPos, i, nextNode.getValue());
                         if (i - matchStartPos == 1) {
                             //如果是一个字符, 就没有必要去尝试了
                             hits.add(lastHit);
@@ -139,7 +139,7 @@ public abstract class TextMatcher<V> extends AbstractTextMatch<V> {
                     i++;
                     if (nextNode.accept()) {
                         //匹配到一个词了~~~
-                        hits.add(new Hit<>(text, matchStartPos, i, nextNode.getValue()));
+                        hits.add(new Hit<>(matchStartPos, i, nextNode.getValue()));
                         i = matchStartPos - 1;
                         lastPos = matchStartPos;
                         currentNode = root;
@@ -173,7 +173,7 @@ public abstract class TextMatcher<V> extends AbstractTextMatch<V> {
                 if (nextNode == null || nextNode.getStatus() == Node.Status.DELETE) {
                     if (matchEndPos != -1) {
                         //匹配到一个最大词~~~
-                        hits.add(new Hit<>(text, matchStartPos, matchEndPos, lastMatchValue));
+                        hits.add(new Hit<>(matchStartPos, matchEndPos, lastMatchValue));
                         i = matchEndPos;
                         matchEndPos = -1;
                     } else if (root == currentNode) {
@@ -194,7 +194,7 @@ public abstract class TextMatcher<V> extends AbstractTextMatch<V> {
             }
             if (matchEndPos != -1) {
                 //捡个漏
-                hits.add(new Hit<>(text, matchStartPos, matchEndPos, lastMatchValue));
+                hits.add(new Hit<>(matchStartPos, matchEndPos, lastMatchValue));
             }
             return hits;
         }
@@ -213,16 +213,16 @@ public abstract class TextMatcher<V> extends AbstractTextMatch<V> {
          * 新加入的词有重叠的小词, 删除
          */
         private void appendHit(Hit<V> hit, LinkedList<Hit<V>> hits) {
-            int hitEndPos = hit.getEndPos();
+            int hitEndPos = hit.getEnd();
             Iterator<Hit<V>> it = hits.descendingIterator();
             int removeCount = 0;
             while (it.hasNext()) {
                 Hit<V> h = it.next();
-                if (hitEndPos <= h.getStartPos()) break;
-                else if (hitEndPos < h.getEndPos()) return;
+                if (hitEndPos <= h.getStart()) break;
+                else if (hitEndPos < h.getEnd()) return;
                 else {
                     removeCount++;
-                    if (hitEndPos == h.getEndPos()) break;
+                    if (hitEndPos == h.getEnd()) break;
                 }
             }
             if (removeCount > 0) {
@@ -247,7 +247,7 @@ public abstract class TextMatcher<V> extends AbstractTextMatch<V> {
                     } else {
                         if (lastAccept) {
                             //匹配到一个词了~~~
-                            appendHit(new Hit<>(text, hitStartPos, hitEndPos, hitValue), hits);
+                            appendHit(new Hit<>(hitStartPos, hitEndPos, hitValue), hits);
                             lastAccept = false;
                         }
                         i = hitStartPos - 1;
@@ -266,7 +266,7 @@ public abstract class TextMatcher<V> extends AbstractTextMatch<V> {
                 }
             }
             if (lastAccept) {
-                appendHit(new Hit<>(text, hitStartPos, hitEndPos, hitValue), hits);
+                appendHit(new Hit<>(hitStartPos, hitEndPos, hitValue), hits);
             }
             return hits;
         }

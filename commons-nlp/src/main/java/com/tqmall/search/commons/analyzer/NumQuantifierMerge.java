@@ -38,17 +38,17 @@ public class NumQuantifierMerge {
             if (curType == TokenType.NUM || curType == TokenType.DECIMAL) {
                 preNumHit = curHit;
                 continue;
-            } else if (preNumHit != null && preNumHit.getEndPos() == curHit.getStartPos()
+            } else if (preNumHit != null && preNumHit.getEnd() == curHit.getStart()
                     && (curType == TokenType.QUANTIFIER || curType == TokenType.NUM_QUANTIFIER)) {
                 if (appendNumQuantifier) {
                     it.previous();
                     //需要考虑插入字符的顺序
-                    it.add(new Hit<>(preNumHit.getStartPos(), preNumHit.getKey() + curHit.getKey(), TokenType.NUM_QUANTIFIER));
+                    it.add(new Hit<>(preNumHit.getStart(), curHit.getEnd(), TokenType.NUM_QUANTIFIER));
                     it.next();
                 } else {
                     it.remove();
                     Hit<TokenType> h = it.previous();
-                    h.changeKey(preNumHit.getStartPos(), preNumHit.getKey() + curHit.getKey());
+                    h.changePosition(preNumHit.getStart(), curHit.getEnd());
                     h.changeValue(TokenType.NUM_QUANTIFIER);
                 }
             }

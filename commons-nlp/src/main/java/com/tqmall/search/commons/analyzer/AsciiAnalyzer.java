@@ -85,20 +85,20 @@ public class AsciiAnalyzer extends AbstractTextMatch<TokenType> {
             curType = tokenType(text[i]);
             if (curType == TokenType.UNKNOWN) {
                 if (start != -1) {
-                    hits.add(new Hit<>(text, start, i, preCharType));
+                    hits.add(new Hit<>(start, i, preCharType));
                     start = -1;
                     preCharType = TokenType.UNKNOWN;
                 }
             } else {
                 if (curType != preCharType) {
-                    if (start != -1) hits.add(new Hit<>(text, start, i, preCharType));
+                    if (start != -1) hits.add(new Hit<>(start, i, preCharType));
                     start = i;
                     preCharType = curType;
                 } else if (start == -1) start = i;
             }
         }
         if (start != -1) {
-            hits.add(new Hit<>(text, start, endPos, preCharType));
+            hits.add(new Hit<>(start, endPos, preCharType));
         }
         return hits;
     }
@@ -109,19 +109,19 @@ public class AsciiAnalyzer extends AbstractTextMatch<TokenType> {
         while (it.hasNext()) {
             Hit<TokenType> hit = it.next();
             if (hit.getValue() != matchType || !it.hasNext()
-                    || text[hit.getEndPos()] != matchChar) continue;
+                    || text[hit.getEnd()] != matchChar) continue;
             Hit<TokenType> nextHit = it.next();
             if (matchType == TokenType.NUM && nextHit.getValue() != matchType) continue;
-            if (hit.getEndPos() + 1 != nextHit.getStartPos()) {
+            if (hit.getEnd() + 1 != nextHit.getStart()) {
                 it.previous();
                 continue;
             }
             if (append) {
                 it.previous();
-                it.add(new Hit<>(hit.getStartPos(), hit.getKey() + matchChar + nextHit.getKey(), newType));
+                it.add(new Hit<>(hit.getStart(), nextHit.getEnd(), newType));
                 it.next();
             } else {
-                hit.changeKey(hit.getStartPos(), hit.getKey() + matchChar + nextHit.getKey());
+                hit.changePosition(hit.getStart(), nextHit.getEnd());
                 hit.changeValue(newType);
                 it.remove();
             }
@@ -134,11 +134,11 @@ public class AsciiAnalyzer extends AbstractTextMatch<TokenType> {
      * @return Hit中的value对应词的类型
      */
     @Override
-    public List<Hit<TokenType>> match(char[] text, int startPos, int length) {
-        final int endPos = startPos + length;
-        NlpUtils.arrayIndexCheck(text, startPos, endPos);
-        if (length == 0) return null;
-        List<Hit<TokenType>> hits = enNumSplit(text, startPos, endPos);
+    public List<Hit<TokenType>> match(char[] text, int off, int len) {
+        final int endPos = off + len;
+        NlpUtils.arrayIndexCheck(text, off, endPos);
+        if (len == 0) return null;
+        List<Hit<TokenType>> hits = enNumSplit(text, off, endPos);
         if (hits.isEmpty()) return hits;
         if (parseDecimal) {
             merge(text, hits, TokenType.NUM, TokenType.DECIMAL, '.', false);

@@ -59,17 +59,24 @@ public final class NlpUtils {
         }
     }
 
+    public static void reverseCharArray(char[] text, int off, int len) {
+        int n = (off << 1) + len - 1;
+        for (int i = ((len - 2) >> 1) + off; i >= off; --i) {
+            char tmp = text[i];
+            text[i] = text[n - i];
+            text[n - i] = tmp;
+        }
+    }
+
     /**
      * 将给定的字符数组反转, 我们字符串全部为UTF-8编码, 就不考虑{@link Character#MIN_SURROGATE}, {@link Character#MAX_SURROGATE}
      */
     public static void reverseCharArray(char[] text) {
-        if (text != null) {
-            int n = text.length - 1;
-            for (int i = (n - 1) >> 1; i >= 0; --i) {
-                char tmp = text[i];
-                text[i] = text[n - i];
-                text[n - i] = tmp;
-            }
+        int n = text.length - 1;
+        for (int i = (n - 1) >> 1; i >= 0; --i) {
+            char tmp = text[i];
+            text[i] = text[n - i];
+            text[n - i] = tmp;
         }
     }
 

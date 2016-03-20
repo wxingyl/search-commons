@@ -63,15 +63,15 @@ public class AcBinaryTrie<V> extends AbstractAcTrie<V> {
     }
 
     @Override
-    public final List<Hit<V>> match(char[] text, final int startPos, final int length) {
-        final int endPos = startPos + length;
-        NlpUtils.arrayIndexCheck(text, startPos, endPos);
-        if (length == 0) return null;
+    public final List<Hit<V>> match(char[] text, final int off, final int len) {
+        final int endPos = off + len;
+        NlpUtils.arrayIndexCheck(text, off, endPos);
+        if (len == 0) return null;
         failedRwLock.readLock().lock();
         try {
             List<Hit<V>> hits = new LinkedList<>();
             Node<V> currentNode = trieRoot;
-            int cursor = startPos;
+            int cursor = off;
             while (cursor < endPos) {
                 AcNormalNode<V> nextNode = (AcNormalNode<V>) currentNode.getChild(text[cursor]);
                 if (nextNode == null) {
