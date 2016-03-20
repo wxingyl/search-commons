@@ -37,7 +37,7 @@ public class BinaryTrie<V> implements Trie<V> {
     @Override
     public final Node<V> getNode(String key) {
         char[] charArray = NlpUtils.stringToCharArray(key);
-        return charArray == null ? null : getNode(charArray, 0, charArray.length);
+        return charArray == null ? null : getNodeInner(charArray, 0, charArray.length);
     }
 
     /**
@@ -47,6 +47,10 @@ public class BinaryTrie<V> implements Trie<V> {
      */
     @Override
     public Node<V> getNode(char[] key, int off, int len) {
+        return getNodeInner(key, off, len);
+    }
+
+    protected Node<V> getNodeInner(char[] key, int off, int len) {
         Node<V> currentNode = root;
         int end = off + len;
         for (int i = off; i < end; i++) {
@@ -88,7 +92,7 @@ public class BinaryTrie<V> implements Trie<V> {
         //先确保这个词存在, 再执行删除, 这儿里面已经过滤了删除的节点
         char[] charArray = NlpUtils.stringToCharArray(key);
         if (charArray == null) return false;
-        Node<V> node = getNode(charArray, 0, charArray.length);
+        Node<V> node = getNodeInner(charArray, 0, charArray.length);
         //如果不是词节点, 返回
         if (node == null || node.getStatus() == Node.Status.NORMAL) return false;
         root.deleteNode(charArray, 0);
@@ -100,7 +104,7 @@ public class BinaryTrie<V> implements Trie<V> {
     public List<Map.Entry<String, V>> prefixSearch(String word) {
         char[] charArray = NlpUtils.stringToCharArray(word);
         if (charArray == null) return null;
-        Node<V> node = getNode(charArray, 0, charArray.length);
+        Node<V> node = getNodeInner(charArray, 0, charArray.length);
         if (node == null) return null;
         return node.allChildWords(charArray);
     }

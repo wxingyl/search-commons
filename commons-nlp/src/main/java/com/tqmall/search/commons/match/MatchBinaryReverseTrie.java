@@ -41,8 +41,13 @@ public class MatchBinaryReverseTrie<V> extends BinaryTrie<V> {
     @Override
     public Node<V> getNode(char[] key, int off, int len) {
         char[] array = Arrays.copyOfRange(key, off, off + len);
-        NlpUtils.reverseCharArray(array);
-        return super.getNode(array, 0, len);
+        return getNodeInner(array, 0, len);
+    }
+
+    @Override
+    protected Node<V> getNodeInner(char[] key, int off, int len) {
+        NlpUtils.reverseCharArray(key, off, len);
+        return super.getNodeInner(key, off, len);
     }
 
     @Override
