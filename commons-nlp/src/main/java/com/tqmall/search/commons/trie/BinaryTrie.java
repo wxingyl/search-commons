@@ -37,18 +37,20 @@ public class BinaryTrie<V> implements Trie<V> {
     @Override
     public final Node<V> getNode(String key) {
         char[] charArray = NlpUtils.stringToCharArray(key);
-        return charArray == null ? null : getNode(charArray);
+        return charArray == null ? null : getNode(charArray, 0, charArray.length);
     }
 
     /**
-     * 不做array 参数校验
+     * 参数数组不做数组越界检查
      *
-     * @param array 不做参数校验
+     * @return 返回结果排除了删除的Node
      */
-    protected Node<V> getNode(char[] array) {
+    @Override
+    public Node<V> getNode(char[] key, int off, int len) {
         Node<V> currentNode = root;
-        for (char c : array) {
-            currentNode = currentNode.getChild(c);
+        int end = off + len;
+        for (int i = off; i < end; i++) {
+            currentNode = currentNode.getChild(key[i]);
             if (currentNode == null || currentNode.getStatus() == Node.Status.DELETE) return null;
         }
         return currentNode;
@@ -82,17 +84,11 @@ public class BinaryTrie<V> implements Trie<V> {
     }
 
     @Override
-    public final V getValue(String key) {
-        Node<V> node = getNode(key);
-        return (node == null || node.getStatus() == Node.Status.NORMAL) ? null : node.getValue();
-    }
-
-    @Override
     public boolean remove(final String key) {
         //先确保这个词存在, 再执行删除, 这儿里面已经过滤了删除的节点
         char[] charArray = NlpUtils.stringToCharArray(key);
         if (charArray == null) return false;
-        Node<V> node = getNode(charArray);
+        Node<V> node = getNode(charArray, 0, charArray.length);
         //如果不是词节点, 返回
         if (node == null || node.getStatus() == Node.Status.NORMAL) return false;
         root.deleteNode(charArray, 0);
@@ -104,7 +100,7 @@ public class BinaryTrie<V> implements Trie<V> {
     public List<Map.Entry<String, V>> prefixSearch(String word) {
         char[] charArray = NlpUtils.stringToCharArray(word);
         if (charArray == null) return null;
-        Node<V> node = getNode(charArray);
+        Node<V> node = getNode(charArray, 0, charArray.length);
         if (node == null) return null;
         return node.allChildWords(charArray);
     }

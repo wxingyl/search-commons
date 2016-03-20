@@ -82,7 +82,10 @@ public class TrieTest {
     }
 
     private void binaryTrieGetValue(Map<String, String> dataMap, String key) {
-        String ret = binaryTrie.getValue(key);
+        Node<String> node = binaryTrie.getNode(key);
+        Assert.assertNotNull(node);
+        Assert.assertTrue(node.accept());
+        String ret = node.getValue();
         Assert.assertEquals("binaryTrieGetValue, key: " + key + ", getValue = " + ret, dataMap.get(key), ret);
     }
 

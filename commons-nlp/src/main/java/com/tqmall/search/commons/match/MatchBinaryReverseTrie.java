@@ -39,9 +39,10 @@ public class MatchBinaryReverseTrie<V> extends BinaryTrie<V> {
     }
 
     @Override
-    protected Node<V> getNode(char[] array) {
+    public Node<V> getNode(char[] key, int off, int len) {
+        char[] array = Arrays.copyOfRange(key, off, off + len);
         NlpUtils.reverseCharArray(array);
-        return super.getNode(array);
+        return super.getNode(array, 0, len);
     }
 
     @Override
@@ -54,16 +55,16 @@ public class MatchBinaryReverseTrie<V> extends BinaryTrie<V> {
         return doMatch(text.toCharArray(), 0, text.length(), true);
     }
 
-    public List<Hit<V>> maxMatch(char[] text, int startPos, int length) {
-        return doMatch(text, startPos, length, true);
+    public List<Hit<V>> maxMatch(char[] text, int off, int len) {
+        return doMatch(text, off, len, true);
     }
 
     public List<Hit<V>> minMatch(String text) {
         return doMatch(text.toCharArray(), 0, text.length(), false);
     }
 
-    public List<Hit<V>> minMatch(char[] text, int startPos, int length) {
-        return doMatch(text, startPos, length, false);
+    public List<Hit<V>> minMatch(char[] text, int off, int len) {
+        return doMatch(text, off, len, false);
     }
 
     @Override
@@ -79,14 +80,14 @@ public class MatchBinaryReverseTrie<V> extends BinaryTrie<V> {
         return result;
     }
 
-    private List<Hit<V>> doMatch(char[] text, int startPos, int length, boolean maxMatch) {
-        char[] array = Arrays.copyOfRange(text, startPos, startPos + length);
+    private List<Hit<V>> doMatch(char[] text, int off, int len, boolean maxMatch) {
+        char[] array = Arrays.copyOfRange(text, off, off + len);
         NlpUtils.reverseCharArray(array);
-        List<Hit<V>> hits = maxMatch ? maxTextMatcher.match(array, 0, length) : minTextMatcher.match(array, 0, length);
+        List<Hit<V>> hits = maxMatch ? maxTextMatcher.match(array, 0, len) : minTextMatcher.match(array, 0, len);
         if (!CommonsUtils.isEmpty(hits)) {
-            int offsetIndex = startPos + length;
+            int offsetIndex = off + len;
             for (Hit<V> h : hits) {
-                h.changeKey(offsetIndex - h.getEndPos(), NlpUtils.reverseString(h.getKey()));
+                h.changePosition(offsetIndex - h.getEnd(), offsetIndex - h.getStart());
             }
             Collections.reverse(hits);
         }

@@ -49,9 +49,9 @@ public interface AcTrie<V> extends Trie<V> {
      * 匹配字符串, 未匹配的字符串不做任何处理
      *
      * @param text     需要匹配的文本
-     * @param startPos 开始下标
-     * @param length   char数组的长度
+     * @param off 开始下标
+     * @param len   char数组的长度
      * @return 匹配结果
      */
-    List<Hit<V>> match(char[] text, int startPos, int length);
+    List<Hit<V>> match(char[] text, int off, int len);
 }

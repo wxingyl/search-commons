@@ -5,11 +5,13 @@ import com.tqmall.search.commons.lang.LazyInit;
 import com.tqmall.search.commons.lang.Supplier;
 import com.tqmall.search.commons.nlp.NlpConst;
 import com.tqmall.search.commons.nlp.NlpUtils;
+import com.tqmall.search.commons.trie.BinaryTrie;
+import com.tqmall.search.commons.trie.Node;
+import com.tqmall.search.commons.trie.NodeChildHandle;
+import com.tqmall.search.commons.trie.RootNodeType;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by xing on 16/3/8.
@@ -17,7 +19,7 @@ import java.util.Set;
  *
  * @author xing
  */
-public class Stopword implements Iterable<String> {
+public class Stopword {
 
     private static final LazyInit<Stopword> INSTANCE = new LazyInit<>(new Supplier<Stopword>() {
         @Override
@@ -36,18 +38,19 @@ public class Stopword implements Iterable<String> {
     /**
      * 判断是否为停止词
      */
-    public static boolean isStopword(String word) {
-        return INSTANCE.getInstance().stopwordSet.contains(word);
+    public static boolean isStopword(char[] text, int off, int len) {
+        Node node = INSTANCE.getInstance().stopWords.getNode(text, off, len);
+        return node != null && node.accept();
     }
 
-    private final Set<String> stopwordSet;
+    private final BinaryTrie<Void> stopWords;
 
     Stopword() {
-        stopwordSet = new HashSet<>();
+        stopWords = new BinaryTrie<>(RootNodeType.NORMAL.<Void>defaultTrie());
         NlpUtils.loadLexicon(NlpConst.STOPWORD_FILE_NAME, new Function<String, Boolean>() {
             @Override
             public Boolean apply(String line) {
-                stopwordSet.add(line);
+                stopWords.put(line, null);
                 return true;
             }
         });
@@ -60,7 +63,7 @@ public class Stopword implements Iterable<String> {
      */
     public boolean addStopword(String word) {
         word = SearchStringUtils.filterString(word);
-        return word != null && stopwordSet.add(word.toLowerCase());
+        return word != null && stopWords.put(word.toLowerCase(), null);
     }
 
     /**
@@ -70,11 +73,32 @@ public class Stopword implements Iterable<String> {
      */
     public boolean removeStopword(String word) {
         word = SearchStringUtils.filterString(word);
-        return word != null && stopwordSet.remove(word);
+        return word != null && stopWords.remove(word);
     }
 
-    @Override
-    public Iterator<String> iterator() {
-        return stopwordSet.iterator();
+    /**
+     * 获取所有的停止词
+     */
+    public Set<String> allStopwords() {
+        Node<Void> root = stopWords.getRoot();
+        final List<Character> list = new ArrayList<>();
+        root.childHandle(new NodeChildHandle<Void>() {
+            @Override
+            public boolean onHandle(Node<Void> child) {
+                list.add(child.getChar());
+                return true;
+            }
+        });
+        Set<String> allStopWords = new HashSet<>();
+        for (Character c : list) {
+            List<Map.Entry<String, Void>> ret = stopWords.prefixSearch(c.toString());
+            if (ret != null) {
+                for (Map.Entry<String, Void> e : ret) {
+                    allStopWords.add(e.getKey());
+                }
+            }
+        }
+        return allStopWords;
     }
+
 }

@@ -84,7 +84,7 @@ public final class PinyinConvert {
         StringBuilder py = new StringBuilder();
         int lastEndIndex = 0;
         for (Hit<String[]> h : hits) {
-            int curStartPos = h.getStartPos();
+            int curStartPos = h.getStart();
             if (appendFlag != 0) {
                 while (lastEndIndex < curStartPos) {
                     if (appendChar(word.charAt(lastEndIndex), appendFlag)) {
@@ -97,7 +97,7 @@ public final class PinyinConvert {
                 py.append(s);
                 if (firstLetter != null) firstLetter.append(s.charAt(0));
             }
-            lastEndIndex = h.getEndPos();
+            lastEndIndex = h.getEnd();
         }
         if (appendFlag != 0) {
             while (lastEndIndex < word.length()) {

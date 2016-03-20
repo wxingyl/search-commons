@@ -4,32 +4,37 @@ import com.tqmall.search.commons.ac.AcNormalNode;
 
 /**
  * Created by xing on 16/1/28.
- * 匹配到的结果
+ * 匹配到的结果, 位置为[), 左开右闭
  */
 public class Hit<V> implements Comparable<Hit<V>> {
-
-    private int startPos;
-
-    private String key;
+    /**
+     * 匹配到的开始位置
+     */
+    private int start;
+    /**
+     * 匹配结果的结束位置, 即最后一个字符的下一个位置
+     */
+    private int end;
 
     private V value;
 
-    public Hit(char[] text, int startPos, int endPos, V value) {
-        this.startPos = startPos;
-        this.key = new String(text, startPos, endPos - startPos);
+    public Hit(int start, int end, V value) {
+        this.start = start;
+        this.end = end;
         this.value = value;
     }
 
     /**
-     * 进来匹配的字符
+     * 进来匹配的字符, only for test
+     * 参数key没有什么用处, 只用用来求匹配字符的长度
      *
-     * @param startPos 匹配到的开始位置, 符合左开右闭原则,即[startPos, endPos)
-     * @param key      匹配到的输出文本
-     * @param value    对应节点的value
+     * @param start 匹配到的开始位置, 符合左开右闭原则,即[startPos, endPos)
+     * @param key   匹配到的输出文本
+     * @param value 对应节点的value
      */
-    public Hit(int startPos, String key, V value) {
-        this.startPos = startPos;
-        this.key = key;
+    public Hit(int start, String key, V value) {
+        this.start = start;
+        this.end = start + key.length();
         this.value = value;
     }
 
@@ -37,22 +42,26 @@ public class Hit<V> implements Comparable<Hit<V>> {
         if (!acNode.accept()) {
             throw new IllegalArgumentException("acNode: " + acNode + " accept is false");
         }
-        this.key = acNode.getSingleOutput();
-        this.startPos = endPos - this.key.length();
+        this.start = endPos - acNode.getSingleOutput().length();
+        this.end = endPos;
         this.value = acNode.getValue();
     }
 
-    public int getStartPos() {
-        return startPos;
+    public int getStart() {
+        return start;
     }
 
-    public int getEndPos() {
-        return startPos + key.length();
+    public int getEnd() {
+        return end;
     }
 
-    public void changeKey(int startPos, String key) {
-        this.startPos = startPos;
-        this.key = key;
+    public int length() {
+        return end - start;
+    }
+
+    public void changePosition(int start, int end) {
+        this.start = start;
+        this.end = end;
     }
 
     /**
@@ -66,14 +75,10 @@ public class Hit<V> implements Comparable<Hit<V>> {
         return value;
     }
 
-    public String getKey() {
-        return key;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(startPos).append(':').append(key);
+        sb.append(start).append(',').append(end);
         if (value != null) {
             sb.append(':').append(value);
         }
@@ -86,22 +91,21 @@ public class Hit<V> implements Comparable<Hit<V>> {
         if (!(o instanceof Hit)) return false;
 
         Hit<?> hit = (Hit<?>) o;
-        if (startPos != hit.startPos) return false;
-        return key.equals(hit.key);
+        return start == hit.start && end == hit.end;
     }
 
     @Override
     public int hashCode() {
-        int result = startPos;
-        result = 31 * result + key.hashCode();
+        int result = start;
+        result = 31 * result + end;
         return result;
     }
 
     @Override
     public int compareTo(Hit<V> o) {
-        int cmp = Integer.compare(startPos, o.startPos);
+        int cmp = Integer.compare(start, o.start);
         if (cmp == 0) {
-            cmp = Integer.compare(key.length(), o.key.length());
+            cmp = Integer.compare(end, o.end);
         }
         return cmp;
     }

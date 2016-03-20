@@ -23,29 +23,29 @@ public abstract class CjkAnalyzer extends AbstractTextMatch<TokenType> {
         this.cjkLexicon = cjkLexicon;
     }
 
-    protected abstract List<Hit<TokenType>> doMatch(char[] text, int startPos, int length);
+    protected abstract List<Hit<TokenType>> doMatch(char[] text, int off, int len);
 
-    private Hit<TokenType> getNumHit(char[] text, int startIndex, int numEndIndex) {
-        return new Hit<>(text, startIndex, numEndIndex + 1, TokenType.NUM);
+    private Hit<TokenType> getNumHit(int off, int numEndIndex) {
+        return new Hit<>(off, numEndIndex + 1, TokenType.NUM);
     }
 
     @Override
-    public final List<Hit<TokenType>> match(char[] text, int startPos, int length) {
-        List<Hit<TokenType>> hits = doMatch(text, startPos, length);
+    public final List<Hit<TokenType>> match(char[] text, int off, int len) {
+        List<Hit<TokenType>> hits = doMatch(text, off, len);
         if (hits == null) return null;
-        BitArray bitArray = new BitArray(length);
+        BitArray bitArray = new BitArray(len);
         for (Hit<TokenType> h : hits) {
-            int endPos = h.getEndPos();
-            for (int i = h.getStartPos(); i < endPos; i++) {
-                bitArray.setBit(i - startPos);
+            int endPos = h.getEnd();
+            for (int i = h.getStart(); i < endPos; i++) {
+                bitArray.setBit(i - off);
             }
         }
         //数词提取, 未匹配的cjk字符单个成词
         int numEndIndex = -1;
-        for (int i = startPos + length - 1; i >= startPos; i--) {
+        for (int i = off + len - 1; i >= off; i--) {
             if (bitArray.getBit(i) || !NlpUtils.isCjkChar(text[i])) {
                 if (numEndIndex != -1) {
-                    hits.add(getNumHit(text, i + 1, numEndIndex));
+                    hits.add(getNumHit(i + 1, numEndIndex));
                     numEndIndex = -1;
                 }
                 continue;
@@ -56,15 +56,15 @@ public abstract class CjkAnalyzer extends AbstractTextMatch<TokenType> {
                 continue;
             } else if (numEndIndex != -1) {
                 //提取数词词组
-                hits.add(getNumHit(text, i + 1, numEndIndex));
+                hits.add(getNumHit(i + 1, numEndIndex));
                 numEndIndex = -1;
             }
             //没有匹配的中文字符, 只能单独成词了
             String w = String.valueOf(text[i]);
-            hits.add(new Hit<>(i, w, cjkLexicon.isQuantifier(w) ? TokenType.QUANTIFIER : TokenType.CN));
+            hits.add(new Hit<>(i, i + 1, cjkLexicon.isQuantifier(w) ? TokenType.QUANTIFIER : TokenType.CN));
         }
         if (numEndIndex != -1) {
-            hits.add(getNumHit(text, startPos, numEndIndex));
+            hits.add(getNumHit(off, numEndIndex));
         }
         //返回结果需要根据下标排序
         Collections.sort(hits);
@@ -98,8 +98,8 @@ public abstract class CjkAnalyzer extends AbstractTextMatch<TokenType> {
         }
 
         @Override
-        protected List<Hit<TokenType>> doMatch(char[] text, int startPos, int length) {
-            return cjkLexicon.fullMatch(text, startPos, length);
+        protected List<Hit<TokenType>> doMatch(char[] text, int off, int len) {
+            return cjkLexicon.fullMatch(text, off, len);
         }
     }
 
@@ -114,8 +114,8 @@ public abstract class CjkAnalyzer extends AbstractTextMatch<TokenType> {
         }
 
         @Override
-        protected List<Hit<TokenType>> doMatch(char[] text, int startPos, int length) {
-            return cjkLexicon.minMatch(text, startPos, length);
+        protected List<Hit<TokenType>> doMatch(char[] text, int off, int len) {
+            return cjkLexicon.minMatch(text, off, len);
         }
     }
 
@@ -129,8 +129,8 @@ public abstract class CjkAnalyzer extends AbstractTextMatch<TokenType> {
         }
 
         @Override
-        protected List<Hit<TokenType>> doMatch(char[] text, int startPos, int length) {
-            return cjkLexicon.maxMatch(text, startPos, length);
+        protected List<Hit<TokenType>> doMatch(char[] text, int off, int len) {
+            return cjkLexicon.maxMatch(text, off, len);
         }
     }
 

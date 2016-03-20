@@ -29,24 +29,24 @@ public class MaxAsciiAnalyzer extends AbstractTextMatch<TokenType> {
     }
 
     @Override
-    public List<Hit<TokenType>> match(char[] text, int startPos, int length) {
-        final int endPos = startPos + length;
-        NlpUtils.arrayIndexCheck(text, startPos, endPos);
-        if (length == 0) return null;
+    public List<Hit<TokenType>> match(char[] text, int off, int len) {
+        final int endPos = off + len;
+        NlpUtils.arrayIndexCheck(text, off, endPos);
+        if (len == 0) return null;
         List<Hit<TokenType>> hits = new LinkedList<>();
         int matchStart = -1;
-        for (int i = startPos; i < endPos; i++) {
+        for (int i = off; i < endPos; i++) {
             char c = text[i];
-            if (usefulChar(c) || (c == '.' && i > startPos && (i + 1) < endPos
+            if (usefulChar(c) || (c == '.' && i > off && (i + 1) < endPos
                     && isNumber(text[i - 1]) && isNumber(text[i + 1]))) {
                 if (matchStart == -1) matchStart = i;
             } else if (matchStart != -1) {
-                hits.add(new Hit<>(text, matchStart, i, TokenType.EN_MIX));
+                hits.add(new Hit<>(matchStart, i, TokenType.EN_MIX));
                 matchStart = -1;
             }
         }
         if (matchStart != -1) {
-            hits.add(new Hit<>(text, matchStart, endPos, TokenType.EN_MIX));
+            hits.add(new Hit<>(matchStart, endPos, TokenType.EN_MIX));
         }
         return hits;
     }

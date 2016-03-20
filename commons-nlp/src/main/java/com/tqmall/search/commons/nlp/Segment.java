@@ -45,10 +45,10 @@ public final class Segment extends AbstractTextMatch<TokenType> {
     }
 
     @Override
-    public List<Hit<TokenType>> match(char[] text, int startPos, int length) {
-        segmentFilter.textFilter(text, startPos, length);
-        List<Hit<TokenType>> asciiHits = asciiAnalyzer.match(text, startPos, length);
-        List<Hit<TokenType>> cjkHits = cjkAnalyzer.match(text, startPos, length);
+    public List<Hit<TokenType>> match(final char[] text, final int off, final int len) {
+        segmentFilter.textFilter(text, off, len);
+        List<Hit<TokenType>> asciiHits = asciiAnalyzer.match(text, off, len);
+        List<Hit<TokenType>> cjkHits = cjkAnalyzer.match(text, off, len);
         List<Hit<TokenType>> hits;
         if (asciiHits == null && cjkHits == null) return null;
         else if (cjkHits == null) {
@@ -73,7 +73,7 @@ public final class Segment extends AbstractTextMatch<TokenType> {
         if (numQuantifierMerge != null) {
             numQuantifierMerge.merge(hits);
         }
-        segmentFilter.hitsFilter(hits);
+        segmentFilter.hitsFilter(text, hits);
         return hits;
     }
 

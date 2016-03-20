@@ -22,28 +22,28 @@ public abstract class AbstractAcTrie<V> extends AbstractTextMatch<V> implements 
     }
 
     @Override
-    public boolean put(String key, V value) {
+    public final boolean put(String key, V value) {
         return trie.put(key, value);
     }
 
     @Override
-    public boolean remove(String key) {
+    public final boolean remove(String key) {
         return trie.remove(key);
     }
 
     @Override
-    public Node<V> getNode(String key) {
+    public final Node<V> getNode(String key) {
         return trie.getNode(key);
     }
 
     @Override
-    public List<Map.Entry<String, V>> prefixSearch(String word) {
-        return trie.prefixSearch(word);
+    public final Node<V> getNode(char[] key, int off, int len) {
+        return trie.getNode(key, off, len);
     }
 
     @Override
-    public final V getValue(String key) {
-        return trie.getValue(key);
+    public final List<Map.Entry<String, V>> prefixSearch(String word) {
+        return trie.prefixSearch(word);
     }
 
     @Override
