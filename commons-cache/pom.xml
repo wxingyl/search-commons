@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>commons-cache</artifactId>
-    <version>${cache.version}</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
