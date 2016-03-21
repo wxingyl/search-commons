@@ -85,20 +85,20 @@ public class AsciiAnalyzer extends AbstractTextMatch<TokenType> {
             curType = tokenType(text[i]);
             if (curType == TokenType.UNKNOWN) {
                 if (start != -1) {
-                    hits.add(new Hit<>(start, i, preCharType));
+                    hits.add(Hit.valueOf(start, i, preCharType));
                     start = -1;
                     preCharType = TokenType.UNKNOWN;
                 }
             } else {
                 if (curType != preCharType) {
-                    if (start != -1) hits.add(new Hit<>(start, i, preCharType));
+                    if (start != -1) hits.add(Hit.valueOf(start, i, preCharType));
                     start = i;
                     preCharType = curType;
                 } else if (start == -1) start = i;
             }
         }
         if (start != -1) {
-            hits.add(new Hit<>(start, endPos, preCharType));
+            hits.add(Hit.valueOf(start, endPos, preCharType));
         }
         return hits;
     }
@@ -118,7 +118,7 @@ public class AsciiAnalyzer extends AbstractTextMatch<TokenType> {
             }
             if (append) {
                 it.previous();
-                it.add(new Hit<>(hit.getStart(), nextHit.getEnd(), newType));
+                it.add(Hit.valueOf(hit.getStart(), nextHit.getEnd(), newType));
                 it.next();
             } else {
                 hit.changePosition(hit.getStart(), nextHit.getEnd());

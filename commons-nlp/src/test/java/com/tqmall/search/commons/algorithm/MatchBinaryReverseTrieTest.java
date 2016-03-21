@@ -2,6 +2,7 @@ package com.tqmall.search.commons.algorithm;
 
 import com.tqmall.search.commons.match.Hit;
 import com.tqmall.search.commons.match.MatchBinaryReverseTrie;
+import com.tqmall.search.commons.nlp.Utils;
 import com.tqmall.search.commons.trie.Node;
 import com.tqmall.search.commons.trie.NormalNode;
 import com.tqmall.search.commons.trie.RootNodeType;
@@ -127,17 +128,17 @@ public class MatchBinaryReverseTrieTest {
         Assert.assertTrue(reverseTrie.put("地铁站", null));
         List<Hit<Void>> hits = reverseTrie.maxMatch(text);
         List<Hit<Void>> expectHits = new ArrayList<>();
-        expectHits.add(new Hit<Void>(0, "北京大学地铁站", null));
-        expectHits.add(new Hit<Void>(8, "杭州西湖", null));
+        expectHits.add(Utils.<Void>hitValueOf(0, "北京大学地铁站", null));
+        expectHits.add(Utils.<Void>hitValueOf(8, "杭州西湖", null));
         Assert.assertEquals(expectHits, hits);
 
         hits = reverseTrie.minMatch(text);
         expectHits = new ArrayList<>();
-        expectHits.add(new Hit<Void>(0, "北京", null));
-        expectHits.add(new Hit<Void>(2, "大学", null));
-        expectHits.add(new Hit<Void>(4, "地铁", null));
-        expectHits.add(new Hit<Void>(8, "杭州", null));
-        expectHits.add(new Hit<Void>(10, "西湖", null));
+        expectHits.add(Utils.<Void>hitValueOf(0, "北京", null));
+        expectHits.add(Utils.<Void>hitValueOf(2, "大学", null));
+        expectHits.add(Utils.<Void>hitValueOf(4, "地铁", null));
+        expectHits.add(Utils.<Void>hitValueOf(8, "杭州", null));
+        expectHits.add(Utils.<Void>hitValueOf(10, "西湖", null));
         Assert.assertEquals(expectHits, hits);
         Assert.assertTrue(reverseTrie.remove("地铁站"));
     }

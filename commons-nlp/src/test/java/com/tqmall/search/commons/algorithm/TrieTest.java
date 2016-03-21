@@ -2,7 +2,11 @@ package com.tqmall.search.commons.algorithm;
 
 import com.tqmall.search.commons.match.Hit;
 import com.tqmall.search.commons.match.MatchBinaryTrie;
-import com.tqmall.search.commons.trie.*;
+import com.tqmall.search.commons.nlp.Utils;
+import com.tqmall.search.commons.trie.BinaryTrie;
+import com.tqmall.search.commons.trie.Node;
+import com.tqmall.search.commons.trie.RootNodeType;
+import com.tqmall.search.commons.trie.Trie;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -113,8 +117,8 @@ public class TrieTest {
         Collections.sort(result);
         System.out.println("word: " + word + " binaryMatchTrie result: " + result);
         List<Hit<String>> expectedResult = new ArrayList<>();
-        expectedResult.add(new Hit<>(0, "长沙", "chang sha"));
-        expectedResult.add(new Hit<>(2, "王星星", "xingxing.wang"));
+        expectedResult.add(Utils.hitValueOf(0, "长沙", "chang sha"));
+        expectedResult.add(Utils.hitValueOf(2, "王星星", "xingxing.wang"));
         Assert.assertEquals(expectedResult, result);
         expectedResult.clear();
 
@@ -122,9 +126,9 @@ public class TrieTest {
         result = matchTrie.maxMatch(word);
         Collections.sort(result);
         System.out.println("word: " + word + " binaryMatchTrie result: " + result);
-        expectedResult.add(new Hit<>(0, "长沙", "chang sha"));
-        expectedResult.add(new Hit<>(2, "王", "wang"));
-        expectedResult.add(new Hit<>(5, "王星星", "xingxing.wang"));
+        expectedResult.add(Utils.hitValueOf(0, "长沙", "chang sha"));
+        expectedResult.add(Utils.hitValueOf(2, "王", "wang"));
+        expectedResult.add(Utils.hitValueOf(5, "王星星", "xingxing.wang"));
         Assert.assertEquals(expectedResult, result);
         expectedResult.clear();
 
@@ -132,11 +136,11 @@ public class TrieTest {
         result = matchTrie.minMatch(word);
         Collections.sort(result);
         System.out.println("word: " + word + " binaryMatchTrie result: " + result);
-        expectedResult.add(new Hit<>(0, "长", "zhang"));
-        expectedResult.add(new Hit<>(1, "沙", "sha"));
-        expectedResult.add(new Hit<>(2, "王", "wang"));
-        expectedResult.add(new Hit<>(5, "王", "wang"));
-        expectedResult.add(new Hit<>(6, "星星", "xingxing"));
+        expectedResult.add(Utils.hitValueOf(0, "长", "zhang"));
+        expectedResult.add(Utils.hitValueOf(1, "沙", "sha"));
+        expectedResult.add(Utils.hitValueOf(2, "王", "wang"));
+        expectedResult.add(Utils.hitValueOf(5, "王", "wang"));
+        expectedResult.add(Utils.hitValueOf(6, "星星", "xingxing"));
         Assert.assertEquals(expectedResult, result);
         expectedResult.clear();
 
@@ -147,8 +151,8 @@ public class TrieTest {
         result = matchTrie.minMatch(word);
         Collections.sort(result);
         System.out.println("word: " + word + " binaryMatchTrie hits: " + result);
-        expectedResult.add(new Hit<String>(0, "商品", null));
-        expectedResult.add(new Hit<String>(3, "服务", null));
+        expectedResult.add(Utils.<String>hitValueOf(0, "商品", null));
+        expectedResult.add(Utils.<String>hitValueOf(3, "服务", null));
         Assert.assertEquals(expectedResult, result);
     }
 }

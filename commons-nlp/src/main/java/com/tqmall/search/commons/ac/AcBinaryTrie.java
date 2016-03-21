@@ -87,11 +87,11 @@ public class AcBinaryTrie<V> extends AbstractAcTrie<V> {
                     cursor++;
                     if (nextNode.accept()) {
                         //匹配到, 将所有结果添加进来
-                        hits.add(new Hit<>(cursor, nextNode));
+                        hits.add(Hit.valueOf(cursor, nextNode));
                         if (nextNode.getFailed() instanceof AcNormalNode) {
                             AcNormalNode<V> failedNode = (AcNormalNode<V>) nextNode.getFailed();
                             if (failedNode.accept()) {
-                                hits.add(new Hit<>(cursor, failedNode));
+                                hits.add(Hit.valueOf(cursor, failedNode));
                             }
                         }
                     }
