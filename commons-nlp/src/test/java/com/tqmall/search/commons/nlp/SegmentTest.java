@@ -7,8 +7,6 @@ import com.tqmall.search.commons.match.Hits;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,12 +25,7 @@ public class SegmentTest {
 
     @BeforeClass
     public static void init() {
-        CjkLexicon cjkLexicon;
-        try (InputStream in = CjkAnalyzerTest.class.getResourceAsStream("/segment.txt")) {
-            cjkLexicon = new CjkLexicon(in);
-        } catch (IOException e) {
-            throw new RuntimeException("词库文件加载失败", e);
-        }
+        CjkLexicon cjkLexicon = new CjkLexicon(NlpUtils.getPathOfClass(SegmentTest.class, "/segment.txt"));
         fullSegment = Segment.build("full")
                 .segmentFilter(SegmentFilters.hitsFilter())
                 .asciiAnalyzer(AsciiAnalyzer.build()

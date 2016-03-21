@@ -47,7 +47,7 @@ public class Stopword {
 
     Stopword() {
         stopWords = new BinaryTrie<>(RootNodeType.NORMAL.<Void>defaultTrie());
-        NlpUtils.loadLexicon(NlpConst.STOPWORD_FILE_NAME, new Function<String, Boolean>() {
+        NlpUtils.loadClassPathLexicon(Stopword.class, NlpConst.STOPWORD_FILE_NAME, new Function<String, Boolean>() {
             @Override
             public Boolean apply(String line) {
                 stopWords.put(line, null);

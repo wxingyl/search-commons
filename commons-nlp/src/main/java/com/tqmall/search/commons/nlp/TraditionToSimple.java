@@ -40,7 +40,7 @@ public final class TraditionToSimple {
         log.info("start loading TraditionToSimple lexicon file: " + NlpConst.F2J_FILE_NAME);
         //都是本地加载, 数据格式的校验就不要太严格了~~~
         chars = new char[NlpConst.CJK_UNIFIED_SIZE];
-        NlpUtils.loadLexicon(NlpConst.F2J_FILE_NAME, new Function<String, Boolean>() {
+        NlpUtils.loadClassPathLexicon(TraditionToSimple.class, NlpConst.F2J_FILE_NAME, new Function<String, Boolean>() {
             @Override
             public Boolean apply(String line) {
                 String[] array = SearchStringUtils.split(line, '=');

@@ -43,7 +43,7 @@ public final class PinyinConvert {
     PinyinConvert() {
         matchBinaryReverseTrie = new MatchBinaryReverseTrie<>(RootNodeType.CJK.<String[]>defaultTrie());
         log.info("start loading pinyin lexicon file: " + NlpConst.PINYIN_FILE_NAME);
-        NlpUtils.loadLexicon(NlpConst.PINYIN_FILE_NAME, new Function<String, Boolean>() {
+        NlpUtils.loadClassPathLexicon(PinyinConvert.class, NlpConst.PINYIN_FILE_NAME, new Function<String, Boolean>() {
             @Override
             public Boolean apply(String line) {
                 String[] array = SearchStringUtils.split(line, '=');
