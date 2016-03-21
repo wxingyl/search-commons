@@ -47,8 +47,7 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
     }
 
     @Override
-    protected HandleExceptionContext
-            (RuntimeException exception) {
+    protected HandleExceptionContext buildHandleExceptionContext(RuntimeException exception) {
         return HandleExceptionContext.build(exception)
                 .schema(lastTable.getSchemaName())
                 .table(lastTable.getTableName())
