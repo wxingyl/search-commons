@@ -6,6 +6,8 @@ import com.tqmall.search.commons.result.ErrorCode;
 /**
  * Created by xing on 16/2/18.
  * 实例化错误码构造器
+ *
+ * @see ErrorCode
  */
 public class ErrorCodeBuilder {
 
