@@ -205,10 +205,12 @@ public final class ResultJsonConverts {
             super(errorCode);
         }
 
+        @Override
         public void setCode(String code) {
             super.setCode(code);
         }
 
+        @Override
         public void setMessage(String message) {
             super.setMessage(message);
         }
@@ -217,6 +219,7 @@ public final class ResultJsonConverts {
             this.total = total;
         }
 
+        @Override
         public void setSuccess(boolean success) {
             super.setSuccess(success);
         }
@@ -225,6 +228,7 @@ public final class ResultJsonConverts {
             super.setSuccess(succeed);
         }
 
+        @Override
         public void setData(String data) {
             super.setData(data);
         }
