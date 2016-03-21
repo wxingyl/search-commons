@@ -24,29 +24,6 @@ public class Hit<V> implements Comparable<Hit<V>> {
         this.value = value;
     }
 
-    /**
-     * 进来匹配的字符, only for test
-     * 参数key没有什么用处, 只用用来求匹配字符的长度
-     *
-     * @param start 匹配到的开始位置, 符合左开右闭原则,即[startPos, endPos)
-     * @param key   匹配到的输出文本
-     * @param value 对应节点的value
-     */
-    public Hit(int start, String key, V value) {
-        this.start = start;
-        this.end = start + key.length();
-        this.value = value;
-    }
-
-    public Hit(int endPos, AcNormalNode<V> acNode) {
-        if (!acNode.accept()) {
-            throw new IllegalArgumentException("acNode: " + acNode + " accept is false");
-        }
-        this.start = endPos - acNode.getSingleOutput().length();
-        this.end = endPos;
-        this.value = acNode.getValue();
-    }
-
     public int getStart() {
         return start;
     }
@@ -73,6 +50,17 @@ public class Hit<V> implements Comparable<Hit<V>> {
 
     public V getValue() {
         return value;
+    }
+
+    public static <V> Hit<V> valueOf(int start, int end, V value) {
+        return new Hit<>(start, end, value);
+    }
+
+    public static <V> Hit<V> valueOf(int endPos, AcNormalNode<V> acNode) {
+        if (!acNode.accept()) {
+            throw new IllegalArgumentException("acNode: " + acNode + " accept is false");
+        }
+        return new Hit<>(endPos - acNode.getSingleOutput().length(), endPos, acNode.getValue());
     }
 
     @Override

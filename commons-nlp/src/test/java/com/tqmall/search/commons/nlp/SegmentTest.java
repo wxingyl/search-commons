@@ -3,6 +3,7 @@ package com.tqmall.search.commons.nlp;
 import com.tqmall.search.commons.analyzer.AsciiAnalyzer;
 import com.tqmall.search.commons.analyzer.CjkAnalyzer;
 import com.tqmall.search.commons.analyzer.CjkLexicon;
+import com.tqmall.search.commons.match.Hits;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -60,12 +61,13 @@ public class SegmentTest {
     @Test
     public void segmentTest() {
         List<String> texts = new ArrayList<>();
-        texts.add("Xing-Wang0.5元, 大連理工大学六十年校庆, 500人参加华中科技大学");
+        texts.add("Xing-Wang0.5元, 大連理工大学六十年校庆, 500人不是参加华中科技大学");
         for (String text : texts) {
             System.out.println("text: " + text);
-            System.out.println("fullSegment: " + fullSegment.match(text));
-            System.out.println("maxSegment: " + maxSegment.match(text));
-            System.out.println("minSegment: " + minSegment.match(text));
+            char[] array = text.toCharArray();
+            System.out.println("fullSegment: " + Hits.valueOf(array, fullSegment.match(array, 0, array.length)));
+            System.out.println("maxSegment: " + Hits.valueOf(array, maxSegment.match(array, 0, array.length)));
+            System.out.println("minSegment: " + Hits.valueOf(array, minSegment.match(array, 0, array.length)));
         }
     }
 }

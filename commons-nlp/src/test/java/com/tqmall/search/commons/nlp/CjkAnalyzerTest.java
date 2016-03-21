@@ -4,6 +4,7 @@ import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.match.Hit;
 import com.tqmall.search.commons.analyzer.CjkLexicon;
 import com.tqmall.search.commons.analyzer.TokenType;
+import com.tqmall.search.commons.match.Hits;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -66,28 +67,32 @@ public class CjkAnalyzerTest {
         String text = "北京大学";
         List<Hit<TokenType>> list;
         list = function.apply(text);
-        System.out.println(text + ": " + list);
+        printHits(text, list);
         text = "北京的大学";
         list = function.apply(text);
-        System.out.println(text + ": " + list);
+        printHits(text, list);
         text = "商品服务";
         list = function.apply(text);
-        System.out.println(text + ": " + list);
+        printHits(text, list);
         text = "商品和服务";
         list = function.apply(text);
-        System.out.println(text + ": " + list);
+        printHits(text, list);
         text = "商品和氏璧";
         list = function.apply(text);
-        System.out.println(text + ": " + list);
+        printHits(text, list);
         text = "B-tree中的每个结点根据实际情况可以包含大量的关键字信息";
         list = function.apply(text);
-        System.out.println(text + ": " + list);
+        printHits(text, list);
         text = "东方不败笑傲江湖都是好看的电视剧";
         list = function.apply(text);
-        System.out.println(text + ": " + list);
+        printHits(text, list);
         text = "商品共和服";
         list = function.apply(text);
-        System.out.println(text + ": " + list);
+        printHits(text, list);
+    }
+
+    private void printHits(String text, List<Hit<TokenType>> list) {
+        System.out.println(text + ": " + Hits.valueOf(text, list));
     }
 
 }
