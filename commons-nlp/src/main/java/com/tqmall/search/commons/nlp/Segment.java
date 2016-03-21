@@ -142,7 +142,7 @@ public final class Segment extends AbstractTextMatch<TokenType> {
             return this;
         }
 
-        public Segment create(CjkLexicon cjkLexicon) {
+        public Segment create(CjkLexiconSupplier cjkLexicon) {
             Objects.requireNonNull(cjkLexicon);
             return new Segment(name, segmentFilter == null ? SegmentFilters.hitsFilter() : segmentFilter,
                     asciiAnalyzer == null ? AsciiAnalyzer.build().create() : asciiAnalyzer,

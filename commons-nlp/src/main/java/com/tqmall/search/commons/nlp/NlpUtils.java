@@ -12,10 +12,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 
 /**
  * Created by xing on 16/1/26.
@@ -100,14 +97,7 @@ public final class NlpUtils {
      */
     public static Path getPathOfClass(Class cls, String filename) {
         URL uri = cls.getResource(filename);
-        return uri == null ? null : FileSystems.getDefault().getPath(uri.getFile());
-    }
-
-    /**
-     * 获取指定文件的{@link Path}对象
-     */
-    public static Path getPath(String filePath) {
-        return FileSystems.getDefault().getPath(filePath);
+        return uri == null ? null : Paths.get(uri.getFile());
     }
 
     /**
