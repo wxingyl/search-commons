@@ -134,7 +134,7 @@ public final class HttpUtils {
             @Override
             public T convert(String input) {
                 if (input == null) return null;
-                return JsonUtils.jsonStrToObj(input, cls);
+                return JsonUtils.parseObject(input, cls);
             }
         };
     }
@@ -508,7 +508,7 @@ public final class HttpUtils {
                 if (body instanceof CharSequence || !isJson) {
                     this.body = body.toString();
                 } else {
-                    this.body = JsonUtils.objToJsonStr(body);
+                    this.body = JsonUtils.toJsonStr(body);
                 }
             }
             if (isJson) {

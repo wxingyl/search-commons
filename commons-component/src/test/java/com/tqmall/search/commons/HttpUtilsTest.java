@@ -52,6 +52,22 @@ public class HttpUtilsTest {
 
         private String err_msg;
 
+        public void setErr_msg(String err_msg) {
+            this.err_msg = err_msg;
+        }
+
+        public void setLongurl(String longurl) {
+            this.longurl = longurl;
+        }
+
+        public void setStatus(Integer status) {
+            this.status = status;
+        }
+
+        public void setTinyurl(String tinyurl) {
+            this.tinyurl = tinyurl;
+        }
+
         @Override
         public String toString() {
             return "TinyUrl{" +

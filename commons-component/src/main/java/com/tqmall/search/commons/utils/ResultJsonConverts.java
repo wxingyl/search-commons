@@ -1,6 +1,5 @@
 package com.tqmall.search.commons.utils;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tqmall.search.commons.lang.StrValueConvert;
 import com.tqmall.search.commons.result.*;
 
@@ -31,7 +30,7 @@ public final class ResultJsonConverts {
             public Result<T> convert(String input) {
                 JsonSimpleResult simpleResult = parseData(input);
                 if (simpleResult.isSuccess()) {
-                    return ResultUtils.result(JsonUtils.jsonStrToObj(simpleResult.getData(), cls));
+                    return ResultUtils.result(JsonUtils.parseObject(simpleResult.getData(), cls));
                 } else {
                     return ResultUtils.result(simpleResult);
                 }
@@ -49,15 +48,11 @@ public final class ResultJsonConverts {
                 } else if (simpleResult.flag != 2) {
                     return ResultUtils.pageResult(UtilsErrorCode.JSON_RESULT_CONVERT_INVALID_ARRAY, simpleResult.getData());
                 } else {
-                    List<String> list = splitJsonArray(simpleResult.getData());
+                    List<T> list = JsonUtils.parseArray(simpleResult.getData(), cls);
                     if (list == null) {
                         return ResultUtils.pageResult(UtilsErrorCode.JSON_RESULT_CONVERT_INVALID_ARRAY, simpleResult.getData());
                     } else {
-                        List<T> beanList = new ArrayList<>(list.size());
-                        for (String s : list) {
-                            beanList.add(JsonUtils.jsonStrToObj(s, cls));
-                        }
-                        return ResultUtils.pageResult(beanList, simpleResult.total);
+                        return ResultUtils.pageResult(list, simpleResult.total);
                     }
                 }
             }
@@ -75,7 +70,7 @@ public final class ResultJsonConverts {
                 return ResultUtils.mapResult(UtilsErrorCode.JSON_RESULT_CONVERT_INVALID_OBJECT, simpleResult.getData());
             } else {
                 MapResult result = ResultUtils.mapResult();
-                Map<String, Object> map = JsonUtils.jsonStrToObj(simpleResult.getData(), Map.class);
+                Map<String, Object> map = JsonUtils.parseToMap(simpleResult.getData());
                 result.putAll(map);
                 return result;
             }
@@ -176,7 +171,7 @@ public final class ResultJsonConverts {
         if (simpleJson == null) {
             simpleJson = json;
         }
-        JsonSimpleResult simpleResult = JsonUtils.jsonStrToObj(simpleJson, JsonSimpleResult.class);
+        JsonSimpleResult simpleResult = JsonUtils.parseObject(simpleJson, JsonSimpleResult.class);
         if (simpleResult == null) {
             return buildErrorSimpleResult("String: " + simpleJson + " is not format of com.tqmall.search.common.result.Result class");
         }
@@ -200,7 +195,6 @@ public final class ResultJsonConverts {
          * 1: 普通的Object类型
          * 2: 普通的Array类型
          */
-        @JsonIgnore
         private int flag;
 
         public JsonSimpleResult() {
