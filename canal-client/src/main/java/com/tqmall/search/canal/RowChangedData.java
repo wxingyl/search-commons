@@ -16,7 +16,7 @@ import java.util.*;
  *
  * @see #getEventType(RowChangedData)
  */
-public abstract class RowChangedData<V> implements Function<String, V>, Serializable {
+public abstract class RowChangedData<V> implements Function<String, V>, Serializable, AutoCloseable {
 
     private static final long serialVersionUID = -8712239138384357603L;
 
@@ -32,6 +32,11 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
     @Override
     public V apply(String s) {
         return fieldValueMap.get(s);
+    }
+
+    @Override
+    public void close() {
+        fieldValueMap.clear();
     }
 
     @Override

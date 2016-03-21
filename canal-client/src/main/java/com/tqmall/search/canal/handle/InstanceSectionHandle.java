@@ -78,6 +78,9 @@ public class InstanceSectionHandle extends AbstractCanalInstanceHandle {
     @Override
     protected void doFinishHandle() {
         instanceAction.onAction(rowChangedData);
+        for (InstanceRowChangedData data : rowChangedData) {
+            data.close();
+        }
         rowChangedData.clear();
     }
 

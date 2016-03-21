@@ -40,11 +40,15 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
     private void runLastRowChangeAction() {
         if (rowChangedDataList.isEmpty()) return;
         lastTable.getAction().onAction(rowChangedDataList);
+        for (RowChangedData data : rowChangedDataList) {
+            data.close();
+        }
         rowChangedDataList.clear();
     }
 
     @Override
-    protected HandleExceptionContext buildHandleExceptionContext(RuntimeException exception) {
+    protected HandleExceptionContext
+            (RuntimeException exception) {
         return HandleExceptionContext.build(exception)
                 .schema(lastTable.getSchemaName())
                 .table(lastTable.getTableName())

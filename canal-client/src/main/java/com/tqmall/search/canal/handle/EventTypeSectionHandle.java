@@ -57,6 +57,10 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
         } else {
             lastTable.getAction().onDeleteAction(Collections.unmodifiableList((List<RowChangedData.Delete>) dataList));
         }
+        //这儿主动调用clear, 数据无效掉, 避免调用Action时保留引用导致无法回收
+        for (RowChangedData data : dataList) {
+            data.close();
+        }
         //这儿清楚掉
         dataList.clear();
     }

@@ -14,7 +14,7 @@ import java.util.List;
  * @see CanalInstanceHandle#rowChangeHandle(CanalEntry.RowChange)
  * @see AbstractCanalInstanceHandle#doRowChangeHandle(List)
  */
-public class HandleExceptionContext {
+public class HandleExceptionContext implements AutoCloseable {
 
     private final RuntimeException exception;
 
@@ -29,7 +29,7 @@ public class HandleExceptionContext {
      *
      * @see java.util.Collections#unmodifiableList(List)
      */
-    private List<RowChangedData> changedData;
+    private final List<RowChangedData> changedData;
 
     public HandleExceptionContext(RuntimeException exception, String schema, String table,
                                   CanalEntry.EventType eventType, List<RowChangedData> changedData) {
@@ -38,13 +38,14 @@ public class HandleExceptionContext {
         this.table = table;
         this.eventType = eventType;
         this.changedData = CommonsUtils.isEmpty(changedData) ? Collections.<RowChangedData>emptyList()
-                : Collections.unmodifiableList(changedData);
+                : changedData;
     }
 
     /**
-     * 返回{@link Collections#unmodifiableList(List)}, 执行add操作直接抛异常
+     * 返回{@link Collections#unmodifiableList(List)}, 执行add等写操作直接抛异常
      *
      * @return 不可修改的list 并且不可能为null
+     * @see Collections#unmodifiableList(List)
      */
     public List<RowChangedData> getChangedData() {
         return changedData;
@@ -68,6 +69,11 @@ public class HandleExceptionContext {
 
     public static Builder build(RuntimeException e) {
         return new Builder(e);
+    }
+
+    @Override
+    public void close() {
+        changedData.clear();
     }
 
     public static class Builder {

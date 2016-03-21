@@ -110,16 +110,17 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
 
     @Override
     protected boolean exceptionHandle(RuntimeException exception, boolean inFinishHandle) {
-        HandleExceptionContext context = buildHandleExceptionContext(exception);
-        if (handleExceptionFunction != null) {
-            Boolean ignore = handleExceptionFunction.apply(context);
-            return ignore == null ? false : ignore;
-        } else {
-            log.error("canal " + instanceName + " handle table data change occurring exception: " + context.getSchema()
-                    + '.' + context.getTable() + ", eventType: " + context.getEventType() + ", changedData size: "
-                    + context.getChangedData().size() + ", ignoreHandleException: " + ignoreHandleException + ", inFinishHandle: "
-                    + inFinishHandle, exception);
-            return ignoreHandleException;
+        try (HandleExceptionContext context = buildHandleExceptionContext(exception)) {
+            if (handleExceptionFunction != null) {
+                Boolean ignore = handleExceptionFunction.apply(context);
+                return ignore == null ? false : ignore;
+            } else {
+                log.error("canal " + instanceName + " handle table data change occurring exception: " + context.getSchema()
+                        + '.' + context.getTable() + ", eventType: " + context.getEventType() + ", changedData size: "
+                        + context.getChangedData().size() + ", ignoreHandleException: " + ignoreHandleException + ", inFinishHandle: "
+                        + inFinishHandle, exception);
+                return ignoreHandleException;
+            }
         }
     }
 
