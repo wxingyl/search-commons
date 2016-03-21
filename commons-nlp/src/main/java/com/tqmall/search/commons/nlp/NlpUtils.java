@@ -10,7 +10,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 /**
  * Created by xing on 16/1/26.
@@ -91,34 +96,74 @@ public final class NlpUtils {
     }
 
     /**
-     * 加载词库文件, 通过{@link StandardCharsets#UTF_8}编码打开文件
-     *
-     * @param filename   词库加载
-     * @param lineHandle 每行的处理函数, 入参String: 一行内容, 出参Boolean: true 继续, false 停止后续加载
+     * 获取指定class的{@link Class#getResource(String)} 对应文件的{@link Path}对象
      */
-    public static void loadLexicon(String filename, Function<String, Boolean> lineHandle) {
-        if (filename.charAt(0) != '/') {
-            filename = '/' + filename;
-        }
-        log.info("start load lexicon file: " + filename);
-        try (InputStream in = NlpUtils.class.getResourceAsStream(filename)) {
-            int lineCount = loadLexicon(in, lineHandle);
-            log.info("load lexicon file: " + filename + " finish, total load " + lineCount + " lines");
+    public static Path getPathOfClass(Class cls, String filename) {
+        URL uri = cls.getResource(filename);
+        return uri == null ? null : FileSystems.getDefault().getPath(uri.getFile());
+    }
+
+    /**
+     * 获取指定文件的{@link Path}对象
+     */
+    public static Path getPath(String filePath) {
+        return FileSystems.getDefault().getPath(filePath);
+    }
+
+    /**
+     * @param lineHandle 每行的处理函数, 入参String: 一行内容, 出参Boolean: true 继续, false 停止后续加载
+     * @return 加载的行数统计
+     * @throws LoadLexiconException 加载词库, 读取文件时发生{@link IOException}, 则抛出{@link LoadLexiconException}, 其为{@link RuntimeException}, 包装了{@link IOException}
+     */
+    public static int loadClassPathLexicon(Class cls, String filename, Function<String, Boolean> lineHandle) {
+        log.info("start load class: " + cls + " path lexicon file: " + filename);
+        try (InputStream in = cls.getResourceAsStream(filename)) {
+            int lineCount = loadLexicon(lineHandle, in);
+            log.info("load class: " + cls + " path lexicon file: " + filename + " finish, total load " + lineCount + " lines");
+            return lineCount;
         } catch (IOException e) {
-            log.error("load lexicon file: " + filename + " have exception", e);
-            throw new LoadLexiconException("load lexicon file: " + filename + " have exception", e);
+            log.error("load class: " + cls + " path lexicon file: " + filename + " have exception", e);
+            throw new LoadLexiconException("load class: " + cls + " path lexicon file: " + filename + " have exception", e);
+        }
+    }
+
+
+    /**
+     * @param lineHandle 每行的处理函数, 入参String: 一行内容, 出参Boolean: true 继续, false 停止后续加载
+     * @return 加载的行数统计
+     * @throws LoadLexiconException 加载词库, 读取文件时发生{@link IOException}, 则抛出{@link LoadLexiconException}, 其为{@link RuntimeException}, 包装了{@link IOException}
+     */
+    public static int loadLexicon(Function<String, Boolean> lineHandle, Path lexiconPath) {
+        log.info("start load lexicon file: " + lexiconPath);
+        try (InputStream in = Files.newInputStream(lexiconPath, StandardOpenOption.READ)) {
+            int lineCount = loadLexicon(lineHandle, in);
+            log.info("load lexicon file: " + lexiconPath + " finish, total load " + lineCount + " lines");
+            return lineCount;
+        } catch (IOException e) {
+            log.error("load lexicon file: " + lexiconPath + " have exception", e);
+            throw new LoadLexiconException("load lexicon file: " + lexiconPath + " have exception", e);
         }
     }
 
     /**
-     * 加载词库文件, 通过{@link StandardCharsets#UTF_8}编码打开文件
-     *
-     * @param in         input输入流, 加载完会执行关闭
      * @param lineHandle 每行的处理函数, 入参String: 一行内容, 出参Boolean: true 继续, false 停止后续加载
      * @return 加载的行数统计
-     * @throws IOException 读取文件发生异常
+     * @throws LoadLexiconException 加载词库, 读取文件时发生{@link IOException}, 则抛出{@link LoadLexiconException}, 其为{@link RuntimeException}, 包装了{@link IOException}
      */
-    public static int loadLexicon(InputStream in, Function<String, Boolean> lineHandle) throws IOException {
+    public static long loadLexicon(Function<String, Boolean> lineHandle, Path... lexiconPaths) {
+        long lineCount = 0L;
+        for (Path path : lexiconPaths) {
+            lineCount += loadLexicon(lineHandle, path);
+        }
+        return lineCount;
+    }
+
+
+    /**
+     * @param lineHandle 每行的处理函数, 入参String: 一行内容, 出参Boolean: true 继续, false 停止后续加载
+     * @return 加载的行数统计
+     */
+    public static int loadLexicon(Function<String, Boolean> lineHandle, InputStream in) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
             int lineCount = 0;
             String line;

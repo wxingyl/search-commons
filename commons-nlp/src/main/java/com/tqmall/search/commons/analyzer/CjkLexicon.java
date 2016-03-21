@@ -14,8 +14,7 @@ import com.tqmall.search.commons.utils.SearchStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -55,55 +54,51 @@ public class CjkLexicon {
     /**
      * {@link AcTrieNodeFactory}默认使用{@link RootNodeType#CJK}
      */
-    public CjkLexicon(InputStream lexicon) {
-        this(RootNodeType.CJK, lexicon);
+    public CjkLexicon(Path... lexiconPaths) {
+        this(RootNodeType.CJK, lexiconPaths);
     }
 
     /**
      * 读取词库文件, 如果存在异常则抛出{@link LoadLexiconException}
      *
      * @param rootNodeType 根节点类型
-     * @param lexicon      词库输入流
+     * @param lexiconPaths 词库文件列表
      * @see LoadLexiconException
      * @see TrieNodeFactory
      * @see AcTrieNodeFactory
      */
-    public CjkLexicon(RootNodeType rootNodeType, final InputStream lexicon) {
+    public CjkLexicon(RootNodeType rootNodeType, Path... lexiconPaths) {
         matchReverseBinaryTrie = new MatchBinaryReverseTrie<>(rootNodeType.<TokenType>defaultTrie());
         long startTime = System.currentTimeMillis();
-        log.info("start loading cjk lexicon: " + lexicon);
         quantifiers = new HashSet<>();
         final AcBinaryTrie.Builder<TokenType> acBuilder = AcBinaryTrie.build();
-        try {
-            NlpUtils.loadLexicon(lexicon, new Function<String, Boolean>() {
-                @Override
-                public Boolean apply(String s) {
-                    int index = s.indexOf(' ');
-                    TokenType tokenType;
-                    if (index < 0) {
-                        tokenType = TokenType.CN;
-                    } else {
-                        String str = s.substring(index + 1).trim();
-                        tokenType = TokenType.fromString(str);
-                        s = s.substring(0, index);
-                        if (tokenType == null) {
-                            log.warn("load cjk lexicon: " + lexicon + ", word: " + s + " tokenType: " + str + " is invalid, instead of " + TokenType.CN);
-                        } else if (tokenType == TokenType.QUANTIFIER) {
-                            quantifiers.add(s);
-                        }
+        log.info("start loading cjk lexicon, file size: " + lexiconPaths.length);
+        long lineCount = NlpUtils.loadLexicon(new Function<String, Boolean>() {
+            @Override
+            public Boolean apply(String s) {
+                int index = s.indexOf(' ');
+                TokenType tokenType;
+                if (index < 0) {
+                    tokenType = TokenType.CN;
+                } else {
+                    String str = s.substring(index + 1).trim();
+                    tokenType = TokenType.fromString(str);
+                    s = s.substring(0, index);
+                    if (tokenType == null) {
+                        log.warn("load cjk lexicon word: " + s + " tokenType: " + str + " is invalid, instead of " + TokenType.CN);
+                    } else if (tokenType == TokenType.QUANTIFIER) {
+                        quantifiers.add(s);
                     }
-                    acBuilder.put(s, tokenType);
-                    matchReverseBinaryTrie.put(s, tokenType);
-                    return true;
                 }
-            });
-        } catch (IOException e) {
-            log.error("read cjk lexicon: " + lexicon + " break out IOException", e);
-            throw new LoadLexiconException("init cjk lexicon: " + lexicon + " break out exception", e);
-        }
+                acBuilder.put(s, tokenType);
+                matchReverseBinaryTrie.put(s, tokenType);
+                return true;
+            }
+        }, lexiconPaths);
         acBinaryTrie = acBuilder.create(rootNodeType.<TokenType>defaultAcTrie());
-        log.info("load cjk lexicon: " + lexicon + " finish, total cost: " + (System.currentTimeMillis() - startTime) + "ms");
-        NlpUtils.loadLexicon(NlpConst.QUANTIFIER_FILE_NAME, new Function<String, Boolean>() {
+        log.info("load cjk lexicon finish, laod " + lineCount + " words, total cost: " + (System.currentTimeMillis() - startTime) + "ms");
+
+        NlpUtils.loadClassPathLexicon(CjkLexicon.class, NlpConst.QUANTIFIER_FILE_NAME, new Function<String, Boolean>() {
             @Override
             public Boolean apply(String s) {
                 quantifiers.add(s);
@@ -115,9 +110,9 @@ public class CjkLexicon {
     /**
      * full匹配, 尽可能的返回所有能够匹配到的结果
      *
-     * @param text     待分词文本
-     * @param off 待处理文本的起始位置
-     * @param len   待处理文本的长度
+     * @param text 待分词文本
+     * @param off  待处理文本的起始位置
+     * @param len  待处理文本的长度
      * @return 匹配结果
      */
     public List<Hit<TokenType>> fullMatch(char[] text, int off, int len) {
@@ -127,9 +122,9 @@ public class CjkLexicon {
     /**
      * 最大匹配
      *
-     * @param text     待分词文本
-     * @param off 待处理文本的起始位置
-     * @param len   待处理文本的长度
+     * @param text 待分词文本
+     * @param off  待处理文本的起始位置
+     * @param len  待处理文本的长度
      * @return 匹配结果
      */
     public List<Hit<TokenType>> maxMatch(char[] text, int off, int len) {
@@ -139,9 +134,9 @@ public class CjkLexicon {
     /**
      * 最小匹配
      *
-     * @param text     待分词文本
-     * @param off 待处理文本的起始位置
-     * @param len   待处理文本的长度
+     * @param text 待分词文本
+     * @param off  待处理文本的起始位置
+     * @param len  待处理文本的长度
      * @return 匹配结果
      */
     public List<Hit<TokenType>> minMatch(char[] text, int off, int len) {

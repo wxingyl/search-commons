@@ -1,16 +1,14 @@
 package com.tqmall.search.commons.nlp;
 
-import com.tqmall.search.commons.lang.Function;
-import com.tqmall.search.commons.match.Hit;
 import com.tqmall.search.commons.analyzer.CjkLexicon;
 import com.tqmall.search.commons.analyzer.TokenType;
+import com.tqmall.search.commons.lang.Function;
+import com.tqmall.search.commons.match.Hit;
 import com.tqmall.search.commons.match.Hits;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -23,11 +21,7 @@ public class CjkAnalyzerTest {
 
     @BeforeClass
     public static void init() {
-        try (InputStream in = CjkAnalyzerTest.class.getResourceAsStream("/segment.txt")) {
-            cjkLexicon = new CjkLexicon(in);
-        } catch (IOException e) {
-            throw new RuntimeException("词库文件加载失败", e);
-        }
+        cjkLexicon = new CjkLexicon(NlpUtils.getPathOfClass(CjkAnalyzerTest.class, "/segment.txt"));
     }
 
     @AfterClass
