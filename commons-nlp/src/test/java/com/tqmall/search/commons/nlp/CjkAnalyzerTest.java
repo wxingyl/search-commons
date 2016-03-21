@@ -5,6 +5,7 @@ import com.tqmall.search.commons.analyzer.TokenType;
 import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.match.Hit;
 import com.tqmall.search.commons.match.Hits;
+import com.tqmall.search.commons.trie.RootNodeType;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -21,7 +22,7 @@ public class CjkAnalyzerTest {
 
     @BeforeClass
     public static void init() {
-        cjkLexicon = new CjkLexicon(NlpUtils.getPathOfClass(CjkAnalyzerTest.class, "/segment.txt"));
+        cjkLexicon = new CjkLexicon(RootNodeType.CJK, NlpUtils.getPathOfClass(CjkAnalyzerTest.class, "/segment.txt"));
     }
 
     @AfterClass

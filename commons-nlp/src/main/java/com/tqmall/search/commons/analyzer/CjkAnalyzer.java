@@ -1,6 +1,8 @@
 package com.tqmall.search.commons.analyzer;
 
 import com.sun.org.apache.xalan.internal.xsltc.dom.BitArray;
+import com.tqmall.search.commons.lang.LazyInit;
+import com.tqmall.search.commons.lang.Supplier;
 import com.tqmall.search.commons.match.AbstractTextMatch;
 import com.tqmall.search.commons.match.Hit;
 import com.tqmall.search.commons.nlp.NlpUtils;
@@ -17,10 +19,14 @@ import java.util.Objects;
  */
 public abstract class CjkAnalyzer extends AbstractTextMatch<TokenType> {
 
-    protected final CjkLexicon cjkLexicon;
+    private final LazyInit<CjkLexicon> cjkLexicon;
 
-    protected CjkAnalyzer(CjkLexicon cjkLexicon) {
-        this.cjkLexicon = cjkLexicon;
+    protected CjkAnalyzer(Supplier<CjkLexicon> cjkLexicon) {
+        this.cjkLexicon = new LazyInit<>(cjkLexicon);
+    }
+
+    protected final CjkLexicon cjkLexicon() {
+        return cjkLexicon.getInstance();
     }
 
     protected abstract List<Hit<TokenType>> doMatch(char[] text, int off, int len);
@@ -61,7 +67,7 @@ public abstract class CjkAnalyzer extends AbstractTextMatch<TokenType> {
             }
             //没有匹配的中文字符, 只能单独成词了
             String w = String.valueOf(text[i]);
-            hits.add(new Hit<>(i, i + 1, cjkLexicon.isQuantifier(w) ? TokenType.QUANTIFIER : TokenType.CN));
+            hits.add(new Hit<>(i, i + 1, cjkLexicon().isQuantifier(w) ? TokenType.QUANTIFIER : TokenType.CN));
         }
         if (numEndIndex != -1) {
             hits.add(getNumHit(off, numEndIndex));
@@ -74,7 +80,7 @@ public abstract class CjkAnalyzer extends AbstractTextMatch<TokenType> {
     /**
      * 获取分词器
      */
-    public static CjkAnalyzer createSegment(CjkLexicon cjkLexicon, Type type) {
+    public static CjkAnalyzer createSegment(Supplier<CjkLexicon> cjkLexicon, Type type) {
         Objects.requireNonNull(type);
         switch (type) {
             case MIN:
@@ -93,13 +99,13 @@ public abstract class CjkAnalyzer extends AbstractTextMatch<TokenType> {
      */
     public static class Full extends CjkAnalyzer {
 
-        public Full(CjkLexicon cjkLexicon) {
+        public Full(Supplier<CjkLexicon> cjkLexicon) {
             super(cjkLexicon);
         }
 
         @Override
         protected List<Hit<TokenType>> doMatch(char[] text, int off, int len) {
-            return cjkLexicon.fullMatch(text, off, len);
+            return cjkLexicon().fullMatch(text, off, len);
         }
     }
 
@@ -109,13 +115,13 @@ public abstract class CjkAnalyzer extends AbstractTextMatch<TokenType> {
      */
     public static class Min extends CjkAnalyzer {
 
-        public Min(CjkLexicon cjkLexicon) {
+        public Min(Supplier<CjkLexicon> cjkLexicon) {
             super(cjkLexicon);
         }
 
         @Override
         protected List<Hit<TokenType>> doMatch(char[] text, int off, int len) {
-            return cjkLexicon.minMatch(text, off, len);
+            return cjkLexicon().minMatch(text, off, len);
         }
     }
 
@@ -124,13 +130,13 @@ public abstract class CjkAnalyzer extends AbstractTextMatch<TokenType> {
      */
     public static class Max extends CjkAnalyzer {
 
-        public Max(CjkLexicon cjkLexicon) {
+        public Max(Supplier<CjkLexicon> cjkLexicon) {
             super(cjkLexicon);
         }
 
         @Override
         protected List<Hit<TokenType>> doMatch(char[] text, int off, int len) {
-            return cjkLexicon.maxMatch(text, off, len);
+            return cjkLexicon().maxMatch(text, off, len);
         }
     }
 
