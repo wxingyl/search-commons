@@ -2,9 +2,16 @@ package com.tqmall.search.commons.match;
 
 import com.tqmall.search.commons.ac.AcNormalNode;
 
+import java.util.List;
+
 /**
  * Created by xing on 16/1/28.
  * 匹配到的结果, 位置为[), 左开右闭
+ * 输出结果只有开始, 结束位置, 如果需要匹配到的字符串, 通过{@link Hits}可以方便整到
+ *
+ * @see Hits
+ * @see Hits#valueOf(char[], List)
+ * @see Hits#valueOf(String, List)
  */
 public class Hit<V> implements Comparable<Hit<V>> {
     /**
