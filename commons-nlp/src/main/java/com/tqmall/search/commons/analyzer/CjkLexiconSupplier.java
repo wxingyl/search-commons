@@ -8,7 +8,7 @@ import java.nio.file.Path;
 /**
  * Created by xing on 16/3/22.
  * CjkLexicon 的{@link Supplier}实现
- * 加载词库实现异步加载, 实现{@link CjkLexicon}对应够高参数单例, 又按需加载
+ * 加载词库实现异步加载, 实现{@link CjkLexicon}对应够高参数单例
  *
  * @author xing
  */

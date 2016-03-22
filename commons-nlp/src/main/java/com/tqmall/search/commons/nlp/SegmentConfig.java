@@ -38,7 +38,7 @@ public class SegmentConfig {
     /**
      * 是否使用{@link MaxAsciiAnalyzer}
      * 如果为true,下面的3个配置项: {@link #asciiAnalyzerParseDecimal}, {@link #asciiAnalyzerParseEnMix}
-     * {@link #asciiAnalyzerEnMixAppend} 无效
+     * {@link #asciiAnalyzerAppendEnMix} 无效
      * <p/>
      * 默认false, 使用{@link AsciiAnalyzer}
      *
@@ -65,7 +65,7 @@ public class SegmentConfig {
      *
      * @see AsciiAnalyzer#enMixAppend
      */
-    private boolean asciiAnalyzerEnMixAppend = false;
+    private boolean asciiAnalyzerAppendEnMix = false;
 
     /**
      * CjkAnalyzer分词类型
@@ -114,7 +114,7 @@ public class SegmentConfig {
         } else {
             AsciiAnalyzer.Builder asciiBuilder = AsciiAnalyzer.build();
             if (asciiAnalyzerParseEnMix) {
-                asciiBuilder.enMixAppend(asciiAnalyzerEnMixAppend);
+                asciiBuilder.enMixAppend(asciiAnalyzerAppendEnMix);
             }
             builder.asciiAnalyzer(asciiBuilder.parseDecimal(asciiAnalyzerParseDecimal)
                     .create());
@@ -130,8 +130,8 @@ public class SegmentConfig {
         this.appendNumQuantifier = appendNumQuantifier;
     }
 
-    public void setAsciiAnalyzerEnMixAppend(boolean asciiAnalyzerEnMixAppend) {
-        this.asciiAnalyzerEnMixAppend = asciiAnalyzerEnMixAppend;
+    public void setAsciiAnalyzerAppendEnMix(boolean asciiAnalyzerAppendEnMix) {
+        this.asciiAnalyzerAppendEnMix = asciiAnalyzerAppendEnMix;
     }
 
     public void setAsciiAnalyzerParseDecimal(boolean asciiAnalyzerParseDecimal) {
@@ -170,8 +170,8 @@ public class SegmentConfig {
         return appendNumQuantifier;
     }
 
-    public boolean isAsciiAnalyzerEnMixAppend() {
-        return asciiAnalyzerEnMixAppend;
+    public boolean isAsciiAnalyzerAppendEnMix() {
+        return asciiAnalyzerAppendEnMix;
     }
 
     public boolean isAsciiAnalyzerParseDecimal() {
