@@ -107,31 +107,15 @@ public final class NlpUtils {
      */
     public static int loadClassPathLexicon(Class cls, String filename, Function<String, Boolean> lineHandle) {
         log.info("start load class: " + cls + " path lexicon file: " + filename);
+        long start = System.currentTimeMillis();
         try (InputStream in = cls.getResourceAsStream(filename)) {
             int lineCount = loadLexicon(lineHandle, in);
-            log.info("load class: " + cls + " path lexicon file: " + filename + " finish, total load " + lineCount + " lines");
+            log.info("load class: " + cls + " path lexicon file: " + filename + " finish, total load " + lineCount + " lines"
+                    + ", cost: " + (System.currentTimeMillis() - start) + "ms");
             return lineCount;
         } catch (IOException e) {
             log.error("load class: " + cls + " path lexicon file: " + filename + " have exception", e);
             throw new LoadLexiconException("load class: " + cls + " path lexicon file: " + filename + " have exception", e);
-        }
-    }
-
-
-    /**
-     * @param lineHandle 每行的处理函数, 入参String: 一行内容, 出参Boolean: true 继续, false 停止后续加载
-     * @return 加载的行数统计
-     * @throws LoadLexiconException 加载词库, 读取文件时发生{@link IOException}, 则抛出{@link LoadLexiconException}, 其为{@link RuntimeException}, 包装了{@link IOException}
-     */
-    public static int loadLexicon(Function<String, Boolean> lineHandle, Path lexiconPath) {
-        log.info("start load lexicon file: " + lexiconPath);
-        try (InputStream in = Files.newInputStream(lexiconPath, StandardOpenOption.READ)) {
-            int lineCount = loadLexicon(lineHandle, in);
-            log.info("load lexicon file: " + lexiconPath + " finish, total load " + lineCount + " lines");
-            return lineCount;
-        } catch (IOException e) {
-            log.error("load lexicon file: " + lexiconPath + " have exception", e);
-            throw new LoadLexiconException("load lexicon file: " + lexiconPath + " have exception", e);
         }
     }
 
@@ -148,6 +132,24 @@ public final class NlpUtils {
         return lineCount;
     }
 
+    /**
+     * @param lineHandle 每行的处理函数, 入参String: 一行内容, 出参Boolean: true 继续, false 停止后续加载
+     * @return 加载的行数统计
+     * @throws LoadLexiconException 加载词库, 读取文件时发生{@link IOException}, 则抛出{@link LoadLexiconException}, 其为{@link RuntimeException}, 包装了{@link IOException}
+     */
+    public static int loadLexicon(Function<String, Boolean> lineHandle, Path lexiconPath) {
+        log.info("start load lexicon file: " + lexiconPath);
+        long start = System.currentTimeMillis();
+        try (InputStream in = Files.newInputStream(lexiconPath, StandardOpenOption.READ)) {
+            int lineCount = loadLexicon(lineHandle, in);
+            log.info("load lexicon file: " + lexiconPath + " finish, total load " + lineCount + " lines"
+                    + ", cost: " + (System.currentTimeMillis() - start) + "ms");
+            return lineCount;
+        } catch (IOException e) {
+            log.error("load lexicon file: " + lexiconPath + " have exception", e);
+            throw new LoadLexiconException("load lexicon file: " + lexiconPath + " have exception", e);
+        }
+    }
 
     /**
      * @param lineHandle 每行的处理函数, 入参String: 一行内容, 出参Boolean: true 继续, false 停止后续加载

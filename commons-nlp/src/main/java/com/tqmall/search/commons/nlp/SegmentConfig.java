@@ -184,4 +184,19 @@ public class SegmentConfig {
     public SegmentFilter getSegmentFilter() {
         return segmentFilter;
     }
+
+    @Override
+    public String toString() {
+        return "SegmentConfig{" +
+                "name='" + name + '\'' +
+                ", segmentFilter=" + segmentFilter +
+                ", maxAsciiAnalyzer=" + maxAsciiAnalyzer +
+                ", asciiAnalyzerParseDecimal=" + asciiAnalyzerParseDecimal +
+                ", asciiAnalyzerParseEnMix=" + asciiAnalyzerParseEnMix +
+                ", asciiAnalyzerAppendEnMix=" + asciiAnalyzerAppendEnMix +
+                ", cjkAnalyzerType=" + cjkAnalyzerType +
+                ", mergeNumQuantifier=" + mergeNumQuantifier +
+                ", appendNumQuantifier=" + appendNumQuantifier +
+                '}';
+    }
 }
