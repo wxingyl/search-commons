@@ -94,7 +94,7 @@ public class SegmentConfig {
      * @param cjkLexicon cjk词库对象
      * @return 新建的分词器{@link Segment}对象
      */
-    public Segment createSegment(CjkLexiconSupplier cjkLexicon) {
+    public Segment createSegment(CjkLexiconFactory cjkLexicon) {
         Objects.requireNonNull(cjkLexicon);
         Segment.Builder builder = Segment.build(name);
         if (segmentFilter != null) {

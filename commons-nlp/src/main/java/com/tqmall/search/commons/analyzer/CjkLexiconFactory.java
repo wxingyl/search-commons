@@ -12,7 +12,7 @@ import java.nio.file.Path;
  *
  * @author xing
  */
-public class CjkLexiconSupplier implements Supplier<CjkLexicon> {
+public class CjkLexiconFactory implements Supplier<CjkLexicon> {
 
     private final Object lock = new Object();
 
@@ -20,7 +20,7 @@ public class CjkLexiconSupplier implements Supplier<CjkLexicon> {
 
     private boolean isNull = true;
 
-    CjkLexiconSupplier(final RootNodeType rootType, final Path... lexiconPaths) {
+    CjkLexiconFactory(final RootNodeType rootType, final Path... lexiconPaths) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -52,7 +52,7 @@ public class CjkLexiconSupplier implements Supplier<CjkLexicon> {
         return cjkLexicon;
     }
 
-    public static CjkLexiconSupplier valueOf(RootNodeType rootType, Path... lexiconPaths) {
-        return new CjkLexiconSupplier(rootType, lexiconPaths);
+    public static CjkLexiconFactory valueOf(RootNodeType rootType, Path... lexiconPaths) {
+        return new CjkLexiconFactory(rootType, lexiconPaths);
     }
 }

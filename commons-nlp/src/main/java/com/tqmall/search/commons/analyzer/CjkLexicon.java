@@ -24,11 +24,11 @@ import java.util.Set;
  * Created by xing on 16/2/8.
  * 中文分词词库, 包括汉语词库以及停止词, 提供最大, 最小, 全匹配, 通过{@link AcBinaryTrie}实现
  * 词库文件中, 每个词可以指定词的{@link TokenType}, 通过{@link TokenType#fromString(String)}解析对应类型, 默认{@link TokenType#CN}
- * 要实现懒加载, 可通过{@link CjkLexiconSupplier}实现
+ * 要实现懒加载, 可通过{@link CjkLexiconFactory}实现
  *
  * @see TokenType
  * @see TokenType#fromString(String)
- * @see CjkLexiconSupplier
+ * @see CjkLexiconFactory
  */
 public class CjkLexicon {
 

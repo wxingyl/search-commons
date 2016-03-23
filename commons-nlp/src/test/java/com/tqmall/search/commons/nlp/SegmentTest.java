@@ -2,7 +2,7 @@ package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.analyzer.AsciiAnalyzer;
 import com.tqmall.search.commons.analyzer.CjkAnalyzer;
-import com.tqmall.search.commons.analyzer.CjkLexiconSupplier;
+import com.tqmall.search.commons.analyzer.CjkLexiconFactory;
 import com.tqmall.search.commons.match.Hits;
 import com.tqmall.search.commons.trie.RootNodeType;
 import org.junit.BeforeClass;
@@ -26,7 +26,7 @@ public class SegmentTest {
 
     @BeforeClass
     public static void init() {
-        CjkLexiconSupplier cjkLexicon = CjkLexiconSupplier.valueOf(RootNodeType.CJK,
+        CjkLexiconFactory cjkLexicon = CjkLexiconFactory.valueOf(RootNodeType.CJK,
                 NlpUtils.getPathOfClass(SegmentTest.class, "/segment.txt"));
         fullSegment = Segment.build("full")
                 .segmentFilter(SegmentFilters.hitsFilter())
