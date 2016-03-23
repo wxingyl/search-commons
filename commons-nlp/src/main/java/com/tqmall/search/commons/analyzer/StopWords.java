@@ -19,19 +19,19 @@ import java.util.*;
  *
  * @author xing
  */
-public class Stopword {
+public class StopWords {
 
-    private static final LazyInit<Stopword> INSTANCE = new LazyInit<>(new Supplier<Stopword>() {
+    private static final LazyInit<StopWords> INSTANCE = new LazyInit<>(new Supplier<StopWords>() {
         @Override
-        public Stopword get() {
-            return new Stopword();
+        public StopWords get() {
+            return new StopWords();
         }
     });
 
     /**
      * 单例, 通过该接口获取实例对象
      */
-    public static Stopword instance() {
+    public static StopWords instance() {
         return INSTANCE.getInstance();
     }
 
@@ -45,9 +45,9 @@ public class Stopword {
 
     private final BinaryTrie<Void> stopWords;
 
-    Stopword() {
+    StopWords() {
         stopWords = new BinaryTrie<>(RootNodeType.NORMAL.<Void>defaultTrie());
-        NlpUtils.loadClassPathLexicon(Stopword.class, NlpConst.STOPWORD_FILE_NAME, new Function<String, Boolean>() {
+        NlpUtils.loadClassPathLexicon(StopWords.class, NlpConst.STOPWORD_FILE_NAME, new Function<String, Boolean>() {
             @Override
             public Boolean apply(String line) {
                 stopWords.put(line, null);

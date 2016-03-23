@@ -1,7 +1,7 @@
 package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.match.Hit;
-import com.tqmall.search.commons.analyzer.Stopword;
+import com.tqmall.search.commons.analyzer.StopWords;
 import com.tqmall.search.commons.analyzer.TokenType;
 
 import java.util.Iterator;
@@ -30,7 +30,7 @@ public final class SegmentFilters {
     /**
      * 实现停止词过滤, 同时支持{@link SegmentFilter#textFilter(char[], int, int)}
      *
-     * @see Stopword
+     * @see StopWords
      * @see TextFilter
      * @see HitsFilter
      */
@@ -91,7 +91,7 @@ public final class SegmentFilters {
     /**
      * 实现停止词过滤, 同时支持{@link SegmentFilter#textFilter(char[], int, int)}
      *
-     * @see Stopword
+     * @see StopWords
      * @see TextFilter
      */
     static class HitsFilter extends TextFilter {
@@ -103,7 +103,7 @@ public final class SegmentFilters {
             Iterator<Hit<TokenType>> it = hits.iterator();
             while (it.hasNext()) {
                 Hit<TokenType> hit = it.next();
-                if (Stopword.isStopword(text, hit.getStart(), hit.length())) {
+                if (StopWords.isStopword(text, hit.getStart(), hit.length())) {
                     //如果是停止词, 删除
                     it.remove();
                 }
