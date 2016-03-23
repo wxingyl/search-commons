@@ -46,7 +46,7 @@ public final class Segment extends AbstractTextMatch<TokenType> {
 
     @Override
     public List<Hit<TokenType>> match(final char[] text, final int off, final int len) {
-        segmentFilter.textFilter(text, off, len);
+        if (segmentFilter != null) segmentFilter.textFilter(text, off, len);
         List<Hit<TokenType>> asciiHits = asciiAnalyzer.match(text, off, len);
         List<Hit<TokenType>> cjkHits = cjkAnalyzer.match(text, off, len);
         List<Hit<TokenType>> hits;
@@ -73,7 +73,7 @@ public final class Segment extends AbstractTextMatch<TokenType> {
         if (numQuantifierMerge != null) {
             numQuantifierMerge.merge(hits);
         }
-        segmentFilter.hitsFilter(text, hits);
+        if (segmentFilter != null) segmentFilter.hitsFilter(text, hits);
         return hits;
     }
 
@@ -144,9 +144,8 @@ public final class Segment extends AbstractTextMatch<TokenType> {
 
         public Segment create(CjkLexiconSupplier cjkLexicon) {
             Objects.requireNonNull(cjkLexicon);
-            return new Segment(name, segmentFilter == null ? SegmentFilters.hitsFilter() : segmentFilter,
-                    asciiAnalyzer == null ? AsciiAnalyzer.build().create() : asciiAnalyzer,
-                    CjkAnalyzer.createSegment(cjkLexicon, cjkAnalyzerType), this.numQuantifierMerge);
+            return new Segment(name, segmentFilter, asciiAnalyzer == null ? AsciiAnalyzer.build().create()
+                    : asciiAnalyzer, CjkAnalyzer.createSegment(cjkLexicon, cjkAnalyzerType), this.numQuantifierMerge);
         }
     }
 }

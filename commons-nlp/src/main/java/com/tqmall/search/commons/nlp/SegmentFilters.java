@@ -39,6 +39,29 @@ public final class SegmentFilters {
     }
 
     /**
+     * 字符转换, 如果返回{@link Character#MIN_VALUE}, 则表示该字符没有未做转换
+     *
+     * @return 转换结果, 结果为{@link Character#MIN_VALUE}, 则表示该字符没有做任何转换
+     */
+    public static char charConvert(char c) {
+        if (c >= 'A' && c <= 'Z') {
+            //大写转小写
+            return (char) (c + 32);
+        } else if (c == '\u3000') {
+            //全角空格处理
+            return '\u0020';
+        } else if (c > '\uFF00' && c < '\uFF5F') {
+            //全角字符转半角
+            return (char) (c - 65248);
+        } else if (NlpUtils.isCjkChar(c)) {
+            //中文繁体转简体
+            return TraditionToSimple.instance().convert(c);
+        } else {
+            return Character.MIN_VALUE;
+        }
+    }
+
+    /**
      * 只处理待分词文本过滤, 返回结果停止词就算了
      * 目前的处理有:
      * 1. 英文字母大写转小写
@@ -54,21 +77,8 @@ public final class SegmentFilters {
             final int endPos = off + len;
             NlpUtils.arrayIndexCheck(text, off, endPos);
             for (int i = off; i < endPos; i++) {
-                char c = text[i];
-                if (c >= 'A' && c <= 'Z') {
-                    //大写转小写
-                    c += 32;
-                } else if (c == '\u3000') {
-                    //全角空格处理
-                    c = '\u0020';
-                } else if (c > '\uFF00' && c < '\uFF5F') {
-                    //全角字符转半角
-                    c -= 65248;
-                } else if (NlpUtils.isCjkChar(c)) {
-                    //中文繁体转简体
-                    c = TraditionToSimple.instance().convert(c);
-                } else continue;
-                text[i] = c;
+                char c = charConvert(text[i]);
+                if (c != Character.MIN_VALUE) text[i] = c;
             }
         }
 
