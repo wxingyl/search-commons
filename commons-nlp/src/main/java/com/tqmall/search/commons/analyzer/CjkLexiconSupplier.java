@@ -18,6 +18,8 @@ public class CjkLexiconSupplier implements Supplier<CjkLexicon> {
 
     private CjkLexicon cjkLexicon;
 
+    private boolean isNull = true;
+
     CjkLexiconSupplier(final RootNodeType rootType, final Path... lexiconPaths) {
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -25,6 +27,7 @@ public class CjkLexiconSupplier implements Supplier<CjkLexicon> {
                 synchronized (lock) {
                     cjkLexicon = new CjkLexicon(rootType == null ? RootNodeType.CJK : rootType,
                             lexiconPaths);
+                    isNull = false;
                     lock.notifyAll();
                 }
             }
@@ -35,9 +38,9 @@ public class CjkLexiconSupplier implements Supplier<CjkLexicon> {
 
     @Override
     public CjkLexicon get() {
-        if (cjkLexicon == null) {
+        if (isNull) {
             synchronized (lock) {
-                while (cjkLexicon == null) {
+                while (isNull) {
                     try {
                         //顶多等100ms
                         lock.wait(100L);
