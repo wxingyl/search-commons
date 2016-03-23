@@ -5,31 +5,33 @@ package com.tqmall.search.commons.utils;
  *
  * @author xing
  */
+@SuppressWarnings({"rawtypes, unchecked"})
 public enum HttpMethod {
-    GET,
-    POST,
-    PUT,
-    DELETE;
-
-    @SuppressWarnings({"rawtypes, unchecked"})
-    public <T extends HttpUtils.Request> T build() {
-        HttpUtils.Request request;
-        switch (this) {
-            case GET:
-                request = new HttpUtils.GetRequest();
-                break;
-            case POST:
-                request = new HttpUtils.PostRequest();
-                break;
-            case PUT:
-                request = new HttpUtils.PutRequest();
-                break;
-            case DELETE:
-                request = new HttpUtils.DeleteRequest();
-                break;
-            default:
-                request = null;
+    GET {
+        @Override
+        public <T extends HttpUtils.Request> T build() {
+            return (T) new HttpUtils.GetRequest();
         }
-        return (T) request;
-    }
+    },
+    POST {
+        @Override
+        public <T extends HttpUtils.Request> T build() {
+            return (T) new HttpUtils.PostRequest();
+        }
+    },
+    PUT {
+        @Override
+        public <T extends HttpUtils.Request> T build() {
+            return (T) new HttpUtils.PutRequest();
+        }
+    },
+    DELETE {
+        @Override
+        public <T extends HttpUtils.Request> T build() {
+            return (T) new HttpUtils.DeleteRequest();
+        }
+    };
+
+    public abstract <T extends HttpUtils.Request> T build();
+
 }

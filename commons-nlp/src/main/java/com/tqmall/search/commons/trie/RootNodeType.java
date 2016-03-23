@@ -12,32 +12,32 @@ import com.tqmall.search.commons.nlp.NlpConst;
  * @see AcTrieNodeFactory
  */
 public enum RootNodeType {
-    NORMAL,
-    ASCII,
-    CJK,
-    ALL;
-
-    public <V> Node<V> createRootNode() {
-        Node<V> root;
-        switch (this) {
-            case NORMAL:
-                root = new NormalNode<>('\0');
-                break;
-            case ASCII:
-                root = new BigRootNode<>(Character.MIN_VALUE, 0x100);
-                break;
-            case CJK:
-                root = new BigRootNode<>(NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST, NlpConst.CJK_UNIFIED_SIZE);
-                break;
-            case ALL:
-                root = new BigRootNode<>(Character.MIN_VALUE, 0x10000);
-                break;
-            default:
-                //can not arrive here
-                root = null;
+    NORMAL {
+        @Override
+        public <V> Node<V> createRootNode() {
+            return new NormalNode<>('\0');
         }
-        return root;
-    }
+    },
+    ASCII {
+        @Override
+        public <V> Node<V> createRootNode() {
+            return new BigRootNode<>(Character.MIN_VALUE, 0x100);
+        }
+    },
+    CJK {
+        @Override
+        public <V> Node<V> createRootNode() {
+            return new BigRootNode<>(NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST, NlpConst.CJK_UNIFIED_SIZE);
+        }
+    },
+    ALL {
+        @Override
+        public <V> Node<V> createRootNode() {
+            return new BigRootNode<>(Character.MIN_VALUE, 0x10000);
+        }
+    };
+
+    public abstract <V> Node<V> createRootNode();
 
     public <V> TrieNodeFactory<V> defaultTrie() {
         return TrieNodeFactories.defaultTrie(this.<V>createRootNode());
