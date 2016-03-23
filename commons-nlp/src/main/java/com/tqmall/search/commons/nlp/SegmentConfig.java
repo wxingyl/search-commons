@@ -21,20 +21,13 @@ public class SegmentConfig {
     private final String name;
 
     /**
-     * 分词过滤器, 为mull, 则根据下面的变量{@link #hitsSegmentFilter}确定过滤器
+     * 分词过滤器, 默认为mull
      *
-     * @see SegmentFilter
+     * @see SegmentFilters#textFilter()
+     * @see SegmentFilters#hitsFilter()
      */
     private SegmentFilter segmentFilter;
 
-    /**
-     * 当{@link #segmentFilter} = null时才考虑该参数
-     * 为true表示使用hitsFilter {@link SegmentFilters#hitsFilter()}
-     * 为false表示使用textFilter {@link SegmentFilters#textFilter()}
-     * <p/>
-     * 默认false
-     */
-    private boolean hitsSegmentFilter = false;
     /**
      * 是否使用{@link MaxAsciiAnalyzer}
      * 如果为true,下面的3个配置项: {@link #asciiAnalyzerParseDecimal}, {@link #asciiAnalyzerParseEnMix}
@@ -106,8 +99,6 @@ public class SegmentConfig {
         Segment.Builder builder = Segment.build(name);
         if (segmentFilter != null) {
             builder.segmentFilter(segmentFilter);
-        } else {
-            builder.segmentFilter(hitsSegmentFilter ? SegmentFilters.hitsFilter() : SegmentFilters.textFilter());
         }
         if (maxAsciiAnalyzer) {
             builder.asciiAnalyzer(MaxAsciiAnalyzer.INSTANCE);
@@ -146,10 +137,6 @@ public class SegmentConfig {
         this.cjkAnalyzerType = cjkAnalyzerType;
     }
 
-    public void setHitsSegmentFilter(boolean hitsSegmentFilter) {
-        this.hitsSegmentFilter = hitsSegmentFilter;
-    }
-
     public void setMaxAsciiAnalyzer(boolean maxAsciiAnalyzer) {
         this.maxAsciiAnalyzer = maxAsciiAnalyzer;
     }
@@ -184,10 +171,6 @@ public class SegmentConfig {
 
     public CjkAnalyzer.Type getCjkAnalyzerType() {
         return cjkAnalyzerType;
-    }
-
-    public boolean isHitsSegmentFilter() {
-        return hitsSegmentFilter;
     }
 
     public boolean isMaxAsciiAnalyzer() {
