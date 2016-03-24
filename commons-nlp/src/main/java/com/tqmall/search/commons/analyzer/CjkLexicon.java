@@ -15,10 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by xing on 16/2/8.
@@ -53,6 +50,10 @@ public class CjkLexicon {
 
     private final Set<String> quantifiers;
 
+    public CjkLexicon(RootNodeType rootNodeType, Path lexiconPaths) {
+        this(rootNodeType, Collections.singletonList(lexiconPaths));
+    }
+
     /**
      * 读取词库文件, 如果存在异常则抛出{@link LoadLexiconException}
      *
@@ -62,12 +63,12 @@ public class CjkLexicon {
      * @see TrieNodeFactory
      * @see AcTrieNodeFactory
      */
-    public CjkLexicon(RootNodeType rootNodeType, Path... lexiconPaths) {
+    public CjkLexicon(RootNodeType rootNodeType, Collection<Path> lexiconPaths) {
         matchReverseBinaryTrie = new MatchBinaryReverseTrie<>(rootNodeType.<TokenType>defaultTrie());
         long startTime = System.currentTimeMillis();
         quantifiers = new HashSet<>();
         final AcBinaryTrie.Builder<TokenType> acBuilder = AcBinaryTrie.build();
-        log.info("start loading cjk lexicon, file size: " + lexiconPaths.length);
+        log.info("start loading cjk lexicon files: " + lexiconPaths);
         long lineCount = NlpUtils.loadLexicon(new Function<String, Boolean>() {
             @Override
             public Boolean apply(String s) {
@@ -91,7 +92,7 @@ public class CjkLexicon {
             }
         }, lexiconPaths);
         acBinaryTrie = acBuilder.create(rootNodeType.<TokenType>defaultAcTrie());
-        log.info("load cjk lexicon finish, laod " + lineCount + " words, total cost: " + (System.currentTimeMillis() - startTime) + "ms");
+        log.info("load cjk lexicon finish, total load " + lineCount + " words, total cost: " + (System.currentTimeMillis() - startTime) + "ms");
 
         NlpUtils.loadClassPathLexicon(CjkLexicon.class, NlpConst.QUANTIFIER_FILE_NAME, new Function<String, Boolean>() {
             @Override
@@ -136,6 +137,19 @@ public class CjkLexicon {
      */
     public List<Hit<TokenType>> minMatch(char[] text, int off, int len) {
         return matchReverseBinaryTrie.minMatch(text, off, len);
+    }
+
+    /**
+     * 添加一个新词
+     *
+     * @return 是否添加成功
+     */
+    public boolean addWord(String word, TokenType tokenType) {
+        if ((word = SearchStringUtils.filterString(word)) == null) return false;
+        if (tokenType == null) tokenType = TokenType.CN;
+        boolean added = matchReverseBinaryTrie.put(word, tokenType);
+        acBinaryTrie.put(word, tokenType);
+        return added;
     }
 
     /**

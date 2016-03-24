@@ -37,6 +37,21 @@ public class AcBinaryTrie<V> extends AbstractAcTrie<V> {
         initFailed();
     }
 
+    @Override
+    public boolean put(String key, V value) {
+        failedRwLock.writeLock().lock();
+        try {
+            boolean added = super.put(key, value);
+            AcNormalNode<V> node;
+            if (added && (node = (AcNormalNode<V>) getNode(key)) != null) {
+                node.setSingleOutput(key);
+            }
+            return added;
+        } finally {
+            failedRwLock.writeLock().unlock();
+        }
+    }
+
     /**
      * 初始化failed {@link AcNormalNode} failed等字段
      */
@@ -81,6 +96,7 @@ public class AcBinaryTrie<V> extends AbstractAcTrie<V> {
                     } else {
                         //当前节点不是rootNode, 可以尝试failed节点, 再来一次查找
                         currentNode = ((AcNormalNode<V>) currentNode).getFailed();
+                        if (currentNode == null) currentNode = trieRoot;
                     }
                 } else {
                     //匹配到了

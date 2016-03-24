@@ -99,6 +99,10 @@ public class AcNormalNode<V> extends NormalNode<V> {
         return singleOutput;
     }
 
+    public void setSingleOutput(String singleOutput) {
+        this.singleOutput = singleOutput;
+    }
+
     @Override
     public void clear() {
         super.clear();

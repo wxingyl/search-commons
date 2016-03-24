@@ -22,7 +22,7 @@ public abstract class AbstractAcTrie<V> extends AbstractTextMatch<V> implements 
     }
 
     @Override
-    public final boolean put(String key, V value) {
+    public boolean put(String key, V value) {
         return trie.put(key, value);
     }
 

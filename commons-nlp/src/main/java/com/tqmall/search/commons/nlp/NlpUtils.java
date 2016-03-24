@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+import java.util.Collection;
 
 /**
  * Created by xing on 16/1/26.
@@ -124,7 +125,7 @@ public final class NlpUtils {
      * @return 加载的行数统计
      * @throws LoadLexiconException 加载词库, 读取文件时发生{@link IOException}, 则抛出{@link LoadLexiconException}, 其为{@link RuntimeException}, 包装了{@link IOException}
      */
-    public static long loadLexicon(Function<String, Boolean> lineHandle, Path... lexiconPaths) {
+    public static long loadLexicon(Function<String, Boolean> lineHandle, Collection<Path> lexiconPaths) {
         long lineCount = 0L;
         for (Path path : lexiconPaths) {
             lineCount += loadLexicon(lineHandle, path);

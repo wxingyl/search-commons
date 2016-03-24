@@ -4,6 +4,7 @@ import com.tqmall.search.commons.lang.Supplier;
 import com.tqmall.search.commons.trie.RootNodeType;
 
 import java.nio.file.Path;
+import java.util.Collection;
 
 /**
  * Created by xing on 16/3/22.
@@ -20,7 +21,7 @@ public class CjkLexiconFactory implements Supplier<CjkLexicon> {
 
     private boolean isNull = true;
 
-    CjkLexiconFactory(final RootNodeType rootType, final Path... lexiconPaths) {
+    CjkLexiconFactory(final RootNodeType rootType, final Collection<Path> lexiconPaths) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -52,7 +53,7 @@ public class CjkLexiconFactory implements Supplier<CjkLexicon> {
         return cjkLexicon;
     }
 
-    public static CjkLexiconFactory valueOf(RootNodeType rootType, Path... lexiconPaths) {
+    public static CjkLexiconFactory valueOf(RootNodeType rootType, Collection<Path> lexiconPaths) {
         return new CjkLexiconFactory(rootType, lexiconPaths);
     }
 }
