@@ -7,6 +7,7 @@ import com.tqmall.search.commons.param.HttpLocalRegisterParam;
 import com.tqmall.search.commons.result.MapResult;
 import com.tqmall.search.commons.result.ResultUtils;
 import com.tqmall.search.commons.lang.HostInfo;
+import com.tqmall.search.commons.utils.HttpMethod;
 import com.tqmall.search.commons.utils.HttpUtils;
 import com.tqmall.search.commons.utils.ResultJsonConverts;
 import org.slf4j.Logger;
@@ -80,7 +81,7 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<HttpMasterHostInf
                 HttpCacheManager.MASTER_DEFAULT_NOTIFY_PATH : notifyChangePath));
         bodyBean.setInterestCache(cacheKeys);
         MapResult mapResult = HttpUtils.requestPost(HttpUtils.buildURL(masterHostInfo,
-                        getRegisterUrlPath(masterHostInfo)),
+                getRegisterUrlPath(masterHostInfo)),
                 bodyBean, ResultJsonConverts.mapResultConvert());
         String urlPath = (String) mapResult.get("unRegisterUrlPath");
         if (urlPath == null) {
@@ -101,7 +102,7 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<HttpMasterHostInf
     protected boolean doMasterUnRegister(HostInfo localHost, HttpMasterHostInfo masterHostInfo) {
         HostInfoObj bodyBean = new HostInfoObj(localHost);
         MapResult mapResult = HttpUtils.requestPost(HttpUtils.buildURL(masterHostInfo,
-                        masterHostInfo.getUnRegisterUrlPath()),
+                masterHostInfo.getUnRegisterUrlPath()),
                 bodyBean, ResultJsonConverts.mapResultConvert());
         log.info("注销master: " + HttpUtils.hostInfoToString(masterHostInfo) + " 完成,返回结果: "
                 + ResultUtils.resultToString(mapResult));
@@ -116,11 +117,11 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<HttpMasterHostInf
         Map<String, Object> param = new HashMap<>();
         param.put("ip", localHost.getIp());
         param.put("port", localHost.getPort());
-        MapResult mapResult = HttpUtils.buildGet()
+        MapResult mapResult = HttpMethod.GET.build()
                 .setUrl(HttpUtils.buildURL(masterHostInfo, masterHostInfo.getMonitorPath(), param))
                 .setConfig(httpConfig)
                 .request(ResultJsonConverts.mapResultConvert());
-        return mapResult.isSuccess() && Boolean.TRUE.equals(mapResult.get("status"));
+        return mapResult != null && mapResult.isSuccess() && Boolean.TRUE.equals(mapResult.get("status"));
     }
 
     @Override

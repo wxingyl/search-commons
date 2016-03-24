@@ -1,5 +1,6 @@
 package com.tqmall.search.commons;
 
+import com.tqmall.search.commons.utils.HttpMethod;
 import com.tqmall.search.commons.utils.HttpUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,11 +33,12 @@ public class HttpUtilsTest {
     @Test
     public void httpMethodTest() {
         HttpUtils.requestGet(HttpUtils.buildURL("www.baidu.com", null));
-        TinyUrl tinyUrl = HttpUtils.buildPost().setBody("url=http://help.baidu.com/question?prod_en=webmaster", false)
+        TinyUrl tinyUrl = HttpMethod.POST.<HttpUtils.PostRequest>build().setBody("url=http://help.baidu.com/question?prod_en=webmaster", false)
                 .setUrl(HttpUtils.buildURL("dwz.cn", "create.php"))
                 .addHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
                 .request(HttpUtils.jsonStrValueConvert(TinyUrl.class));
         System.out.println(tinyUrl);
+        Assert.assertNotNull(tinyUrl);
         Assert.assertTrue(tinyUrl.status == 0);
     }
 
@@ -50,6 +52,31 @@ public class HttpUtilsTest {
 
         private String err_msg;
 
+        public void setErr_msg(String err_msg) {
+            this.err_msg = err_msg;
+        }
+
+        public void setLongurl(String longurl) {
+            this.longurl = longurl;
+        }
+
+        public void setStatus(Integer status) {
+            this.status = status;
+        }
+
+        public void setTinyurl(String tinyurl) {
+            this.tinyurl = tinyurl;
+        }
+
+        @Override
+        public String toString() {
+            return "TinyUrl{" +
+                    "err_msg='" + err_msg + '\'' +
+                    ", tinyurl='" + tinyurl + '\'' +
+                    ", status=" + status +
+                    ", longurl='" + longurl + '\'' +
+                    '}';
+        }
     }
 
 }

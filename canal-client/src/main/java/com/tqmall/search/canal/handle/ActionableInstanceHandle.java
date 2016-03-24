@@ -4,8 +4,8 @@ import com.alibaba.otter.canal.client.CanalConnector;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.canal.RowChangedData;
 import com.tqmall.search.canal.Schema;
-import com.tqmall.search.canal.action.ActionFactory;
 import com.tqmall.search.canal.TableColumnCondition;
+import com.tqmall.search.canal.action.ActionFactory;
 import com.tqmall.search.canal.action.Actionable;
 import com.tqmall.search.canal.action.CurrentHandleTable;
 import com.tqmall.search.commons.lang.Function;
@@ -14,10 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by xing on 16/2/22.
@@ -93,29 +91,7 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     protected final List<RowChangedData> changedDataParse(CanalEntry.RowChange rowChange) {
-        List<RowChangedData> dataList;
-        Set<String> columns = currentTable.getColumns();
-        if (currentEventType == CanalEntry.EventType.UPDATE && columns != null) {
-            dataList = new ArrayList<>();
-            Iterator<CanalEntry.RowData> it = rowChange.getRowDatasList().iterator();
-            next:
-            while (it.hasNext()) {
-                CanalEntry.RowData rowData = it.next();
-                List<CanalEntry.Column> columnList = rowData.getAfterColumnsList();
-                for (String c : columns) {
-                    for (CanalEntry.Column ce : columnList) {
-                        if (ce.getName().equals(c) && ce.getUpdated()) {
-                            //存在更新, 那直接初始化, 搞定
-                            dataList.add(new RowChangedData.Update(rowData, columns));
-                            //直接跳到最外面, 看下一个
-                            break next;
-                        }
-                    }
-                }
-            }
-        } else {
-            dataList = RowChangedData.build(rowChange, columns);
-        }
+        List<RowChangedData> dataList = RowChangedData.build(rowChange, currentTable.getColumns());
         if (CommonsUtils.isEmpty(dataList)) return null;
         TableColumnCondition columnCondition;
         if (currentEventType != CanalEntry.EventType.UPDATE
@@ -134,16 +110,17 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
 
     @Override
     protected boolean exceptionHandle(RuntimeException exception, boolean inFinishHandle) {
-        HandleExceptionContext context = buildHandleExceptionContext(exception);
-        if (handleExceptionFunction != null) {
-            Boolean ignore = handleExceptionFunction.apply(context);
-            return ignore == null ? false : ignore;
-        } else {
-            log.error("canal " + instanceName + " handle table data change occurring exception: " + context.getSchema()
-                    + '.' + context.getTable() + ", eventType: " + context.getEventType() + ", changedData size: "
-                    + context.getChangedData().size() + ", ignoreHandleException: " + ignoreHandleException + ", inFinishHandle: "
-                    + inFinishHandle, exception);
-            return ignoreHandleException;
+        try (HandleExceptionContext context = buildHandleExceptionContext(exception)) {
+            if (handleExceptionFunction != null) {
+                Boolean ignore = handleExceptionFunction.apply(context);
+                return ignore == null ? false : ignore;
+            } else {
+                log.error("canal " + instanceName + " handle table data change occurring exception: " + context.getSchema()
+                        + '.' + context.getTable() + ", eventType: " + context.getEventType() + ", changedData size: "
+                        + context.getChangedData().size() + ", ignoreHandleException: " + ignoreHandleException + ", inFinishHandle: "
+                        + inFinishHandle, exception);
+                return ignoreHandleException;
+            }
         }
     }
 
@@ -182,6 +159,11 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
         currentEventType = header.getEventType();
         currentTable = actionFactory.getTable(header.getSchemaName(), header.getTableName());
         if (currentTable == null) return false;
+        //排除事件类型过滤, 对于UPDATE类型, 如果存在条件判断, 在这儿没有办法执行排除
+        if ((RowChangedData.getEventTypeFlag(currentEventType) & currentTable.getForbidEventType()) != 0
+                && (currentEventType != CanalEntry.EventType.UPDATE || currentTable.getColumnCondition() == null)) {
+            return false;
+        }
         T action = currentTable.getAction();
         if (action instanceof CurrentHandleTable) {
             ((CurrentHandleTable<T>) action).setCurrentTable(currentTable);

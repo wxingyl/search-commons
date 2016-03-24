@@ -119,7 +119,7 @@ public abstract class AbstractRtSyncStrongCache<K, V> extends AbstractRtStrongCa
     }
 
     @Override
-    public HostInfo getMasterHost() {
+    public final HostInfo getMasterHost() {
         return masterHost;
     }
 }

@@ -10,7 +10,7 @@ import java.util.List;
  * Created by xing on 16/2/23.
  * {@link CanalEntry}中记录schema, table等信息的实例
  */
-public class InstanceRowChangedData {
+public class InstanceRowChangedData implements AutoCloseable {
 
     private final String schema;
 
@@ -30,6 +30,7 @@ public class InstanceRowChangedData {
 
     /**
      * list不可修改
+     *
      * @see Collections#unmodifiableList(List)
      */
     public List<RowChangedData> getChangedData() {
@@ -46,5 +47,10 @@ public class InstanceRowChangedData {
 
     public String getTable() {
         return table;
+    }
+
+    @Override
+    public void close() {
+        changedData.clear();
     }
 }

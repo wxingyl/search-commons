@@ -31,4 +31,54 @@ public final class CommonsUtils {
         }
         return list.isEmpty() ? null : list;
     }
+
+    /**
+     * 判断一个Number对象是否 == 0
+     *
+     * @param num Number对象
+     * @return true 等于0或者为null
+     */
+    public static <T extends Number> boolean isEqZero(T num) {
+        return num == null || num.intValue() == 0;
+    }
+
+    /**
+     * 判断一个Number对象是否 > 0
+     *
+     * @param num Number对象
+     * @return true 大于0
+     */
+    public static <T extends Number> boolean isGtZero(T num) {
+        return num != null && num.intValue() > 0;
+    }
+
+    /**
+     * 判断一个Number对象是否 >= 0
+     *
+     * @param num Number对象
+     * @return true 大于0
+     */
+    public static <T extends Number> boolean isGeZero(T num) {
+        return isEqZero(num) || num.intValue() > 0;
+    }
+
+    /**
+     * 判断一个Number对象是否 < 0
+     *
+     * @param num Number对象
+     * @return true <=0
+     */
+    public static <T extends Number> boolean isLtZero(T num) {
+        return !isGtZero(num);
+    }
+
+    /**
+     * 判断一个Number对象是否 <= 0
+     *
+     * @param num Number对象
+     * @return true <=0
+     */
+    public static <T extends Number> boolean isLeZero(T num) {
+        return !isGeZero(num);
+    }
 }

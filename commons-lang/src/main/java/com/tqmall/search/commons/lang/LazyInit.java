@@ -2,7 +2,7 @@ package com.tqmall.search.commons.lang;
 
 /**
  * Created by xing on 16/2/3.
- * 来加载工具类
+ * 懒加载工具类
  */
 public class LazyInit<T> {
 

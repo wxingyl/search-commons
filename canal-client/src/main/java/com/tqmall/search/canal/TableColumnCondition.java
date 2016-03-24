@@ -105,47 +105,42 @@ public class TableColumnCondition {
         private final Map<String, StrValueConvert> columnConvertMap = new HashMap<>();
 
         /**
-         * must 条件
+         * 默认添加到must 条件
+         *
+         * @see ConditionContainer.Type#MUST
          */
         public Builder condition(Condition condition) {
-            conditionContainerBuilder.addCondition(condition);
+            conditionContainerBuilder.addMustCondition(condition);
             return this;
         }
 
         /**
-         * must 条件
-         *
-         * @see ConditionContainer#MUST_TYPE
-         * @see ConditionContainer#SHOULD_TYPE
-         * @see ConditionContainer#MUST_NOT_TYPE
+         * 默认添加到must 条件
          */
-        public Builder condition(byte type, Condition condition) {
+        public <T> Builder condition(Condition condition, Class<T> cls) {
+            return condition(ConditionContainer.Type.MUST, condition, cls);
+        }
+
+        /**
+         * @see ConditionContainer.Type
+         */
+        public Builder condition(ConditionContainer.Type type, Condition condition) {
             conditionContainerBuilder.addCondition(type, condition);
             return this;
         }
 
         /**
-         * must 条件
+         * @see ConditionContainer.Type
          */
-        public <T> Builder condition(Condition condition, Class<T> cls) {
-            return condition(ConditionContainer.MUST_TYPE, condition, cls);
+        public <T> Builder condition(ConditionContainer.Type type, Condition condition, Class<T> cls) {
+            condition(type, condition, StrValueConverts.getBasicConvert(cls));
+            return this;
         }
 
         /**
-         * @see ConditionContainer#MUST_TYPE
-         * @see ConditionContainer#SHOULD_TYPE
-         * @see ConditionContainer#MUST_NOT_TYPE
+         * @see ConditionContainer.Type
          */
-        public <T> Builder condition(byte type, Condition condition, Class<T> cls) {
-            StrValueConvert<T> convert = StrValueConverts.getConvert(cls);
-            if (convert != null) {
-                return condition(type, condition, convert);
-            } else {
-                throw new IllegalArgumentException("there is not a StrValueConvert for class: " + cls);
-            }
-        }
-
-        public <T> Builder condition(byte type, Condition condition, StrValueConvert<T> convert) {
+        public <T> Builder condition(ConditionContainer.Type type, Condition condition, StrValueConvert<T> convert) {
             columnConvertMap.put(condition.getField(), convert);
             conditionContainerBuilder.addCondition(type, condition);
             return this;

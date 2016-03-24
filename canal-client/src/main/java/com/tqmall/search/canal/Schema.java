@@ -1,5 +1,6 @@
 package com.tqmall.search.canal;
 
+import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
@@ -17,7 +18,7 @@ import java.util.*;
  * <p/>
  * {@link #iterator()}不可修改的, 即{@link Iterator#remove()}操纵不支持
  *
- * @see Schemas#buildSchema(String)
+ * @see Schemas#buildSchema(String, Class)
  * @see Schemas.Builder
  * @see Schemas#buildTable(String)
  */
@@ -33,7 +34,7 @@ public class Schema<T extends Actionable> implements Iterable<Schema<T>.Table> {
     /**
      * 为了保证table在创建完成之后不可修改, 做了只能通过提供的静态方法构造的限制
      *
-     * @see Schemas#buildSchema(String)
+     * @see Schemas#buildSchema(String, Class)
      * @see Schemas#buildTable(String)
      */
     Schema(String schemaName) {
@@ -84,7 +85,7 @@ public class Schema<T extends Actionable> implements Iterable<Schema<T>.Table> {
     @SuppressWarnings({"rawtypes", "unchecked"})
     Schema<T> addTable(Schemas.TableBuilder builder) {
         tableMap.put(builder.tableName, new Table(builder.tableName, (T) builder.action,
-                builder.columns, builder.columnCondition));
+                builder.columns, builder.columnCondition, builder.forbidEventType));
         return this;
     }
 
@@ -106,8 +107,12 @@ public class Schema<T extends Actionable> implements Iterable<Schema<T>.Table> {
          * 列条件筛选容器
          */
         private final TableColumnCondition columnCondition;
+        /**
+         * 排除的事件类型, 目前只支持{@link CanalEntry.EventType#UPDATE}, {@link CanalEntry.EventType#DELETE}, {@link CanalEntry.EventType#INSERT}
+         */
+        private final byte forbidEventType;
 
-        Table(String tableName, T action, Collection<String> columns, TableColumnCondition columnCondition) {
+        Table(String tableName, T action, Collection<String> columns, TableColumnCondition columnCondition, byte forbidEventType) {
             Objects.requireNonNull(action);
             Objects.requireNonNull(tableName);
             this.tableName = tableName;
@@ -138,6 +143,11 @@ public class Schema<T extends Actionable> implements Iterable<Schema<T>.Table> {
                 }
                 this.columns = Collections.unmodifiableSet(columnSet);
             } else this.columns = null;
+            if ((forbidEventType & 7) == 7) {
+                throw new IllegalArgumentException("forbidEventType: " + Integer.toBinaryString(forbidEventType)
+                        + " should not contain all types of UPDATE, INSERT, DELETE");
+            }
+            this.forbidEventType = forbidEventType;
         }
 
         public final String getSchemaName() {
@@ -164,6 +174,10 @@ public class Schema<T extends Actionable> implements Iterable<Schema<T>.Table> {
 
         public final TableColumnCondition getColumnCondition() {
             return columnCondition;
+        }
+
+        public final byte getForbidEventType() {
+            return forbidEventType;
         }
 
         @Override

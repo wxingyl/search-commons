@@ -5,6 +5,11 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>com.tqmall.search</groupId>
+    <artifactId>commons</artifactId>
+    <version>2.0</version>
+    <packaging>pom</packaging>
+
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -12,11 +17,46 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+    <description>some search common utils, such as segment，canal client and so on</description>
+    <name>Search Commons Maven Parent</name>
+    <scm>
+        <connection>scm:git:https://github.com/wxingyl/search-commons.git</connection>
+        <developerConnection>scm:git:https://github.com/wxingyl/search-commons.git</developerConnection>
+        <url>https://github.com/wxingyl/search-commons</url>
+    </scm>
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/wxingyl/search-commons.issues</url>
+    </issueManagement>
+    <developers>
+        <developer>
+            <name>Xingxing Wang</name>
+            <email>xingxing.wang@live.com</email>
+            <organization>tqmall</organization>
+            <organizationUrl>http://www.tqmall.com</organizationUrl>
+            <roles>
+                <role>owner</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
 
-    <groupId>com.tqmall.search</groupId>
-    <artifactId>commons</artifactId>
-    <version>1.2-final</version>
-    <packaging>pom</packaging>
+    <properties>
+        <lang.version>1.0</lang.version>
+        <component.version>1.0-SNAPSHOT</component.version>
+        <junit.version>4.12</junit.version>
+        <slf4j-version>1.7.12</slf4j-version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <modules>
         <module>commons-lang</module>
@@ -25,15 +65,6 @@
         <module>commons-cache</module>
         <module>canal-client</module>
     </modules>
-
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
 
     <build>
         <plugins>
@@ -75,4 +106,5 @@
             <url>http://build.tqmall.com/nexus/content/repositories/releases</url>
         </repository>
     </distributionManagement>
+
 </project>

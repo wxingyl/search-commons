@@ -53,27 +53,20 @@ public class UnmodifiableConditionContainer extends ConditionContainer {
         }
 
         /**
-         * must 条件
+         * 添加到 must 条件
          */
-        public Builder addCondition(Condition condition) {
+        public Builder addMustCondition(Condition condition) {
             must.add(condition);
-            return this;
-        }
-
-        /**
-         * must 条件
-         */
-        public Builder addCondition(Condition... conditions) {
-            Collections.addAll(must, conditions);
             return this;
         }
 
         /**
          * 根据type 添加条件, 默认{@link #MUST_TYPE}
          */
-        public Builder addCondition(byte type, Condition condition) {
-            if (type == SHOULD_TYPE) should.add(condition);
-            else if (type == MUST_NOT_TYPE) mustNot.add(condition);
+        public Builder addCondition(ConditionContainer.Type type, Condition condition) {
+            Objects.requireNonNull(type);
+            if (type == Type.SHOULD) should.add(condition);
+            else if (type == Type.MUST_NOT) mustNot.add(condition);
             else must.add(condition);
             return this;
         }
@@ -81,22 +74,11 @@ public class UnmodifiableConditionContainer extends ConditionContainer {
         /**
          * 根据type 添加条件, 默认{@link #MUST_TYPE}
          */
-        public Builder addCondition(byte type, Condition... conditions) {
-            if (conditions.length > 0) {
-                if (type == SHOULD_TYPE) Collections.addAll(should, conditions);
-                else if (type == MUST_NOT_TYPE) Collections.addAll(mustNot, conditions);
-                else Collections.addAll(must, conditions);
-            }
-            return this;
-        }
-
-        /**
-         * 根据type 添加条件, 默认{@link #MUST_TYPE}
-         */
-        public Builder addCondition(byte type, Collection<? extends Condition> conditions) {
+        public Builder addCondition(ConditionContainer.Type type, Collection<? extends Condition> conditions) {
+            Objects.requireNonNull(type);
             if (!CommonsUtils.isEmpty(conditions)) {
-                if (type == SHOULD_TYPE) should.addAll(conditions);
-                else if (type == MUST_NOT_TYPE) mustNot.addAll(conditions);
+                if (type == Type.SHOULD) should.addAll(conditions);
+                else if (type == Type.MUST_NOT) mustNot.addAll(conditions);
                 else must.addAll(conditions);
             }
             return this;

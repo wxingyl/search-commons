@@ -17,7 +17,7 @@ import java.util.ListIterator;
  * table处理级别的{@link CanalInstanceHandle}
  * 连续的事件更新, 发现不同schema, table则处理掉
  *
- * @see #runRowChangeAction()
+ * @see #runLastRowChangeAction()
  * @see TableAction
  */
 public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
@@ -37,9 +37,12 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
         super(address, destination, schemaTables);
     }
 
-    private void runRowChangeAction() {
+    private void runLastRowChangeAction() {
         if (rowChangedDataList.isEmpty()) return;
-        currentTable.getAction().onAction(rowChangedDataList);
+        lastTable.getAction().onAction(rowChangedDataList);
+        for (RowChangedData data : rowChangedDataList) {
+            data.close();
+        }
         rowChangedDataList.clear();
     }
 
@@ -56,27 +59,31 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
     protected void doRowChangeHandle(List<RowChangedData> changedData) {
         //尽量集中处理
         if (!currentTable.equals(lastTable)) {
-            runRowChangeAction();
+            runLastRowChangeAction();
             lastTable = currentTable;
         }
         TableColumnCondition columnCondition;
         if (currentEventType == CanalEntry.EventType.UPDATE
                 && (columnCondition = currentTable.getColumnCondition()) != null) {
             ListIterator<RowChangedData> it = changedData.listIterator();
-            Function<String, String> beforeFunction = UpdateDataFunction.before();
-            Function<String, String> afterFunction = UpdateDataFunction.after();
+            final Function<String, String> beforeFunction = UpdateDataFunction.before();
+            final Function<String, String> afterFunction = UpdateDataFunction.after();
+            final boolean insertable = (currentTable.getForbidEventType() & RowChangedData.INSERT_TYPE_FLAG) == 0;
+            final boolean deletable = (currentTable.getForbidEventType() & RowChangedData.DELETE_TYPE_FLAG) == 0;
+            final boolean updateForbid = (currentTable.getForbidEventType() & RowChangedData.UPDATE_TYPE_FLAG) != 0;
             try {
                 while (it.hasNext()) {
                     RowChangedData.Update update = (RowChangedData.Update) it.next();
                     UpdateDataFunction.setUpdateData(update);
-                    boolean beforeInvalid = !columnCondition.validation(beforeFunction);
-                    boolean afterInvalid = !columnCondition.validation(afterFunction);
-                    if (beforeInvalid && afterInvalid) {
+                    final boolean beforeInvalid = !columnCondition.validation(beforeFunction);
+                    final boolean afterInvalid = !columnCondition.validation(afterFunction);
+                    if ((beforeInvalid && afterInvalid)
+                            || (updateForbid && !beforeInvalid && !afterInvalid)) {
                         //没有数据, 删除
                         it.remove();
-                    } else if (beforeInvalid) {
+                    } else if (beforeInvalid && insertable) {
                         it.set(update.transferToInsert());
-                    } else if (afterInvalid) {
+                    } else if (afterInvalid && deletable) {
                         it.set(update.transferToDelete());
                     }
                 }
@@ -89,7 +96,7 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
     }
 
     /**
-     * 如果出现异常, 可以肯定方法{@link #runRowChangeAction()}至少调用过一次, 那么对应的{@link #lastTable}需要更新
+     * 如果出现异常, 可以肯定方法{@link #runLastRowChangeAction()}至少调用过一次, 那么对应的{@link #lastTable}需要更新
      *
      * @param exception      具体异常
      * @param inFinishHandle 标识是否在{@link #doFinishHandle()}中产生的异常
@@ -113,6 +120,6 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
 
     @Override
     protected void doFinishHandle() {
-        runRowChangeAction();
+        runLastRowChangeAction();
     }
 }

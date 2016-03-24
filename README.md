@@ -10,7 +10,7 @@
 
 ##canal-client
 
-基于阿里 [Canal](https://github.com/alibaba/canal) mysql数据库binlog的增量订阅&消费组件，封装其基本使用，统一维护canal instance运行，自定义实例，表，行改动的事件处理以及改动的数据过滤, 具体使用参见[文档](canal-client)
+基于阿里 [Canal](https://github.com/alibaba/canal) mysql数据库binlog的增量订阅&消费组件，封装其基本使用，统一维护canal instance运行，自定义实例，表，行改动的事件处理以及改动的数据过滤, 具体使用参见[文档](canal-client/docs)
 
 目前最新版本1.0-rc1
 
@@ -82,6 +82,12 @@
 
 依赖`commons-lang`，简单的nlp相关工具类封装，包括：
 
+####Trie相关算法
+
+实现前缀查询树，逆向前缀查询树，最大/最小—正向/反向匹配算法，Aho-Corasick模式匹配树等算法。封装、抽象Trie相关算法，方便自定义扩展
+
+还没有实现双数组Trie树，后续考虑添加
+
 #### 繁体转简体
 
 繁体字转换为简体，目前不需要简体转繁体，所以就算了
@@ -92,9 +98,22 @@
 
 #### 分词
 
-分词的一些工具类，词库加载，不同粒度分词等，目前还没有，后续添加完善
+分词的一些工具类，词库加载，不同粒度分词等。
 
-目前还在开发测试
+目前支持对英语单词，阿拉伯数字，小数，汉字3个粒度分词，如下：
+
+```java
+public enum SegmentType {
+    //小粒度分词, 根据词库最小匹配
+    MIN,
+    //大粒度分词, 根据词库最大匹配
+    MAX,
+    //尽可能多的分词, 根据词典匹配所有结果
+    FULL
+}
+```
+
+目前还在开发测试中，后续考虑支持lucene。
 
 ## commons-qp
 
@@ -119,7 +138,7 @@ rc版本为预发版本，未达到上线标准，能用，但是存在很多已
 
 ### 特殊说明
 
-1. 原先项目只有commons-client和commons-core两个模块，这两个模块目前已经删除，被commons-lang和其他几个功能模块代替，建议不要再使用~~~
+1. 原先项目只有commons-lang和commons-core两个模块，这两个模块目前已经删除，被commons-lang和其他几个功能模块代替，建议不要再使用~~~
 
 ### pom依赖
 
@@ -129,17 +148,29 @@ rc版本为预发版本，未达到上线标准，能用，但是存在很多已
 <dependency>
     <groupId>com.tqmall.search</groupId>
     <artifactId>commons-lang</artifactId>
-    <version>1.0-rc2</version>
+    <version>1.0-SNAPSHOT</version>
 </dependency>
 ```
 
-`commons-component`, 其依赖`commons-client`
+`canal-client`, 其依赖`commons-lang`
+
+```java
+<dependency>
+    <groupId>com.tqmall.search</groupId>
+    <artifactId>canal-client</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+```
+
+
+
+`commons-component`, 其依赖`commons-lang`
 
 ``` xml
 <dependency>
     <groupId>com.tqmall.search</groupId>
     <artifactId>commons-component</artifactId>
-    <version>1.0-rc1</version>
+    <version>1.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -149,6 +180,6 @@ rc版本为预发版本，未达到上线标准，能用，但是存在很多已
 <dependency>
     <groupId>com.tqmall.search</groupId>
     <artifactId>commons-cache</artifactId>
-    <version>1.0-rc1</version>
+    <version>1.0-SNAPSHOT</version>
 </dependency>
 ```

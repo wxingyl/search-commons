@@ -44,4 +44,5 @@ public abstract class Condition implements Serializable {
     public int hashCode() {
         return field.hashCode();
     }
+
 }

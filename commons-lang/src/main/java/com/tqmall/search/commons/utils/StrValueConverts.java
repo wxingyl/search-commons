@@ -3,6 +3,7 @@ package com.tqmall.search.commons.utils;
 import com.tqmall.search.commons.lang.Defaultable;
 import com.tqmall.search.commons.lang.StrValueConvert;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DateFormat;
@@ -21,8 +22,11 @@ public final class StrValueConverts {
 
     /**
      * 获取指定class的{@link StrValueConvert}实例, 如果内部没有实现返回null
-     * {@link Float}, 类型对应
-     * 注意: 对于{@link Date} 类型, 模块commons-component中class: com.tqmall.search.commons.utils.DateStrValueConvert是更好的实现
+     * 具体实现的类型有:
+     * {@link Integer}, {@link Boolean}, {@link Double}, {@link Long}, {@link BigInteger},
+     * {@link BigDecimal}, {@link Date}(默认格式: yyyy-MM-dd HH:mm:ss), {@link String}
+     * <p/>
+     * {@link Float}, 类型是故意整没的~~~~~~
      *
      * @param cls 对应类型的class对象
      * @param <T> 对应泛型
@@ -58,6 +62,19 @@ public final class StrValueConverts {
             return null;
         }
         return ret;
+    }
+
+    /**
+     * 获取基本的数据类型的{@link StrValueConvert}, 没有则抛出{@link IllegalArgumentException}
+     *
+     * @see #getConvert(Class)
+     */
+    public static <T> StrValueConvert<T> getBasicConvert(Class<T> cls) {
+        StrValueConvert<T> convert = StrValueConverts.getConvert(cls);
+        if (convert == null) {
+            throw new IllegalArgumentException("can not find basic StrValueConvert instance of " + cls);
+        }
+        return convert;
     }
 
     public static <T extends Comparable<T>> StrValueConvert<T> getConvert(Class<T> cls, final T defaultValue) {
@@ -123,6 +140,15 @@ public final class StrValueConverts {
 
     public static BigDecimal bigDecimalConvert(String input, BigDecimal defaultValue) {
         return convert(input, defaultValue, BigDecimal.class);
+    }
+
+    /**
+     * String类型的时间转换为{@link Date}对象
+     *
+     * @param input 时间字符串格式yyyy-MM-dd HH:mm:ss
+     */
+    public static Date dateConvert(String input) {
+        return DateStrValueConvert.INSTANCE.convert(input);
     }
 
     public static <T extends Comparable<T>> T convert(final String input, final T defaultValue, final Class<T> cls) {
@@ -266,7 +292,31 @@ public final class StrValueConverts {
      */
     static class DateStrValueConvert implements StrValueConvert<Date> {
 
-        final static DateStrValueConvert INSTANCE = new DateStrValueConvert();
+        final static StrValueConvert<Date> INSTANCE;
+
+        static {
+            StrValueConvert<Date> convert = getUtilsDateStrValueConvert();
+            INSTANCE = convert == null ? new DateStrValueConvert() : convert;
+        }
+
+        /**
+         * 获取com.tqmall.search.commons.utils.DateStrValueConvert中的INSTANCE变量, 如果拿不到返回null
+         *
+         * @return com.tqmall.search.commons.utils.DateStrValueConvert 不存在返回null
+         */
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        private static StrValueConvert<Date> getUtilsDateStrValueConvert() {
+            try {
+                Class dataConvertCls = Class.forName("com.tqmall.search.commons.utils.DateStrValueConvert");
+                Field field = dataConvertCls.getField("INSTANCE");
+                if (field != null) {
+                    return (StrValueConvert<Date>) field.get(null);
+                }
+            } catch (Throwable ignored) {
+            }
+            return null;
+        }
+
 
         private ThreadLocal<DateFormat> dateFormats = new ThreadLocal<DateFormat>() {
             @Override

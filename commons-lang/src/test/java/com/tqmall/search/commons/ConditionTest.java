@@ -29,20 +29,16 @@ public class ConditionTest {
         Assert.assertFalse(rangeCondition.validation(BigDecimal.valueOf(-1.0)));
         Assert.assertFalse(rangeCondition.validation(-1.0));
 
-        GtCondition<Double> gtCondition = GtCondition.build("value", 2.6);
-        Assert.assertTrue(gtCondition.validation(3.8));
-        Assert.assertTrue(gtCondition.validation(3));
-        Assert.assertFalse(gtCondition.validation(2.6));
-
         InCondition<String> inCondition = InCondition.build("name", "xing", "wang", "yan", "lin");
         Assert.assertNotNull(inCondition);
         Assert.assertTrue(inCondition.validation("xing"));
         Assert.assertTrue(inCondition.validation("yan"));
         Assert.assertFalse(inCondition.validation("Xing"));
 
-        ModifiableConditionContainer conditionContainer = new ModifiableConditionContainer();
-        conditionContainer.addMust(equalCondition, rangeCondition);
-        conditionContainer.addShould(gtCondition, inCondition);
+        ModifiableConditionContainer conditionContainer = new ModifiableConditionContainer()
+                .addMust(equalCondition)
+                .addMust(rangeCondition)
+                .add(ConditionContainer.Type.SHOULD, inCondition);
 
         Map<String, Object> dataMap = new HashMap<>();
         dataMap.put("id", 3);
@@ -54,13 +50,13 @@ public class ConditionTest {
         dataMap.put("id", 4);
         Assert.assertTrue(conditionContainer.validation(dataMap));
         dataMap.put("value", 2);
-        conditionContainer.setMinimumShouldMatch(2);
+        conditionContainer.minimumShouldMatch(2);
         Assert.assertFalse(conditionContainer.validation(dataMap));
 
-        conditionContainer.setMinimumShouldMatch(1);
+        conditionContainer.minimumShouldMatch(1);
         Assert.assertTrue(conditionContainer.validation(dataMap));
 
-        conditionContainer.addMustNot(equalCondition);
+        conditionContainer.add(ConditionContainer.Type.MUST_NOT, equalCondition);
         Assert.assertFalse(conditionContainer.validation(dataMap));
     }
 }

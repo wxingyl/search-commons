@@ -24,8 +24,9 @@ public class PyTest {
     @Ignore
     public void setAllZhCnCharacter() {
         List<Character> simpleList = new ArrayList<>();
+        TraditionToSimple traditionToSimple = TraditionToSimple.instance();
         for (char ch = NlpConst.CJK_UNIFIED_IDEOGRAPHS_FIRST; ch <= NlpConst.CJK_UNIFIED_IDEOGRAPHS_LAST; ch++) {
-            if (!NlpUtils.isTraditional(ch)) {
+            if (!traditionToSimple.isTraditional(ch)) {
                 simpleList.add(ch);
             }
         }
@@ -43,14 +44,15 @@ public class PyTest {
 
     @Test
     public void pyTest() {
+        PinyinConvert pinyinConvert = PinyinConvert.instance();
         String text = "小时了了，大未必佳";
         String excepted = "xiaoshiliaoliao，daweibijia";
-        String pyText = NlpUtils.pyNormalConvert(text, false);
+        String pyText = pinyinConvert.convert(text, NlpConst.APPEND_CHAR_OTHER);
         System.out.println("text: " + text + ": " + pyText);
         Assert.assertEquals(excepted, pyText);
         text = "长沙";
-        Map.Entry<String, String> exceptedEntry = new AbstractMap.SimpleEntry<>("changsha", "cs");
-        Map.Entry<String, String> flResult = NlpUtils.pyNormalFirstLetterConvert(text, true);
+        Map.Entry<String, String> exceptedEntry = new AbstractMap.SimpleImmutableEntry<>("changsha", "cs");
+        Map.Entry<String, String> flResult = pinyinConvert.firstLetterConvert(text, 0);
         System.out.println("text: " + text + ": " + exceptedEntry);
         Assert.assertEquals(exceptedEntry, flResult);
     }

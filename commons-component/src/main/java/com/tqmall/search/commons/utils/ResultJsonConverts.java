@@ -1,6 +1,5 @@
 package com.tqmall.search.commons.utils;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tqmall.search.commons.lang.StrValueConvert;
 import com.tqmall.search.commons.result.*;
 
@@ -15,7 +14,7 @@ import java.util.Map;
  */
 public final class ResultJsonConverts {
 
-    private ResultJsonConverts(){
+    private ResultJsonConverts() {
     }
 
     /**
@@ -31,7 +30,7 @@ public final class ResultJsonConverts {
             public Result<T> convert(String input) {
                 JsonSimpleResult simpleResult = parseData(input);
                 if (simpleResult.isSuccess()) {
-                    return ResultUtils.result(JsonUtils.jsonStrToObj(simpleResult.getData(), cls));
+                    return ResultUtils.result(JsonUtils.parseObject(simpleResult.getData(), cls));
                 } else {
                     return ResultUtils.result(simpleResult);
                 }
@@ -49,15 +48,11 @@ public final class ResultJsonConverts {
                 } else if (simpleResult.flag != 2) {
                     return ResultUtils.pageResult(UtilsErrorCode.JSON_RESULT_CONVERT_INVALID_ARRAY, simpleResult.getData());
                 } else {
-                    List<String> list = splitJsonArray(simpleResult.getData());
+                    List<T> list = JsonUtils.parseArray(simpleResult.getData(), cls);
                     if (list == null) {
                         return ResultUtils.pageResult(UtilsErrorCode.JSON_RESULT_CONVERT_INVALID_ARRAY, simpleResult.getData());
                     } else {
-                        List<T> beanList = new ArrayList<>(list.size());
-                        for (String s : list) {
-                            beanList.add(JsonUtils.jsonStrToObj(s, cls));
-                        }
-                        return ResultUtils.pageResult(beanList, simpleResult.total);
+                        return ResultUtils.pageResult(list, simpleResult.total);
                     }
                 }
             }
@@ -75,7 +70,7 @@ public final class ResultJsonConverts {
                 return ResultUtils.mapResult(UtilsErrorCode.JSON_RESULT_CONVERT_INVALID_OBJECT, simpleResult.getData());
             } else {
                 MapResult result = ResultUtils.mapResult();
-                Map<String, Object> map = JsonUtils.jsonStrToObj(simpleResult.getData(), Map.class);
+                Map<String, Object> map = JsonUtils.parseToMap(simpleResult.getData());
                 result.putAll(map);
                 return result;
             }
@@ -139,15 +134,10 @@ public final class ResultJsonConverts {
         if (dataIndex < 0) {
             return buildErrorSimpleResult("Can not find data field");
         }
-        int i;
+        int i = dataIndex - 1;
         //找data前面的位置
-//        while (--i > 0 && ',' != json.charAt(i));
-        //上面是简单的写法, 但是空循环据说可能被jit编译优化给干掉,所以还是别装逼了吧
-        for (i = dataIndex; ; ) {
-            i--;
-            if (i <= 0 || ',' == json.charAt(i)) {
-                break;
-            }
+        for (; i > 0; i--) {
+            if (',' == json.charAt(i)) break;
         }
         //这儿能够处理数组格式,但是对于单个对象的就无能为力了,比如Result<String>类型, 这儿需要做特殊处理
         final int startIndex = i;
@@ -181,7 +171,7 @@ public final class ResultJsonConverts {
         if (simpleJson == null) {
             simpleJson = json;
         }
-        JsonSimpleResult simpleResult = JsonUtils.jsonStrToObj(simpleJson, JsonSimpleResult.class);
+        JsonSimpleResult simpleResult = JsonUtils.parseObject(simpleJson, JsonSimpleResult.class);
         if (simpleResult == null) {
             return buildErrorSimpleResult("String: " + simpleJson + " is not format of com.tqmall.search.common.result.Result class");
         }
@@ -205,7 +195,6 @@ public final class ResultJsonConverts {
          * 1: 普通的Object类型
          * 2: 普通的Array类型
          */
-        @JsonIgnore
         private int flag;
 
         public JsonSimpleResult() {
@@ -216,10 +205,12 @@ public final class ResultJsonConverts {
             super(errorCode);
         }
 
+        @Override
         public void setCode(String code) {
             super.setCode(code);
         }
 
+        @Override
         public void setMessage(String message) {
             super.setMessage(message);
         }
@@ -228,6 +219,7 @@ public final class ResultJsonConverts {
             this.total = total;
         }
 
+        @Override
         public void setSuccess(boolean success) {
             super.setSuccess(success);
         }
@@ -236,6 +228,7 @@ public final class ResultJsonConverts {
             super.setSuccess(succeed);
         }
 
+        @Override
         public void setData(String data) {
             super.setData(data);
         }

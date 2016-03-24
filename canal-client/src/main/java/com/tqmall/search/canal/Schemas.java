@@ -1,5 +1,6 @@
 package com.tqmall.search.canal;
 
+import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.canal.action.*;
 import com.tqmall.search.commons.utils.CommonsUtils;
 
@@ -21,8 +22,8 @@ public final class Schemas {
         return new ActionFactoryBuilder<>();
     }
 
-    public static <T extends Actionable> Builder<T> buildSchema(String schemaName) {
-        return new Builder<>(schemaName);
+    public static <T extends Actionable> Builder<T> buildSchema(String schemaName, Class<T> actionType) {
+        return new Builder<>(schemaName, actionType);
     }
 
     public static TableBuilder buildTable(String tableName) {
@@ -71,6 +72,7 @@ public final class Schemas {
 
     /**
      * {@link Schema}构造器
+     *
      * @param <T>
      */
     public static class Builder<T extends Actionable> {
@@ -79,14 +81,22 @@ public final class Schemas {
 
         private final Map<String, TableBuilder> tableBuilderMap = new HashMap<>();
 
-        Builder(String schemaName) {
+        private final Class<T> actionType;
+
+        Builder(String schemaName, Class<T> actionType) {
             this.schemaName = schemaName;
+            this.actionType = actionType;
         }
 
         /**
          * @see #buildTable(String)
          */
         public final Builder<T> addTable(TableBuilder tb) {
+            Objects.requireNonNull(tb.action);
+            if (actionType != null && !actionType.isInstance(tb.action)) {
+                throw new IllegalArgumentException(schemaName + '.' + tb.tableName + " action: " + tb.action + " is not "
+                        + actionType + " object");
+            }
             tableBuilderMap.put(tb.tableName, tb);
             return this;
         }
@@ -96,7 +106,7 @@ public final class Schemas {
          */
         public final Builder<T> addTable(TableBuilder... tableBuilders) {
             for (TableBuilder tb : tableBuilders) {
-                tableBuilderMap.put(tb.tableName, tb);
+                addTable(tb);
             }
             return this;
         }
@@ -106,7 +116,7 @@ public final class Schemas {
          */
         public Builder<T> addTable(Iterable<TableBuilder> tableBuilders) {
             for (TableBuilder tb : tableBuilders) {
-                tableBuilderMap.put(tb.tableName, tb);
+                addTable(tb);
             }
             return this;
         }
@@ -125,9 +135,10 @@ public final class Schemas {
      */
     public static class TableBuilder {
         String tableName;
-        Object action;
+        Actionable action;
         Set<String> columns = new HashSet<>();
         TableColumnCondition columnCondition;
+        byte forbidEventType;
 
         TableBuilder(String tableName) {
             this.tableName = tableName;
@@ -136,7 +147,7 @@ public final class Schemas {
         /**
          * @param action 必须是{@link TableAction} 或者 {@link EventTypeAction}对象
          */
-        public TableBuilder action(Object action) {
+        public TableBuilder action(Actionable action) {
             if (action instanceof TableAction || action instanceof EventTypeAction) {
                 this.action = action;
                 return this;
@@ -161,6 +172,14 @@ public final class Schemas {
 
         public TableBuilder columnCondition(TableColumnCondition columnCondition) {
             this.columnCondition = columnCondition;
+            return this;
+        }
+
+        /**
+         * 添加需要排除的事件类型
+         */
+        public TableBuilder forbidEventType(CanalEntry.EventType eventType) {
+            forbidEventType |= RowChangedData.getEventTypeFlag(eventType);
             return this;
         }
     }
