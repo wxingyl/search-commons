@@ -28,7 +28,7 @@ public abstract class AbstractAcTrie<V> extends AbstractTextMatch<V> implements 
 
     @Override
     public final boolean remove(String key) {
-        return trie.remove(key);
+        throw  new UnsupportedOperationException();
     }
 
     @Override

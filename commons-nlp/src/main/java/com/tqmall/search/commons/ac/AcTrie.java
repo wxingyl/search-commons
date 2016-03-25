@@ -12,16 +12,16 @@ import java.util.List;
  */
 public interface AcTrie<V> extends Trie<V> {
     /**
-     * 该接口修改Trie树中的节点结构, 如果要生效, 必须从新{@link #initFailed()}
+     * 该接口修改Trie树中的节点结构, 如果要生效, 必须从新{@link #buildFailed()}
      *
-     * @see #initFailed()
+     * @see #buildFailed()
      */
     boolean put(String key, V value);
 
     /**
-     * 该接口修改Trie树中的节点结构, 如果要生效, 必须从新{@link #initFailed()}
+     * AcTrie 不支持删除操作
      *
-     * @see #initFailed()
+     * @see UnsupportedOperationException
      */
     boolean remove(String key);
 
@@ -34,8 +34,9 @@ public interface AcTrie<V> extends Trie<V> {
 
     /**
      * 构建failed字段
+     * @return build是否成功, 如果正在build会直接返回false
      */
-    void initFailed();
+    boolean buildFailed();
 
     /**
      * 匹配字符串, 未匹配的字符串不做任何处理, 同{@link #match(char[], int, int)}

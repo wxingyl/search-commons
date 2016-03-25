@@ -23,6 +23,8 @@ public class AcBinaryTrie<V> extends AbstractAcTrie<V> {
      */
     private ReadWriteLock failedRwLock = new ReentrantReadWriteLock();
 
+    private volatile boolean buildingFailed = false;
+
     private final Node<V> trieRoot;
 
     /**
@@ -34,7 +36,7 @@ public class AcBinaryTrie<V> extends AbstractAcTrie<V> {
             throw new IllegalArgumentException("the nodeFactory of binaryTrie must instanceof AcTrieNodeFactory");
         }
         trieRoot = trie.getRoot();
-        initFailed();
+        buildFailed();
     }
 
     @Override
@@ -54,10 +56,13 @@ public class AcBinaryTrie<V> extends AbstractAcTrie<V> {
 
     /**
      * 初始化failed {@link AcNormalNode} failed等字段
+     * 重复调用直接返回false
      */
     @Override
-    public void initFailed() {
+    public boolean buildFailed() {
+        if (buildingFailed) return false;
         failedRwLock.writeLock().lock();
+        buildingFailed = true;
         try {
             final List<AcNormalNode<V>> rootChildNodes = new ArrayList<>();
             trieRoot.childHandle(new NodeChildHandle<V>() {
@@ -72,8 +77,10 @@ public class AcBinaryTrie<V> extends AbstractAcTrie<V> {
             for (AcNormalNode<V> acNode : rootChildNodes) {
                 acNode.buildFailed(trieRoot);
             }
+            return true;
         } finally {
             failedRwLock.writeLock().unlock();
+            buildingFailed = false;
         }
     }
 

@@ -1,6 +1,7 @@
 package com.tqmall.search.commons.analyzer;
 
 import com.tqmall.search.commons.ac.AcBinaryTrie;
+import com.tqmall.search.commons.ac.AcTrie;
 import com.tqmall.search.commons.ac.AcTrieNodeFactory;
 import com.tqmall.search.commons.exception.LoadLexiconException;
 import com.tqmall.search.commons.lang.AsyncInit;
@@ -49,7 +50,7 @@ public class CjkLexicon {
         CN_NUM = Collections.unmodifiableSet(set);
     }
 
-    private final AcBinaryTrie<TokenType> acBinaryTrie;
+    private final AcTrie<TokenType> acTrie;
 
     private final MatchBinaryReverseTrie<TokenType> matchReverseBinaryTrie;
 
@@ -96,7 +97,7 @@ public class CjkLexicon {
                 return true;
             }
         }, lexiconPaths);
-        acBinaryTrie = acBuilder.create(rootNodeType.<TokenType>defaultAcTrie());
+        acTrie = acBuilder.create(rootNodeType.<TokenType>defaultAcTrie());
         log.info("load cjk lexicon finish, total load " + lineCount + " words, total cost: " + (System.currentTimeMillis() - startTime) + "ms");
 
         NlpUtils.loadClassPathLexicon(CjkLexicon.class, NlpConst.QUANTIFIER_FILE_NAME, new Function<String, Boolean>() {
@@ -110,14 +111,17 @@ public class CjkLexicon {
 
     /**
      * full匹配, 尽可能的返回所有能够匹配到的结果
+     * 该接口分词是通过AcTrie实现, 不建议动态加词
      *
      * @param text 待分词文本
      * @param off  待处理文本的起始位置
      * @param len  待处理文本的长度
      * @return 匹配结果
+     * @see #addWord(String, TokenType)
+     * @see #buildAcTrieFailed()
      */
     public List<Hit<TokenType>> fullMatch(char[] text, int off, int len) {
-        return acBinaryTrie.match(text, off, len);
+        return acTrie.match(text, off, len);
     }
 
     /**
@@ -145,16 +149,28 @@ public class CjkLexicon {
     }
 
     /**
-     * 添加一个新词
+     * 添加一个新词, 添加新词很不推荐, 因为会影响搜索结果, 而且加完词之后需要{@link #buildAcTrieFailed()}, 该操作较耗时, 存在分词暂时不可用的情况, 所以不建议使用
      *
      * @return 是否添加成功
+     * @see #buildAcTrieFailed()
      */
+    @Deprecated
     public boolean addWord(String word, TokenType tokenType) {
         if ((word = SearchStringUtils.filterString(word)) == null) return false;
         if (tokenType == null) tokenType = TokenType.CN;
         boolean added = matchReverseBinaryTrie.put(word, tokenType);
-        acBinaryTrie.put(word, tokenType);
+        acTrie.put(word, tokenType);
         return added;
+    }
+
+    /**
+     * 重建{@link #acTrie} 的failed字段, 在重建的时候, 通过acTrie分词会等待, 这个操作还是比较耗时的,所以不到万不得已, 就别加词了, 不触发buildFailed操作
+     *
+     * @see #addWord(String, TokenType)
+     */
+    @Deprecated
+    public boolean buildAcTrieFailed() {
+        return acTrie.buildFailed();
     }
 
     /**
