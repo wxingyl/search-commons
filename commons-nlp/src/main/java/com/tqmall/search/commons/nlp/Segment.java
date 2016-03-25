@@ -1,6 +1,7 @@
 package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.analyzer.*;
+import com.tqmall.search.commons.lang.Supplier;
 import com.tqmall.search.commons.match.AbstractTextMatch;
 import com.tqmall.search.commons.match.Hit;
 
@@ -142,7 +143,7 @@ public final class Segment extends AbstractTextMatch<TokenType> {
             return this;
         }
 
-        public Segment create(CjkLexiconFactory cjkLexicon) {
+        public Segment create(Supplier<CjkLexicon> cjkLexicon) {
             Objects.requireNonNull(cjkLexicon);
             return new Segment(name, segmentFilter, asciiAnalyzer == null ? AsciiAnalyzer.build().create()
                     : asciiAnalyzer, CjkAnalyzer.createSegment(cjkLexicon, cjkAnalyzerType), this.numQuantifierMerge);

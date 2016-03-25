@@ -1,6 +1,7 @@
 package com.tqmall.search.commons.nlp;
 
 import com.tqmall.search.commons.analyzer.*;
+import com.tqmall.search.commons.lang.Supplier;
 
 import java.util.Objects;
 
@@ -94,7 +95,7 @@ public class SegmentConfig {
      * @param cjkLexicon cjk词库对象
      * @return 新建的分词器{@link Segment}对象
      */
-    public Segment createSegment(CjkLexiconFactory cjkLexicon) {
+    public Segment createSegment(Supplier<CjkLexicon> cjkLexicon) {
         Objects.requireNonNull(cjkLexicon);
         Segment.Builder builder = Segment.build(name);
         if (segmentFilter != null) {

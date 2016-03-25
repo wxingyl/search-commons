@@ -4,7 +4,7 @@ package com.tqmall.search.commons.lang;
  * Created by xing on 16/2/3.
  * 懒加载工具类
  */
-public class LazyInit<T> {
+public class LazyInit<T> implements Supplier<T> {
 
     private final Object lock = new Object();
 
@@ -16,7 +16,7 @@ public class LazyInit<T> {
         this.supplier = supplier;
     }
 
-    public T getInstance() {
+    public final T getInstance() {
         if (instance == null) {
             synchronized (lock) {
                 if (instance == null) {
@@ -25,5 +25,10 @@ public class LazyInit<T> {
             }
         }
         return instance;
+    }
+
+    @Override
+    public final T get() {
+        return getInstance();
     }
 }

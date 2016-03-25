@@ -3,29 +3,34 @@ package com.tqmall.search.commons.analyzer;
 import com.tqmall.search.commons.ac.AcBinaryTrie;
 import com.tqmall.search.commons.ac.AcTrieNodeFactory;
 import com.tqmall.search.commons.exception.LoadLexiconException;
+import com.tqmall.search.commons.lang.AsyncInit;
 import com.tqmall.search.commons.lang.Function;
+import com.tqmall.search.commons.lang.Supplier;
 import com.tqmall.search.commons.match.Hit;
 import com.tqmall.search.commons.match.MatchBinaryReverseTrie;
 import com.tqmall.search.commons.nlp.NlpConst;
 import com.tqmall.search.commons.nlp.NlpUtils;
 import com.tqmall.search.commons.trie.RootNodeType;
 import com.tqmall.search.commons.trie.TrieNodeFactory;
+import com.tqmall.search.commons.utils.CommonsUtils;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Created by xing on 16/2/8.
  * 中文分词词库, 包括汉语词库以及停止词, 提供最大, 最小, 全匹配, 通过{@link AcBinaryTrie}实现
  * 词库文件中, 每个词可以指定词的{@link TokenType}, 通过{@link TokenType#fromString(String)}解析对应类型, 默认{@link TokenType#CN}
- * 要实现懒加载, 可通过{@link CjkLexiconFactory}实现
+ * 要实现懒加载, 可通过{@link AsyncInit<CjkLexicon>}实现
  *
  * @see TokenType
  * @see TokenType#fromString(String)
- * @see CjkLexiconFactory
+ * @see AsyncInit
  */
 public class CjkLexicon {
 
@@ -177,6 +182,29 @@ public class CjkLexicon {
      */
     public boolean isQuantifier(String word) {
         return quantifiers.contains(word);
+    }
+
+    public static Supplier<CjkLexicon> createAsyncSupplier(RootNodeType rootNodeType, Path lexiconPath) {
+        return createAsyncSupplier(rootNodeType, Collections.singletonList(lexiconPath));
+    }
+
+    /**
+     * 创建默认的异步加载CjkLexicon
+     */
+    public static Supplier<CjkLexicon> createAsyncSupplier(final RootNodeType rootNodeType, final Collection<Path> lexiconPaths) {
+        Objects.requireNonNull(rootNodeType);
+        if (CommonsUtils.isEmpty(lexiconPaths)) throw new IllegalArgumentException("lexiconPaths is empty");
+        return new AsyncInit<>(new Executor() {
+            @Override
+            public void execute(Runnable command) {
+                Executors.defaultThreadFactory().newThread(command).start();
+            }
+        }, new Supplier<CjkLexicon>() {
+            @Override
+            public CjkLexicon get() {
+                return new CjkLexicon(rootNodeType, lexiconPaths);
+            }
+        });
     }
 
 }
