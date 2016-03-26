@@ -2,6 +2,7 @@ package com.tqmall.search.commons.lang;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Created by xing on 16/3/25.
@@ -10,6 +11,8 @@ import java.util.concurrent.Executor;
  * @author xing
  */
 public class AsyncInit<T> implements Supplier<T> {
+
+    public static final long DEFAULT_WAIT_TIMEOUT = 100L;
 
     private final Object lock = new Object();
 
@@ -20,8 +23,20 @@ public class AsyncInit<T> implements Supplier<T> {
      */
     private final long waitTimeOut;
 
-    public AsyncInit(Executor executor, final Supplier<T> supplier) {
-        this(executor, supplier, 100L);
+    /**
+     * 单独创建线程执行初始化
+     */
+    public AsyncInit(Supplier<T> supplier, long waitTimeOut) {
+        this(new Executor() {
+            @Override
+            public void execute(Runnable command) {
+                Executors.defaultThreadFactory().newThread(command).start();
+            }
+        }, supplier, waitTimeOut);
+    }
+
+    public AsyncInit(Executor executor, Supplier<T> supplier) {
+        this(executor, supplier, DEFAULT_WAIT_TIMEOUT);
     }
 
     /**

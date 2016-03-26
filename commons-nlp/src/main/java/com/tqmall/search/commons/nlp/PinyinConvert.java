@@ -152,4 +152,33 @@ public final class PinyinConvert {
         else return new AbstractMap.SimpleImmutableEntry<>(py, sb.toString());
     }
 
+    /**
+     * 添加对应汉字的拼音, 多个汉字通过空格分离
+     *
+     * @param word 汉语词组
+     * @param py   对应拼音
+     * @return 是否添加成功
+     */
+    public boolean addPinyinLexicon(String word, String py) {
+        word = SearchStringUtils.filterString(word);
+        String[] pyList = SearchStringUtils.split(py, ' ');
+        if (word == null || word.length() != pyList.length) {
+            throw new IllegalArgumentException("cjk word: " + word + ", py: " + py + " can not match");
+        }
+        return matchBinaryReverseTrie.put(word, pyList);
+    }
+
+    /**
+     * 删除指定词的分词
+     *
+     * @return 删除是否成功
+     */
+    public boolean removePinyinLexicon(String word) {
+        word = SearchStringUtils.filterString(word);
+        if (word == null) {
+            throw new IllegalArgumentException("word is empty");
+        }
+        return matchBinaryReverseTrie.remove(word);
+    }
+
 }

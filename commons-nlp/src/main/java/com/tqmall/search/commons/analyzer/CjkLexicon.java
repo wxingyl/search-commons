@@ -20,8 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 /**
  * Created by xing on 16/2/8.
@@ -210,17 +208,12 @@ public class CjkLexicon {
     public static Supplier<CjkLexicon> createAsyncSupplier(final RootNodeType rootNodeType, final Collection<Path> lexiconPaths) {
         Objects.requireNonNull(rootNodeType);
         if (CommonsUtils.isEmpty(lexiconPaths)) throw new IllegalArgumentException("lexiconPaths is empty");
-        return new AsyncInit<>(new Executor() {
-            @Override
-            public void execute(Runnable command) {
-                Executors.defaultThreadFactory().newThread(command).start();
-            }
-        }, new Supplier<CjkLexicon>() {
+        return new AsyncInit<>(new Supplier<CjkLexicon>() {
             @Override
             public CjkLexicon get() {
                 return new CjkLexicon(rootNodeType, lexiconPaths);
             }
-        });
+        }, AsyncInit.DEFAULT_WAIT_TIMEOUT);
     }
 
 }
