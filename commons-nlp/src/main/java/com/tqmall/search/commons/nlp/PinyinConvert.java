@@ -11,8 +11,9 @@ import com.tqmall.search.commons.utils.SearchStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.AbstractMap;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -64,31 +65,30 @@ public final class PinyinConvert {
     /**
      * 是否添加字符
      */
-    private boolean appendChar(char ch, final int appendFlag) {
-        if (ch >= '0' && ch <= '9') {
+    private boolean appendChar(char c, final int appendFlag) {
+        if (c >= '0' && c <= '9') {
             return (appendFlag & NlpConst.APPEND_CHAR_DIGIT) != 0;
-        } else if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')) {
+        } else if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
             return (appendFlag & NlpConst.APPEND_CHAR_LETTER) != 0;
-        } else if (Character.isWhitespace(ch)) {
+        } else if (Character.isWhitespace(c)) {
             return (appendFlag & NlpConst.APPEND_CHAR_WHITESPACE) != 0;
         } else {
             return (appendFlag & NlpConst.APPEND_CHAR_OTHER) != 0;
         }
     }
 
-    private String convert(final String word, final int appendFlag, final StringBuilder firstLetter) {
-        List<Hit<String[]>> hits = matchBinaryReverseTrie.maxMatch(word);
+    private String convert(final String text, final int appendFlag, final StringBuilder firstLetter) {
+        List<Hit<String[]>> hits = matchBinaryReverseTrie.maxMatch(text);
         if (CommonsUtils.isEmpty(hits)) return null;
-        //后面的算法要求hits有序
-        Collections.sort(hits);
         StringBuilder py = new StringBuilder();
         int lastEndIndex = 0;
+        //为了考虑哪些非CJK字符, 只能顺序遍历了~~~
         for (Hit<String[]> h : hits) {
             int curStartPos = h.getStart();
             if (appendFlag != 0) {
                 while (lastEndIndex < curStartPos) {
-                    if (appendChar(word.charAt(lastEndIndex), appendFlag)) {
-                        py.append(word.charAt(lastEndIndex));
+                    if (appendChar(text.charAt(lastEndIndex), appendFlag)) {
+                        py.append(text.charAt(lastEndIndex));
                     }
                     lastEndIndex++;
                 }
@@ -100,9 +100,9 @@ public final class PinyinConvert {
             lastEndIndex = h.getEnd();
         }
         if (appendFlag != 0) {
-            while (lastEndIndex < word.length()) {
-                if (appendChar(word.charAt(lastEndIndex), appendFlag)) {
-                    py.append(word.charAt(lastEndIndex));
+            while (lastEndIndex < text.length()) {
+                if (appendChar(text.charAt(lastEndIndex), appendFlag)) {
+                    py.append(text.charAt(lastEndIndex));
                 }
                 lastEndIndex++;
             }
@@ -112,6 +112,7 @@ public final class PinyinConvert {
 
     /**
      * 单个cjk字符转化, 对于多音字, 只返回词库中的第一个
+     * 由于多音字的原因, 该方法不是太建议使用
      */
     public String convert(char cjkChar) {
         List<Hit<String[]>> hits = matchBinaryReverseTrie.maxMatch(new char[]{cjkChar}, 0, 1);
@@ -122,7 +123,7 @@ public final class PinyinConvert {
     /**
      * 字符串拼音转换
      *
-     * @param word       需要转换的汉字
+     * @param text       需要转换的汉字
      * @param appendFlag 需要包含的字符: 数字,空格等字符标记位
      * @return 转换结果
      * @see NlpConst#APPEND_CHAR_WHITESPACE
@@ -130,14 +131,14 @@ public final class PinyinConvert {
      * @see NlpConst#APPEND_CHAR_DIGIT
      * @see NlpConst#APPEND_CHAR_OTHER
      */
-    public String convert(String word, final int appendFlag) {
-        return convert(word, appendFlag, null);
+    public String convert(String text, final int appendFlag) {
+        return convert(text, appendFlag, null);
     }
 
     /**
      * 字符串拼音转换, 并且返回汉字拼音首字母
      *
-     * @param word       需要转换的汉字
+     * @param text       需要转换的汉字
      * @param appendFlag 需要包含的字符: 数字,空格等字符标记位
      * @return 转换结果 {@link Map.Entry#getKey()} 拼音转换结果, {@link Map.Entry#getValue()} 拼音首字母
      * @see NlpConst#APPEND_CHAR_WHITESPACE
@@ -145,11 +146,30 @@ public final class PinyinConvert {
      * @see NlpConst#APPEND_CHAR_DIGIT
      * @see NlpConst#APPEND_CHAR_OTHER
      */
-    public Map.Entry<String, String> firstLetterConvert(String word, final int appendFlag) {
+    public Map.Entry<String, String> firstLetterConvert(String text, final int appendFlag) {
         StringBuilder sb = new StringBuilder();
-        String py = convert(word, appendFlag, sb);
+        String py = convert(text, appendFlag, sb);
         if (py == null) return null;
         else return new AbstractMap.SimpleImmutableEntry<>(py, sb.toString());
+    }
+
+    /**
+     * 中文文本拼音转换, 返回具体每个cjk字符对应的拼音
+     * @param text cjk文本
+     * @return text中每个字符对应的拼音
+     */
+    public List<CjkChar> convert(String text) {
+        List<Hit<String[]>> hits = matchBinaryReverseTrie.maxMatch(text);
+        if (CommonsUtils.isEmpty(hits)) return null;
+        List<CjkChar> retList = new ArrayList<>();
+        for (Hit<String[]> h : hits) {
+            int startPos = h.getStart();
+            for (String py : h.getValue()) {
+                retList.add(new CjkChar(text.charAt(startPos), startPos, py));
+                startPos++;
+            }
+        }
+        return retList;
     }
 
     /**
@@ -179,6 +199,39 @@ public final class PinyinConvert {
             throw new IllegalArgumentException("word is empty");
         }
         return matchBinaryReverseTrie.remove(word);
+    }
+
+    public static class CjkChar implements Serializable {
+
+        private static final long serialVersionUID = 1L;
+
+        private final char character;
+
+        private final int position;
+
+        private final String pinyin;
+
+        public CjkChar(char character, int position, String pinyin) {
+            this.character = character;
+            this.position = position;
+            this.pinyin = pinyin;
+        }
+
+        public char getCharacter() {
+            return character;
+        }
+
+        public String getPinyin() {
+            return pinyin;
+        }
+
+        public int getPosition() {
+            return position;
+        }
+
+        public char getFirstLetter() {
+            return pinyin.charAt(0);
+        }
     }
 
 }
