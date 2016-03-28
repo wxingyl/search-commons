@@ -50,7 +50,7 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
      * @param rowData           canal变化的列值
      * @param interestedColumns 感兴趣的列, 如果{@link CommonsUtils#isEmpty(Collection)}为true则全部包含
      */
-    protected abstract void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns);
+    abstract void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns);
 
     public static abstract class StrRowChangedData extends RowChangedData<String> {
 
@@ -99,7 +99,7 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
         }
 
         @Override
-        protected final void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
+        final void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
             if (CommonsUtils.isEmpty(interestedColumns)) {
                 for (CanalEntry.Column c : rowData.getAfterColumnsList()) {
                     fieldValueMap.put(c.getName(), c.getValue());
@@ -132,7 +132,7 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
         }
 
         @Override
-        protected final void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
+        final void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
             if (CommonsUtils.isEmpty(interestedColumns)) {
                 for (CanalEntry.Column c : rowData.getBeforeColumnsList()) {
                     fieldValueMap.put(c.getName(), c.getValue());
@@ -159,7 +159,7 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
 
         @Deprecated
         @Override
-        protected final void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
+        final void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
             //do nothing
         }
 
@@ -186,6 +186,15 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
             return convert.convert(fieldValueMap.get(column) != null ? fieldValueMap.get(column).getBefore() : null);
         }
 
+        public final Function<String, String> getBefores() {
+            return new Function<String, String>() {
+                @Override
+                public String apply(String s) {
+                    return getBefore(s);
+                }
+            };
+        }
+
         public String getAfter(String column) {
             Pair pair;
             return (pair = fieldValueMap.get(column)) == null ? null : pair.after;
@@ -207,6 +216,15 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
          */
         public <T> T getAfter(String column, StrValueConvert<T> convert) {
             return convert.convert(fieldValueMap.get(column) != null ? fieldValueMap.get(column).getAfter() : null);
+        }
+
+        public Function<String, String> getAfters() {
+            return new Function<String, String>() {
+                @Override
+                public String apply(String s) {
+                    return getAfter(s);
+                }
+            };
         }
 
         public boolean isChanged(String column) {

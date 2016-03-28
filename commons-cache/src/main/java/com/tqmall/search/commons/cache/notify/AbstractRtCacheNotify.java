@@ -8,6 +8,7 @@ import com.tqmall.search.commons.param.LocalRegisterParam;
 import com.tqmall.search.commons.param.NotifyChangeParam;
 import com.tqmall.search.commons.result.MapResult;
 import com.tqmall.search.commons.result.ResultUtils;
+import com.tqmall.search.commons.utils.CommonsUtils;
 import com.tqmall.search.commons.utils.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,7 +103,7 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
 
     @Override
     public boolean notify(RtCacheSlaveHandle slaveCache, List<String> keys) {
-        if (keys == null || keys.isEmpty()) return false;
+        if (CommonsUtils.isEmpty(keys)) return false;
         String cacheKey = RtCacheManager.getCacheHandleKey(slaveCache);
         List<T> slaveHostList = new ArrayList<>();
         for (Map.Entry<T, Set<String>> e : slaveHostMap.entrySet()) {

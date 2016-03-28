@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by xing on 15/12/1.
+ *
  * 强引用缓存抽象类,所有的缓存建议都继承该类去实现
  * 所有缓存按需加载
  * 通过Map做基本的缓存, 为强引用类型, GC无法回收的, 所以只缓存数据比较小的对象
@@ -18,24 +19,25 @@ import java.util.concurrent.ConcurrentMap;
  */
 public abstract class AbstractStrongCache<K, V> implements Cache<K, V> {
 
-    private ConcurrentMap<K, V> cache;
+    private volatile ConcurrentMap<K, V> cache;
 
     /**
      * 加载缓存数据, 返回的Map最好是{@link ConcurrentMap}, 如果不是, 则会通过{@link ConcurrentHashMap}包装
      * 返回的Map不能为null, 为null表示初始化出错,抛出{@link CacheInitException}异常
      * 返回的Map为空{@link Map#isEmpty()}, 不做特殊处理, 认为是正常情况
-     * @return 不能为null, 为null表示初始化出错,抛出{@link CacheInitException}异常
      *
+     * @return 不能为null, 为null表示初始化出错,抛出{@link CacheInitException}异常
      */
     protected abstract Map<K, V> loadCache();
 
     /**
      * call this method, you should make sure has initialized cache
+     *
      * @return 更新操作是否有更改
-     *      如果是删除操作,看原先是否为null,如果就是null活着不存在,则认为没有更改,返回false
-     *      如果是更新操作, 看原先两者是不是{@link Objects#equals(Object, Object)}
+     * 如果是删除操作, 看原先是否为null,如果就是null活着不存在,则认为没有更改,返回false
+     * 如果是更新操作, 看原先两者是不是{@link Objects#equals(Object, Object)}
      */
-    protected final boolean updateValue(K key, V val) {
+    protected boolean updateValue(K key, V val) {
         V before;
         if (val == null) {
             before = cache.remove(key);
@@ -45,25 +47,9 @@ public abstract class AbstractStrongCache<K, V> implements Cache<K, V> {
         return !Objects.equals(val, before);
     }
 
-    private synchronized int init() {
-        if (cache == null) {
-            Map<K, V> data = loadCache();
-            if (data == null) {
-                throw new CacheInitException("加载缓存, 获得的数据为null");
-            }
-            if (data instanceof ConcurrentMap){
-                cache = (ConcurrentMap<K, V>) data;
-            } else {
-                cache = new ConcurrentHashMap<>();
-                cache.putAll(data);
-            }
-        }
-        return cache.size();
-    }
-
     @Override
     public final V getValue(K key) {
-        if(key == null) return null;
+        if (key == null) return null;
         if (cache == null) {
             init();
         }
@@ -100,4 +86,19 @@ public abstract class AbstractStrongCache<K, V> implements Cache<K, V> {
         cache = null;
     }
 
+    private synchronized int init() {
+        if (cache == null) {
+            Map<K, V> data = loadCache();
+            if (data == null) {
+                throw new CacheInitException("加载缓存, 获得的数据为null");
+            }
+            if (data instanceof ConcurrentMap) {
+                cache = (ConcurrentMap<K, V>) data;
+            } else {
+                cache = new ConcurrentHashMap<>();
+                cache.putAll(data);
+            }
+        }
+        return cache.size();
+    }
 }

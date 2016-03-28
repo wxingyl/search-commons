@@ -9,6 +9,7 @@ import java.util.ServiceLoader;
 
 /**
  * Created by xing on 15/12/22.
+ * 实时realTime缓存管理
  * 通过{@link ServiceLoader}机制指定自己的具体实现类, 如果没有指定, 则默认{@link HttpCacheManager}
  */
 public abstract class RtCacheManager {
