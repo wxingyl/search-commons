@@ -122,6 +122,8 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
         } catch (RuntimeException e) {
             if (!exceptionHandle(e, false)) {
                 throw e;
+            } else {
+                log.warn("canal instance: " + instanceName + " ignore handle exception", e);
             }
         }
     }
@@ -133,6 +135,8 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
         } catch (RuntimeException e) {
             if (!exceptionHandle(e, true)) {
                 throw e;
+            } else {
+                log.warn("canal instance: " + instanceName + " ignore handle exception", e);
             }
         }
     }

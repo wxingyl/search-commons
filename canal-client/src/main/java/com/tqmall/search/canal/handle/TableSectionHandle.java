@@ -6,6 +6,8 @@ import com.tqmall.search.canal.Schema;
 import com.tqmall.search.canal.TableColumnCondition;
 import com.tqmall.search.canal.action.*;
 import com.tqmall.search.commons.lang.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
 import java.util.LinkedList;
@@ -21,6 +23,8 @@ import java.util.ListIterator;
  * @see TableAction
  */
 public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
+
+    private static final Logger log = LoggerFactory.getLogger(TableSectionHandle.class);
     /**
      * 最近处理的table
      * 只能canal获取数据的线程访问, 线程不安全的
@@ -38,6 +42,9 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
     }
 
     private void runLastRowChangeAction() {
+        if (log.isDebugEnabled()) {
+            log.debug("canal instance: " + instanceName + " need handle data size: " + rowChangedDataList.size() + ", table: " + lastTable);
+        }
         if (rowChangedDataList.isEmpty()) return;
         lastTable.getAction().onAction(rowChangedDataList);
         for (RowChangedData data : rowChangedDataList) {

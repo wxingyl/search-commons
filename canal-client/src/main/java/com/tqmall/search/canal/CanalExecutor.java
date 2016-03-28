@@ -326,6 +326,7 @@ public class CanalExecutor {
         private void reconnect() {
             boolean reconnectSucceed = false;
             while (!reconnectSucceed && runningSwitch) {
+                log.info("canal instance: " + handle.instanceName() + " need reconnect, and sleep time is " + retryFetchInterval + "ms");
                 try {
                     handle.disConnect();
                 } catch (CanalClientException ignore) {
@@ -337,8 +338,9 @@ public class CanalExecutor {
                 try {
                     handle.connect();
                     reconnectSucceed = true;
+                    log.info("canal instance: " + handle.instanceName() + " reconnect succeed");
                 } catch (CanalClientException rc) {
-                    log.warn("canalInstance: " + handle.instanceName() + " reconnect server failed: " + rc.getMessage());
+                    log.warn("canal instance: " + handle.instanceName() + " reconnect server failed: " + rc.getMessage());
                 }
             }
         }
@@ -347,6 +349,7 @@ public class CanalExecutor {
          * 消费当前消息
          */
         private void consumerMessage(Message message) {
+            log.debug("canal instance: " + handle.instanceName() + " get message entry size " + message.getEntries().size());
             try {
                 for (CanalEntry.Entry e : message.getEntries()) {
                     if (e.getEntryType() != CanalEntry.EntryType.ROWDATA || !e.hasStoreValue()) continue;
@@ -373,7 +376,7 @@ public class CanalExecutor {
          */
         @Override
         public void run() {
-            log.info("start launching canalInstance: " + handle.instanceName());
+            log.info("start launching canalInstance: " + handle.instanceName() + ", startRtTime = " + startRtTime);
             runningSwitch = true;
             synchronized (lock) {
                 running = true;
@@ -411,7 +414,7 @@ public class CanalExecutor {
                 }
             } catch (RuntimeException e) {
                 runningSwitch = false;
-                log.error("canalInstance: " + handle.instanceName() + " occurring a serious RuntimeException and lead to stop this canalInstance", e);
+                log.error("canal instance: " + handle.instanceName() + " occurring a serious RuntimeException and lead to stop this canalInstance", e);
                 //既然处理失败了, 那就回滚呗~~~
                 if (lastBatchId > 0) {
                     handle.rollback(lastBatchId);
@@ -425,7 +428,7 @@ public class CanalExecutor {
                     handle.disConnect();
                 }
             }
-            log.info("canalInstance: " + handle.instanceName() + " has stopped");
+            log.info("canal instance: " + handle.instanceName() + " has stopped");
         }
 
         @Override

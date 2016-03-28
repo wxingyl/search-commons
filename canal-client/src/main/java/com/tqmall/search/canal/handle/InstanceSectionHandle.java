@@ -77,6 +77,9 @@ public class InstanceSectionHandle extends AbstractCanalInstanceHandle {
 
     @Override
     protected void doFinishHandle() {
+        if (log.isDebugEnabled()) {
+            log.debug("canal instance: " + instanceName + " handle data size: " + rowChangedData.size());
+        }
         instanceAction.onAction(rowChangedData);
         for (InstanceRowChangedData data : rowChangedData) {
             data.close();
@@ -95,7 +98,7 @@ public class InstanceSectionHandle extends AbstractCanalInstanceHandle {
     protected boolean exceptionHandle(RuntimeException exception, boolean inFinishHandle) {
         try {
             if (exceptionHandleFunction == null) {
-                log.error("canal " + instanceName + " handle table data change occurring exception, rowChangedData size: "
+                log.error("canal instance: " + instanceName + " handle table data change occurring exception, rowChangedData size: "
                         + rowChangedData.size(), exception);
                 return false;
             } else {

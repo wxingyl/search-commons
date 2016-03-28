@@ -2,11 +2,13 @@ package com.tqmall.search.canal.handle;
 
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.canal.RowChangedData;
-import com.tqmall.search.canal.action.EventTypeAction;
 import com.tqmall.search.canal.Schema;
-import com.tqmall.search.canal.action.ActionFactory;
 import com.tqmall.search.canal.TableColumnCondition;
+import com.tqmall.search.canal.action.ActionFactory;
+import com.tqmall.search.canal.action.EventTypeAction;
 import com.tqmall.search.commons.lang.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
 import java.util.Collections;
@@ -23,6 +25,8 @@ import java.util.ListIterator;
  * @see EventTypeAction
  */
 public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAction> {
+
+    private static final Logger log = LoggerFactory.getLogger(EventTypeSectionHandle.class);
     /**
      * 最近处理的table
      * 只能canal获取数据的线程访问, 线程不安全的
@@ -50,6 +54,10 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void runLastEventTypeOfAction(int eventType, List<? extends RowChangedData> dataList) {
+        if (log.isDebugEnabled()) {
+            log.debug("canal instance: " + instanceName + " need handle data size: " + dataList.size() + ", eventType: " + eventType
+                    + " table: " + lastTable);
+        }
         if (eventType == CanalEntry.EventType.UPDATE_VALUE) {
             lastTable.getAction().onUpdateAction(Collections.unmodifiableList((List<RowChangedData.Update>) dataList));
         } else if (eventType == CanalEntry.EventType.INSERT_VALUE) {
