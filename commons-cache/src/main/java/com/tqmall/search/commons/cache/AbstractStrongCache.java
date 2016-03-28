@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentMap;
  * 通过Map做基本的缓存, 为强引用类型, GC无法回收的, 所以只缓存数据比较小的对象
  * 日后可以考虑弱类型缓存, 通过guava的{@link LoadingCache}实现
  */
-public abstract class AbstractStrongCache<K, V> implements StrongCache<K, V> {
+public abstract class AbstractStrongCache<K, V> implements Cache<K, V> {
 
     private ConcurrentMap<K, V> cache;
 

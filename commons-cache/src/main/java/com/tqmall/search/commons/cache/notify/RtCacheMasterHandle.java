@@ -8,10 +8,6 @@ import java.util.Map;
  * 各个接口的调用都在一个线程中顺序调用
  */
 public interface RtCacheMasterHandle<K, V> {
-    /**
-     * 单线程更新,无需考虑多线程问题
-     */
-    void finishUpdate();
 
     /**
      * 过滤数据是否有效
@@ -33,5 +29,9 @@ public interface RtCacheMasterHandle<K, V> {
      * @return 是否已经处理
      */
     boolean onMasterHandle(K key, V newVal);
+    /**
+     * 单线程更新,无需考虑多线程问题
+     */
+    void finishUpdate();
 
 }

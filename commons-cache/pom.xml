@@ -17,8 +17,19 @@
     <dependencies>
         <dependency>
             <groupId>com.tqmall.search</groupId>
+            <artifactId>canal-client</artifactId>
+            <version>${canal-client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.tqmall.search</groupId>
             <artifactId>commons-component</artifactId>
             <version>${component.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.tqmall.search</groupId>
+                    <artifactId>commons-lang</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

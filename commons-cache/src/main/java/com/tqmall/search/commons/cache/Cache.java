@@ -6,7 +6,7 @@ import java.util.Map;
  * Created by xing on 15/12/23.
  * 强引用缓存接口定义
  */
-public interface StrongCache<K, V> {
+public interface Cache<K, V> {
 
     V getValue(K key);
 
