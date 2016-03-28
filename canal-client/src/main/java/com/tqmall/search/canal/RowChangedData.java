@@ -30,7 +30,7 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
     }
 
     @Override
-    public V apply(String s) {
+    public final V apply(String s) {
         return fieldValueMap.get(s);
     }
 
