@@ -18,7 +18,7 @@ public abstract class Condition implements Serializable {
         this.field = field;
     }
 
-    public final String getField() {
+    public String getField() {
         return field;
     }
 

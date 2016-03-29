@@ -1,6 +1,5 @@
-package com.tqmall.search.commons;
+package com.tqmall.search.commons.param.condition;
 
-import com.tqmall.search.commons.param.condition.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -68,8 +67,14 @@ public class ConditionTest {
                 values[i][j] = (i & 1 << j) != 0;
             }
             boolean a = values[i][0] && values[i][1] || values[i][2];
-            boolean b = values[i][0] || values[i][2] && values[i][1] ;
+            boolean b = values[i][0] || values[i][2] && values[i][1];
             System.out.println("" + values[i][0] + ',' + values[i][1] + ',' + values[i][2] + ": a = " + a + ", b = " + b);
         }
+    }
+
+    @Test
+    public void parseConditionalExpressionTest() {
+        String conditionalExpression = "is_deleted = 'N' && (id > 9 || value range 34~45)";
+        System.out.println(Conditions.createTokens(conditionalExpression));
     }
 }

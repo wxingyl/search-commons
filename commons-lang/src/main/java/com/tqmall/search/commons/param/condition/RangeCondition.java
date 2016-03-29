@@ -2,7 +2,7 @@ package com.tqmall.search.commons.param.condition;
 
 /**
  * Created by xing on 16/1/22.
- * 范围比较, 支持设定等于区间设定, 可以实现 >, >=, >&<, >=&<= 等各个开闭区间组合
+ * 范围比较, 支持设定等于区间设定, 可以实现 >, >=, > && <, >= && <= 等各个开闭区间组合
  */
 public class RangeCondition<T extends Comparable<T>> extends Condition {
 
