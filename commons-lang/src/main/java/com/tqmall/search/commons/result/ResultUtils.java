@@ -60,7 +60,7 @@ public final class ResultUtils {
      * @param <T> 没有意义, 只是为了调用的时候少点警告而已
      * @return 错误的{@link Result}对象
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"rawstype", "unchecked"})
     public static <T> Result<T> result(ErrorCode errorCode) {
         return wrapError(errorCode, RESULT_BUILD);
     }
@@ -71,7 +71,7 @@ public final class ResultUtils {
      * @param <T> 没有意义, 只是为了调用的时候少点警告而已
      * @return 错误的{@link Result}对象
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"rawstype", "unchecked"})
     public static <T> Result<T> result(ErrorCode errorCode, Object... args) {
         return wrapError(errorCode, RESULT_BUILD, args);
     }
@@ -88,7 +88,7 @@ public final class ResultUtils {
      * @see #result(ErrorCode)
      * @return PageResult类型
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"rawstype", "unchecked"})
     public static <T> PageResult<T> pageResult(ErrorCode errorCode) {
         return wrapError(errorCode, PAGE_RESULT_BUILD);
     }
@@ -97,7 +97,7 @@ public final class ResultUtils {
      * @see #result(ErrorCode, Object...)
      * @return PageResult类型
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"rawstype", "unchecked"})
     public static <T> PageResult<T> pageResult(ErrorCode errorCode, Object... args) {
         return wrapError(errorCode, PAGE_RESULT_BUILD, args);
     }

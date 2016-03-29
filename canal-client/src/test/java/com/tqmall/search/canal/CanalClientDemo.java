@@ -50,7 +50,7 @@ public class CanalClientDemo {
                             }
                         })
                         .columns("id", "goods_id", "goods_number")
-                        .columnCondition(TableColumnCondition.DEFAULT_DELETE_COLUMN_CONDITION))
+                        .columnCondition(Schemas.DEFAULT_DELETE_COLUMN_CONDITION))
                 .create());
         CANAL_EXECUTOR.addInstanceHandle(new TableSectionHandle(LOCAL_ADDRESS, "shop", actionFactory));
         ActionFactory<EventTypeAction> eventTypeFactory = new SingleSchemaActionFactory<>(Schemas.buildSchema("autoparts", EventTypeAction.class)
@@ -72,9 +72,9 @@ public class CanalClientDemo {
                             }
                         })
                         .columns("goods_id", "goods_name", "cat_id", "new_goods_sn")
-                        .columnCondition(TableColumnCondition.build()
-                                .condition(Conditions.equal("is_delete", false), Boolean.TYPE)
-                                .condition(Conditions.equal("seller_id", 1), Integer.TYPE)
+                        .columnCondition(Conditions.unmodifiableContainer()
+                                .addMustCondition(Conditions.equal("is_delete", false))
+                                .addMustCondition(Conditions.equal("seller_id", 1))
                                 .create()))
                 .create());
         CANAL_EXECUTOR.addInstanceHandle(new EventTypeSectionHandle(LOCAL_ADDRESS, "shop_goods", eventTypeFactory));
@@ -131,7 +131,7 @@ public class CanalClientDemo {
                         //do some work or call some function~~~
                     }
                 })
-                .columnCondition(TableColumnCondition.DEFAULT_DELETE_COLUMN_CONDITION)
+                .columnCondition(Schemas.DEFAULT_DELETE_COLUMN_CONDITION)
         );
 
         tableList.add(Schemas.buildTable("legend_shop_service_info")
@@ -144,9 +144,12 @@ public class CanalClientDemo {
                 })
                 .columns("id", "is_deleted", "name", "service_sn") //目前还不支持列过滤~~~不过很快了~~~
                 //id 取值返回在[10, 100], 并且is_deleted = 'N'
-                .columnCondition(TableColumnCondition.build()
-                        .condition(Conditions.range("id", 10, 100), Integer.class)
-                        .condition(TableColumnCondition.NOT_DELETED_CONDITION, Boolean.class)
+                .columnCondition(Conditions.unmodifiableContainer()
+                        .addMustCondition(Conditions.range("id", Integer.TYPE)
+                                .ge(10)
+                                .le(100)
+                                .create())
+                        .addMustCondition(Schemas.NOT_DELETED_CONDITION)
                         .create())
         );
         String schemaName = "legend";
@@ -158,7 +161,7 @@ public class CanalClientDemo {
         schemaName = "dandelion";
         schemas.add(Schemas.buildSchema(schemaName, TableAction.class)
                 .addTable(Schemas.buildTable("activity")
-                        .columnCondition(TableColumnCondition.DEFAULT_DELETE_COLUMN_CONDITION)
+                        .columnCondition(Schemas.DEFAULT_DELETE_COLUMN_CONDITION)
                         .action(new TableAction() {
                             @Override
                             public void onAction(List<? extends RowChangedData> changedData) {
@@ -166,7 +169,7 @@ public class CanalClientDemo {
                                 //do some work or call some function~~~
                             }
                         }), Schemas.buildTable("member")
-                        .columnCondition(TableColumnCondition.DEFAULT_DELETE_COLUMN_CONDITION)
+                        .columnCondition(Schemas.DEFAULT_DELETE_COLUMN_CONDITION)
                         .action(new TableAction() {
                             @Override
                             public void onAction(List<? extends RowChangedData> changedData) {
@@ -223,7 +226,7 @@ public class CanalClientDemo {
                                     }
                                 })
                                 .columns("id", "shop_id")
-                                .columnCondition(TableColumnCondition.DEFAULT_DELETE_COLUMN_CONDITION))
+                                .columnCondition(Schemas.DEFAULT_DELETE_COLUMN_CONDITION))
                         .addTable(Schemas.buildTable("legend_shop_service_info")
                                 .action(new EventTypeAction() {
                                     //legend_shop_service_info表改动对应的处理
@@ -242,7 +245,7 @@ public class CanalClientDemo {
                                         //do some work or call some function~~~
                                     }
                                 })
-                                .columnCondition(TableColumnCondition.DEFAULT_DELETE_COLUMN_CONDITION)))
+                                .columnCondition(Schemas.DEFAULT_DELETE_COLUMN_CONDITION)))
                 //添加dandelion表中的activity, member表处理
                 .addSchema(Schemas.buildSchema("dandelion", EventTypeAction.class)
                         .addTable(Schemas.buildTable("activity")

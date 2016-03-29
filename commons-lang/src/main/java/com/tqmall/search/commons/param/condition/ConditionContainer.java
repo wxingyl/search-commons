@@ -17,7 +17,7 @@ import java.util.*;
  * @see RangeCondition
  * @see EqualCondition
  */
-public abstract class ConditionContainer implements Serializable {
+public abstract class ConditionContainer implements Condition, Serializable {
 
     private static final long serialVersionUID = 8536199694404404344L;
     /**
@@ -39,36 +39,22 @@ public abstract class ConditionContainer implements Serializable {
      */
     protected List<Condition> mustNot;
 
-    /**
-     * @return should return unmodifiableList
-     */
-    public abstract List<? extends Condition> getMust();
-
-    /**
-     * @return should return unmodifiableList
-     */
-    public abstract List<? extends Condition> getShould();
-
-    /**
-     * @return should return unmodifiableList
-     */
-    public abstract List<? extends Condition> getMustNot();
-
-    public Set<String> allConditionFields() {
+    @Override
+    public Set<String> fields() {
         Set<String> fields = new HashSet<>();
         if (!CommonsUtils.isEmpty(must)) {
             for (Condition c : must) {
-                fields.add(c.getField());
+                fields.addAll(c.fields());
             }
         }
         if (!CommonsUtils.isEmpty(should)) {
             for (Condition c : should) {
-                fields.add(c.getField());
+                fields.addAll(c.fields());
             }
         }
         if (!CommonsUtils.isEmpty(mustNot)) {
             for (Condition c : mustNot) {
-                fields.add(c.getField());
+                fields.addAll(c.fields());
             }
         }
         return fields;
@@ -76,30 +62,25 @@ public abstract class ConditionContainer implements Serializable {
 
     /**
      * 给定值验证, 3类条件都考虑, 这3个大的条件list之间是且的关系
-     *
-     * @param valueMap 各个字段对应的值
      */
-    public final boolean validation(final Map<String, ?> valueMap) {
-        return !CommonsUtils.isEmpty(valueMap) && validation(CommonsUtils.convertToFunction(valueMap));
-    }
-
-    public boolean validation(Function<String, ?> valueSup) {
-        Objects.requireNonNull(valueSup);
+    @Override
+    public boolean validation(Function<String, String> values) {
+        Objects.requireNonNull(values);
         if (must != null) {
             for (Condition c : must) {
-                if (!c.validation(valueSup.apply(c.getField()))) return false;
+                if (!c.validation(values)) return false;
             }
         }
         //mustNot放在第二, 毕竟是且关系, 不匹配直接返回, 避免后面should的或查询比较
         if (mustNot != null) {
             for (Condition c : mustNot) {
-                if (c.validation(valueSup.apply(c.getField()))) return false;
+                if (c.validation(values)) return false;
             }
         }
         if (!CommonsUtils.isEmpty(should)) {
             int matchCount = 0;
             for (Condition c : should) {
-                if (c.validation(valueSup.apply(c.getField())) && ++matchCount >= minimumShouldMatch) {
+                if (c.validation(values) && ++matchCount >= minimumShouldMatch) {
                     break;
                 }
             }
@@ -108,19 +89,4 @@ public abstract class ConditionContainer implements Serializable {
         return true;
     }
 
-    public int getMinimumShouldMatch() {
-        return minimumShouldMatch;
-    }
-
-    /**
-     * 条件容器类型
-     */
-    public enum Type {
-        //且关系
-        MUST,
-        //或关系
-        SHOULD,
-        //非关系
-        MUST_NOT
-    }
 }

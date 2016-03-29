@@ -3,9 +3,10 @@ package com.tqmall.search.canal.handle;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.canal.RowChangedData;
 import com.tqmall.search.canal.Schema;
-import com.tqmall.search.canal.TableColumnCondition;
-import com.tqmall.search.canal.action.*;
+import com.tqmall.search.canal.action.ActionFactory;
+import com.tqmall.search.canal.action.TableAction;
 import com.tqmall.search.commons.lang.Function;
+import com.tqmall.search.commons.param.condition.ConditionContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +70,7 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
             runLastRowChangeAction();
             lastTable = currentTable;
         }
-        TableColumnCondition columnCondition;
+        ConditionContainer columnCondition;
         if (currentEventType == CanalEntry.EventType.UPDATE
                 && (columnCondition = currentTable.getColumnCondition()) != null) {
             ListIterator<RowChangedData> it = changedData.listIterator();

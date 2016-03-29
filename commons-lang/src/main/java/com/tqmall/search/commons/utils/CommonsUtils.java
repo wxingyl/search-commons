@@ -81,8 +81,30 @@ public final class CommonsUtils {
         return !isGeZero(num);
     }
 
+    public static <K, V> Function<K, V> convertToFunction(final V value) {
+        return new Function<K, V>() {
+            @Override
+            public V apply(K k) {
+                return value;
+            }
+        };
+    }
+
+    /**
+     * 将一个简单的key, value转换为{@link Function}
+     */
+    public static <K, V> Function<K, V> convertToFunction(final K key, final V value) {
+        return new Function<K, V>() {
+            @Override
+            public V apply(K k) {
+                return Objects.equals(key, k) ? value : null;
+            }
+        };
+    }
+
     /**
      * 将一个Map对象转换为{@link Function}
+     *
      * @param map can not null
      */
     public static <K, V> Function<K, V> convertToFunction(final Map<K, V> map) {

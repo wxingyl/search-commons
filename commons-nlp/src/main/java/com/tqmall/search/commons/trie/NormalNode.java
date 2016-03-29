@@ -56,7 +56,7 @@ public class NormalNode<V> extends Node<V> {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"rawstype", "unchecked"})
     @Override
     public boolean addChild(Node<V> node) {
         //first child, simple handle
@@ -84,7 +84,7 @@ public class NormalNode<V> extends Node<V> {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"rawstype", "unchecked"})
     @Override
     public Node<V> getChild(char ch) {
         if (children == null) return null;
@@ -130,7 +130,7 @@ public class NormalNode<V> extends Node<V> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"rawstype", "unchecked"})
     public void childHandle(NodeChildHandle<V> handle) {
         if (children == null) return;
         for (int i = 0; i < childCount; i++) {
@@ -140,7 +140,7 @@ public class NormalNode<V> extends Node<V> {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"rawstype", "unchecked"})
     private void walkAppend(StringBuilder preKey, List<Map.Entry<String, V>> retList) {
         if (status == Status.DELETE) return;
         preKey.append(c);

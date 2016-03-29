@@ -3,6 +3,7 @@ package com.tqmall.search.canal;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.google.common.collect.Iterators;
 import com.tqmall.search.canal.action.Actionable;
+import com.tqmall.search.commons.param.condition.ConditionContainer;
 import com.tqmall.search.commons.utils.CommonsUtils;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 
@@ -102,13 +103,13 @@ public class Schema<T extends Actionable> implements Iterable<Schema<T>.Table> {
         /**
          * 列条件筛选容器
          */
-        private final TableColumnCondition columnCondition;
+        private final ConditionContainer columnCondition;
         /**
          * 排除的事件类型, 目前只支持{@link CanalEntry.EventType#UPDATE}, {@link CanalEntry.EventType#DELETE}, {@link CanalEntry.EventType#INSERT}
          */
         private final byte forbidEventType;
 
-        Table(String tableName, T action, Collection<String> columns, TableColumnCondition columnCondition, byte forbidEventType) {
+        Table(String tableName, T action, Collection<String> columns, ConditionContainer columnCondition, byte forbidEventType) {
             Objects.requireNonNull(action);
             Objects.requireNonNull(tableName);
             this.tableName = tableName;
@@ -120,7 +121,7 @@ public class Schema<T extends Actionable> implements Iterable<Schema<T>.Table> {
                     /**
                      * 要保证在判断条件中的column添加到{@link #columns}
                      */
-                    columnSet.addAll(columnCondition.getConditionContainer().allConditionFields());
+                    columnSet.addAll(columnCondition.fields());
                 }
                 this.columns = Collections.unmodifiableSet(columnSet);
             } else this.columns = null;
@@ -153,7 +154,7 @@ public class Schema<T extends Actionable> implements Iterable<Schema<T>.Table> {
             return columns;
         }
 
-        public final TableColumnCondition getColumnCondition() {
+        public final ConditionContainer getColumnCondition() {
             return columnCondition;
         }
 

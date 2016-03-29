@@ -61,7 +61,7 @@ public class ModifiableConditionContainer extends ConditionContainer {
      * 清理现有条件, 通过types控制要清除哪些
      *
      * @param types 需要清除的类型
-     * @see ConditionContainer.Type
+     * @see Condition.Type
      * @see EnumSet#of(Enum)
      */
     public void clear(Set<Type> types) {
@@ -75,20 +75,5 @@ public class ModifiableConditionContainer extends ConditionContainer {
             this.minimumShouldMatch = minimumShouldMatch;
         }
         return this;
-    }
-
-    @Override
-    public List<Condition> getMust() {
-        return must == null ? null : Collections.unmodifiableList(must);
-    }
-
-    @Override
-    public List<Condition> getShould() {
-        return should == null ? null : Collections.unmodifiableList(should);
-    }
-
-    @Override
-    public List<Condition> getMustNot() {
-        return mustNot == null ? null : Collections.unmodifiableList(mustNot);
     }
 }

@@ -60,7 +60,7 @@ public class BigRootNode<V> extends Node<V> {
         return childNode == null || childNode.deleteNode(word, 1);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"rawstype", "unchecked"})
     @Override
     public Node<V> getChild(char ch) {
         return isValidChar(ch) ? (Node<V>) children[ch - minChar] : null;
@@ -77,7 +77,7 @@ public class BigRootNode<V> extends Node<V> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"rawstype", "unchecked"})
     public void childHandle(NodeChildHandle<V> handle) {
         for (Node<?> ch : children) {
             if (ch != null && ch.status != Status.DELETE) {

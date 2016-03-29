@@ -2,6 +2,9 @@ package com.tqmall.search.canal;
 
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.canal.action.*;
+import com.tqmall.search.commons.param.condition.ConditionContainer;
+import com.tqmall.search.commons.param.condition.Conditions;
+import com.tqmall.search.commons.param.condition.EqualCondition;
 import com.tqmall.search.commons.utils.CommonsUtils;
 
 import java.util.*;
@@ -14,6 +17,21 @@ public final class Schemas {
 
     private Schemas() {
     }
+
+    /**
+     * 字段名: "is_deleted"
+     * 有效值: false
+     *
+     * @see com.tqmall.search.commons.utils.StrValueConverts.BoolStrValueConvert
+     */
+    public static final EqualCondition<Boolean> NOT_DELETED_CONDITION = Conditions.equal("is_deleted", false);
+
+    /**
+     * 默认的逻辑删除表字段过滤器
+     */
+    public static final ConditionContainer DEFAULT_DELETE_COLUMN_CONDITION = Conditions.unmodifiableContainer()
+            .addMustCondition(NOT_DELETED_CONDITION)
+            .create();
 
     /**
      * 方便创建{@link MultiSchemaActionFactory}对象搞的
@@ -137,7 +155,7 @@ public final class Schemas {
         String tableName;
         Actionable action;
         Set<String> columns = new HashSet<>();
-        TableColumnCondition columnCondition;
+        ConditionContainer columnCondition;
         byte forbidEventType;
 
         TableBuilder(String tableName) {
@@ -170,7 +188,7 @@ public final class Schemas {
             return this;
         }
 
-        public TableBuilder columnCondition(TableColumnCondition columnCondition) {
+        public TableBuilder columnCondition(ConditionContainer columnCondition) {
             this.columnCondition = columnCondition;
             return this;
         }

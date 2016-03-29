@@ -77,7 +77,7 @@ public final class StrValueConverts {
         return convert;
     }
 
-    public static <T extends Comparable<T>> StrValueConvert<T> getConvert(Class<T> cls, final T defaultValue) {
+    public static <T> StrValueConvert<T> getConvert(Class<T> cls, final T defaultValue) {
         final StrValueConvert<T> convert = getConvert(cls);
         if (convert == null || defaultValue == null) return convert;
         if (convert instanceof Defaultable) {
@@ -159,7 +159,7 @@ public final class StrValueConverts {
         return convert.convert(input);
     }
 
-    public static abstract class AbstractDefaultableStrValueConvert<T extends Comparable<T>>
+    public static abstract class AbstractDefaultableStrValueConvert<T>
             implements StrValueConvert<T>, Defaultable<T> {
 
         protected abstract T innerConvert(String str);

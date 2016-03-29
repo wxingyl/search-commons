@@ -1,5 +1,6 @@
 package com.tqmall.search.commons.param.condition;
 
+import com.tqmall.search.commons.lang.StrValueConvert;
 import com.tqmall.search.commons.utils.CommonsUtils;
 
 import java.util.Collections;
@@ -9,14 +10,14 @@ import java.util.List;
  * Created by xing on 16/1/24.
  * in条件
  */
-public class InCondition<T> extends Condition {
+public class InCondition<T> extends FieldCondition<T> {
 
     private static final long serialVersionUID = -512938955299957421L;
 
     private final List<T> values;
 
-    public InCondition(String field, List<T> values) {
-        super(field);
+    public InCondition(String field, List<T> values, StrValueConvert<T> convert) {
+        super(field, convert);
         values = CommonsUtils.filterNullValue(values);
         if (values == null) throw new IllegalArgumentException("values list is null or empty");
         this.values = Collections.unmodifiableList(values);
@@ -27,7 +28,7 @@ public class InCondition<T> extends Condition {
     }
 
     @Override
-    public boolean validation(Object value) {
+    public boolean validation(T value) {
         return values.contains(value);
     }
 
@@ -35,17 +36,4 @@ public class InCondition<T> extends Condition {
     public String toString() {
         return "InCondition{" + super.toString() + ", values = " + values;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        return this == o || o instanceof InCondition && super.equals(o);
-    }
-
-    private final static int HASH_CODE_FACTOR = InCondition.class.getSimpleName().hashCode();
-
-    @Override
-    public int hashCode() {
-        return 31 * super.hashCode() + HASH_CODE_FACTOR;
-    }
-
 }

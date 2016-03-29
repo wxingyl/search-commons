@@ -22,21 +22,6 @@ public class UnmodifiableConditionContainer extends ConditionContainer {
         if (minimumShouldMatch > 1) this.minimumShouldMatch = minimumShouldMatch;
     }
 
-    @Override
-    public List<Condition> getMust() {
-        return must;
-    }
-
-    @Override
-    public List<Condition> getShould() {
-        return should;
-    }
-
-    @Override
-    public List<Condition> getMustNot() {
-        return mustNot;
-    }
-
     public static Builder build() {
         return new Builder();
     }
@@ -63,7 +48,7 @@ public class UnmodifiableConditionContainer extends ConditionContainer {
         /**
          * 根据type 添加条件, 默认{@link Type#MUST}
          */
-        public Builder addCondition(ConditionContainer.Type type, Condition condition) {
+        public Builder addCondition(Condition.Type type, Condition condition) {
             Objects.requireNonNull(type);
             if (type == Type.SHOULD) should.add(condition);
             else if (type == Type.MUST_NOT) mustNot.add(condition);
@@ -74,7 +59,7 @@ public class UnmodifiableConditionContainer extends ConditionContainer {
         /**
          * 根据type 添加条件, 默认{@link Type#MUST}
          */
-        public Builder addCondition(ConditionContainer.Type type, Collection<? extends Condition> conditions) {
+        public Builder addCondition(Condition.Type type, Collection<? extends Condition> conditions) {
             Objects.requireNonNull(type);
             if (!CommonsUtils.isEmpty(conditions)) {
                 if (type == Type.SHOULD) should.addAll(conditions);

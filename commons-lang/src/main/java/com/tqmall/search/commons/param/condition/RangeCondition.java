@@ -1,10 +1,19 @@
 package com.tqmall.search.commons.param.condition;
 
+import com.tqmall.search.commons.lang.StrValueConvert;
+import com.tqmall.search.commons.utils.StrValueConverts;
+
 /**
  * Created by xing on 16/1/22.
  * 范围比较, 支持设定等于区间设定, 可以实现 >, >=, > && <, >= && <= 等各个开闭区间组合
+ * <p/>
+ * 只能通过{@link Builder}构建
+ *
+ * @see Conditions#range(String)
+ * @see Conditions#range(String, Class)
+ * @see Conditions#range(String, StrValueConvert)
  */
-public class RangeCondition<T extends Comparable<T>> extends Condition {
+public class RangeCondition<T extends Comparable<T>> extends FieldCondition<T> {
 
     private static final long serialVersionUID = 8024467420617760387L;
 
@@ -22,15 +31,9 @@ public class RangeCondition<T extends Comparable<T>> extends Condition {
      */
     private final boolean excludeUpper;
 
-    /**
-     * 默认左开右开区间比较, 即 value in [start, end]
-     */
-    public RangeCondition(String field, T start, T end) {
-        this(field, start, false, end, false);
-    }
-
-    public RangeCondition(String field, T start, boolean excludeLower, T end, boolean excludeUpper) {
-        super(field);
+    RangeCondition(String field, T start, boolean excludeLower, T end,
+                   boolean excludeUpper, StrValueConvert<T> convert) {
+        super(field, convert);
         if (start == null && end == null) {
             throw new IllegalArgumentException("start and end can not be null value both");
         }
@@ -49,51 +52,23 @@ public class RangeCondition<T extends Comparable<T>> extends Condition {
     }
 
     @Override
-    public boolean validation(Object value) {
+    public boolean validation(T value) {
         if (value == null) return false;
-        T t = start == null ? end : start;
         int cmpValue;
-        if (t.getClass().isInstance(value)) {
-            @SuppressWarnings({"rawtypes", "unchecked"})
-            T tValue = (T) value;
-            if (start != null) {
-                cmpValue = tValue.compareTo(start);
-                if (cmpValue < 0 || (excludeLower && cmpValue == 0)) return false;
-            }
-            if (end != null) {
-                cmpValue = tValue.compareTo(end);
-                if (cmpValue > 0 || (excludeUpper && cmpValue == 0)) return false;
-            }
-            return true;
-        } else if (t instanceof Number && value instanceof Number) {
-            double dValue = ((Number) value).doubleValue();
-            if (start != null) {
-                cmpValue = Double.compare(dValue, ((Number) start).doubleValue());
-                if (cmpValue < 0 || (excludeLower && cmpValue == 0)) return false;
-            }
-            if (end != null) {
-                cmpValue = Double.compare(dValue, ((Number) end).doubleValue());
-                if (cmpValue > 0 || (excludeUpper && cmpValue == 0)) return false;
-            }
-            return true;
-        } else return false;
+        if (start != null) {
+            cmpValue = value.compareTo(start);
+            if (cmpValue < 0 || (excludeLower && cmpValue == 0)) return false;
+        }
+        if (end != null) {
+            cmpValue = value.compareTo(end);
+            if (cmpValue > 0 || (excludeUpper && cmpValue == 0)) return false;
+        }
+        return true;
     }
 
     @Override
     public String toString() {
         return "RangeCondition{" + super.toString() + ", start = " + start + ", end = " + end;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return this == o || o instanceof RangeCondition && super.equals(o);
-    }
-
-    private final static int HASH_CODE_FACTOR = RangeCondition.class.getSimpleName().hashCode();
-
-    @Override
-    public int hashCode() {
-        return 31 * super.hashCode() + HASH_CODE_FACTOR;
     }
 
     public static class Builder<T extends Comparable<T>> {
@@ -104,8 +79,15 @@ public class RangeCondition<T extends Comparable<T>> extends Condition {
 
         private boolean excludeLower, excludeUpper;
 
+        private StrValueConvert<T> convert;
+
         public Builder(String filed) {
             this.filed = filed;
+        }
+
+        public Builder(String filed, StrValueConvert<T> convert) {
+            this.filed = filed;
+            this.convert = convert;
         }
 
         /**
@@ -144,8 +126,18 @@ public class RangeCondition<T extends Comparable<T>> extends Condition {
             return this;
         }
 
+        public Builder<T> convert(Class<T> cls) {
+            this.convert = StrValueConverts.getBasicConvert(cls);
+            return this;
+        }
+
+        public Builder<T> convert(StrValueConvert<T> convert) {
+            this.convert = convert;
+            return this;
+        }
+
         public RangeCondition<T> create() {
-            return new RangeCondition<>(filed, start, excludeLower, end, excludeUpper);
+            return new RangeCondition<>(filed, start, excludeLower, end, excludeUpper, convert);
         }
     }
 

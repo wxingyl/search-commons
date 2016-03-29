@@ -4,11 +4,11 @@ import com.alibaba.otter.canal.client.CanalConnector;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.canal.RowChangedData;
 import com.tqmall.search.canal.Schema;
-import com.tqmall.search.canal.TableColumnCondition;
 import com.tqmall.search.canal.action.ActionFactory;
 import com.tqmall.search.canal.action.Actionable;
 import com.tqmall.search.canal.action.CurrentHandleTable;
 import com.tqmall.search.commons.lang.Function;
+import com.tqmall.search.commons.param.condition.ConditionContainer;
 import com.tqmall.search.commons.utils.CommonsUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,7 +93,7 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
     protected final List<RowChangedData> changedDataParse(CanalEntry.RowChange rowChange) {
         List<RowChangedData> dataList = RowChangedData.build(rowChange, currentTable.getColumns());
         if (CommonsUtils.isEmpty(dataList)) return null;
-        TableColumnCondition columnCondition;
+        ConditionContainer columnCondition;
         if (currentEventType != CanalEntry.EventType.UPDATE
                 && (columnCondition = currentTable.getColumnCondition()) != null) {
             //对于INSERT类型的记录更新, 如果条件判断没有通过, 可以认为该更新事件没有发生~~~~

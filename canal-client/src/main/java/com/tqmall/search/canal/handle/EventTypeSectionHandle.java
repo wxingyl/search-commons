@@ -3,10 +3,10 @@ package com.tqmall.search.canal.handle;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.canal.RowChangedData;
 import com.tqmall.search.canal.Schema;
-import com.tqmall.search.canal.TableColumnCondition;
 import com.tqmall.search.canal.action.ActionFactory;
 import com.tqmall.search.canal.action.EventTypeAction;
 import com.tqmall.search.commons.lang.Function;
+import com.tqmall.search.commons.param.condition.ConditionContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +80,7 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
      */
     private void runLastRowChangeAction() {
         if (rowChangedDataList.isEmpty()) return;
-        TableColumnCondition columnCondition;
+        ConditionContainer columnCondition;
         if (lastEventType == CanalEntry.EventType.UPDATE && (columnCondition = lastTable.getColumnCondition()) != null) {
             ListIterator<RowChangedData> it = rowChangedDataList.listIterator();
             final Function<String, String> beforeFunction = UpdateDataFunction.before();

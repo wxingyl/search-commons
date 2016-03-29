@@ -60,7 +60,7 @@ public final class ResultJsonConverts {
     }
 
     private final static StrValueConvert<MapResult> MAP_RESULT_CONVERT = new StrValueConvert<MapResult>() {
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"rawstype", "unchecked"})
         @Override
         public MapResult convert(String input) {
             final JsonSimpleResult simpleResult = parseData(input);

@@ -4,6 +4,7 @@ import com.tqmall.search.commons.lang.StrValueConvert;
 import com.tqmall.search.commons.param.Param;
 import com.tqmall.search.commons.utils.CommonsUtils;
 import com.tqmall.search.commons.utils.SearchStringUtils;
+import com.tqmall.search.commons.utils.StrValueConverts;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,7 +12,7 @@ import java.util.List;
 
 /**
  * Created by xing on 16/3/29.
- * {@link Condition}相关工具类
+ * {@link FieldCondition}相关工具类
  *
  * @author xing
  */
@@ -28,9 +29,9 @@ public final class Conditions {
      * @return 如果values为空, 返回null
      * @see CommonsUtils#filterNullValue(List)
      */
-    public static <T> InCondition<T> in(String field, List<T> values) {
+    public static <T> InCondition<T> in(String field, List<T> values, Class<T> cls) {
         if (CommonsUtils.isEmpty(values)) return null;
-        return new InCondition<>(field, values);
+        return new InCondition<>(field, values, StrValueConverts.getConvert(cls));
     }
 
     /**
@@ -42,41 +43,51 @@ public final class Conditions {
      * @see CommonsUtils#filterNullValue(List)
      */
     @SafeVarargs
-    public static <T> InCondition<T> in(String field, T... values) {
+    public static <T> InCondition<T> in(String field, Class<T> cls, T... values) {
         if (values.length == 0) return null;
-        return new InCondition<>(field, Arrays.asList(values));
+        return new InCondition<>(field, Arrays.asList(values), StrValueConverts.getConvert(cls));
+    }
+
+    /**
+     * @param value 不可以为null
+     */
+    @SuppressWarnings({"rawstype", "unchecked"})
+    public static <T> EqualCondition<T> equal(String field, T value) {
+        return new EqualCondition<>(field, value, StrValueConverts.getBasicConvert((Class<T>) value.getClass()));
     }
 
     /**
      * @param value 可以为null
      */
-    public static <T> EqualCondition<T> equal(String field, T value) {
-        return new EqualCondition<>(field, value);
-    }
-
-    /**
-     * 默认左开右开构造, 其他条件的构造建议使用{@link #range(String)}
-     *
-     * @see RangeCondition(String, Comparable, Comparable)
-     * @see #range(String)
-     * @see RangeCondition.Builder
-     */
-    public static <T extends Comparable<T>> RangeCondition<T> range(String field, T start, T end) {
-        return new RangeCondition<>(field, start, end);
+    public static <T> EqualCondition<T> equal(String field, T value, Class<T> cls) {
+        return new EqualCondition<>(field, value, StrValueConverts.getBasicConvert(cls));
     }
 
     public static <T extends Comparable<T>> RangeCondition.Builder<T> range(String field) {
         return new RangeCondition.Builder<>(field);
     }
 
+    public static <T extends Comparable<T>> RangeCondition.Builder<T> range(String field, Class<T> cls) {
+        return new RangeCondition.Builder<>(field, StrValueConverts.getConvert(cls));
+    }
+
+    public static <T extends Comparable<T>> RangeCondition.Builder<T> range(String field, StrValueConvert<T> convert) {
+        return new RangeCondition.Builder<>(field, convert);
+    }
+
+    public static <T extends Comparable<T>> RangeCondition<T> range(String field, String rangeStr, Class<T> cls) {
+        return range(field, rangeStr, StrValueConverts.getBasicConvert(cls));
+    }
+
     /**
-     * @param field           range的字段, 不能为Null
-     * @param rangeStr        range区间字符串, 如果isEmpty, return null.
-     * @param strValueConvert 值转化器
-     * @param <T>             对应类型
+     * @param field        range的字段, 不能为Null
+     * @param rangeStr     range区间字符串, 如果isEmpty, return null.
+     * @param valueConvert 值转化器
+     * @param <T>          对应类型
      * @return 构造好的RangeFilter对象
      */
-    public static <T extends Comparable<T>> RangeCondition<T> range(final String field, final String rangeStr, final StrValueConvert<T> strValueConvert) {
+    public static <T extends Comparable<T>> RangeCondition<T>
+    range(String field, String rangeStr, StrValueConvert<T> valueConvert) {
         if (rangeStr == null || rangeStr.isEmpty()) return null;
         String[] rangeArray = SearchStringUtils.split(rangeStr, Param.RANGE_FILTER_CHAR);
         if (rangeArray.length == 0) return null;
@@ -93,12 +104,12 @@ public final class Conditions {
         }
         T startValue = null, endValue = null;
         if (startIndex == 0 && rangeArray[0] != null && '*' != rangeArray[0].charAt(0)) {
-            startValue = strValueConvert.convert(rangeArray[0]);
+            startValue = valueConvert.convert(rangeArray[0]);
         }
         if (endIndex >= 0 && rangeArray[endIndex] != null && '*' != rangeArray[endIndex].charAt(0)) {
-            endValue = strValueConvert.convert(rangeArray[endIndex]);
+            endValue = valueConvert.convert(rangeArray[endIndex]);
         }
-        return new RangeCondition<>(field, startValue, endValue);
+        return new RangeCondition<>(field, startValue, false, endValue, false, valueConvert);
     }
 
     public static UnmodifiableConditionContainer.Builder unmodifiableContainer() {
@@ -107,10 +118,6 @@ public final class Conditions {
 
     public static ModifiableConditionContainer modifiableContainer() {
         return new ModifiableConditionContainer();
-    }
-
-    public static OrConditionContainer orContainer(ConditionContainer left, ConditionContainer right) {
-        return new OrConditionContainer(left, right);
     }
 
     /**

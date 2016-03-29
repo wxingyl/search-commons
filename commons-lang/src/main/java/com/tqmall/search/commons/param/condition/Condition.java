@@ -1,47 +1,33 @@
 package com.tqmall.search.commons.param.condition;
 
-import java.io.Serializable;
-import java.util.Objects;
+import com.tqmall.search.commons.lang.Function;
+
+import java.util.Set;
 
 /**
- * Created by xing on 16/1/23.
- * 条件抽象类
+ * Created by xing on 16/3/29.
+ * Condition 封装
+ *
+ * @author xing
  */
-public abstract class Condition implements Serializable {
+public interface Condition {
 
-    private static final long serialVersionUID = 1L;
+    /**
+     * 条件校验
+     */
+    boolean validation(Function<String, String> values);
 
-    private final String field;
+    Set<String> fields();
 
-    public Condition(String field) {
-        Objects.requireNonNull(field);
-        this.field = field;
+    /**
+     * 条件类型
+     */
+    enum Type {
+        //且关系
+        MUST,
+        //或关系
+        SHOULD,
+        //非关系
+        MUST_NOT
     }
-
-    public String getField() {
-        return field;
-    }
-
-    public abstract boolean validation(Object value);
-
-    @Override
-    public String toString() {
-        return "field = " + field;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Condition)) return false;
-
-        Condition condition = (Condition) o;
-
-        return field.equals(condition.field);
-    }
-
-    @Override
-    public int hashCode() {
-        return field.hashCode();
-    }
-
 }
