@@ -1,9 +1,8 @@
 package com.tqmall.search.commons.utils;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import com.tqmall.search.commons.lang.Function;
+
+import java.util.*;
 
 /**
  * Created by xing on 16/1/24.
@@ -80,5 +79,19 @@ public final class CommonsUtils {
      */
     public static <T extends Number> boolean isLeZero(T num) {
         return !isGeZero(num);
+    }
+
+    /**
+     * 将一个Map对象转换为{@link Function}
+     * @param map can not null
+     */
+    public static <K, V> Function<K, V> convertToFunction(final Map<K, V> map) {
+        Objects.requireNonNull(map);
+        return new Function<K, V>() {
+            @Override
+            public V apply(K k) {
+                return map.get(k);
+            }
+        };
     }
 }

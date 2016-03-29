@@ -4,10 +4,7 @@ import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.utils.CommonsUtils;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created by xing on 16/1/24.
@@ -23,19 +20,6 @@ import java.util.Objects;
 public abstract class ConditionContainer implements Serializable {
 
     private static final long serialVersionUID = 8536199694404404344L;
-
-    /**
-     * must条件标记位
-     */
-    public static final byte MUST_TYPE = 1;
-    /**
-     * should条件标记位
-     */
-    public static final byte SHOULD_TYPE = 1 << 1;
-    /**
-     * must not条件标记位
-     */
-    public static final byte MUST_NOT_TYPE = 1 << 2;
     /**
      * 且关系条件集合
      */
@@ -56,51 +40,66 @@ public abstract class ConditionContainer implements Serializable {
     protected List<Condition> mustNot;
 
     /**
-     * @return unmodifiableList
+     * @return should return unmodifiableList
      */
-    public abstract List<Condition> getMust();
+    public abstract List<? extends Condition> getMust();
 
     /**
-     * @return unmodifiableList
+     * @return should return unmodifiableList
      */
-    public abstract List<Condition> getShould();
+    public abstract List<? extends Condition> getShould();
 
     /**
-     * @return unmodifiableList
+     * @return should return unmodifiableList
      */
-    public abstract List<Condition> getMustNot();
+    public abstract List<? extends Condition> getMustNot();
+
+    public Set<String> getAllFields() {
+        Set<String> fields = new HashSet<>();
+        if (!CommonsUtils.isEmpty(must)) {
+            for (Condition c : must) {
+                fields.add(c.getField());
+            }
+        }
+        if (!CommonsUtils.isEmpty(should)) {
+            for (Condition c : should) {
+                fields.add(c.getField());
+            }
+        }
+        if (!CommonsUtils.isEmpty(mustNot)) {
+            for (Condition c : mustNot) {
+                fields.add(c.getField());
+            }
+        }
+        return fields;
+    }
 
     /**
      * 给定值验证, 3类条件都考虑, 这3个大的条件list之间是且的关系
      *
      * @param valueMap 各个字段对应的值
      */
-    public boolean validation(final Map<String, ?> valueMap) {
-        return !CommonsUtils.isEmpty(valueMap) && validation(new Function<String, Object>() {
-            @Override
-            public Object apply(String s) {
-                return valueMap.get(s);
-            }
-        });
+    public final boolean validation(final Map<String, ?> valueMap) {
+        return !CommonsUtils.isEmpty(valueMap) && validation(CommonsUtils.convertToFunction(valueMap));
     }
 
-    public boolean validation(Function<String, ?> valueSupplier) {
-        Objects.requireNonNull(valueSupplier);
+    public boolean validation(Function<String, ?> valueSup) {
+        Objects.requireNonNull(valueSup);
         if (must != null) {
             for (Condition c : must) {
-                if (!c.validation(valueSupplier.apply(c.getField()))) return false;
+                if (!c.validation(valueSup.apply(c.getField()))) return false;
             }
         }
         //mustNot放在第二, 毕竟是且关系, 不匹配直接返回, 避免后面should的或查询比较
         if (mustNot != null) {
             for (Condition c : mustNot) {
-                if (c.validation(valueSupplier.apply(c.getField()))) return false;
+                if (c.validation(valueSup.apply(c.getField()))) return false;
             }
         }
         if (!CommonsUtils.isEmpty(should)) {
             int matchCount = 0;
             for (Condition c : should) {
-                if (c.validation(valueSupplier.apply(c.getField())) && ++matchCount >= minimumShouldMatch) {
+                if (c.validation(valueSup.apply(c.getField())) && ++matchCount >= minimumShouldMatch) {
                     break;
                 }
             }

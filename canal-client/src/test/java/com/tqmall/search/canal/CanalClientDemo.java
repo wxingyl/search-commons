@@ -4,8 +4,7 @@ import com.alibaba.otter.canal.common.utils.AddressUtils;
 import com.tqmall.search.canal.action.*;
 import com.tqmall.search.canal.handle.*;
 import com.tqmall.search.commons.lang.Function;
-import com.tqmall.search.commons.param.condition.EqualCondition;
-import com.tqmall.search.commons.param.condition.RangeCondition;
+import com.tqmall.search.commons.param.condition.Conditions;
 import org.junit.Ignore;
 
 import java.net.InetSocketAddress;
@@ -74,8 +73,8 @@ public class CanalClientDemo {
                         })
                         .columns("goods_id", "goods_name", "cat_id", "new_goods_sn")
                         .columnCondition(TableColumnCondition.build()
-                                .condition(EqualCondition.build("is_delete", false), Boolean.TYPE)
-                                .condition(EqualCondition.build("seller_id", 1), Integer.TYPE)
+                                .condition(Conditions.equal("is_delete", false), Boolean.TYPE)
+                                .condition(Conditions.equal("seller_id", 1), Integer.TYPE)
                                 .create()))
                 .create());
         CANAL_EXECUTOR.addInstanceHandle(new EventTypeSectionHandle(LOCAL_ADDRESS, "shop_goods", eventTypeFactory));
@@ -146,7 +145,7 @@ public class CanalClientDemo {
                 .columns("id", "is_deleted", "name", "service_sn") //目前还不支持列过滤~~~不过很快了~~~
                 //id 取值返回在[10, 100], 并且is_deleted = 'N'
                 .columnCondition(TableColumnCondition.build()
-                        .condition(RangeCondition.build("id", 10, 100), Integer.class)
+                        .condition(Conditions.range("id", 10, 100), Integer.class)
                         .condition(TableColumnCondition.NOT_DELETED_CONDITION, Boolean.class)
                         .create())
         );

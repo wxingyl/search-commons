@@ -50,16 +50,18 @@ public class InCondition<T> extends Condition {
     }
 
     /**
-     * 该build方法对传入的values做了过滤
-     *
-     * @return 如果values无效, 返回null
-     * @see CommonsUtils#filterNullValue(List)
+     * @deprecated use {@link Conditions#in(String, List)} instead and will be removed in next version
      */
+    @Deprecated
     public static <T> InCondition<T> build(String field, List<T> values) {
         if (CommonsUtils.isEmpty(values)) return null;
         return new InCondition<>(field, values);
     }
 
+    /**
+     * @deprecated use {@link Conditions#in(String, Object[])} instead and will be removed in next version
+     */
+    @Deprecated
     @SafeVarargs
     public static <T> InCondition<T> build(String field, T... values) {
         if (values.length == 0) return null;

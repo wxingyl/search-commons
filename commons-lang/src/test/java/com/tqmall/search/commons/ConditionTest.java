@@ -16,12 +16,12 @@ public class ConditionTest {
 
     @Test
     public void conditionContainerTest() {
-        EqualCondition<Integer> equalCondition = EqualCondition.build("id", 4);
+        EqualCondition<Integer> equalCondition = Conditions.equal("id", 4);
         Assert.assertTrue(equalCondition.validation(4));
         Assert.assertFalse(equalCondition.validation(5));
         Assert.assertFalse(equalCondition.validation(4.0));
 
-        RangeCondition<BigDecimal> rangeCondition = RangeCondition.build("price", BigDecimal.ONE, BigDecimal.TEN);
+        RangeCondition<BigDecimal> rangeCondition = Conditions.range("price", BigDecimal.ONE, BigDecimal.TEN);
         Assert.assertTrue(rangeCondition.validation(BigDecimal.ONE));
         Assert.assertTrue(rangeCondition.validation(BigDecimal.TEN));
         Assert.assertTrue(rangeCondition.validation(BigDecimal.valueOf(2.0)));
@@ -29,7 +29,7 @@ public class ConditionTest {
         Assert.assertFalse(rangeCondition.validation(BigDecimal.valueOf(-1.0)));
         Assert.assertFalse(rangeCondition.validation(-1.0));
 
-        InCondition<String> inCondition = InCondition.build("name", "xing", "wang", "yan", "lin");
+        InCondition<String> inCondition = Conditions.in("name", "xing", "wang", "yan", "lin");
         Assert.assertNotNull(inCondition);
         Assert.assertTrue(inCondition.validation("xing"));
         Assert.assertTrue(inCondition.validation("yan"));

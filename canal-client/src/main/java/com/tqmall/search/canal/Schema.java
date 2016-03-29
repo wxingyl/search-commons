@@ -1,12 +1,8 @@
 package com.tqmall.search.canal;
 
 import com.alibaba.otter.canal.protocol.CanalEntry;
-import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
 import com.tqmall.search.canal.action.Actionable;
-import com.tqmall.search.commons.param.condition.Condition;
-import com.tqmall.search.commons.param.condition.ConditionContainer;
 import com.tqmall.search.commons.utils.CommonsUtils;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 
@@ -124,22 +120,7 @@ public class Schema<T extends Actionable> implements Iterable<Schema<T>.Table> {
                     /**
                      * 要保证在判断条件中的column添加到{@link #columns}
                      */
-                    ConditionContainer conditionContainer = columnCondition.getConditionContainer();
-                    Function<Condition, String> function = new Function<Condition, String>() {
-                        @Override
-                        public String apply(Condition input) {
-                            return input.getField();
-                        }
-                    };
-                    if (!CommonsUtils.isEmpty(conditionContainer.getMust())) {
-                        columnSet.addAll(Lists.transform(conditionContainer.getMust(), function));
-                    }
-                    if (!CommonsUtils.isEmpty(conditionContainer.getShould())) {
-                        columnSet.addAll(Lists.transform(conditionContainer.getShould(), function));
-                    }
-                    if (!CommonsUtils.isEmpty(conditionContainer.getMustNot())) {
-                        columnSet.addAll(Lists.transform(conditionContainer.getMustNot(), function));
-                    }
+                    columnSet.addAll(columnCondition.getConditionContainer().getAllFields());
                 }
                 this.columns = Collections.unmodifiableSet(columnSet);
             } else this.columns = null;

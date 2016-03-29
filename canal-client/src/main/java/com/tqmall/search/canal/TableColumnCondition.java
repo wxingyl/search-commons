@@ -2,10 +2,7 @@ package com.tqmall.search.canal;
 
 import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.lang.StrValueConvert;
-import com.tqmall.search.commons.param.condition.Condition;
-import com.tqmall.search.commons.param.condition.ConditionContainer;
-import com.tqmall.search.commons.param.condition.EqualCondition;
-import com.tqmall.search.commons.param.condition.UnmodifiableConditionContainer;
+import com.tqmall.search.commons.param.condition.*;
 import com.tqmall.search.commons.utils.CommonsUtils;
 import com.tqmall.search.commons.utils.StrValueConverts;
 
@@ -25,7 +22,7 @@ public class TableColumnCondition {
      *
      * @see com.tqmall.search.commons.utils.StrValueConverts.BoolStrValueConvert
      */
-    public static final EqualCondition<Boolean> NOT_DELETED_CONDITION = EqualCondition.build("is_deleted", false);
+    public static final EqualCondition<Boolean> NOT_DELETED_CONDITION = Conditions.equal("is_deleted", false);
 
     /**
      * 默认的逻辑删除表字段过滤器
@@ -100,7 +97,7 @@ public class TableColumnCondition {
 
     public static class Builder {
 
-        private UnmodifiableConditionContainer.Builder conditionContainerBuilder = UnmodifiableConditionContainer.build();
+        private UnmodifiableConditionContainer.Builder conditionContainerBuilder = Conditions.unmodifiableContainer();
 
         private final Map<String, StrValueConvert> columnConvertMap = new HashMap<>();
 

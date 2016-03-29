@@ -61,7 +61,7 @@ public class UnmodifiableConditionContainer extends ConditionContainer {
         }
 
         /**
-         * 根据type 添加条件, 默认{@link #MUST_TYPE}
+         * 根据type 添加条件, 默认{@link Type#MUST}
          */
         public Builder addCondition(ConditionContainer.Type type, Condition condition) {
             Objects.requireNonNull(type);
@@ -72,7 +72,7 @@ public class UnmodifiableConditionContainer extends ConditionContainer {
         }
 
         /**
-         * 根据type 添加条件, 默认{@link #MUST_TYPE}
+         * 根据type 添加条件, 默认{@link Type#MUST}
          */
         public Builder addCondition(ConditionContainer.Type type, Collection<? extends Condition> conditions) {
             Objects.requireNonNull(type);

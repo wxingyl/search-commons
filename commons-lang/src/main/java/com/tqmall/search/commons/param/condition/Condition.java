@@ -18,7 +18,7 @@ public abstract class Condition implements Serializable {
         this.field = field;
     }
 
-    public String getField() {
+    public final String getField() {
         return field;
     }
 
@@ -37,7 +37,6 @@ public abstract class Condition implements Serializable {
         Condition condition = (Condition) o;
 
         return field.equals(condition.field);
-
     }
 
     @Override

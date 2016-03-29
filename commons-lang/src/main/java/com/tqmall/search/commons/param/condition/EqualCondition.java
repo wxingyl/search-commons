@@ -4,7 +4,7 @@ import java.util.Objects;
 
 /**
  * Created by xing on 16/1/24.
- * 等值比较条件
+ * 等值比较条件, {@link #value}可以为null
  */
 public class EqualCondition<T> extends Condition {
 
@@ -47,10 +47,10 @@ public class EqualCondition<T> extends Condition {
     }
 
     /**
-     * 如果value无效, 返回null
+     * @deprecated use {@link Conditions#equal(String, Object)} instead and will be removed in next version
      */
+    @Deprecated
     public static <T> EqualCondition<T> build(String field, T value) {
-        if (value == null) return null;
-        else return new EqualCondition<>(field, value);
+        return new EqualCondition<>(field, value);
     }
 }
