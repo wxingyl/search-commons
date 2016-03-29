@@ -26,14 +26,6 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
         this.fieldValueMap = new HashMap<>();
     }
 
-    RowChangedData(Map<String, V> fieldValueMap) {
-        this.fieldValueMap = fieldValueMap;
-    }
-
-//    RowChangedData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
-//        initByRowData(rowData, interestedColumns);
-//    }
-
     @Override
     public final V apply(String s) {
         return fieldValueMap.get(s);
@@ -54,10 +46,6 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
         private static final long serialVersionUID = -6170440278516894897L;
 
         StrRowChangedData() {
-        }
-
-        public StrRowChangedData(Map<String, String> fieldValueMap) {
-            super(fieldValueMap);
         }
 
         /**
@@ -140,7 +128,7 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
         private static final long serialVersionUID = 585376007150297603L;
 
         public Update(Map<String, Pair> dataMap) {
-            super(dataMap);
+            fieldValueMap.putAll(dataMap);
         }
 
         public final String getBefore(String column) {
