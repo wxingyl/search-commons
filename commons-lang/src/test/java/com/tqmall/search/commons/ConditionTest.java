@@ -59,4 +59,17 @@ public class ConditionTest {
         conditionContainer.add(ConditionContainer.Type.MUST_NOT, equalCondition);
         Assert.assertFalse(conditionContainer.validation(dataMap));
     }
+
+    @Test
+    public void conditionPositionTest() {
+        boolean[][] values = new boolean[8][3];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 3; j++) {
+                values[i][j] = (i & 1 << j) != 0;
+            }
+            boolean a = values[i][0] && values[i][1] || values[i][2];
+            boolean b = values[i][0] || values[i][2] && values[i][1] ;
+            System.out.println("" + values[i][0] + ',' + values[i][1] + ',' + values[i][2] + ": a = " + a + ", b = " + b);
+        }
+    }
 }

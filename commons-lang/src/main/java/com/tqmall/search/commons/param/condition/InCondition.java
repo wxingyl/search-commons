@@ -2,7 +2,6 @@ package com.tqmall.search.commons.param.condition;
 
 import com.tqmall.search.commons.utils.CommonsUtils;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -49,22 +48,4 @@ public class InCondition<T> extends Condition {
         return 31 * super.hashCode() + HASH_CODE_FACTOR;
     }
 
-    /**
-     * @deprecated use {@link Conditions#in(String, List)} instead and will be removed in next version
-     */
-    @Deprecated
-    public static <T> InCondition<T> build(String field, List<T> values) {
-        if (CommonsUtils.isEmpty(values)) return null;
-        return new InCondition<>(field, values);
-    }
-
-    /**
-     * @deprecated use {@link Conditions#in(String, Object[])} instead and will be removed in next version
-     */
-    @Deprecated
-    @SafeVarargs
-    public static <T> InCondition<T> build(String field, T... values) {
-        if (values.length == 0) return null;
-        return new InCondition<>(field, Arrays.asList(values));
-    }
 }

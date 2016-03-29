@@ -54,7 +54,7 @@ public abstract class ConditionContainer implements Serializable {
      */
     public abstract List<? extends Condition> getMustNot();
 
-    public Set<String> getAllFields() {
+    public Set<String> allConditionFields() {
         Set<String> fields = new HashSet<>();
         if (!CommonsUtils.isEmpty(must)) {
             for (Condition c : must) {

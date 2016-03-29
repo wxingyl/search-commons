@@ -120,7 +120,7 @@ public class Schema<T extends Actionable> implements Iterable<Schema<T>.Table> {
                     /**
                      * 要保证在判断条件中的column添加到{@link #columns}
                      */
-                    columnSet.addAll(columnCondition.getConditionContainer().getAllFields());
+                    columnSet.addAll(columnCondition.getConditionContainer().allConditionFields());
                 }
                 this.columns = Collections.unmodifiableSet(columnSet);
             } else this.columns = null;

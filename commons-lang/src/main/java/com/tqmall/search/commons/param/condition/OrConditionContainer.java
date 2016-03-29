@@ -62,9 +62,9 @@ public class OrConditionContainer extends ConditionContainer {
     }
 
     @Override
-    public Set<String> getAllFields() {
-        Set<String> left = leftContainer.getAllFields();
-        Set<String> right = rightContainer.getAllFields();
+    public Set<String> allConditionFields() {
+        Set<String> left = leftContainer.allConditionFields();
+        Set<String> right = rightContainer.allConditionFields();
         if (left == null) return right;
         else if (right == null) return left;
         else {

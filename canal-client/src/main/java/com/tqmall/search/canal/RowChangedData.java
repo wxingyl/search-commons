@@ -20,14 +20,19 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
 
     private static final long serialVersionUID = -8712239138384357603L;
 
-    final Map<String, V> fieldValueMap = new HashMap<>();
+    final Map<String, V> fieldValueMap;
 
     RowChangedData() {
+        this.fieldValueMap = new HashMap<>();
     }
 
-    RowChangedData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
-        initByRowData(rowData, interestedColumns);
+    RowChangedData(Map<String, V> fieldValueMap) {
+        this.fieldValueMap = fieldValueMap;
     }
+
+//    RowChangedData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
+//        initByRowData(rowData, interestedColumns);
+//    }
 
     @Override
     public final V apply(String s) {
@@ -44,24 +49,16 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
         return fieldValueMap.toString();
     }
 
-    /**
-     * 通过{@link CanalEntry.RowData}初始化数据, 仅限于内部调用
-     *
-     * @param rowData           canal变化的列值
-     * @param interestedColumns 感兴趣的列, 如果{@link CommonsUtils#isEmpty(Collection)}为true则全部包含
-     */
-    abstract void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns);
-
     public static abstract class StrRowChangedData extends RowChangedData<String> {
 
-        public StrRowChangedData() {
-        }
-
-        public StrRowChangedData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
-            super(rowData, interestedColumns);
-        }
-
         private static final long serialVersionUID = -6170440278516894897L;
+
+        StrRowChangedData() {
+        }
+
+        public StrRowChangedData(Map<String, String> fieldValueMap) {
+            super(fieldValueMap);
+        }
 
         /**
          * 常用的基本类型class会通过{@link StrValueConverts#getBasicConvert(Class)}获取对应的{@link StrValueConvert}对象
@@ -90,27 +87,22 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
         }
 
         public Insert(CanalEntry.RowData rowData, Set<String> interestedColumns) {
-            super(rowData, interestedColumns);
+            if (CommonsUtils.isEmpty(interestedColumns)) {
+                for (CanalEntry.Column c : rowData.getAfterColumnsList()) {
+                    fieldValueMap.put(c.getName(), c.getIsNull() ? null : c.getValue());
+                }
+            } else {
+                for (CanalEntry.Column c : rowData.getAfterColumnsList()) {
+                    if (interestedColumns.contains(c.getName())) {
+                        fieldValueMap.put(c.getName(), c.getIsNull() ? null : c.getValue());
+                    }
+                }
+            }
         }
 
         @Override
         public String toString() {
             return CanalEntry.EventType.INSERT.toString() + ':' + super.toString();
-        }
-
-        @Override
-        final void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
-            if (CommonsUtils.isEmpty(interestedColumns)) {
-                for (CanalEntry.Column c : rowData.getAfterColumnsList()) {
-                    fieldValueMap.put(c.getName(), c.getValue());
-                }
-            } else {
-                for (CanalEntry.Column c : rowData.getAfterColumnsList()) {
-                    if (interestedColumns.contains(c.getName())) {
-                        fieldValueMap.put(c.getName(), c.getValue());
-                    }
-                }
-            }
         }
 
     }
@@ -123,27 +115,22 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
         }
 
         public Delete(CanalEntry.RowData rowData, Set<String> interestedColumns) {
-            super(rowData, interestedColumns);
+            if (CommonsUtils.isEmpty(interestedColumns)) {
+                for (CanalEntry.Column c : rowData.getBeforeColumnsList()) {
+                    fieldValueMap.put(c.getName(), c.getIsNull() ? null : c.getValue());
+                }
+            } else {
+                for (CanalEntry.Column c : rowData.getBeforeColumnsList()) {
+                    if (interestedColumns.contains(c.getName())) {
+                        fieldValueMap.put(c.getName(), c.getIsNull() ? null : c.getValue());
+                    }
+                }
+            }
         }
 
         @Override
         public String toString() {
             return CanalEntry.EventType.DELETE.toString() + ':' + super.toString();
-        }
-
-        @Override
-        final void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
-            if (CommonsUtils.isEmpty(interestedColumns)) {
-                for (CanalEntry.Column c : rowData.getBeforeColumnsList()) {
-                    fieldValueMap.put(c.getName(), c.getValue());
-                }
-            } else {
-                for (CanalEntry.Column c : rowData.getBeforeColumnsList()) {
-                    if (interestedColumns.contains(c.getName())) {
-                        fieldValueMap.put(c.getName(), c.getValue());
-                    }
-                }
-            }
         }
 
     }
@@ -153,14 +140,7 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
         private static final long serialVersionUID = 585376007150297603L;
 
         public Update(Map<String, Pair> dataMap) {
-            super();
-            fieldValueMap.putAll(dataMap);
-        }
-
-        @Deprecated
-        @Override
-        final void initByRowData(CanalEntry.RowData rowData, Set<String> interestedColumns) {
-            //do nothing
+            super(dataMap);
         }
 
         public final String getBefore(String column) {
@@ -332,13 +312,13 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
                 for (CanalEntry.RowData rowData : rowChange.getRowDatasList()) {
                     if (isEmpty) {
                         for (CanalEntry.Column c : rowData.getAfterColumnsList()) {
-                            dataMap.put(c.getName(), new Pair(null, c.getValue(), c.getUpdated()));
+                            dataMap.put(c.getName(), new Pair(null, c.getIsNull() ? null : c.getValue(), c.getUpdated()));
                         }
                     } else {
                         boolean useless = true;
                         for (CanalEntry.Column c : rowData.getAfterColumnsList()) {
                             if (interestedColumns.contains(c.getName())) {
-                                dataMap.put(c.getName(), new Pair(null, c.getValue(), c.getUpdated()));
+                                dataMap.put(c.getName(), new Pair(null, c.getIsNull() ? null : c.getValue(), c.getUpdated()));
                                 if (useless && c.getUpdated()) {
                                     useless = false;
                                 }
@@ -349,13 +329,11 @@ public abstract class RowChangedData<V> implements Function<String, V>, Serializ
                     for (CanalEntry.Column c : rowData.getBeforeColumnsList()) {
                         Pair p = dataMap.get(c.getName());
                         if (p != null) {
-                            p.before = c.getValue();
+                            p.before = c.getIsNull() ? null : c.getValue();
                         }
                     }
                     resultList.add(new Update(dataMap));
                 }
-                //这儿clear掉吧还是
-                dataMap.clear();
                 break;
             }
             default:

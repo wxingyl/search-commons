@@ -96,22 +96,6 @@ public class RangeCondition<T extends Comparable<T>> extends Condition {
         return 31 * super.hashCode() + HASH_CODE_FACTOR;
     }
 
-    /**
-     * @deprecated use {@link Conditions#range(String, Comparable, Comparable)} instead and will be removed in next version
-     */
-    @Deprecated
-    public static <T extends Comparable<T>> RangeCondition<T> build(String field, T start, T end) {
-        return new RangeCondition<>(field, start, end);
-    }
-
-    /**
-     * @deprecated use {@link Conditions#range(String)} instead and will be removed in next version
-     */
-    @Deprecated
-    public static <T extends Comparable<T>> Builder<T> build(String field) {
-        return new Builder<>(field);
-    }
-
     public static class Builder<T extends Comparable<T>> {
 
         private final String filed;

@@ -46,11 +46,4 @@ public class EqualCondition<T> extends Condition {
         return 31 * super.hashCode() + HASH_CODE_FACTOR;
     }
 
-    /**
-     * @deprecated use {@link Conditions#equal(String, Object)} instead and will be removed in next version
-     */
-    @Deprecated
-    public static <T> EqualCondition<T> build(String field, T value) {
-        return new EqualCondition<>(field, value);
-    }
 }
