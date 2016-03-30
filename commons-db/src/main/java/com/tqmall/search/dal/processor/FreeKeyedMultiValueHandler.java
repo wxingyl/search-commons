@@ -31,6 +31,7 @@ public class FreeKeyedMultiValueHandler<K, V> extends FreeKeyedHandler<K, V> {
         super(keyIndex, keyName, valueIndex, valueName);
     }
 
+    @SuppressWarnings("unchecked")
     protected Map<K, V> createMap() {
         return new MultiValueMap();
     }
