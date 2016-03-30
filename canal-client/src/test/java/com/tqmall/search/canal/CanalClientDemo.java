@@ -4,7 +4,7 @@ import com.alibaba.otter.canal.common.utils.AddressUtils;
 import com.tqmall.search.canal.action.*;
 import com.tqmall.search.canal.handle.*;
 import com.tqmall.search.commons.lang.Function;
-import com.tqmall.search.commons.param.condition.Conditions;
+import com.tqmall.search.commons.condition.Conditions;
 import org.junit.Ignore;
 
 import java.net.InetSocketAddress;

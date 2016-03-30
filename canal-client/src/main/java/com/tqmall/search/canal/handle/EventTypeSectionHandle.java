@@ -6,7 +6,7 @@ import com.tqmall.search.canal.Schema;
 import com.tqmall.search.canal.action.ActionFactory;
 import com.tqmall.search.canal.action.EventTypeAction;
 import com.tqmall.search.commons.lang.Function;
-import com.tqmall.search.commons.param.condition.ConditionContainer;
+import com.tqmall.search.commons.condition.ConditionContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

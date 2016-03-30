@@ -2,9 +2,9 @@ package com.tqmall.search.canal;
 
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.canal.action.*;
-import com.tqmall.search.commons.param.condition.ConditionContainer;
-import com.tqmall.search.commons.param.condition.Conditions;
-import com.tqmall.search.commons.param.condition.EqualCondition;
+import com.tqmall.search.commons.condition.ConditionContainer;
+import com.tqmall.search.commons.condition.Conditions;
+import com.tqmall.search.commons.condition.EqualCondition;
 import com.tqmall.search.commons.utils.CommonsUtils;
 
 import java.util.*;
