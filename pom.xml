@@ -65,6 +65,7 @@
         <module>canal-client</module>
         <module>commons-component</module>
         <module>commons-cache-memory</module>
+        <module>commons-db</module>
     </modules>
 
     <build>
