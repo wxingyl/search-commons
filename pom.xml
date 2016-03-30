@@ -66,6 +66,7 @@
         <module>commons-component</module>
         <module>commons-cache-memory</module>
         <module>commons-db</module>
+        <module>aston-martin-component</module>
     </modules>
 
     <build>
