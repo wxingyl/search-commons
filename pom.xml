@@ -64,7 +64,7 @@
         <module>commons-nlp</module>
         <module>canal-client</module>
         <module>commons-component</module>
-        <module>commons-cache</module>
+        <module>commons-cache-memory</module>
     </modules>
 
     <build>

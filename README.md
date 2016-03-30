@@ -70,11 +70,11 @@
 
 目前最新版本1.0-rc1
 
-## commons-cache
+## commons-cache-memory
 
-依赖`commons-component`，少量数据内存缓存，该模块封装实现了简单的缓存，支持动态实时修改(需要外部程序支持，比如canal等)，同时支持多机器互发通知更新缓存。
+依赖`commons-component`, `canal-client`，少量数据内存缓存，该模块封装实现了简单的缓存，支持动态实时修改(需要外部程序支持，比如canal等)，同时支持多机器互发通知更新缓存。
 
-封装了notify/receive,多态机器，多系统之间实现消息逐个通知，类似广播的概念。目前搜索内存缓存少量数据使用到，实时索引在masterHost修改，将改动notify到注册的slaveHost机器, 完成数据同步修改。
+封装了notify/receive,多台机器，多系统之间实现消息逐个通知，类似广播的概念。目前搜索内存缓存少量数据使用到，实时索引在masterHost修改，将改动notify到注册的slaveHost机器, 完成数据同步修改。
 
 目前最新版本1.0-rc1
 
@@ -174,7 +174,7 @@ rc版本为预发版本，未达到上线标准，能用，但是存在很多已
 </dependency>
 ```
 
-`commons-cache`, 其依赖`commons-component`
+`commons-cache`, 其依赖`commons-component`, `canal-client`
 
 ``` xml
 <dependency>

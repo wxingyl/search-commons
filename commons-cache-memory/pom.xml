@@ -10,7 +10,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>commons-cache</artifactId>
+    <artifactId>commons-cache-memory</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
