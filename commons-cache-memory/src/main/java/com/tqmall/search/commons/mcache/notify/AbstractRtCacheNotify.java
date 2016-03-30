@@ -1,8 +1,8 @@
-package com.tqmall.search.commons.cache.notify;
+package com.tqmall.search.commons.mcache.notify;
 
-import com.tqmall.search.commons.cache.CacheErrorCode;
-import com.tqmall.search.commons.cache.RtCacheManager;
-import com.tqmall.search.commons.cache.receive.RtCacheSlaveHandle;
+import com.tqmall.search.commons.mcache.MemoryCacheErrorCode;
+import com.tqmall.search.commons.mcache.RtCacheManager;
+import com.tqmall.search.commons.mcache.receive.RtCacheSlaveHandle;
 import com.tqmall.search.commons.lang.HostInfo;
 import com.tqmall.search.commons.param.LocalRegisterParam;
 import com.tqmall.search.commons.param.NotifyChangeParam;
@@ -58,17 +58,17 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
         if (param.getSlaveHost() == null ||
                 param.getInterestCache() == null || param.getInterestCache().isEmpty()) {
             log.warn("Slave注册参数不全: slaveHost: " + param.getSlaveHost() + ", interestCache: " + param.getInterestCache());
-            return ResultUtils.mapResult(CacheErrorCode.NOTIFY_HANDLE_ARG_INVALID);
+            return ResultUtils.mapResult(MemoryCacheErrorCode.NOTIFY_HANDLE_ARG_INVALID);
         }
         final T slaveInfo;
         try {
             slaveInfo = createSlaveInfo(param);
         } catch (Throwable e) {
             log.error("注册时创建slaveHost信息存在异常", e);
-            return ResultUtils.mapResult(CacheErrorCode.NOTIFY_RUNTIME_ERROR, "注册时创建slaveHost信息异常: " + e.getMessage());
+            return ResultUtils.mapResult(MemoryCacheErrorCode.NOTIFY_RUNTIME_ERROR, "注册时创建slaveHost信息异常: " + e.getMessage());
         }
         if (slaveInfo == null) {
-            return ResultUtils.mapResult(CacheErrorCode.NOTIFY_RUNTIME_ERROR, "无法构建slaveHost: " + param.getSlaveHost() + "的信息");
+            return ResultUtils.mapResult(MemoryCacheErrorCode.NOTIFY_RUNTIME_ERROR, "无法构建slaveHost: " + param.getSlaveHost() + "的信息");
         }
         Set<String> interestKeys = new HashSet<>(param.getInterestCache());
         slaveHostMap.put(slaveInfo, interestKeys);
@@ -81,11 +81,11 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
     @Override
     public MapResult handleSlaveUnRegister(final HostInfo slaveHost) {
         if (slaveHost == null) {
-            return ResultUtils.mapResult(CacheErrorCode.NOTIFY_HANDLE_ARG_INVALID);
+            return ResultUtils.mapResult(MemoryCacheErrorCode.NOTIFY_HANDLE_ARG_INVALID);
         }
         T key = getSlaveHost(slaveHost);
         if (key == null) {
-            return ResultUtils.mapResult(CacheErrorCode.NOTIFY_UNREGISTER_UNKNOWN_HOST, HttpUtils.hostInfoToString(slaveHost));
+            return ResultUtils.mapResult(MemoryCacheErrorCode.NOTIFY_UNREGISTER_UNKNOWN_HOST, HttpUtils.hostInfoToString(slaveHost));
         }
         slaveHostMap.remove(key);
         log.info("Slave注销缓存处理完成, slaveHost: " + slaveHost);
@@ -95,7 +95,7 @@ public abstract class AbstractRtCacheNotify<T extends AbstractSlaveHostInfo> imp
     @Override
     public MapResult handleMonitor(HostInfo slaveHost) {
         if (slaveHost == null) {
-            return ResultUtils.mapResult(CacheErrorCode.NOTIFY_HANDLE_ARG_INVALID);
+            return ResultUtils.mapResult(MemoryCacheErrorCode.NOTIFY_HANDLE_ARG_INVALID);
         }
         boolean found = getSlaveHost(slaveHost) != null;
         return ResultUtils.mapResult("status", found);

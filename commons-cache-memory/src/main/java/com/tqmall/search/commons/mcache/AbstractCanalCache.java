@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.cache;
+package com.tqmall.search.commons.mcache;
 
 import com.tqmall.search.canal.RowChangedData;
 import com.tqmall.search.canal.action.EventTypeAction;

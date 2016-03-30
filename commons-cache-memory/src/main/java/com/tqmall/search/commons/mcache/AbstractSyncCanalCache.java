@@ -1,9 +1,9 @@
-package com.tqmall.search.commons.cache;
+package com.tqmall.search.commons.mcache;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.tqmall.search.canal.RowChangedData;
-import com.tqmall.search.commons.cache.receive.RtCacheSlaveHandle;
+import com.tqmall.search.commons.mcache.receive.RtCacheSlaveHandle;
 import com.tqmall.search.commons.lang.HostInfo;
 import com.tqmall.search.commons.lang.StrValueConvert;
 import com.tqmall.search.commons.utils.CommonsUtils;

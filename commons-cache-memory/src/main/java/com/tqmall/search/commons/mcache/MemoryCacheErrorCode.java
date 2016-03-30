@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.cache;
+package com.tqmall.search.commons.mcache;
 
 import com.tqmall.search.commons.result.ErrorCode;
 import com.tqmall.search.commons.utils.ErrorCodeBuilder;
@@ -7,7 +7,7 @@ import com.tqmall.search.commons.utils.ErrorCodeBuilder;
  * Created by xing on 15/12/28.
  * Utils中的ErrorCode, 只在util内部使用
  */
-public enum CacheErrorCode implements ErrorCode {
+public enum MemoryCacheErrorCode implements ErrorCode {
 
     //notify相关错误码
     NOTIFY_HANDLE_ARG_INVALID(1, "参数不全, notifier无法处理外部请求"),
@@ -20,7 +20,7 @@ public enum CacheErrorCode implements ErrorCode {
 
     static {
         ErrorCodeBuilder builder = new ErrorCodeBuilder(812);
-        for (CacheErrorCode e : CacheErrorCode.values()) {
+        for (MemoryCacheErrorCode e : MemoryCacheErrorCode.values()) {
             e.code = builder.buildErrorCode(e.exceptionCode);
         }
     }
@@ -31,7 +31,7 @@ public enum CacheErrorCode implements ErrorCode {
 
     private String message;
 
-    CacheErrorCode(int exceptionCode, String message) {
+    MemoryCacheErrorCode(int exceptionCode, String message) {
         this.exceptionCode = exceptionCode;
         this.message = message;
     }

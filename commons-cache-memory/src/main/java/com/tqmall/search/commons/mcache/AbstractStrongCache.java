@@ -1,7 +1,7 @@
-package com.tqmall.search.commons.cache;
+package com.tqmall.search.commons.mcache;
 
 import com.google.common.cache.LoadingCache;
-import com.tqmall.search.commons.exception.CacheInitException;
+import com.tqmall.search.commons.exception.MemoryCacheInitException;
 import com.tqmall.search.commons.lang.Cache;
 
 import java.util.Collections;
@@ -25,10 +25,10 @@ public abstract class AbstractStrongCache<K, V> implements Cache<K, V> {
 
     /**
      * 加载缓存数据, 返回的Map最好是{@link ConcurrentMap}, 如果不是, 则会通过{@link ConcurrentHashMap}包装
-     * 返回的Map不能为null, 为null表示初始化出错,抛出{@link CacheInitException}异常
+     * 返回的Map不能为null, 为null表示初始化出错,抛出{@link MemoryCacheInitException}异常
      * 返回的Map为空{@link Map#isEmpty()}, 不做特殊处理, 认为是正常情况
      *
-     * @return 不能为null, 为null表示初始化出错,抛出{@link CacheInitException}异常
+     * @return 不能为null, 为null表示初始化出错,抛出{@link MemoryCacheInitException}异常
      */
     protected abstract Map<K, V> loadCache();
 
@@ -102,7 +102,7 @@ public abstract class AbstractStrongCache<K, V> implements Cache<K, V> {
         if (cache == null) {
             Map<K, V> data = loadCache();
             if (data == null) {
-                throw new CacheInitException("加载缓存, 获得的数据为null");
+                throw new MemoryCacheInitException("加载缓存, 获得的数据为null");
             }
             if (data instanceof ConcurrentMap) {
                 cache = (ConcurrentMap<K, V>) data;

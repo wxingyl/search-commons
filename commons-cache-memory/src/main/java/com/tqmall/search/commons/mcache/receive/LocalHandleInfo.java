@@ -1,6 +1,6 @@
-package com.tqmall.search.commons.cache.receive;
+package com.tqmall.search.commons.mcache.receive;
 
-import com.tqmall.search.commons.cache.RtCacheManager;
+import com.tqmall.search.commons.mcache.RtCacheManager;
 import com.tqmall.search.commons.lang.HostInfo;
 
 /**

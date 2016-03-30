@@ -1,8 +1,8 @@
-package com.tqmall.search.commons.cache.receive;
+package com.tqmall.search.commons.mcache.receive;
 
 import com.google.common.base.Predicate;
-import com.tqmall.search.commons.cache.CacheErrorCode;
-import com.tqmall.search.commons.cache.RtCacheManager;
+import com.tqmall.search.commons.mcache.MemoryCacheErrorCode;
+import com.tqmall.search.commons.mcache.RtCacheManager;
 import com.tqmall.search.commons.lang.HostInfo;
 import com.tqmall.search.commons.param.NotifyChangeParam;
 import com.tqmall.search.commons.result.MapResult;
@@ -88,7 +88,7 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
         } catch (IllegalArgumentException e) {
             log.warn("registerHandler, masterHost: " + HttpUtils.hostInfoToString(masterHost) + "参数有误: "
                     + e.getMessage() + ", 无法完成注册");
-            return ResultUtils.mapResult(CacheErrorCode.HOST_INFO_INVALID, e.getMessage());
+            return ResultUtils.mapResult(MemoryCacheErrorCode.HOST_INFO_INVALID, e.getMessage());
         }
         T masterHostInfo = null;
         for (T e : masterHostMap.keySet()) {
@@ -107,7 +107,7 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
             String msg = "注册RtCacheSlaveHandle时, masterHost: " + HttpUtils.hostInfoToString(masterHost)
                     + ", 没有生成对用的MasterHostInfo对象, 取消注册";
             log.warn(msg);
-            return ResultUtils.mapResult(CacheErrorCode.RECEIVER_RUNTIME_ERROR, msg);
+            return ResultUtils.mapResult(MemoryCacheErrorCode.RECEIVER_RUNTIME_ERROR, msg);
         } else {
             String cacheKey = RtCacheManager.getCacheHandleKey(handler);
             handleMap.put(cacheKey, handler);
@@ -132,7 +132,7 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
         } catch (IllegalArgumentException e) {
             log.warn("registerMaster, localHost: " + HttpUtils.hostInfoToString(localHost) + "参数有误: "
                     + e.getMessage() + ", 无法完成注册");
-            return ResultUtils.mapResult(CacheErrorCode.HOST_INFO_INVALID, e.getMessage());
+            return ResultUtils.mapResult(MemoryCacheErrorCode.HOST_INFO_INVALID, e.getMessage());
         }
         boolean finish = true;
         for (Map.Entry<T, List<String>> e : masterHostMap.entrySet()) {
@@ -190,7 +190,7 @@ public abstract class AbstractRtCacheReceive<T extends MasterHostInfo> implement
         } catch (IllegalArgumentException e) {
             log.warn("unRegister, localHost: " + HttpUtils.hostInfoToString(localHost) + "参数有误: "
                     + e.getMessage() + ", 无法完成注销");
-            return ResultUtils.mapResult(CacheErrorCode.HOST_INFO_INVALID, e.getMessage());
+            return ResultUtils.mapResult(MemoryCacheErrorCode.HOST_INFO_INVALID, e.getMessage());
         }
         boolean status = true;
         for (T info : masterHostMap.keySet()) {

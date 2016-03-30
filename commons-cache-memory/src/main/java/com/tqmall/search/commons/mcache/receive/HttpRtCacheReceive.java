@@ -1,7 +1,7 @@
-package com.tqmall.search.commons.cache.receive;
+package com.tqmall.search.commons.mcache.receive;
 
 import com.google.common.base.Function;
-import com.tqmall.search.commons.cache.HttpCacheManager;
+import com.tqmall.search.commons.mcache.HttpCacheManager;
 import com.tqmall.search.commons.lang.HostInfoObj;
 import com.tqmall.search.commons.param.HttpLocalRegisterParam;
 import com.tqmall.search.commons.result.MapResult;

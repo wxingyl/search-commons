@@ -4,4 +4,4 @@
  *
  * @author wxingyl
  */
-package com.tqmall.search.commons.cache;
+package com.tqmall.search.commons.mcache;

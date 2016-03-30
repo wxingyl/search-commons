@@ -1,7 +1,7 @@
-package com.tqmall.search.commons.cache;
+package com.tqmall.search.commons.mcache;
 
-import com.tqmall.search.commons.cache.notify.HttpRtCacheNotify;
-import com.tqmall.search.commons.cache.receive.HttpRtCacheReceive;
+import com.tqmall.search.commons.mcache.notify.HttpRtCacheNotify;
+import com.tqmall.search.commons.mcache.receive.HttpRtCacheReceive;
 
 /**
  * Created by xing on 16/1/2.

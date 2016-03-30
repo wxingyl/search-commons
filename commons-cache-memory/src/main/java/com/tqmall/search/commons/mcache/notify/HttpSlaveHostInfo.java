@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.cache.notify;
+package com.tqmall.search.commons.mcache.notify;
 
 import com.tqmall.search.commons.lang.HostInfo;
 import com.tqmall.search.commons.utils.CommonsUtils;

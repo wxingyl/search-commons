@@ -1,8 +1,8 @@
-package com.tqmall.search.commons.cache;
+package com.tqmall.search.commons.mcache;
 
-import com.tqmall.search.commons.cache.notify.RtCacheNotify;
-import com.tqmall.search.commons.cache.receive.RtCacheReceive;
-import com.tqmall.search.commons.cache.receive.RtCacheSlaveHandle;
+import com.tqmall.search.commons.mcache.notify.RtCacheNotify;
+import com.tqmall.search.commons.mcache.receive.RtCacheReceive;
+import com.tqmall.search.commons.mcache.receive.RtCacheSlaveHandle;
 
 import java.util.Iterator;
 import java.util.ServiceLoader;

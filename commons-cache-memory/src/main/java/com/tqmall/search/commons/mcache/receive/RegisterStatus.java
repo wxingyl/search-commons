@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.cache.receive;
+package com.tqmall.search.commons.mcache.receive;
 
 /**
  * Created by xing on 16/1/4.

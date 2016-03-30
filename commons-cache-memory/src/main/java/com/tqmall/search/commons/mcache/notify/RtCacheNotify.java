@@ -1,6 +1,6 @@
-package com.tqmall.search.commons.cache.notify;
+package com.tqmall.search.commons.mcache.notify;
 
-import com.tqmall.search.commons.cache.receive.RtCacheSlaveHandle;
+import com.tqmall.search.commons.mcache.receive.RtCacheSlaveHandle;
 import com.tqmall.search.commons.param.LocalRegisterParam;
 import com.tqmall.search.commons.result.MapResult;
 import com.tqmall.search.commons.lang.HostInfo;
