@@ -57,6 +57,10 @@ public class ConditionTest {
         Assert.assertFalse(conditionContainer.validation(CommonsUtils.convertToFunction(dataMap)));
     }
 
+    /**
+     * 测试 A && B || C 与 A || C && B是否相同, 是否满足交换律
+     * 结果不等效, 只有当A = false, B = false, C = true时结果不同
+     */
     @Test
     public void conditionPositionTest() {
         boolean[][] values = new boolean[8][3];
@@ -71,8 +75,8 @@ public class ConditionTest {
     }
 
     @Test
-    public void parseConditionalExpressionTest() {
+    public void parseConditionalExpressionSentenceTest() {
         String conditionalExpression = "is_deleted = 'N' && (id > 9 || value range 34~45)";
-        System.out.println(Conditions.createTokens(conditionalExpression));
+        System.out.println(ExpressionToken.parseSentence(conditionalExpression));
     }
 }

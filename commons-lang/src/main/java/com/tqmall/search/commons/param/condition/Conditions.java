@@ -6,7 +6,6 @@ import com.tqmall.search.commons.utils.CommonsUtils;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 import com.tqmall.search.commons.utils.StrValueConverts;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -121,168 +120,14 @@ public final class Conditions {
     }
 
     /**
-     * 解析条件表达式
+     * 解析条件表达式, 等到条件容器对象
      *
      * @param conditionalExpression 条件表达式
      * @return 解析的容器集合对象
      */
     public static ConditionContainer parseConditionalExpression(String conditionalExpression) {
-        List<Token> tokenList = createTokens(conditionalExpression);
+        List<ExpressionToken> tokenList = ExpressionToken.parseSentence(conditionalExpression);
         return null;
-    }
-
-    static List<Token> createTokens(String conditionalExpression) {
-        final int loopEnd = conditionalExpression.length() - 4;
-        boolean inStrValue = false;
-        int lastStart = 0;
-        List<Token> tokens = new ArrayList<>();
-        final char[] text = conditionalExpression.toCharArray();
-        int leftParenthesisCount = 0, rightParenthesisCount = 0;
-        for (int i = 0; i < loopEnd; i++) {
-            if (text[i] == '"') {
-                inStrValue = !inStrValue;
-            }
-            if (inStrValue) continue;
-            if (text[i] == ' ' && text[i + 3] == ' ') {
-                boolean and;
-                if (text[i + 1] == '|' && text[i + 2] == '|') {
-                    and = false;
-                } else if (text[i + 1] == '&' && text[i + 2] == '&') {
-                    and = true;
-                } else {
-                    continue;
-                }
-                Token curToken = new Token(lastStart, i, and, text);
-                leftParenthesisCount += curToken.leftParenthesisCount;
-                rightParenthesisCount += curToken.rightParenthesisCount;
-                tokens.add(curToken);
-                lastStart = i + 4;
-            }
-        }
-        if (inStrValue) {
-            throw new IllegalArgumentException("conditionalExpression: " + String.valueOf(text) +
-                    " have invalid string value, '\"' can not match paired");
-        }
-        Token lastToken = new Token(lastStart, conditionalExpression.length(), false, text);
-        tokens.add(lastToken);
-        leftParenthesisCount += lastToken.leftParenthesisCount;
-        rightParenthesisCount += lastToken.rightParenthesisCount;
-        if (leftParenthesisCount != rightParenthesisCount) {
-            throw new IllegalArgumentException("conditionalExpression: " + conditionalExpression + " not correct match '{' '}', leftParenthesisCount: "
-                    + leftParenthesisCount + ", rightParenthesisCount: " + rightParenthesisCount);
-        }
-        return tokens;
-    }
-
-    static class Token {
-        final boolean nextAnd;
-        final int leftParenthesisCount;
-        final int rightParenthesisCount;
-        final Operator op;
-        final String field;
-        final String value;
-
-        Token(int startPos, int endPos, boolean nextAnd, char[] text) {
-            this.nextAnd = nextAnd;
-            int leftParenthesisCount = 0, rightParenthesisCount = 0;
-            //fix position
-            for (; startPos < endPos; startPos++) {
-                if (text[startPos] == '(') {
-                    leftParenthesisCount++;
-                    continue;
-                }
-                if (text[startPos] == ')') {
-                    throw new IllegalArgumentException("conditionalExpression: " + String.valueOf(text)
-                            + " ')' should not find in the head of condition");
-                } else if (!Character.isWhitespace(text[startPos])) {
-                    break;
-                }
-            }
-            for (; startPos < endPos; endPos--) {
-                char c = text[endPos - 1];
-                if (c == ')') {
-                    rightParenthesisCount++;
-                    continue;
-                }
-                if (c == '(') {
-                    throw new IllegalArgumentException("conditionalExpression: " + String.valueOf(text)
-                            + " '(' should not find in the tail of condition");
-                } else if (!Character.isWhitespace(c)) {
-                    break;
-                }
-            }
-            if (startPos >= endPos || (leftParenthesisCount > 0 && rightParenthesisCount > 0)) {
-                throw new IllegalArgumentException("conditionalExpression: " + String.valueOf(text) + " have error expression , start: "
-                        + startPos + ", end: " + endPos + ", leftParenthesisCount: " + leftParenthesisCount + ", rightParenthesisCount: "
-                        + rightParenthesisCount);
-            }
-            this.leftParenthesisCount = leftParenthesisCount;
-            this.rightParenthesisCount = rightParenthesisCount;
-            String field = null;
-            int lastStart = 0;
-            Operator op = null;
-            for (int i = startPos; i < endPos; i++) {
-                if (Character.isWhitespace(text[i])) {
-                    if (field == null) {
-                        field = String.valueOf(text, startPos, i - startPos);
-                    } else if (op == null) {
-                        op = Operator.getOp(String.valueOf(text, lastStart, i - lastStart));
-                    }
-                    lastStart = i + 1;
-                }
-            }
-            this.value = String.valueOf(text, lastStart, endPos - lastStart);
-            this.field = field;
-            this.op = op;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < leftParenthesisCount; i++) {
-                sb.append('(');
-            }
-            sb.append(' ').append(field).append(' ').append(op.getOp()).append(' ').append(value).append(' ');
-            for (int i = 0; i < rightParenthesisCount; i++) {
-                sb.append(')');
-            }
-            if (rightParenthesisCount > 0) {
-                sb.append(' ');
-            }
-            sb.append(nextAnd);
-            return sb.toString();
-        }
-    }
-
-    public enum Operator {
-        EQ("="),
-        NE("!="),
-        GT(">"),
-        GE(">="),
-        LT("<"),
-        LE("<="),
-        IN("in"),
-        NIN("nin"),
-        RANGE("range");
-
-        public static Operator getOp(String opName) {
-            for (Operator op : values()) {
-                if (op.op.equalsIgnoreCase(opName) || op.name().equalsIgnoreCase(opName)) {
-                    return op;
-                }
-            }
-            throw new IllegalArgumentException("opName: " + opName + " is invalid");
-        }
-
-        private final String op;
-
-        Operator(String op) {
-            this.op = op;
-        }
-
-        public String getOp() {
-            return op;
-        }
     }
 
 }
