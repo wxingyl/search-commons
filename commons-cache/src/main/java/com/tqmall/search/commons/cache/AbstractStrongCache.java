@@ -2,8 +2,10 @@ package com.tqmall.search.commons.cache;
 
 import com.google.common.cache.LoadingCache;
 import com.tqmall.search.commons.exception.CacheInitException;
+import com.tqmall.search.commons.lang.Cache;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,7 +13,7 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by xing on 15/12/1.
- *
+ * <p/>
  * 强引用缓存抽象类,所有的缓存建议都继承该类去实现
  * 所有缓存按需加载
  * 通过Map做基本的缓存, 为强引用类型, GC无法回收的, 所以只缓存数据比较小的对象
@@ -54,6 +56,16 @@ public abstract class AbstractStrongCache<K, V> implements Cache<K, V> {
             init();
         }
         return cache.get(key);
+    }
+
+    @Override
+    public final Map<K, V> getValue(Iterable<K> keys) {
+        if (keys == null) return null;
+        Map<K, V> hitValues = new HashMap<>();
+        for (K k : keys) {
+            hitValues.put(k, getValue(k));
+        }
+        return hitValues;
     }
 
     /**
