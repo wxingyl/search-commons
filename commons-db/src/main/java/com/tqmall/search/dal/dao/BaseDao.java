@@ -21,12 +21,24 @@ public class BaseDao implements SearchDao {
 
     final Logger log = LoggerFactory.getLogger(getClass());
 
+    //是否需要微秒,以前的接口都是不需要的,所以暂时不需要
+    private boolean needMillisecond = false;
+
     private QueryRunner queryRunner;
     private static final ResultSetHandler mapListHandler = new MapListHandler();
     private static final RowProcessor generousBeanRowProcessor = new BasicRowProcessor(new GenerousBeanProcessor());
+    private static final RowProcessor noMillisecondGenerousBeanRowProcessor = new BasicRowProcessor(new NoMillisecondGenerousBeanProcessor());
 
     public BaseDao(DataSource dataSource) {
         queryRunner = new QueryRunner(dataSource);
+    }
+
+    private RowProcessor getBeanRowProcessor() {
+        if (needMillisecond) {
+            return generousBeanRowProcessor;
+        } else {
+            return noMillisecondGenerousBeanRowProcessor;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -47,7 +59,7 @@ public class BaseDao implements SearchDao {
         try {
             log.debug(sql);
             // TODO: 16/3/23 对每一个beanListHandler应该生成结果
-            return queryRunner.<List>query(sql, (ResultSetHandler) new BeanListHandler<>(bean, generousBeanRowProcessor));
+            return queryRunner.<List>query(sql, (ResultSetHandler) new BeanListHandler<>(bean, getBeanRowProcessor()));
         } catch (Exception e) {
             e.printStackTrace();
             throw new DaoException(e);
@@ -107,7 +119,7 @@ public class BaseDao implements SearchDao {
     public <K, T> Map<K, T> queryKeyedBean(String sql, Class<T> bean, String key) throws DaoException {
         try {
             log.debug(sql);
-            GenerousBeanMapHandler beanMapHandler = new GenerousBeanMapHandler<>(bean, generousBeanRowProcessor, 1, key);
+            GenerousBeanMapHandler beanMapHandler = new GenerousBeanMapHandler<>(bean, getBeanRowProcessor(), 1, key);
             return queryRunner.<Map>query(sql, beanMapHandler);
         } catch (Exception e) {
             e.printStackTrace();
@@ -123,7 +135,7 @@ public class BaseDao implements SearchDao {
     public <K, T> Map<K, List<T>> queryKeyedBeanList(String sql, Class<T> bean, String key) throws DaoException {
         try {
             log.debug(sql);
-            GenerousBeanMapListHandler beanMapListHandler = new GenerousBeanMapListHandler<>(bean, generousBeanRowProcessor, 1, key);
+            GenerousBeanMapListHandler beanMapListHandler = new GenerousBeanMapListHandler<>(bean, getBeanRowProcessor(), 1, key);
             return queryRunner.<Map>query(sql, beanMapListHandler);
         } catch (Exception e) {
             e.printStackTrace();
@@ -139,13 +151,14 @@ public class BaseDao implements SearchDao {
     public <K> Map<K, List<Map>> queryKeyedMapList(String sql, String key) throws DaoException {
         try {
             log.debug(sql);
-            FreeKeyedMapsListHandler beanMapListHandler = new FreeKeyedMapsListHandler<>(1, key, generousBeanRowProcessor);
+            FreeKeyedMapsListHandler beanMapListHandler = new FreeKeyedMapsListHandler<>(1, key, getBeanRowProcessor());
             return queryRunner.<Map>query(sql, beanMapListHandler);
         } catch (Exception e) {
             e.printStackTrace();
             throw new DaoException(e);
         }
     }
+
     /**
      * 在创建k,Map类型的结果时可用到
      */
@@ -154,7 +167,7 @@ public class BaseDao implements SearchDao {
     public <K> Map<K, Map> queryKeyedMap(String sql, String key) throws DaoException {
         try {
             log.debug(sql);
-            FreeKeyedMapsHandler beanMapListHandler = new FreeKeyedMapsHandler<>(1, key, generousBeanRowProcessor);
+            FreeKeyedMapsHandler beanMapListHandler = new FreeKeyedMapsHandler<>(1, key, getBeanRowProcessor());
             return queryRunner.<Map>query(sql, beanMapListHandler);
         } catch (Exception e) {
             e.printStackTrace();
