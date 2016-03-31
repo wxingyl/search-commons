@@ -71,6 +71,30 @@ public class RangeCondition<T extends Comparable<T>> extends FieldCondition<T> {
         return "RangeCondition{" + super.toString() + ", start = " + start + ", end = " + end;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof RangeCondition)) return false;
+        if (!super.equals(o)) return false;
+
+        RangeCondition<?> that = (RangeCondition<?>) o;
+
+        if (excludeLower != that.excludeLower) return false;
+        if (excludeUpper != that.excludeUpper) return false;
+        if (start != null ? !start.equals(that.start) : that.start != null) return false;
+        return end != null ? end.equals(that.end) : that.end == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (start != null ? start.hashCode() : 0);
+        result = 31 * result + (end != null ? end.hashCode() : 0);
+        result = 31 * result + (excludeLower ? 1 : 0);
+        result = 31 * result + (excludeUpper ? 1 : 0);
+        return result;
+    }
+
     public static class Builder<T extends Comparable<T>> {
 
         private final String filed;

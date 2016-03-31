@@ -208,7 +208,7 @@ public class ExpressionToken {
                     + field + " have error expression");
         }
         return new ExpressionToken(field, op, String.valueOf(text, lastStart, endPos - lastStart),
-                new TokenExtInfo(leftParenthesisCount, rightParenthesisCount, nextAnd));
+                TokenExtInfo.valueOf(leftParenthesisCount, rightParenthesisCount, nextAnd));
     }
 
 }

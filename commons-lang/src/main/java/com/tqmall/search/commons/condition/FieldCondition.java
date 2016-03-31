@@ -42,4 +42,20 @@ public abstract class FieldCondition<T> implements Condition, Serializable {
     public String toString() {
         return "field = " + field;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FieldCondition)) return false;
+
+        FieldCondition<?> that = (FieldCondition<?>) o;
+
+        return field.equals(that.field);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return field.hashCode();
+    }
 }

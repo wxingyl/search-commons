@@ -24,15 +24,15 @@ public class FieldConditionToken {
     /**
      * 是否为非查询
      */
-    private final boolean isNot;
+    private final boolean noCondition;
     /**
      * 条件附加信息
      */
     private final TokenExtInfo tokenExtInfo;
 
-    FieldConditionToken(FieldCondition fieldCondition, boolean isNot, TokenExtInfo tokenExtInfo) {
+    FieldConditionToken(FieldCondition fieldCondition, boolean noCondition, TokenExtInfo tokenExtInfo) {
         this.fieldCondition = fieldCondition;
-        this.isNot = isNot;
+        this.noCondition = noCondition;
         this.tokenExtInfo = tokenExtInfo;
     }
 
@@ -40,12 +40,40 @@ public class FieldConditionToken {
         return fieldCondition;
     }
 
-    public boolean isNot() {
-        return isNot;
+    public boolean isNoCondition() {
+        return noCondition;
     }
 
     public TokenExtInfo getTokenExtInfo() {
         return tokenExtInfo;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FieldConditionToken)) return false;
+
+        FieldConditionToken that = (FieldConditionToken) o;
+
+        if (noCondition != that.noCondition) return false;
+        if (!fieldCondition.equals(that.fieldCondition)) return false;
+        return tokenExtInfo.equals(that.tokenExtInfo);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = fieldCondition.hashCode();
+        result = 31 * result + (noCondition ? 1 : 0);
+        result = 31 * result + tokenExtInfo.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (noCondition) sb.append("! ");
+        sb.append(fieldCondition).append(" ext: ").append(tokenExtInfo);
+        return sb.toString();
     }
 
     static final List<Resolver> RESOLVERS;
@@ -79,6 +107,7 @@ public class FieldConditionToken {
                 if (r.supportOp(op)) {
                     try {
                         fieldCondition = r.resolve(et.getField(), et.getValue());
+                        break;
                     } catch (ResolveExpressionException e) {
                         throw new IllegalArgumentException("condition expression: " + et + " format is invalid", e);
                     }
@@ -339,8 +368,8 @@ public class FieldConditionToken {
                 throw new ResolveExpressionException("list expression value: " + value + " leftValue: " + lowerStrValue
                         + ", rightValue: " + upperStrValue + " have empty value");
             }
-            int clsType = CLASS_PRIORITY.indexOf(parseValueClass(values[0]));
-            int rightClsType = CLASS_PRIORITY.indexOf(parseValueClass(values[1]));
+            int clsType = CLASS_PRIORITY.indexOf(parseValueClass(lowerStrValue));
+            int rightClsType = CLASS_PRIORITY.indexOf(parseValueClass(upperStrValue));
             if (rightClsType > clsType) clsType = rightClsType;
             //基础类型都实现了Comparable接口
             StrValueConvert convert = StrValueConverts.getBasicConvert(CLASS_PRIORITY.get(clsType));

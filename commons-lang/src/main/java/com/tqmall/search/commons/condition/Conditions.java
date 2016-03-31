@@ -20,20 +20,20 @@ public final class Conditions {
     private Conditions() {
     }
 
-    public static <T> InCondition<T> in(String field, List<T> values, Class<T> cls) {
+    public static <T> InCondition<T> in(String field, Class<T> cls, List<T> values) {
         if (CommonsUtils.isEmpty(values)) return null;
         return new InCondition<>(field, values, StrValueConverts.getConvert(cls));
-    }
-
-    public static <T> InCondition<T> in(String field, List<T> values, StrValueConvert<T> convert) {
-        if (CommonsUtils.isEmpty(values)) return null;
-        return new InCondition<>(field, values, convert);
     }
 
     @SafeVarargs
     public static <T> InCondition<T> in(String field, Class<T> cls, T... values) {
         if (values.length == 0) return null;
         return new InCondition<>(field, Arrays.asList(values), StrValueConverts.getConvert(cls));
+    }
+
+    public static <T> InCondition<T> in(String field, List<T> values, StrValueConvert<T> convert) {
+        if (CommonsUtils.isEmpty(values)) return null;
+        return new InCondition<>(field, values, convert);
     }
 
     /**
