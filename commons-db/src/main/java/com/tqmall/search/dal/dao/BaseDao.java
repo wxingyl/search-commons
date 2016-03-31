@@ -4,6 +4,7 @@ import com.tqmall.search.dal.exception.DaoException;
 import com.tqmall.search.dal.processor.FreeKeyedHandler;
 import com.tqmall.search.dal.processor.FreeKeyedMultiValueHandler;
 import com.tqmall.search.dal.processor.GenerousBeanMapHandler;
+import com.tqmall.search.dal.processor.GenerousBeanMapListHandler;
 import org.apache.commons.dbutils.*;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
@@ -111,6 +112,22 @@ public class BaseDao implements SearchDao {
             log.debug(sql);
             GenerousBeanMapHandler beanMapHandler = new GenerousBeanMapHandler<>(bean, generousBeanRowProcessor, 1, key);
             return queryRunner.<Map>query(sql, beanMapHandler);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new DaoException(e);
+        }
+    }
+
+    /**
+     * 在创建k,List<Object>类型的缓存时可用到
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public <K, T> Map<K, List<T>> query(String sql, Class<T> bean, String key, Void ignore) throws DaoException {
+        try {
+            log.debug(sql);
+            GenerousBeanMapListHandler beanMapListHandler = new GenerousBeanMapListHandler<>(bean, generousBeanRowProcessor, 1, key);
+            return queryRunner.<Map>query(sql, beanMapListHandler);
         } catch (Exception e) {
             e.printStackTrace();
             throw new DaoException(e);

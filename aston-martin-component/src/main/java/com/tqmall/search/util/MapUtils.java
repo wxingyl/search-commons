@@ -48,7 +48,7 @@ public class MapUtils {
     }
 
     /**
-     * 把key为Long的类型转换成key为Integer
+     * 把key为Long的类型转换成key为String
      *
      * @param map
      * @return
