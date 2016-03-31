@@ -105,7 +105,7 @@ public class SearchStringUtilsTest {
         for (String s : SearchStringUtils.split(" xing ,wang ", ',')) {
             System.out.println("s: " + s + ", length: " + s.length());
         }
-        for (String s : SearchStringUtils.stringArrayTrim(SearchStringUtils.split(" xing ,wang ", ','))) {
+        for (String s : SearchStringUtils.splitTrim(" xing ,wang ", ',')) {
             Assert.assertTrue(s.length() == 4);
         }
     }

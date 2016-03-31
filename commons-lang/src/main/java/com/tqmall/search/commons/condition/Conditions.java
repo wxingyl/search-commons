@@ -20,27 +20,16 @@ public final class Conditions {
     private Conditions() {
     }
 
-    /**
-     * 该build方法对传入的values做了null过滤
-     * 构造{@link InCondition}
-     *
-     * @param values 如果不为空, 做完{@link CommonsUtils#filterNullValue(List)}过滤为空抛出{@link IllegalArgumentException}
-     * @return 如果values为空, 返回null
-     * @see CommonsUtils#filterNullValue(List)
-     */
     public static <T> InCondition<T> in(String field, List<T> values, Class<T> cls) {
         if (CommonsUtils.isEmpty(values)) return null;
         return new InCondition<>(field, values, StrValueConverts.getConvert(cls));
     }
 
-    /**
-     * 该build方法对传入的values做了null过滤
-     * 构造{@link InCondition}
-     *
-     * @param values 如果不为空, 做完{@link CommonsUtils#filterNullValue(List)}过滤为空抛出{@link IllegalArgumentException}
-     * @return 如果values为空, 返回null
-     * @see CommonsUtils#filterNullValue(List)
-     */
+    public static <T> InCondition<T> in(String field, List<T> values, StrValueConvert<T> convert) {
+        if (CommonsUtils.isEmpty(values)) return null;
+        return new InCondition<>(field, values, convert);
+    }
+
     @SafeVarargs
     public static <T> InCondition<T> in(String field, Class<T> cls, T... values) {
         if (values.length == 0) return null;
@@ -60,6 +49,13 @@ public final class Conditions {
      */
     public static <T> EqualCondition<T> equal(String field, T value, Class<T> cls) {
         return new EqualCondition<>(field, value, StrValueConverts.getBasicConvert(cls));
+    }
+
+    /**
+     * @param value 可以为null
+     */
+    public static <T> EqualCondition<T> equal(String field, T value, StrValueConvert<T> convert) {
+        return new EqualCondition<>(field, value, convert);
     }
 
     public static <T extends Comparable<T>> RangeCondition.Builder<T> range(String field) {
@@ -85,12 +81,10 @@ public final class Conditions {
      * @param <T>          对应类型
      * @return 构造好的RangeFilter对象
      */
-    public static <T extends Comparable<T>> RangeCondition<T>
-    range(String field, String rangeStr, StrValueConvert<T> valueConvert) {
-        if (rangeStr == null || rangeStr.isEmpty()) return null;
-        String[] rangeArray = SearchStringUtils.split(rangeStr, Param.RANGE_FILTER_CHAR);
+    public static <T extends Comparable<T>> RangeCondition<T> range(String field, String rangeStr, StrValueConvert<T> valueConvert) {
+        if (SearchStringUtils.isEmpty(rangeStr)) return null;
+        String[] rangeArray = SearchStringUtils.splitTrim(rangeStr, Param.RANGE_FILTER_CHAR);
         if (rangeArray.length == 0) return null;
-        rangeArray = SearchStringUtils.stringArrayTrim(rangeArray);
         int startIndex = 0, endIndex = 1;
         if (rangeArray.length == 1) {
             if (rangeStr.charAt(0) == Param.RANGE_FILTER_CHAR) {
@@ -126,7 +120,7 @@ public final class Conditions {
      * @return 解析的容器集合对象
      */
     public static ConditionContainer parseConditionalExpression(String conditionalExpression) {
-        List<ExpressionToken> tokenList = ExpressionToken.parseSentence(conditionalExpression);
+        List<ExpressionToken> tokenList = ExpressionToken.resolveSentence(conditionalExpression);
         return null;
     }
 

@@ -1,18 +1,17 @@
 package com.tqmall.search.commons.condition;
 
+import com.tqmall.search.commons.utils.SearchStringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by xing on 16/3/30.
+ * 条件表达式语句初步解析结果
  *
  * @author xing
  */
 public class ExpressionToken {
-    /**
-     * 左括号数量
-     */
-    private final int leftParenthesisCount;
     /**
      * 字段名
      */
@@ -22,47 +21,30 @@ public class ExpressionToken {
      */
     private final Operator op;
     /**
-     * 表达式的value部分
+     * 表达式的value部分, 左右经过term, 保证不为空
      */
     private final String value;
-    /**
-     * 右括号数量
-     */
-    private final int rightParenthesisCount;
-    /**
-     * 下一个条件是否为and操作
-     */
-    private final boolean nextAnd;
 
+    private final TokenExtInfo tokenExtInfo;
 
-    ExpressionToken(int leftParenthesisCount, String field, Operator op, String value,
-                    int rightParenthesisCount, boolean nextAnd) {
-        this.leftParenthesisCount = leftParenthesisCount;
+    ExpressionToken(String field, Operator op,
+                    String value, TokenExtInfo tokenExtInfo) {
         this.field = field;
         this.op = op;
         this.value = value;
-        this.rightParenthesisCount = rightParenthesisCount;
-        this.nextAnd = nextAnd;
+        this.tokenExtInfo = tokenExtInfo;
     }
 
     public String getField() {
         return field;
     }
 
-    public int getLeftParenthesisCount() {
-        return leftParenthesisCount;
-    }
-
-    public boolean isNextAnd() {
-        return nextAnd;
-    }
-
     public Operator getOp() {
         return op;
     }
 
-    public int getRightParenthesisCount() {
-        return rightParenthesisCount;
+    public TokenExtInfo getTokenExtInfo() {
+        return tokenExtInfo;
     }
 
     public String getValue() {
@@ -72,17 +54,17 @@ public class ExpressionToken {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < leftParenthesisCount; i++) {
+        for (int i = 0; i < tokenExtInfo.getLeftParenthesisCount(); i++) {
             sb.append('(');
         }
         sb.append(' ').append(field).append(' ').append(op.getOp()).append(' ').append(value).append(' ');
-        for (int i = 0; i < rightParenthesisCount; i++) {
+        for (int i = 0; i < tokenExtInfo.getRightParenthesisCount(); i++) {
             sb.append(')');
         }
-        if (rightParenthesisCount > 0) {
+        if (tokenExtInfo.getRightParenthesisCount() > 0) {
             sb.append(' ');
         }
-        sb.append(nextAnd);
+        sb.append(tokenExtInfo.isNextAnd());
         return sb.toString();
     }
 
@@ -96,12 +78,10 @@ public class ExpressionToken {
 
         ExpressionToken that = (ExpressionToken) o;
 
-        if (leftParenthesisCount != that.leftParenthesisCount) return false;
-        if (rightParenthesisCount != that.rightParenthesisCount) return false;
-        if (nextAnd != that.nextAnd) return false;
         if (!field.equals(that.field)) return false;
         if (op != that.op) return false;
-        return value.equals(that.value);
+        if (!value.equals(that.value)) return false;
+        return tokenExtInfo.equals(that.tokenExtInfo);
     }
 
     /**
@@ -109,12 +89,10 @@ public class ExpressionToken {
      */
     @Override
     public int hashCode() {
-        int result = leftParenthesisCount;
-        result = 31 * result + field.hashCode();
+        int result = field.hashCode();
         result = 31 * result + op.hashCode();
         result = 31 * result + value.hashCode();
-        result = 31 * result + rightParenthesisCount;
-        result = 31 * result + (nextAnd ? 1 : 0);
+        result = 31 * result + tokenExtInfo.hashCode();
         return result;
     }
 
@@ -124,19 +102,24 @@ public class ExpressionToken {
      * @param conditionalExpression 条件表达式句子
      * @return 表达式Token
      */
-    public static List<ExpressionToken> parseSentence(String conditionalExpression) {
+    public static List<ExpressionToken> resolveSentence(String conditionalExpression) {
+        conditionalExpression = SearchStringUtils.filterString(conditionalExpression);
+        if (conditionalExpression == null) return null;
         final int loopEnd = conditionalExpression.length() - 4;
-        boolean inStrValue = false;
         int lastStart = 0;
         List<ExpressionToken> tokens = new ArrayList<>();
         final char[] text = conditionalExpression.toCharArray();
         int leftParenthesisCount = 0, rightParenthesisCount = 0;
         for (int i = 0; i < loopEnd; i++) {
             if (text[i] == '"') {
-                inStrValue = !inStrValue;
-            }
-            if (inStrValue) continue;
-            if (text[i] == ' ' && text[i + 3] == ' ') {
+                int length = conditionalExpression.length();
+                for (int j = i + 1; j < length; j++) {
+                    if (text[j] == '"') {
+                        i = j;
+                        break;
+                    }
+                }
+            } else if (text[i] == ' ' && text[i + 3] == ' ') {
                 boolean and;
                 if (text[i + 1] == '|' && text[i + 2] == '|') {
                     and = false;
@@ -146,20 +129,16 @@ public class ExpressionToken {
                     continue;
                 }
                 ExpressionToken curToken = createExpressionToken(lastStart, i, and, text);
-                leftParenthesisCount += curToken.leftParenthesisCount;
-                rightParenthesisCount += curToken.rightParenthesisCount;
+                leftParenthesisCount += curToken.getTokenExtInfo().getLeftParenthesisCount();
+                rightParenthesisCount += curToken.getTokenExtInfo().getRightParenthesisCount();
                 tokens.add(curToken);
                 lastStart = i + 4;
             }
         }
-        if (inStrValue) {
-            throw new IllegalArgumentException("conditionalExpression: " + String.valueOf(text) +
-                    " have invalid string value, '\"' can not match paired");
-        }
         ExpressionToken lastToken = createExpressionToken(lastStart, conditionalExpression.length(), false, text);
         tokens.add(lastToken);
-        leftParenthesisCount += lastToken.leftParenthesisCount;
-        rightParenthesisCount += lastToken.rightParenthesisCount;
+        leftParenthesisCount += lastToken.getTokenExtInfo().getLeftParenthesisCount();
+        rightParenthesisCount += lastToken.getTokenExtInfo().getRightParenthesisCount();
         if (leftParenthesisCount != rightParenthesisCount) {
             throw new IllegalArgumentException("conditionalExpression: " + conditionalExpression + " not correct match '{' '}', leftParenthesisCount: "
                     + leftParenthesisCount + ", rightParenthesisCount: " + rightParenthesisCount);
@@ -167,7 +146,7 @@ public class ExpressionToken {
         return tokens;
     }
 
-    public static ExpressionToken createExpressionToken(int startPos, int endPos, boolean nextAnd, char[] text) {
+    private static ExpressionToken createExpressionToken(int startPos, int endPos, boolean nextAnd, char[] text) {
         int leftParenthesisCount = 0, rightParenthesisCount = 0;
         //fix position
         for (; startPos < endPos; startPos++) {
@@ -195,6 +174,15 @@ public class ExpressionToken {
                 break;
             }
         }
+        if (leftParenthesisCount > 0 && rightParenthesisCount > 0) {
+            if (leftParenthesisCount > rightParenthesisCount) {
+                leftParenthesisCount -= rightParenthesisCount;
+                rightParenthesisCount = 0;
+            } else {
+                rightParenthesisCount -= leftParenthesisCount;
+                leftParenthesisCount = 0;
+            }
+        }
         if (startPos >= endPos || (leftParenthesisCount > 0 && rightParenthesisCount > 0)) {
             throw new IllegalArgumentException("conditionalExpression: " + String.valueOf(text) + " have error expression , start: "
                     + startPos + ", end: " + endPos + ", leftParenthesisCount: " + leftParenthesisCount + ", rightParenthesisCount: "
@@ -207,44 +195,20 @@ public class ExpressionToken {
             if (Character.isWhitespace(text[i])) {
                 if (field == null) {
                     field = String.valueOf(text, startPos, i - startPos);
-                } else if (op == null) {
+                    lastStart = i + 1;
+                } else {
                     op = Operator.getOp(String.valueOf(text, lastStart, i - lastStart));
-                }
-                lastStart = i + 1;
-            }
-        }
-        return new ExpressionToken(leftParenthesisCount, field, op, String.valueOf(text, lastStart, endPos - lastStart),
-                rightParenthesisCount, nextAnd);
-    }
-
-    public enum Operator {
-        EQ("="),
-        NE("!="),
-        GT(">"),
-        GE(">="),
-        LT("<"),
-        LE("<="),
-        IN("in"),
-        NIN("nin"),
-        RANGE("range");
-
-        public static Operator getOp(String opName) {
-            for (Operator op : values()) {
-                if (op.op.equalsIgnoreCase(opName) || op.name().equalsIgnoreCase(opName)) {
-                    return op;
+                    lastStart = i + 1;
+                    break;
                 }
             }
-            throw new IllegalArgumentException("opName: " + opName + " is invalid");
         }
-
-        private final String op;
-
-        Operator(String op) {
-            this.op = op;
+        if (op == null) {
+            throw new IllegalArgumentException("conditionalExpression: " + String.valueOf(text) + ", field: "
+                    + field + " have error expression");
         }
-
-        public String getOp() {
-            return op;
-        }
+        return new ExpressionToken(field, op, String.valueOf(text, lastStart, endPos - lastStart),
+                new TokenExtInfo(leftParenthesisCount, rightParenthesisCount, nextAnd));
     }
+
 }

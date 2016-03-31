@@ -39,7 +39,7 @@ public final class SearchStringUtils {
      * 不是自己原创, 是人家Apache的
      * <p/>
      * 重要的事情至少说3变
-     * 当然自己有了做了微小改动
+     * 当然自己有做了微小改动
      * <p/>
      * <p/>
      * 下面的文档也是人家的:
@@ -159,14 +159,9 @@ public final class SearchStringUtils {
         return buf.toString();
     }
 
-    /**
-     * 对字符串数组中的每个String做{@link #filterString(String)}操作, 即每个字符串做trim操作, 如果trim后为空, 则置为null
-     * 注意: 该方法会破坏入参数据
-     *
-     * @param array 字符串数据, 会破坏入参的值
-     * @return trim过的字符串
-     */
-    public static String[] stringArrayTrim(String[] array) {
+    public static String[] splitTrim(final String str, final char separatorChar) {
+        if (str == null) return null;
+        String[] array = split(str, separatorChar);
         for (int i = 0; i < array.length; i++) {
             array[i] = filterString(array[i]);
         }

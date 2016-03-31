@@ -60,9 +60,8 @@ public class FieldSort implements Serializable {
     public static FieldSort parse(String s) {
         s = SearchStringUtils.filterString(s);
         if (s == null) return null;
-        String[] array = SearchStringUtils.split(s, Param.ASSIGNMENT_CHAR);
+        String[] array = SearchStringUtils.splitTrim(s, Param.ASSIGNMENT_CHAR);
         if (array.length == 0) return null;
-        array = SearchStringUtils.stringArrayTrim(array);
         return new FieldSort(array[0], (array.length > 1 && "asc".equalsIgnoreCase(array[1])));
     }
 }

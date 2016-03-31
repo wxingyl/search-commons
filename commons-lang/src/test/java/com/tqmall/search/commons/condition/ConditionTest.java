@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -75,8 +76,9 @@ public class ConditionTest {
     }
 
     @Test
-    public void parseConditionalExpressionSentenceTest() {
-        String conditionalExpression = "is_deleted = 'N' && (id > 9 || value range 34~45)";
-        System.out.println(ExpressionToken.parseSentence(conditionalExpression));
+    public void resolveConditionalExpressionSentenceTest() {
+        String conditionalExpression = "is_deleted = 'N' && (id > \"  || value range  34~45\" )";
+        List<ExpressionToken> tokens = ExpressionToken.resolveSentence(conditionalExpression);
+        System.out.println(tokens);
     }
 }

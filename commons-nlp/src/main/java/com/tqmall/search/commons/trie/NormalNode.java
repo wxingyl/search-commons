@@ -1,6 +1,7 @@
 package com.tqmall.search.commons.trie;
 
-import java.util.AbstractMap;
+import com.tqmall.search.commons.utils.CommonsUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -145,7 +146,7 @@ public class NormalNode<V> extends Node<V> {
         if (status == Status.DELETE) return;
         preKey.append(c);
         if (accept()) {
-            retList.add(new AbstractMap.SimpleImmutableEntry<>(preKey.toString(), value));
+            retList.add(CommonsUtils.newImmutableMapEntry(preKey.toString(), value));
         }
         if (children != null) {
             final int startIndex = preKey.length();
