@@ -1,10 +1,7 @@
 package com.tqmall.search.dal.dao;
 
 import com.tqmall.search.dal.exception.DaoException;
-import com.tqmall.search.dal.processor.FreeKeyedHandler;
-import com.tqmall.search.dal.processor.FreeKeyedMultiValueHandler;
-import com.tqmall.search.dal.processor.GenerousBeanMapHandler;
-import com.tqmall.search.dal.processor.GenerousBeanMapListHandler;
+import com.tqmall.search.dal.processor.*;
 import org.apache.commons.dbutils.*;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
@@ -34,7 +31,7 @@ public class BaseDao implements SearchDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Map<String, Object>> query(String sql) throws DaoException {
+    public List<Map<String, Object>> queryMap(String sql) throws DaoException {
         try {
             log.debug(sql);
             return queryRunner.<List>query(sql, mapListHandler);
@@ -46,10 +43,10 @@ public class BaseDao implements SearchDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> List<T> query(String sql, Class<T> bean) throws DaoException {
+    public <T> List<T> queryBean(String sql, Class<T> bean) throws DaoException {
         try {
             log.debug(sql);
-            // TODO: 16/3/23 对每一个beanListHandler应该生成缓存
+            // TODO: 16/3/23 对每一个beanListHandler应该生成结果
             return queryRunner.<List>query(sql, (ResultSetHandler) new BeanListHandler<>(bean, generousBeanRowProcessor));
         } catch (Exception e) {
             e.printStackTrace();
@@ -59,7 +56,7 @@ public class BaseDao implements SearchDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> List<T> query(String sql, String column) throws DaoException {
+    public <T> List<T> queryValue(String sql, String column) throws DaoException {
         try {
             log.debug(sql);
             ResultSetHandler columnListHandler = new ColumnListHandler(column);
@@ -71,11 +68,11 @@ public class BaseDao implements SearchDao {
     }
 
     /**
-     * 在创建k,v类型的缓存时可用到
+     * 在创建k,v类型的结果时可用到
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <K, V> Map<K, V> query(String sql, String columnKey, String columnValue) throws DaoException {
+    public <K, V> Map<K, V> queryKeyedValue(String sql, String columnKey, String columnValue) throws DaoException {
         try {
             log.debug(sql);
             FreeKeyedHandler freeKeyedHandler = new FreeKeyedHandler(1, columnKey, 2, columnValue);
@@ -87,11 +84,11 @@ public class BaseDao implements SearchDao {
     }
 
     /**
-     * 在创建k,List<v>类型的缓存时可用到
+     * 在创建k,List<v>类型的结果时可用到
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <K, V> Map<K, List<V>> query(String sql, String columnKey, String columnValue, Void ignore) throws DaoException {
+    public <K, V> Map<K, List<V>> queryKeyedValueList(String sql, String columnKey, String columnValue) throws DaoException {
         try {
             log.debug(sql);
             FreeKeyedMultiValueHandler freeKeyedHandler = new FreeKeyedMultiValueHandler(1, columnKey, 2, columnValue);
@@ -103,11 +100,11 @@ public class BaseDao implements SearchDao {
     }
 
     /**
-     * 在创建k,Object类型的缓存时可用到
+     * 在创建k,Object类型的结果时可用到
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <K, T> Map<K, T> query(String sql, Class<T> bean, String key) throws DaoException {
+    public <K, T> Map<K, T> queryKeyedBean(String sql, Class<T> bean, String key) throws DaoException {
         try {
             log.debug(sql);
             GenerousBeanMapHandler beanMapHandler = new GenerousBeanMapHandler<>(bean, generousBeanRowProcessor, 1, key);
@@ -119,14 +116,45 @@ public class BaseDao implements SearchDao {
     }
 
     /**
-     * 在创建k,List<Object>类型的缓存时可用到
+     * 在创建k,List<Object>类型的结果时可用到
      */
     @SuppressWarnings("unchecked")
     @Override
-    public <K, T> Map<K, List<T>> query(String sql, Class<T> bean, String key, Void ignore) throws DaoException {
+    public <K, T> Map<K, List<T>> queryKeyedBeanList(String sql, Class<T> bean, String key) throws DaoException {
         try {
             log.debug(sql);
             GenerousBeanMapListHandler beanMapListHandler = new GenerousBeanMapListHandler<>(bean, generousBeanRowProcessor, 1, key);
+            return queryRunner.<Map>query(sql, beanMapListHandler);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new DaoException(e);
+        }
+    }
+
+    /**
+     * 在创建k,List<Map>类型的结果时可用到
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public <K> Map<K, List<Map>> queryKeyedMapList(String sql, String key) throws DaoException {
+        try {
+            log.debug(sql);
+            FreeKeyedMapsListHandler beanMapListHandler = new FreeKeyedMapsListHandler<>(1, key, generousBeanRowProcessor);
+            return queryRunner.<Map>query(sql, beanMapListHandler);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new DaoException(e);
+        }
+    }
+    /**
+     * 在创建k,Map类型的结果时可用到
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public <K> Map<K, Map> queryKeyedMap(String sql, String key) throws DaoException {
+        try {
+            log.debug(sql);
+            FreeKeyedMapsHandler beanMapListHandler = new FreeKeyedMapsHandler<>(1, key, generousBeanRowProcessor);
             return queryRunner.<Map>query(sql, beanMapListHandler);
         } catch (Exception e) {
             e.printStackTrace();
