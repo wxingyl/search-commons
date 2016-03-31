@@ -1,5 +1,7 @@
-package com.tqmall.search.commons.condition;
+package com.tqmall.search.commons.condition.expression;
 
+import com.tqmall.search.commons.condition.Operator;
+import com.tqmall.search.commons.condition.TokenExtInfo;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 
 import java.util.ArrayList;
@@ -100,7 +102,7 @@ public class ExpressionToken {
      * 解析条件表达式句子
      *
      * @param conditionalExpression 条件表达式句子
-     * @return 表达式Token
+     * @return 表达式Token list按照解析条件表达式的顺序返回
      */
     public static List<ExpressionToken> resolveSentence(String conditionalExpression) {
         conditionalExpression = SearchStringUtils.filterString(conditionalExpression);
@@ -128,14 +130,14 @@ public class ExpressionToken {
                 } else {
                     continue;
                 }
-                ExpressionToken curToken = createExpressionToken(lastStart, i, and, text);
+                ExpressionToken curToken = valueOf(lastStart, i, and, text);
                 leftParenthesisCount += curToken.getTokenExtInfo().getLeftParenthesisCount();
                 rightParenthesisCount += curToken.getTokenExtInfo().getRightParenthesisCount();
                 tokens.add(curToken);
                 lastStart = i + 4;
             }
         }
-        ExpressionToken lastToken = createExpressionToken(lastStart, conditionalExpression.length(), false, text);
+        ExpressionToken lastToken = valueOf(lastStart, conditionalExpression.length(), false, text);
         tokens.add(lastToken);
         leftParenthesisCount += lastToken.getTokenExtInfo().getLeftParenthesisCount();
         rightParenthesisCount += lastToken.getTokenExtInfo().getRightParenthesisCount();
@@ -146,7 +148,7 @@ public class ExpressionToken {
         return tokens;
     }
 
-    private static ExpressionToken createExpressionToken(int startPos, int endPos, boolean nextAnd, char[] text) {
+    static ExpressionToken valueOf(int startPos, int endPos, boolean nextAnd, char[] text) {
         int leftParenthesisCount = 0, rightParenthesisCount = 0;
         //fix position
         for (; startPos < endPos; startPos++) {
