@@ -77,10 +77,18 @@ public final class StrValueConverts {
         return convert;
     }
 
-    public static <T> StrValueConvert<T> getConvert(Class<T> cls, final T defaultValue) {
+    public static <T> StrValueConvert<T> getBasicConvert(Class<T> cls, T defaultValue) {
+        return wrapDefaultConvert(getBasicConvert(cls), defaultValue);
+    }
+
+    public static <T> StrValueConvert<T> getConvert(Class<T> cls, T defaultValue) {
         final StrValueConvert<T> convert = getConvert(cls);
-        if (convert == null || defaultValue == null) return convert;
-        if (convert instanceof Defaultable) {
+        if (convert == null) return null;
+        return wrapDefaultConvert(convert, defaultValue);
+    }
+
+    public static <T> StrValueConvert<T> wrapDefaultConvert(final StrValueConvert<T> convert, final T defaultValue) {
+        if (defaultValue != null && convert instanceof Defaultable) {
             Defaultable defaultable = (Defaultable) convert;
             if (defaultValue.equals(defaultable.defaultValue())) return convert;
         }

@@ -10,7 +10,7 @@ import java.util.Set;
 
 /**
  * Created by xing on 16/1/23.
- * 条件抽象类
+ * 单个字段相关的条件
  */
 public abstract class FieldCondition<T> implements Condition, Serializable {
 
@@ -22,7 +22,6 @@ public abstract class FieldCondition<T> implements Condition, Serializable {
 
     public FieldCondition(String field, StrValueConvert<T> valueConvert) {
         Objects.requireNonNull(field);
-        Objects.requireNonNull(valueConvert);
         this.field = field;
         this.valueConvert = valueConvert;
     }
@@ -34,7 +33,7 @@ public abstract class FieldCondition<T> implements Condition, Serializable {
 
     @Override
     public final boolean validation(Function<String, String> values) {
-        return validation(valueConvert.convert(values.apply(field)));
+        return validation(valueConvert == null ? null : valueConvert.convert(values.apply(field)));
     }
 
     public abstract boolean validation(T value);
@@ -42,5 +41,21 @@ public abstract class FieldCondition<T> implements Condition, Serializable {
     @Override
     public String toString() {
         return "field = " + field;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FieldCondition)) return false;
+
+        FieldCondition<?> that = (FieldCondition<?>) o;
+
+        return field.equals(that.field);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return field.hashCode();
     }
 }
