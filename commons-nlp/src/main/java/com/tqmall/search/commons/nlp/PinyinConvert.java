@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -150,7 +149,7 @@ public final class PinyinConvert {
         StringBuilder sb = new StringBuilder();
         String py = convert(text, appendFlag, sb);
         if (py == null) return null;
-        else return new AbstractMap.SimpleImmutableEntry<>(py, sb.toString());
+        else return CommonsUtils.newImmutableMapEntry(py, sb.toString());
     }
 
     /**

@@ -116,4 +116,12 @@ public final class CommonsUtils {
             }
         };
     }
+
+    public static <K, V> Map.Entry<K, V> newMapEntry(K k, V v) {
+        return new AbstractMap.SimpleEntry<>(k, v);
+    }
+
+    public static <K, V> Map.Entry<K, V> newImmutableMapEntry(K k, V v) {
+        return new AbstractMap.SimpleImmutableEntry<>(k, v);
+    }
 }

@@ -73,10 +73,4 @@ public class ConditionTest {
             System.out.println("" + values[i][0] + ',' + values[i][1] + ',' + values[i][2] + ": a = " + a + ", b = " + b);
         }
     }
-
-    @Test
-    public void parseConditionalExpressionSentenceTest() {
-        String conditionalExpression = "is_deleted = 'N' && (id > 9 || value range 34~45)";
-        System.out.println(ExpressionToken.parseSentence(conditionalExpression));
-    }
 }

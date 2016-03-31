@@ -79,7 +79,7 @@ public class MatchBinaryReverseTrie<V> extends BinaryTrie<V> {
             ListIterator<Map.Entry<String, V>> it = result.listIterator();
             while (it.hasNext()) {
                 Map.Entry<String, V> e = it.next();
-                it.set(new AbstractMap.SimpleImmutableEntry<>(NlpUtils.reverseString(e.getKey()), e.getValue()));
+                it.set(CommonsUtils.newImmutableMapEntry(NlpUtils.reverseString(e.getKey()), e.getValue()));
             }
         }
         return result;

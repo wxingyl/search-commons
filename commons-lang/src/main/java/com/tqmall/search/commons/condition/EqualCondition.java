@@ -36,4 +36,21 @@ public class EqualCondition<T> extends FieldCondition<T> {
         return "EqualCondition{" + super.toString() + ", value = " + value;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EqualCondition)) return false;
+        if (!super.equals(o)) return false;
+
+        EqualCondition<?> that = (EqualCondition<?>) o;
+
+        return value != null ? value.equals(that.value) : that.value == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (value != null ? value.hashCode() : 0);
+        return result;
+    }
 }

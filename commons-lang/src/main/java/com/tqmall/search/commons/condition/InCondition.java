@@ -36,4 +36,22 @@ public class InCondition<T> extends FieldCondition<T> {
     public String toString() {
         return "InCondition{" + super.toString() + ", values = " + values;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof InCondition)) return false;
+        if (!super.equals(o)) return false;
+
+        InCondition<?> that = (InCondition<?>) o;
+
+        return values.equals(that.values);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + values.hashCode();
+        return result;
+    }
 }
