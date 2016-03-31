@@ -7,10 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -347,5 +344,29 @@ public class StringUtil {
      */
     public static boolean hasLength(CharSequence str) {
         return str != null && str.length() > 0;
+    }
+
+    /**
+     * 字符串去重,按空白分开,把重复的字符串去掉
+     *
+     * @param str
+     * @return
+     */
+    public static String uniqueString(String str) {
+        Set<String> strs = new HashSet<>();
+        char[] chars = str.toCharArray();
+        StringBuilder builder = new StringBuilder();
+        for (char c : chars) {
+            if (Character.isSpaceChar(c)) {
+                if (builder.length() > 0) {
+                    strs.add(builder.toString());
+                    builder.setLength(0);
+                }
+            } else {
+                builder.append(c);
+            }
+        }
+        strs.remove("");
+        return ListUtil.implode(strs, " ");
     }
 }
