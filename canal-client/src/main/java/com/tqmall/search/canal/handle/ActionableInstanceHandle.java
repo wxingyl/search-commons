@@ -8,7 +8,7 @@ import com.tqmall.search.canal.action.ActionFactory;
 import com.tqmall.search.canal.action.Actionable;
 import com.tqmall.search.canal.action.CurrentHandleTable;
 import com.tqmall.search.commons.lang.Function;
-import com.tqmall.search.commons.param.condition.ConditionContainer;
+import com.tqmall.search.commons.condition.ConditionContainer;
 import com.tqmall.search.commons.utils.CommonsUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

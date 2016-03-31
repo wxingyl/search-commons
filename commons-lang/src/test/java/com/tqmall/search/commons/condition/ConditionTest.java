@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.param.condition;
+package com.tqmall.search.commons.condition;
 
 import com.tqmall.search.commons.utils.CommonsUtils;
 import org.junit.Assert;

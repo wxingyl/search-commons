@@ -3,7 +3,7 @@ package com.tqmall.search.canal;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.google.common.collect.Iterators;
 import com.tqmall.search.canal.action.Actionable;
-import com.tqmall.search.commons.param.condition.ConditionContainer;
+import com.tqmall.search.commons.condition.ConditionContainer;
 import com.tqmall.search.commons.utils.CommonsUtils;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 

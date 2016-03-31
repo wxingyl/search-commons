@@ -1,6 +1,6 @@
 package com.tqmall.search.commons.param;
 
-import com.tqmall.search.commons.param.condition.ConditionContainer;
+import com.tqmall.search.commons.condition.ConditionContainer;
 
 import java.io.Serializable;
 import java.util.ArrayList;
