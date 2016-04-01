@@ -89,6 +89,7 @@ public class JcsegFactory {
     /**
      * 返回单字分词的分词对象
      * 该分词器没有词库
+     *
      * @return singleSeg
      */
     private static ASegment getSingleSeg() {
@@ -171,7 +172,7 @@ public class JcsegFactory {
      * @return
      */
     public static List<String> CNSplitFull(String str, boolean synonyms) {
-        if(str==null)
+        if (str == null)
             return new LinkedList<String>();
         str = str.replaceAll("\\pP", " ");
         Set<String> set = new HashSet<String>();
@@ -215,10 +216,36 @@ public class JcsegFactory {
         return retList;
     }
 
+    /**
+     * 通用的分词方法,也是要去掉的,换成全新的.
+     *
+     * @param chinese
+     * @return
+     */
+    public static String cnSplitAndToSpell(String chinese) {
+        if (StringUtils.isBlank(chinese)) return "";
+        StringBuilder like = new StringBuilder();
+        List<String> cnSplit = JcsegFactory.CNSplit(chinese, false);
+        for (String cn : cnSplit) {
+            String[] cnSpellFirst = PinYinUtils.convertToSpellPolyphonic(cn, true);
+            if (cnSpellFirst != null)
+                for (String c : cnSpellFirst) {
+                    like.append(c).append(" ");
+                }
+            String[] cnSpell = PinYinUtils.convertToSpellPolyphonic(cn, false);
+            if (cnSpell != null)
+                for (String c : cnSpell) {
+                    like.append(c).append(" ");
+                }
+        }
+        like.append(ListUtil.implode(cnSplit, " "));
+        return StringUtil.uniqueString(like.toString());
+    }
+
     private static List<String> segment(String input, ISegment seg) {
         List<String> retList = Lists.newArrayList();
         if (!StringUtils.isEmpty(input)) {
-            try (Reader reader = new StringReader(input)){
+            try (Reader reader = new StringReader(input)) {
                 seg.reset(reader);
                 IWord word;
                 while ((word = seg.next()) != null) {
