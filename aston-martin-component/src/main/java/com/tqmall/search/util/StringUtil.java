@@ -366,6 +366,10 @@ public class StringUtil {
                 builder.append(c);
             }
         }
+        if (builder.length() > 0) {
+            strs.add(builder.toString());
+            builder.setLength(0);
+        }
         strs.remove("");
         return ListUtil.implode(strs, " ");
     }
