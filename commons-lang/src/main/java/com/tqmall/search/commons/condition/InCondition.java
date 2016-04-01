@@ -34,7 +34,7 @@ public class InCondition<T> extends FieldCondition<T> {
 
     @Override
     public String toString() {
-        return "InCondition{" + super.toString() + ", values = " + values;
+        return super.toString() + " in " + values;
     }
 
     @Override

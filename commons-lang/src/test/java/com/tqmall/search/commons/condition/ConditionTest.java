@@ -1,5 +1,6 @@
 package com.tqmall.search.commons.condition;
 
+import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.utils.CommonsUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,7 +16,7 @@ import java.util.Map;
 public class ConditionTest {
 
     @Test
-    public void conditionContainerTest() {
+    public void fieldConditionTest() {
         EqualCondition<Integer> equalCondition = Conditions.equal("id", 4);
         Assert.assertTrue(equalCondition.validation(4));
         Assert.assertFalse(equalCondition.validation(5));
@@ -31,30 +32,37 @@ public class ConditionTest {
         Assert.assertTrue(inCondition.validation("xing"));
         Assert.assertTrue(inCondition.validation("yan"));
         Assert.assertFalse(inCondition.validation("Xing"));
+    }
 
-        ModifiableConditionContainer conditionContainer = new ModifiableConditionContainer()
+    @Test
+    public void conditionContainerTest() {
+        EqualCondition<Integer> equalCondition = Conditions.equal("id", 4);
+        ModifiableConditionContainer conditionContainer = Conditions.modifiableContainer()
                 .addMust(equalCondition)
-                .addMust(rangeCondition)
-                .add(Condition.Type.SHOULD, inCondition);
+                .addMust(Conditions.range("price", "1~10", BigDecimal.class))
+                .add(Condition.Type.SHOULD, Conditions.in("name", String.class, "xing", "wang", "yan", "lin"));
 
         Map<String, String> dataMap = new HashMap<>();
+        final Function<String, String> dataFun = CommonsUtils.convertToFunction(dataMap);
+
         dataMap.put("id", "3");
         dataMap.put("price", "3.0");
         dataMap.put("value", "4");
         dataMap.put("name", "yan");
-        Assert.assertFalse(conditionContainer.validation(CommonsUtils.convertToFunction(dataMap)));
+
+        Assert.assertFalse(conditionContainer.validation(dataFun));
 
         dataMap.put("id", "4");
-        Assert.assertTrue(conditionContainer.validation(CommonsUtils.convertToFunction(dataMap)));
+        Assert.assertTrue(conditionContainer.validation(dataFun));
         dataMap.put("value", "2");
         conditionContainer.minimumShouldMatch(2);
-        Assert.assertFalse(conditionContainer.validation(CommonsUtils.convertToFunction(dataMap)));
+        Assert.assertFalse(conditionContainer.validation(dataFun));
 
         conditionContainer.minimumShouldMatch(1);
-        Assert.assertTrue(conditionContainer.validation(CommonsUtils.convertToFunction(dataMap)));
+        Assert.assertTrue(conditionContainer.validation(dataFun));
 
         conditionContainer.add(Condition.Type.MUST_NOT, equalCondition);
-        Assert.assertFalse(conditionContainer.validation(CommonsUtils.convertToFunction(dataMap)));
+        Assert.assertFalse(conditionContainer.validation(dataFun));
     }
 
     /**

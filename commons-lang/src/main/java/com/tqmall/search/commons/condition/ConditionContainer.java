@@ -89,6 +89,34 @@ public abstract class ConditionContainer implements Condition, Serializable {
         return true;
     }
 
+    /**
+     * only user for test
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ConditionContainer)) return false;
+
+        ConditionContainer container = (ConditionContainer) o;
+
+        if (minimumShouldMatch != container.minimumShouldMatch) return false;
+        if (must != null ? !must.equals(container.must) : container.must != null) return false;
+        if (should != null ? !should.equals(container.should) : container.should != null) return false;
+        return mustNot != null ? mustNot.equals(container.mustNot) : container.mustNot == null;
+    }
+
+    /**
+     * only user for test
+     */
+    @Override
+    public int hashCode() {
+        int result = must != null ? must.hashCode() : 0;
+        result = 31 * result + (should != null ? should.hashCode() : 0);
+        result = 31 * result + minimumShouldMatch;
+        result = 31 * result + (mustNot != null ? mustNot.hashCode() : 0);
+        return result;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

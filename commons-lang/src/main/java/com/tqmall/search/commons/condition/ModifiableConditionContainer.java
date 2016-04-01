@@ -76,4 +76,14 @@ public class ModifiableConditionContainer extends ConditionContainer {
         }
         return this;
     }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof ModifiableConditionContainer && super.equals(o);
+    }
 }

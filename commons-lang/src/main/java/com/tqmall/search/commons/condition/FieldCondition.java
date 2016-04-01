@@ -40,7 +40,7 @@ public abstract class FieldCondition<T> implements Condition, Serializable {
 
     @Override
     public String toString() {
-        return "field = " + field;
+        return field;
     }
 
     @Override

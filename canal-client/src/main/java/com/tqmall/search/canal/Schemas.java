@@ -30,7 +30,7 @@ public final class Schemas {
      * 默认的逻辑删除表字段过滤器
      */
     public static final ConditionContainer DEFAULT_DELETE_COLUMN_CONDITION = Conditions.unmodifiableContainer()
-            .addMustCondition(NOT_DELETED_CONDITION)
+            .mustCondition(NOT_DELETED_CONDITION)
             .create();
 
     /**
