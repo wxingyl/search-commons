@@ -29,7 +29,9 @@ public class UnmodifiableConditionContainer extends ConditionContainer {
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        int result = UnmodifiableConditionContainer.class.hashCode();
+        result = 31 * result + super.hashCode();
+        return result;
     }
 
     public static Builder build() {

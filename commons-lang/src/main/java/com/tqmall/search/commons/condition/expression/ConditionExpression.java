@@ -1,9 +1,6 @@
 package com.tqmall.search.commons.condition.expression;
 
-import com.tqmall.search.commons.condition.Condition;
-import com.tqmall.search.commons.condition.ConditionContainer;
-import com.tqmall.search.commons.condition.Conditions;
-import com.tqmall.search.commons.condition.UnmodifiableConditionContainer;
+import com.tqmall.search.commons.condition.*;
 import com.tqmall.search.commons.lang.StrValueConvert;
 import com.tqmall.search.commons.utils.CommonsUtils;
 
@@ -91,7 +88,7 @@ public class ConditionExpression implements StrValueConvert<ConditionContainer> 
         }
     }
 
-    private ConditionContainer childCreate(List<FieldConditionToken> tokens, int offset) {
+    private ConditionContainer childCreate(List<FieldConditionToken> tokens, final int offset) {
         UnmodifiableConditionContainer.Builder builder = Conditions.unmodifiableContainer();
         boolean haveAdd = false;
         int loopEnd = tokens.size() - 1;
@@ -103,19 +100,16 @@ public class ConditionExpression implements StrValueConvert<ConditionContainer> 
                 addMust(builder, tokens.get(i));
                 Condition condition = builder.create();
                 builder = Conditions.unmodifiableContainer();
-                //TODO should condition may be is noCondition
                 builder.shouldCondition(condition);
                 haveAdd = false;
             } else {
-                //TODO should condition may be is noCondition
-                builder.shouldCondition(tokens.get(i).getCondition());
+                addShould(builder, tokens.get(i));
             }
         }
         if (haveAdd || loopEnd == 0) {
             addMust(builder, tokens.get(loopEnd));
         } else {
-            //TODO should condition may be is noCondition
-            builder.shouldCondition(tokens.get(loopEnd).getCondition());
+            addShould(builder, tokens.get(loopEnd));
         }
         return builder.create();
     }
@@ -126,5 +120,18 @@ public class ConditionExpression implements StrValueConvert<ConditionContainer> 
         } else {
             builder.mustCondition(token.getCondition());
         }
+    }
+
+    private void addShould(UnmodifiableConditionContainer.Builder builder, FieldConditionToken token) {
+        Condition condition = token.getCondition();
+        if (token.isNoCondition()) {
+            if (condition instanceof FieldCondition) {
+                condition = Conditions.noFieldCondition((FieldCondition) condition);
+            } else {
+                //这儿其实可以不用抛出异常, 先抛出来吧, 严格一点, 后面想去掉的话再说
+                throw new IllegalStateException("no condition: " + condition + " should is " + FieldCondition.class);
+            }
+        }
+        builder.shouldCondition(condition);
     }
 }

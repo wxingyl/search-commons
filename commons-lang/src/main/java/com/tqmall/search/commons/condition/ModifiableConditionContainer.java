@@ -79,7 +79,9 @@ public class ModifiableConditionContainer extends ConditionContainer {
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        int result = ModifiableConditionContainer.class.hashCode();
+        result = 31 * result + super.hashCode();
+        return result;
     }
 
     @Override

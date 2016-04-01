@@ -132,6 +132,22 @@ public class ConditionExpressionTest {
                 .mustNotCondition(Conditions.in("name", String.class, names))
                 .create();
         Assert.assertEquals(expected, actual);
+
+        conditionalExpression = "is_deleted != false && id nin 1, 3, 5, 7, 9";
+        actual = Conditions.conditionalExpression(conditionalExpression);
+        expected = Conditions.unmodifiableContainer()
+                .mustNotCondition(Conditions.equal("is_deleted", false))
+                .mustNotCondition(Conditions.in("id", Integer.TYPE, ids))
+                .create();
+        Assert.assertEquals(expected, actual);
+
+        conditionalExpression = "is_deleted != false || id nin 1, 3, 5, 7, 9";
+        actual = Conditions.conditionalExpression(conditionalExpression);
+        expected = Conditions.unmodifiableContainer()
+                .shouldCondition(Conditions.noFieldCondition(Conditions.equal("is_deleted", false)))
+                .shouldCondition(Conditions.noFieldCondition(Conditions.in("id", Integer.TYPE, ids)))
+                .create();
+        Assert.assertEquals(expected, actual);
     }
 
     //错误的表达式校验

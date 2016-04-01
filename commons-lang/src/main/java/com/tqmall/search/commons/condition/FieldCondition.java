@@ -38,6 +38,14 @@ public abstract class FieldCondition<T> implements Condition, Serializable {
 
     public abstract boolean validation(T value);
 
+    public final String getField() {
+        return field;
+    }
+
+    public final StrValueConvert<T> getValueConvert() {
+        return valueConvert;
+    }
+
     @Override
     public String toString() {
         return field;
@@ -51,7 +59,6 @@ public abstract class FieldCondition<T> implements Condition, Serializable {
         FieldCondition<?> that = (FieldCondition<?>) o;
 
         return field.equals(that.field);
-
     }
 
     @Override

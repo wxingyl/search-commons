@@ -106,6 +106,16 @@ public final class Conditions {
         return new RangeCondition<>(field, startValue, false, endValue, false, valueConvert);
     }
 
+    /**
+     * 将原先的条件整非, 如=可以装换成!=, 当然不建议这么做, !=的可以往{@link ConditionContainer#mustNot}添加 = 条件同样能够实现
+     *
+     * @see UnmodifiableConditionContainer.Builder#mustNotCondition(Condition)
+     * @see Condition.Type#MUST_NOT
+     */
+    public static <T> FieldCondition<T> noFieldCondition(final FieldCondition<T> condition) {
+        return new NoFieldCondition<>(condition);
+    }
+
     public static UnmodifiableConditionContainer.Builder unmodifiableContainer() {
         return new UnmodifiableConditionContainer.Builder();
     }
@@ -123,6 +133,43 @@ public final class Conditions {
     public static ConditionContainer conditionalExpression(String conditionalExpression) {
         if (SearchStringUtils.isEmpty(conditionalExpression)) return null;
         return ConditionExpression.INSTANCE.convert(conditionalExpression);
+    }
+
+    static class NoFieldCondition<T> extends FieldCondition<T> {
+
+        private final FieldCondition<T> source;
+
+        public NoFieldCondition(FieldCondition<T> source) {
+            super(source.getField(), source.getValueConvert());
+            this.source = source;
+        }
+
+        @Override
+        public boolean validation(T value) {
+            return !source.validation(value);
+        }
+
+        @Override
+        public String toString() {
+            return '!' + source.toString();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof NoFieldCondition)) return false;
+
+            NoFieldCondition<?> that = (NoFieldCondition<?>) o;
+
+            return source.equals(that.source);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = NoFieldCondition.class.hashCode();
+            result = 31 * result + source.hashCode();
+            return result;
+        }
     }
 
 }
