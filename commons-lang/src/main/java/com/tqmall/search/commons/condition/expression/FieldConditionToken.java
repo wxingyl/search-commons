@@ -1,10 +1,9 @@
 package com.tqmall.search.commons.condition.expression;
 
+import com.tqmall.search.commons.condition.Condition;
 import com.tqmall.search.commons.condition.FieldCondition;
 import com.tqmall.search.commons.condition.Operator;
-import com.tqmall.search.commons.condition.TokenExtInfo;
 import com.tqmall.search.commons.exception.ResolveExpressionException;
-import com.tqmall.search.commons.utils.CommonsUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,32 +20,23 @@ public class FieldConditionToken {
     /**
      * 具体的FieldCondition
      */
-    private final FieldCondition fieldCondition;
+    private final Condition condition;
     /**
      * 是否为非查询
      */
     private final boolean noCondition;
-    /**
-     * 条件附加信息
-     */
-    private final TokenExtInfo tokenExtInfo;
 
-    FieldConditionToken(FieldCondition fieldCondition, boolean noCondition, TokenExtInfo tokenExtInfo) {
-        this.fieldCondition = fieldCondition;
+    FieldConditionToken(Condition condition, boolean noCondition) {
+        this.condition = condition;
         this.noCondition = noCondition;
-        this.tokenExtInfo = tokenExtInfo;
     }
 
-    public FieldCondition getFieldCondition() {
-        return fieldCondition;
+    public Condition getCondition() {
+        return condition;
     }
 
     public boolean isNoCondition() {
         return noCondition;
-    }
-
-    public TokenExtInfo getTokenExtInfo() {
-        return tokenExtInfo;
     }
 
     @Override
@@ -57,15 +47,13 @@ public class FieldConditionToken {
         FieldConditionToken that = (FieldConditionToken) o;
 
         if (noCondition != that.noCondition) return false;
-        if (!fieldCondition.equals(that.fieldCondition)) return false;
-        return tokenExtInfo.equals(that.tokenExtInfo);
+        return condition.equals(that.condition);
     }
 
     @Override
     public int hashCode() {
-        int result = fieldCondition.hashCode();
+        int result = condition.hashCode();
         result = 31 * result + (noCondition ? 1 : 0);
-        result = 31 * result + tokenExtInfo.hashCode();
         return result;
     }
 
@@ -73,7 +61,7 @@ public class FieldConditionToken {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         if (noCondition) sb.append("! ");
-        sb.append(fieldCondition).append(" ext: ").append(tokenExtInfo);
+        sb.append(condition);
         return sb.toString();
     }
 
@@ -91,35 +79,29 @@ public class FieldConditionToken {
         RESOLVERS = Collections.unmodifiableList(list);
     }
 
-
     /**
      * 条件解析, 从条件语句{@link ExpressionToken} 获取具体的字段条件表达式
      *
-     * @param expressionTokens 条件语句初步解析结果
-     * @return 条件列表 list, 按照解析条件表达式的顺序返回
+     * @param expressionToken 条件语句初步解析结果
+     * @return 字段条件包装对象
      */
-    public static List<FieldConditionToken> resolveCondition(List<ExpressionToken> expressionTokens) {
-        if (CommonsUtils.isEmpty(expressionTokens)) return null;
-        List<FieldConditionToken> tokens = new ArrayList<>();
-        for (ExpressionToken et : expressionTokens) {
-            Operator op = et.getOp();
-            FieldCondition fieldCondition = null;
-            for (Resolver r : RESOLVERS) {
-                if (r.supportOp(op)) {
-                    try {
-                        fieldCondition = r.resolve(et.getField(), et.getValue());
-                        break;
-                    } catch (ResolveExpressionException e) {
-                        throw new IllegalArgumentException("condition expression: " + et + " format is invalid", e);
-                    }
+    public static FieldConditionToken resolveCondition(ExpressionToken expressionToken) {
+        Operator op = expressionToken.getOp();
+        FieldCondition fieldCondition = null;
+        for (Resolver r : RESOLVERS) {
+            if (r.supportOp(op)) {
+                try {
+                    fieldCondition = r.resolve(expressionToken.getField(), expressionToken.getValue());
+                    break;
+                } catch (ResolveExpressionException e) {
+                    throw new IllegalArgumentException("condition expression: " + expressionToken + " format is invalid", e);
                 }
             }
-            if (fieldCondition == null) {
-                throw new IllegalStateException("condition expression: " + et + " can not resolve");
-            }
-            tokens.add(new FieldConditionToken(fieldCondition, op == Operator.NE || op == Operator.NIN, et.getTokenExtInfo()));
         }
-        return tokens;
+        if (fieldCondition == null) {
+            throw new IllegalStateException("condition expression: " + expressionToken + " can not resolve");
+        }
+        return new FieldConditionToken(fieldCondition, op == Operator.NE || op == Operator.NIN);
     }
 
 }

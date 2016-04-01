@@ -1,4 +1,4 @@
-package com.tqmall.search.commons.condition;
+package com.tqmall.search.commons.condition.expression;
 
 /**
  * Created by xing on 16/3/30.

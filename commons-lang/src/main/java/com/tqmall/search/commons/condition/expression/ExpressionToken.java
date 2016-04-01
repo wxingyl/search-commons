@@ -1,7 +1,6 @@
 package com.tqmall.search.commons.condition.expression;
 
 import com.tqmall.search.commons.condition.Operator;
-import com.tqmall.search.commons.condition.TokenExtInfo;
 import com.tqmall.search.commons.utils.SearchStringUtils;
 
 import java.util.ArrayList;
@@ -102,7 +101,7 @@ public class ExpressionToken {
      * 解析条件表达式句子
      *
      * @param conditionalExpression 条件表达式句子
-     * @return 表达式Token list按照解析条件表达式的顺序返回
+     * @return 表达式Token list按照解析条件表达式的顺序返回 , 最后一个ExpressionToken的{@link TokenExtInfo#nextAnd} = false
      */
     public static List<ExpressionToken> resolveSentence(String conditionalExpression) {
         conditionalExpression = SearchStringUtils.filterString(conditionalExpression);
@@ -137,6 +136,7 @@ public class ExpressionToken {
                 lastStart = i + 4;
             }
         }
+        //last condition nextAdd is true
         ExpressionToken lastToken = valueOf(lastStart, conditionalExpression.length(), false, text);
         tokens.add(lastToken);
         leftParenthesisCount += lastToken.getTokenExtInfo().getLeftParenthesisCount();
@@ -148,7 +148,7 @@ public class ExpressionToken {
         return tokens;
     }
 
-    static ExpressionToken valueOf(int startPos, int endPos, boolean nextAnd, char[] text) {
+    static ExpressionToken valueOf(int startPos, int endPos, final boolean nextAnd, final char[] text) {
         int leftParenthesisCount = 0, rightParenthesisCount = 0;
         //fix position
         for (; startPos < endPos; startPos++) {

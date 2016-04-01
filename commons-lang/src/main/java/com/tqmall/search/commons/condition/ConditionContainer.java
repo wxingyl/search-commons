@@ -89,4 +89,22 @@ public abstract class ConditionContainer implements Condition, Serializable {
         return true;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (!CommonsUtils.isEmpty(must)) {
+            sb.append(", must: ").append(must);
+        }
+        if (!CommonsUtils.isEmpty(should)) {
+            sb.append(", should: ").append(should);
+            if (minimumShouldMatch > 1) {
+                sb.append(", minimumShouldMatch: ").append(minimumShouldMatch);
+            }
+        }
+        if (!CommonsUtils.isEmpty(mustNot)) {
+            sb.append(", mustNot: ").append(mustNot);
+        }
+        if (sb.length() > 0) sb.delete(0, 2);
+        return sb.toString();
+    }
 }

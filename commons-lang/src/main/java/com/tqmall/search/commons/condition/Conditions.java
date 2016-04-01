@@ -1,7 +1,6 @@
 package com.tqmall.search.commons.condition;
 
-import com.tqmall.search.commons.condition.expression.ExpressionToken;
-import com.tqmall.search.commons.condition.expression.FieldConditionToken;
+import com.tqmall.search.commons.condition.expression.ConditionExpression;
 import com.tqmall.search.commons.lang.StrValueConvert;
 import com.tqmall.search.commons.param.Param;
 import com.tqmall.search.commons.utils.CommonsUtils;
@@ -121,11 +120,9 @@ public final class Conditions {
      * @param conditionalExpression 条件表达式
      * @return 解析的容器集合对象
      */
-    public static ConditionContainer parseConditionalExpression(String conditionalExpression) {
-        List<ExpressionToken> expressionTokens = ExpressionToken.resolveSentence(conditionalExpression);
-        if (CommonsUtils.isEmpty(expressionTokens)) return null;
-        List<FieldConditionToken> fieldConditionTokens = FieldConditionToken.resolveCondition(expressionTokens);
-        return null;
+    public static ConditionContainer conditionalExpression(String conditionalExpression) {
+        if (SearchStringUtils.isEmpty(conditionalExpression)) return null;
+        return ConditionExpression.INSTANCE.convert(conditionalExpression);
     }
 
 }
