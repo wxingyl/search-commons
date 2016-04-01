@@ -5,7 +5,8 @@ import com.tqmall.search.commons.utils.SearchStringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,7 +17,8 @@ public class SearchStringUtilsTest {
 
     @Test
     public void joinTest() {
-        List<Integer> list = Arrays.asList(1, 2, 1);
+        List<Integer> list = new ArrayList<>();
+        Collections.addAll(list, 1, 2, 1);
 
         System.out.println("list: " + list);
         String str = SearchStringUtils.join(list, Param.SEPARATOR_CHAR);

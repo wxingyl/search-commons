@@ -24,18 +24,18 @@ public class ConditionExpressionTest {
     public void resolveExpressionSentenceTest() {
         String conditionalExpression = "is_deleted = 'N' && (id > 12  || value range 23 <, <= 45)";
         List<ExpressionToken> expressionTokens = ExpressionToken.resolveSentence(conditionalExpression);
-        List<ExpressionToken> expectedTokens = new ArrayList<>();
-        expectedTokens.add(new ExpressionToken("is_deleted", Operator.EQ, "'N'", TokenExtInfo.ZERO_PARENTHESIS_AND));
-        expectedTokens.add(new ExpressionToken("id", Operator.GT, "12", TokenExtInfo.valueOf(1, 0, false)));
-        expectedTokens.add(new ExpressionToken("value", Operator.RANGE, "23 <, 45 <=", TokenExtInfo.valueOf(0, 1, false)));
-        Assert.assertEquals(expectedTokens, expressionTokens);
+        List<ExpressionToken> expected = new ArrayList<>();
+        expected.add(new ExpressionToken("is_deleted", Operator.EQ, "'N'", TokenExtInfo.ZERO_PARENTHESIS_AND));
+        expected.add(new ExpressionToken("id", Operator.GT, "12", TokenExtInfo.valueOf(1, 0, false)));
+        expected.add(new ExpressionToken("value", Operator.RANGE, "23 <, <= 45", TokenExtInfo.valueOf(0, 1, false)));
+        Assert.assertEquals(expected, expressionTokens);
 
         conditionalExpression = "is_deleted = 'N' && (id > \" 12  || value range  34~45\" )";
         expressionTokens = ExpressionToken.resolveSentence(conditionalExpression);
-        expectedTokens = new ArrayList<>();
-        expectedTokens.add(new ExpressionToken("is_deleted", Operator.EQ, "'N'", TokenExtInfo.ZERO_PARENTHESIS_AND));
-        expectedTokens.add(new ExpressionToken("id", Operator.GT, "\" 12  || value range  34~45\"", TokenExtInfo.ZERO_PARENTHESIS_OR));
-        Assert.assertEquals(expectedTokens, expressionTokens);
+        expected = new ArrayList<>();
+        expected.add(new ExpressionToken("is_deleted", Operator.EQ, "'N'", TokenExtInfo.ZERO_PARENTHESIS_AND));
+        expected.add(new ExpressionToken("id", Operator.GT, "\" 12  || value range  34~45\"", TokenExtInfo.ZERO_PARENTHESIS_OR));
+        Assert.assertEquals(expected, expressionTokens);
     }
 
     @Test
