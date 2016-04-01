@@ -239,7 +239,7 @@ public class JcsegFactory {
                 }
         }
         like.append(ListUtil.implode(cnSplit, " "));
-        return StringUtil.uniqueString(like.toString());
+        return StringUtil.uniqueString(like.toString()).toLowerCase();
     }
 
     private static List<String> segment(String input, ISegment seg) {
