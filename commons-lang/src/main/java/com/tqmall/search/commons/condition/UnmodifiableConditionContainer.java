@@ -22,6 +22,16 @@ public class UnmodifiableConditionContainer extends ConditionContainer {
         if (minimumShouldMatch > 1) this.minimumShouldMatch = minimumShouldMatch;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof UnmodifiableConditionContainer && super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
     public static Builder build() {
         return new Builder();
     }
@@ -30,7 +40,7 @@ public class UnmodifiableConditionContainer extends ConditionContainer {
 
         private int minimumShouldMatch;
 
-        private Set<Condition> must = new LinkedHashSet<>(), should = new LinkedHashSet<>(), mustNot = new LinkedHashSet<>();
+        private List<Condition> must = new LinkedList<>(), should = new LinkedList<>(), mustNot = new LinkedList<>();
 
         public Builder minimumShouldMatch(int minimumShouldMatch) {
             this.minimumShouldMatch = minimumShouldMatch;
@@ -40,15 +50,31 @@ public class UnmodifiableConditionContainer extends ConditionContainer {
         /**
          * 添加到 must 条件
          */
-        public Builder addMustCondition(Condition condition) {
+        public Builder mustCondition(Condition condition) {
             must.add(condition);
+            return this;
+        }
+
+        /**
+         * 添加到 must 条件
+         */
+        public Builder shouldCondition(Condition condition) {
+            should.add(condition);
+            return this;
+        }
+
+        /**
+         * 添加到 must 条件
+         */
+        public Builder mustNotCondition(Condition condition) {
+            mustNot.add(condition);
             return this;
         }
 
         /**
          * 根据type 添加条件, 默认{@link Type#MUST}
          */
-        public Builder addCondition(Condition.Type type, Condition condition) {
+        public Builder condition(Condition.Type type, Condition condition) {
             Objects.requireNonNull(type);
             if (type == Type.SHOULD) should.add(condition);
             else if (type == Type.MUST_NOT) mustNot.add(condition);
@@ -59,7 +85,7 @@ public class UnmodifiableConditionContainer extends ConditionContainer {
         /**
          * 根据type 添加条件, 默认{@link Type#MUST}
          */
-        public Builder addCondition(Condition.Type type, Collection<? extends Condition> conditions) {
+        public Builder condition(Condition.Type type, Collection<? extends Condition> conditions) {
             Objects.requireNonNull(type);
             if (!CommonsUtils.isEmpty(conditions)) {
                 if (type == Type.SHOULD) should.addAll(conditions);

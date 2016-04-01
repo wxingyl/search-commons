@@ -24,7 +24,7 @@ public class ConditionExpression implements StrValueConvert<ConditionContainer> 
     private TokenExtInfo[] extInfo;
 
     /**
-     * 保证线程同步
+     * 保证线程安全
      *
      * @param expression 表达式
      * @return 条件容器
@@ -103,30 +103,28 @@ public class ConditionExpression implements StrValueConvert<ConditionContainer> 
                 addMust(builder, tokens.get(i));
                 Condition condition = builder.create();
                 builder = Conditions.unmodifiableContainer();
-                builder.addCondition(Condition.Type.SHOULD, condition);
+                //TODO should condition may be is noCondition
+                builder.shouldCondition(condition);
                 haveAdd = false;
             } else {
-                addShould(builder, tokens.get(i));
+                //TODO should condition may be is noCondition
+                builder.shouldCondition(tokens.get(i).getCondition());
             }
         }
-        if (haveAdd) {
+        if (haveAdd || loopEnd == 0) {
             addMust(builder, tokens.get(loopEnd));
         } else {
-            addShould(builder, tokens.get(loopEnd));
+            //TODO should condition may be is noCondition
+            builder.shouldCondition(tokens.get(loopEnd).getCondition());
         }
         return builder.create();
     }
 
     private void addMust(UnmodifiableConditionContainer.Builder builder, FieldConditionToken token) {
         if (token.isNoCondition()) {
-            builder.addCondition(Condition.Type.MUST_NOT, token.getCondition());
+            builder.mustNotCondition(token.getCondition());
         } else {
-            builder.addMustCondition(token.getCondition());
+            builder.mustCondition(token.getCondition());
         }
     }
-
-    private void addShould(UnmodifiableConditionContainer.Builder builder, FieldConditionToken token) {
-        builder.addCondition(Condition.Type.SHOULD, token.getCondition());
-    }
-
 }

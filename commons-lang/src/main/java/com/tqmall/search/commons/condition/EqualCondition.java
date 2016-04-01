@@ -33,7 +33,7 @@ public class EqualCondition<T> extends FieldCondition<T> {
 
     @Override
     public String toString() {
-        return "EqualCondition{" + super.toString() + ", value = " + value;
+        return super.toString() + " = " + value;
     }
 
     @Override

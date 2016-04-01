@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -62,10 +63,7 @@ public class ConditionExpressionTest {
                 .le(BigDecimal.valueOf(45))
                 .create(), false), conditionTokens.get(2));
 
-        List<String> strValues = new ArrayList<>();
-        strValues.add("78");
-        strValues.add("xing");
-        strValues.add("wang");
+        List<String> strValues = Arrays.asList("78", "xing", "wang");
         Assert.assertEquals(new FieldConditionToken(Conditions.in("name", String.class, strValues), false), conditionTokens.get(3));
 
         conditionalExpression = "is_deleted != 'N' && (id > 1234567890  || value range 23.4 <, <= 45.5.6) && name in 78, 34, 56";
@@ -80,10 +78,8 @@ public class ConditionExpressionTest {
                 .gt("23.4")
                 .le("45.5.6")
                 .create(), false), conditionTokens.get(2));
-        List<Integer> intValues = new ArrayList<>();
-        intValues.add(78);
-        intValues.add(34);
-        intValues.add(56);
+        List<Integer> intValues = Arrays.asList(78, 34, 56);
+
         Assert.assertEquals(new FieldConditionToken(Conditions.in("name", Integer.TYPE, intValues), false), conditionTokens.get(3));
     }
 
@@ -99,8 +95,73 @@ public class ConditionExpressionTest {
 
     @Test
     public void conditionExpressionTest() {
-        String conditionalExpression = "is_deleted != N && (id > 12  || value range 23 <, <= 45)";
-        ConditionContainer container = Conditions.conditionalExpression(conditionalExpression);
-        System.out.println(container);
+        String conditionalExpression = "is_deleted != Y && (id > 12  || value range 23 <, <= 45)";
+        ConditionContainer actual = Conditions.conditionalExpression(conditionalExpression);
+        ConditionContainer expected = Conditions.unmodifiableContainer()
+                .mustNotCondition(Conditions.equal("is_deleted", true))
+                .mustCondition(Conditions.unmodifiableContainer()
+                        .shouldCondition(Conditions.range("id", Integer.TYPE).gt(12).create())
+                        .shouldCondition(Conditions.range("value", Integer.TYPE).gt(23).le(45).create())
+                        .create())
+                .create();
+        Assert.assertEquals(expected, actual);
+
+        conditionalExpression = "is_deleted != Y && ((id > 12  || value range 23 <, <= 45))";
+        actual = Conditions.conditionalExpression(conditionalExpression);
+        Assert.assertEquals(expected, actual);
+
+        conditionalExpression = "(is_deleted != Y && (id > 12  || value range 23 <, <= 45))";
+        actual = Conditions.conditionalExpression(conditionalExpression);
+        Assert.assertEquals(expected, actual);
+
+        //Note 这儿'N'会被识别成字符串
+        conditionalExpression = "is_deleted = 'N'";
+        actual = Conditions.conditionalExpression(conditionalExpression);
+        expected = Conditions.unmodifiableContainer()
+                .mustCondition(Conditions.equal("is_deleted", "N"))
+                .create();
+        Assert.assertEquals(expected, actual);
+
+        conditionalExpression = "is_deleted = false && id in 1, 3, 5,7,9 && name nin \"xing\", wang";
+        actual = Conditions.conditionalExpression(conditionalExpression);
+        List<Integer> ids = Arrays.asList(1, 3, 5, 7, 9);
+        List<String> names = Arrays.asList("xing", "wang");
+        expected = Conditions.unmodifiableContainer()
+                .mustCondition(Conditions.equal("is_deleted", false))
+                .mustCondition(Conditions.in("id", Integer.TYPE, ids))
+                .mustNotCondition(Conditions.in("name", String.class, names))
+                .create();
+        Assert.assertEquals(expected, actual);
     }
+
+    //错误的表达式校验
+    @Test
+    public void invalidConditionExpressionTest() {
+        String conditionalExpression;
+        try {
+            conditionalExpression = "(is_deleted = N";
+            Conditions.conditionalExpression(conditionalExpression);
+            Assert.fail("should have exception for condition expression: " + conditionalExpression);
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
+            conditionalExpression = "((is_deleted = N)";
+            Conditions.conditionalExpression(conditionalExpression);
+            Assert.fail("should have exception for condition expression: " + conditionalExpression);
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
+            conditionalExpression = "is_deleted =!= N";
+            Conditions.conditionalExpression(conditionalExpression);
+            Assert.fail("should have exception for condition expression: " + conditionalExpression);
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
+            conditionalExpression = "is_deleted in (N, 45)";
+            Conditions.conditionalExpression(conditionalExpression);
+            Assert.fail("should have exception for condition expression: " + conditionalExpression);
+        } catch (IllegalArgumentException ignored) {
+        }
+    }
+
 }
