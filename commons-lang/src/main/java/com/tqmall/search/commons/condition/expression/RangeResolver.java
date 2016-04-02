@@ -17,7 +17,7 @@ import java.util.Map;
  *
  * @author xing
  */
-class RangeResolver extends AbstractResolver<RangeResolver.Info> {
+final class RangeResolver extends AbstractResolver<RangeResolver.Info> {
 
     static final RangeResolver INSTANCE = new RangeResolver();
 

@@ -93,8 +93,8 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
                 while (it.hasNext()) {
                     RowChangedData.Update update = (RowChangedData.Update) it.next();
                     UpdateDataFunction.setUpdateData(update);
-                    final boolean beforeInvalid = !columnCondition.validation(beforeFunction);
-                    final boolean afterInvalid = !columnCondition.validation(afterFunction);
+                    final boolean beforeInvalid = !columnCondition.verify(beforeFunction);
+                    final boolean afterInvalid = !columnCondition.verify(afterFunction);
                     final int curType;
                     if ((beforeInvalid && afterInvalid)
                             || (updateForbid && !beforeInvalid && !afterInvalid)

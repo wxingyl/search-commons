@@ -15,19 +15,7 @@ public interface Condition {
     /**
      * 条件校验
      */
-    boolean validation(Function<String, String> values);
+    boolean verify(Function<String, String> values);
 
     Set<String> fields();
-
-    /**
-     * 条件类型
-     */
-    enum Type {
-        //且关系
-        MUST,
-        //或关系
-        SHOULD,
-        //非关系
-        MUST_NOT
-    }
 }

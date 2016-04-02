@@ -8,7 +8,7 @@ import java.util.*;
 
 /**
  * Created by xing on 16/1/24.
- * 条件集合, 即各个条件的容器, 主要分3大类: {@link #must}, {@link #should}, {@link #mustNot}, 校验方法{@link #validation(Function)}
+ * 条件集合, 即各个条件的容器, 主要分3大类: {@link #must}, {@link #should}, 校验方法{@link #verify(Function)}
  * 3类条件都考虑, 这3个大的条件list之间是且的关系
  * <p/>
  * 注意: 获取条件的接口返回的List都是unmodifiableList, 不可修改的
@@ -34,10 +34,6 @@ public abstract class ConditionContainer implements Condition, Serializable {
      * {@link #should} 的最小的匹配条件数目, 当然{@link #should}有值才会有效
      */
     protected int minimumShouldMatch = 1;
-    /**
-     * 非关系条件集合
-     */
-    protected List<Condition> mustNot;
 
     @Override
     public Set<String> fields() {
@@ -52,11 +48,6 @@ public abstract class ConditionContainer implements Condition, Serializable {
                 fields.addAll(c.fields());
             }
         }
-        if (!CommonsUtils.isEmpty(mustNot)) {
-            for (Condition c : mustNot) {
-                fields.addAll(c.fields());
-            }
-        }
         return fields;
     }
 
@@ -64,23 +55,17 @@ public abstract class ConditionContainer implements Condition, Serializable {
      * 给定值验证, 3类条件都考虑, 这3个大的条件list之间是且的关系
      */
     @Override
-    public boolean validation(Function<String, String> values) {
+    public boolean verify(Function<String, String> values) {
         Objects.requireNonNull(values);
         if (must != null) {
             for (Condition c : must) {
-                if (!c.validation(values)) return false;
-            }
-        }
-        //mustNot放在第二, 毕竟是且关系, 不匹配直接返回, 避免后面should的或查询比较
-        if (mustNot != null) {
-            for (Condition c : mustNot) {
-                if (c.validation(values)) return false;
+                if (!c.verify(values)) return false;
             }
         }
         if (!CommonsUtils.isEmpty(should)) {
             int matchCount = 0;
             for (Condition c : should) {
-                if (c.validation(values) && ++matchCount >= minimumShouldMatch) {
+                if (c.verify(values) && ++matchCount >= minimumShouldMatch) {
                     break;
                 }
             }
@@ -101,8 +86,7 @@ public abstract class ConditionContainer implements Condition, Serializable {
 
         if (minimumShouldMatch != container.minimumShouldMatch) return false;
         if (must != null ? !must.equals(container.must) : container.must != null) return false;
-        if (should != null ? !should.equals(container.should) : container.should != null) return false;
-        return mustNot != null ? mustNot.equals(container.mustNot) : container.mustNot == null;
+        return should != null ? should.equals(container.should) : container.should == null;
     }
 
     /**
@@ -113,7 +97,6 @@ public abstract class ConditionContainer implements Condition, Serializable {
         int result = must != null ? must.hashCode() : 0;
         result = 31 * result + (should != null ? should.hashCode() : 0);
         result = 31 * result + minimumShouldMatch;
-        result = 31 * result + (mustNot != null ? mustNot.hashCode() : 0);
         return result;
     }
 
@@ -128,9 +111,6 @@ public abstract class ConditionContainer implements Condition, Serializable {
             if (minimumShouldMatch > 1) {
                 sb.append(", minimumShouldMatch: ").append(minimumShouldMatch);
             }
-        }
-        if (!CommonsUtils.isEmpty(mustNot)) {
-            sb.append(", mustNot: ").append(mustNot);
         }
         if (sb.length() > 0) sb.delete(0, 2);
         return sb.toString();

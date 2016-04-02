@@ -17,7 +17,11 @@ public class InCondition<T> extends FieldCondition<T> {
     private final List<T> values;
 
     public InCondition(String field, List<T> values, StrValueConvert<T> convert) {
-        super(field, convert);
+        this(field, values, convert, false);
+    }
+
+    public InCondition(String field, List<T> values, StrValueConvert<T> convert, boolean isNo) {
+        super(field, convert, isNo);
         values = CommonsUtils.filterNullValue(values);
         if (values == null) throw new IllegalArgumentException("values list is null or empty");
         this.values = Collections.unmodifiableList(values);
@@ -28,7 +32,7 @@ public class InCondition<T> extends FieldCondition<T> {
     }
 
     @Override
-    public boolean validation(T value) {
+    boolean doVerify(T value) {
         return values.contains(value);
     }
 

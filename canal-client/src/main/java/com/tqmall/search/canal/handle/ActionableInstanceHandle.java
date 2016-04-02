@@ -100,7 +100,7 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
             //对于DELETE类型的记录更新, 如果条件判断没有通过, 可以认为该数据删除之前就不关心, 那这次删除我们更不关心了~~~
             Iterator<RowChangedData> it = dataList.iterator();
             while (it.hasNext()) {
-                if (!columnCondition.validation(it.next())) {
+                if (!columnCondition.verify(it.next())) {
                     it.remove();
                 }
             }

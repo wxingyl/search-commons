@@ -83,8 +83,8 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
                 while (it.hasNext()) {
                     RowChangedData.Update update = (RowChangedData.Update) it.next();
                     UpdateDataFunction.setUpdateData(update);
-                    final boolean beforeInvalid = !columnCondition.validation(beforeFunction);
-                    final boolean afterInvalid = !columnCondition.validation(afterFunction);
+                    final boolean beforeInvalid = !columnCondition.verify(beforeFunction);
+                    final boolean afterInvalid = !columnCondition.verify(afterFunction);
                     if ((beforeInvalid && afterInvalid)
                             || (updateForbid && !beforeInvalid && !afterInvalid)) {
                         //没有数据, 删除

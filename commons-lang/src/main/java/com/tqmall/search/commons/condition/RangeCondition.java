@@ -41,7 +41,7 @@ public class RangeCondition<T extends Comparable<T>> extends FieldCondition<T> {
      */
     RangeCondition(String field, T start, boolean excludeLower, T end,
                    boolean excludeUpper, StrValueConvert<T> convert) {
-        super(field, convert);
+        super(field, convert, false);
         if (start == null && end == null) {
             throw new IllegalArgumentException("start and end can not be null value both");
         }
@@ -60,7 +60,7 @@ public class RangeCondition<T extends Comparable<T>> extends FieldCondition<T> {
     }
 
     @Override
-    public boolean validation(T value) {
+    boolean doVerify(T value) {
         if (value == null) return false;
         int cmpValue;
         if (start != null) {

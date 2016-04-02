@@ -18,7 +18,11 @@ public class EqualCondition<T> extends FieldCondition<T> {
     private final T value;
 
     public EqualCondition(String field, T value, StrValueConvert<T> convert) {
-        super(field, convert);
+        this(field, value, convert, false);
+    }
+
+    public EqualCondition(String field, T value, StrValueConvert<T> convert, boolean isNo) {
+        super(field, convert, isNo);
         this.value = value;
     }
 
@@ -27,7 +31,7 @@ public class EqualCondition<T> extends FieldCondition<T> {
     }
 
     @Override
-    public boolean validation(T value) {
+    boolean doVerify(T value) {
         return Objects.equals(this.value, value);
     }
 
