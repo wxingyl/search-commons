@@ -2,7 +2,7 @@ package com.tqmall.search.commons.condition;
 
 /**
  * Created by xing on 16/3/30.
- * 运算符类型定义
+ * 运算符定义
  *
  * @author xing
  */
