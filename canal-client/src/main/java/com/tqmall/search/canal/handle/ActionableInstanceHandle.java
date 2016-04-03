@@ -91,7 +91,7 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     protected final List<RowChangedData> changedDataParse(CanalEntry.RowChange rowChange) {
-        List<RowChangedData> dataList = RowChangedData.build(rowChange, currentTable.getColumns());
+        List<RowChangedData> dataList = RowChangedData.build(rowChange, currentTable.getRowDataColumns());
         if (CommonsUtils.isEmpty(dataList)) return null;
         ConditionContainer columnCondition;
         if (currentEventType != CanalEntry.EventType.UPDATE

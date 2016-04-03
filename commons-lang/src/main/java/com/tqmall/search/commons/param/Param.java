@@ -5,6 +5,10 @@ import java.io.Serializable;
 /**
  * Created by xing on 15/12/5.
  * 参数抽象父类
+ * 对于{@link #source}字段, 每个系统调用方建议赋值, 用来表示具体哪个调用者发送过来的请求
+ * 可以通过{@link SourceNameFactory} 实现默认赋值
+ *
+ * @see RpcParams#SOURCE
  */
 public abstract class Param implements Serializable {
 
@@ -26,7 +30,7 @@ public abstract class Param implements Serializable {
     /**
      * 记录系统调用来源
      */
-    private String source;
+    private String source = RpcParams.SOURCE;
     /**
      * 请求用来表示用户唯一的参数, 这个用户具体业务中区分用户的id, 比如电商的userId, UC的shopId等
      */

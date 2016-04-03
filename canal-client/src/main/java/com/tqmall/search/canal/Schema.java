@@ -96,6 +96,11 @@ public class Schema<T extends Actionable> implements Iterable<Schema<T>.Table> {
          */
         private final Set<String> columns;
         /**
+         * 该集合数据更新是需要添加的字段, 具体包括{@link #columns} 和 {@link #columnCondition}包含的字段
+         * 如果{@link #columnCondition}为null, 这两个也就一样了
+         */
+        private final Set<String> rowDataColumns;
+        /**
          * 该表对应事件
          */
         private final T action;
@@ -115,16 +120,20 @@ public class Schema<T extends Actionable> implements Iterable<Schema<T>.Table> {
             this.tableName = tableName;
             this.action = action;
             this.columnCondition = columnCondition;
-            if (!CommonsUtils.isEmpty(columns)) {
+            if (CommonsUtils.isEmpty(columns)) {
+                this.columns = null;
+                this.rowDataColumns = null;
+            } else {
                 Set<String> columnSet = new HashSet<>(columns);
-                if (columnCondition != null) {
-                    /**
-                     * 要保证在判断条件中的column添加到{@link #columns}
-                     */
-                    columnSet.addAll(columnCondition.fields());
-                }
                 this.columns = Collections.unmodifiableSet(columnSet);
-            } else this.columns = null;
+                if (columnCondition == null) {
+                    this.rowDataColumns = this.columns;
+                } else {
+                    columnSet = new HashSet<>(columnSet);
+                    columnSet.addAll(columnCondition.fields());
+                    this.rowDataColumns = Collections.unmodifiableSet(columnSet);
+                }
+            }
             if ((forbidEventType & 7) == 7) {
                 throw new IllegalArgumentException("forbidEventType: " + Integer.toBinaryString(forbidEventType)
                         + " should not contain all types of UPDATE, INSERT, DELETE");
@@ -152,6 +161,10 @@ public class Schema<T extends Actionable> implements Iterable<Schema<T>.Table> {
          */
         public final Set<String> getColumns() {
             return columns;
+        }
+
+        public final Set<String> getRowDataColumns() {
+            return rowDataColumns;
         }
 
         public final ConditionContainer getColumnCondition() {

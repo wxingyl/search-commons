@@ -21,16 +21,6 @@ public class RpcParam extends Param {
     /**
      * 如果原先已经添加过SortCondition, 则追加
      */
-    public RpcParam sort(String sortStr) {
-        List<FieldSort> list = FieldSort.build(sortStr);
-        if (list != null) {
-            for (FieldSort c : list) {
-                sort(c);
-            }
-        }
-        return this;
-    }
-
     public RpcParam sort(FieldSort fieldSort) {
         if (sort == null) {
             sort = new ArrayList<>();
