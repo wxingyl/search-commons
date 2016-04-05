@@ -2,7 +2,7 @@ package com.tqmall.search.db;
 
 /**
  * Created by xing on 16/4/5.
- *
+ * 查询是直接查询所有列, 即"SELECT * FROM XXX"
  * @author xing
  */
 public class AllColumnsQueryParam extends QueryParam {

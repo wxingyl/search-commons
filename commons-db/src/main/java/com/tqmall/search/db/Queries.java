@@ -59,4 +59,26 @@ public final class Queries {
         return new BeanQueryParam<>(schema, table, size, cls);
     }
 
+    public static SqlSentenceQueryParam sqlSentence(String table, String sqlSentence) {
+        return new SqlSentenceQueryParam(null, table, QueryParam.DEFAULT_SIZE, sqlSentence);
+    }
+
+    public static SqlSentenceQueryParam sqlSentence(String schema, String table, int size, String sqlSentence) {
+        return new SqlSentenceQueryParam(schema, table, size, sqlSentence);
+    }
+
+    /**
+     * sql返回结果重名民为total
+     */
+    public static SqlSentenceQueryParam count(String table) {
+        return new SqlSentenceQueryParam(null, table, 1, "COUNT(1) as total");
+    }
+
+    /**
+     * sql返回结果重名民为total
+     */
+    public static SqlSentenceQueryParam count(String schema, String table) {
+        return new SqlSentenceQueryParam(schema, table, 1, "COUNT(1) as total");
+    }
+
 }
