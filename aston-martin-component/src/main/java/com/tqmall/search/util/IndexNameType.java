@@ -58,11 +58,12 @@ public enum IndexNameType {
     ORDER_USER_PURCHASED_GOODS("", "", ORDER),
 
     ORDER_CENTER(),
-    ORDER_CENTER_VENUS("","",ORDER_CENTER),//新的订单中心
+    ORDER_CENTER_VENUS("", "", ORDER_CENTER),//新的订单中心
 
     ORDER_CENTER_ORDER("", "", ORDER_CENTER),//兼容旧的接口
     ORDER_CENTER_ORDER_CHILD("", "", ORDER_CENTER),//兼容旧的接口
     ORDER_CENTER_ORDER_GOODS("", "", ORDER_CENTER),//兼容旧的接口
+    ORDER_CENTER_ORDER_LEGACY("", "", ORDER_CENTER),//兼容旧的接口
 
     OTHER(),
     OTHER_ORDER_ACTION_SALE_RETURN("", "", OTHER),
