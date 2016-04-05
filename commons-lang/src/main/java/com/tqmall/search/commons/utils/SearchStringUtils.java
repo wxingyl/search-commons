@@ -167,5 +167,5 @@ public final class SearchStringUtils {
         }
         return array;
     }
-
+    
 }

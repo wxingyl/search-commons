@@ -23,15 +23,24 @@ public class RpcPageParam extends RpcParam {
         this.size = size;
     }
 
-    public void setStart(int start) {
+    public final void setStart(int start) {
         this.start = start;
     }
 
-    public int getSize() {
+    /**
+     * 通过设定页码pageNo的方式设定start, pageNo从1开始计算
+     *
+     * @param pageNo 页码, 从1开始计算
+     */
+    public final void setPageNo(int pageNo) {
+        this.start = (pageNo - 1) * size;
+    }
+
+    public final int getSize() {
         return size;
     }
 
-    public int getStart() {
+    public final int getStart() {
         return start;
     }
 

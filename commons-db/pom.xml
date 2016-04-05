@@ -15,6 +15,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.tqmall.search</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>${lang.version}</version>
+        </dependency>
+        <dependency>
             <groupId>commons-dbutils</groupId>
             <artifactId>commons-dbutils</artifactId>
             <version>1.6</version>

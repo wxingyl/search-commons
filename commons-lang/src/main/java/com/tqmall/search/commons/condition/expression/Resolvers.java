@@ -56,7 +56,7 @@ public final class Resolvers {
             }
         }
         if (fieldCondition == null) {
-            throw new IllegalStateException("condition expression: " + expressionToken + " can not resolve");
+            throw new IllegalArgumentException("condition expression: " + expressionToken + " can not resolve");
         }
         return fieldCondition;
     }

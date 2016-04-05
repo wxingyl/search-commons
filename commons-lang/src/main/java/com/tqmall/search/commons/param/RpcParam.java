@@ -3,6 +3,7 @@ package com.tqmall.search.commons.param;
 import com.tqmall.search.commons.condition.ConditionContainer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,29 +17,29 @@ public class RpcParam extends Param {
 
     private ConditionContainer conditionContainer;
 
-    private List<FieldSort> sort;
+    private List<FieldSort> sorts;
 
     /**
      * 如果原先已经添加过SortCondition, 则追加
      */
-    public RpcParam sort(FieldSort fieldSort) {
-        if (sort == null) {
-            sort = new ArrayList<>();
+    public RpcParam sort(FieldSort... sorts) {
+        if (this.sorts == null) {
+            this.sorts = new ArrayList<>();
         }
-        sort.add(fieldSort);
+        Collections.addAll(this.sorts, sorts);
         return this;
     }
 
-    public void setConditionContainer(ConditionContainer conditionContainer) {
+    public final void setConditionContainer(ConditionContainer conditionContainer) {
         this.conditionContainer = conditionContainer;
     }
 
-    public ConditionContainer getConditionContainer() {
+    public final ConditionContainer getConditionContainer() {
         return conditionContainer;
     }
 
-    public List<FieldSort> getSort() {
-        return sort;
+    public final List<FieldSort> getSorts() {
+        return sorts;
     }
 
 }
