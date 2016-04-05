@@ -11,11 +11,11 @@ import java.util.*;
  *
  * @author xing
  */
-public class ConditionSqlStatement {
+class ConditionSqlStatement {
 
     private final List<Resolve> resolves;
 
-    public ConditionSqlStatement() {
+    ConditionSqlStatement() {
         this(Collections.<Resolve>emptyList());
     }
 
@@ -24,7 +24,7 @@ public class ConditionSqlStatement {
      *
      * @param extResolves 扩展的resolve
      */
-    public ConditionSqlStatement(List<Resolve> extResolves) {
+    ConditionSqlStatement(List<Resolve> extResolves) {
         resolves = new ArrayList<>();
         if (!CommonsUtils.isEmpty(extResolves)) {
             resolves.addAll(extResolves);
@@ -35,7 +35,7 @@ public class ConditionSqlStatement {
         resolves.add(new RangeConditionResolve());
     }
 
-    public void appendConditionContainer(StringBuilder sql, ConditionContainer container) {
+    void appendConditionContainer(StringBuilder sql, ConditionContainer container) {
         List<Condition> must = container.getMust(), should = container.getShould();
         if (CommonsUtils.isEmpty(must) || CommonsUtils.isEmpty(should)) return;
         ContainerResolve.append(this, sql, must, should);
@@ -51,7 +51,7 @@ public class ConditionSqlStatement {
         throw new IllegalArgumentException("condition: " + condition + " can not found resolver");
     }
 
-    public interface Resolve {
+    interface Resolve {
 
         /**
          * @param condition 条件对象
@@ -65,7 +65,7 @@ public class ConditionSqlStatement {
         void resolve(StringBuilder sql);
     }
 
-    public static abstract class FieldConditionResolve<T extends FieldCondition> implements Resolve {
+    static abstract class FieldConditionResolve<T extends FieldCondition> implements Resolve {
 
         protected T condition;
 
