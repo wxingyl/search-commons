@@ -73,8 +73,8 @@ public class CanalClientDemo {
                         })
                         .columns("goods_id", "goods_name", "cat_id", "new_goods_sn")
                         .columnCondition(Conditions.unmodifiableContainer()
-                                .addMustCondition(Conditions.equal("is_delete", false))
-                                .addMustCondition(Conditions.equal("seller_id", 1))
+                                .mustCondition(Conditions.equal("is_delete", false))
+                                .mustCondition(Conditions.equal("seller_id", 1))
                                 .create()))
                 .create());
         CANAL_EXECUTOR.addInstanceHandle(new EventTypeSectionHandle(LOCAL_ADDRESS, "shop_goods", eventTypeFactory));
@@ -145,11 +145,11 @@ public class CanalClientDemo {
                 .columns("id", "is_deleted", "name", "service_sn") //目前还不支持列过滤~~~不过很快了~~~
                 //id 取值返回在[10, 100], 并且is_deleted = 'N'
                 .columnCondition(Conditions.unmodifiableContainer()
-                        .addMustCondition(Conditions.range("id", Integer.TYPE)
+                        .mustCondition(Conditions.range("id", Integer.TYPE)
                                 .ge(10)
                                 .le(100)
                                 .create())
-                        .addMustCondition(Schemas.NOT_DELETED_CONDITION)
+                        .mustCondition(Schemas.NOT_DELETED_CONDITION)
                         .create())
         );
         String schemaName = "legend";

@@ -1,9 +1,6 @@
 package com.tqmall.search.commons.condition.expression;
 
-import com.tqmall.search.commons.condition.Condition;
-import com.tqmall.search.commons.condition.ConditionContainer;
-import com.tqmall.search.commons.condition.Conditions;
-import com.tqmall.search.commons.condition.UnmodifiableConditionContainer;
+import com.tqmall.search.commons.condition.*;
 import com.tqmall.search.commons.lang.StrValueConvert;
 import com.tqmall.search.commons.utils.CommonsUtils;
 
@@ -19,12 +16,12 @@ public class ConditionExpression implements StrValueConvert<ConditionContainer> 
 
     public static final ConditionExpression INSTANCE = new ConditionExpression();
 
-    private List<FieldConditionToken> tokens;
+    private List<Condition> tokens;
 
     private TokenExtInfo[] extInfo;
 
     /**
-     * 保证线程同步
+     * 保证线程安全
      *
      * @param expression 表达式
      * @return 条件容器
@@ -40,7 +37,7 @@ public class ConditionExpression implements StrValueConvert<ConditionContainer> 
         extInfo = new TokenExtInfo[size];
         try {
             for (int i = 0; i < size; i++) {
-                tokens.add(FieldConditionToken.resolveCondition(ets.get(i)));
+                tokens.add(Resolvers.resolveCondition(ets.get(i)));
                 extInfo[i] = ets.get(i).getTokenExtInfo();
             }
             return buildContainer();
@@ -53,7 +50,7 @@ public class ConditionExpression implements StrValueConvert<ConditionContainer> 
     private ConditionContainer buildContainer() {
         Deque<Integer> deque = new LinkedList<>();
         int index = 0;
-        ListIterator<FieldConditionToken> it = tokens.listIterator();
+        ListIterator<Condition> it = tokens.listIterator();
         //去掉括号
         while (it.hasNext()) {
             it.next();
@@ -68,7 +65,7 @@ public class ConditionExpression implements StrValueConvert<ConditionContainer> 
                 int start = deque.pollLast();
                 if (lastStart != start) {
                     lastStart = start;
-                    List<FieldConditionToken> childList = tokens.subList(start, index + 1);
+                    List<Condition> childList = tokens.subList(start, index + 1);
                     ConditionContainer container = childCreate(childList, start);
                     int shiftNum = extInfo.length - index;
                     System.arraycopy(extInfo, index, extInfo, start, shiftNum);
@@ -77,56 +74,43 @@ public class ConditionExpression implements StrValueConvert<ConditionContainer> 
                         it.previous();
                         index--;
                     }
-                    it.set(new FieldConditionToken(container, false));
+                    it.set(container);
                     it.next();
                 }
                 lc--;
             }
             index++;
         }
-        if (tokens.size() == 1 && tokens.get(0).getCondition() instanceof ConditionContainer) {
-            return (ConditionContainer) tokens.get(0).getCondition();
+        if (tokens.size() == 1 && tokens.get(0) instanceof ConditionContainer) {
+            return (ConditionContainer) tokens.get(0);
         } else {
             return childCreate(tokens, 0);
         }
     }
 
-    private ConditionContainer childCreate(List<FieldConditionToken> tokens, int offset) {
+    private ConditionContainer childCreate(List<Condition> tokens, final int offset) {
         UnmodifiableConditionContainer.Builder builder = Conditions.unmodifiableContainer();
         boolean haveAdd = false;
         int loopEnd = tokens.size() - 1;
         for (int i = 0; i < loopEnd; i++) {
             if (extInfo[i + offset].isNextAnd()) {
-                addMust(builder, tokens.get(i));
+                builder.mustCondition(tokens.get(i));
                 haveAdd = true;
             } else if (haveAdd) {
-                addMust(builder, tokens.get(i));
+                builder.mustCondition(tokens.get(i));
                 Condition condition = builder.create();
                 builder = Conditions.unmodifiableContainer();
-                builder.addCondition(Condition.Type.SHOULD, condition);
+                builder.shouldCondition(condition);
                 haveAdd = false;
             } else {
-                addShould(builder, tokens.get(i));
+                builder.shouldCondition(tokens.get(i));
             }
         }
-        if (haveAdd) {
-            addMust(builder, tokens.get(loopEnd));
+        if (haveAdd || loopEnd == 0) {
+            builder.mustCondition(tokens.get(loopEnd));
         } else {
-            addShould(builder, tokens.get(loopEnd));
+            builder.shouldCondition(tokens.get(loopEnd));
         }
         return builder.create();
     }
-
-    private void addMust(UnmodifiableConditionContainer.Builder builder, FieldConditionToken token) {
-        if (token.isNoCondition()) {
-            builder.addCondition(Condition.Type.MUST_NOT, token.getCondition());
-        } else {
-            builder.addMustCondition(token.getCondition());
-        }
-    }
-
-    private void addShould(UnmodifiableConditionContainer.Builder builder, FieldConditionToken token) {
-        builder.addCondition(Condition.Type.SHOULD, token.getCondition());
-    }
-
 }

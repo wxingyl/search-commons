@@ -31,9 +31,17 @@ public class RangeCondition<T extends Comparable<T>> extends FieldCondition<T> {
      */
     private final boolean excludeUpper;
 
+    /**
+     * @param field        比较的字段名
+     * @param start        最小值
+     * @param excludeLower 是否排除最小值
+     * @param end          最大值
+     * @param excludeUpper 是否排除最大值
+     * @param convert      类型装换值
+     */
     RangeCondition(String field, T start, boolean excludeLower, T end,
                    boolean excludeUpper, StrValueConvert<T> convert) {
-        super(field, convert);
+        super(field, convert, false);
         if (start == null && end == null) {
             throw new IllegalArgumentException("start and end can not be null value both");
         }
@@ -52,7 +60,7 @@ public class RangeCondition<T extends Comparable<T>> extends FieldCondition<T> {
     }
 
     @Override
-    public boolean validation(T value) {
+    boolean doVerify(T value) {
         if (value == null) return false;
         int cmpValue;
         if (start != null) {
@@ -68,7 +76,19 @@ public class RangeCondition<T extends Comparable<T>> extends FieldCondition<T> {
 
     @Override
     public String toString() {
-        return "RangeCondition{" + super.toString() + ", start = " + start + ", end = " + end;
+        StringBuilder sb = new StringBuilder(super.toString());
+        if (excludeLower) {
+            sb.append('(');
+        } else {
+            sb.append('[');
+        }
+        sb.append(start).append(", ").append(end);
+        if (excludeUpper) {
+            sb.append(')');
+        } else {
+            sb.append(']');
+        }
+        return sb.toString();
     }
 
     @Override

@@ -6,6 +6,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by xing on 16/1/22.
@@ -15,10 +17,8 @@ public class SearchStringUtilsTest {
 
     @Test
     public void joinTest() {
-        ArrayList<Integer> list = new ArrayList<>();
-        list.add(1);
-        list.add(2);
-        list.add(1);
+        List<Integer> list = new ArrayList<>();
+        Collections.addAll(list, 1, 2, 1);
 
         System.out.println("list: " + list);
         String str = SearchStringUtils.join(list, Param.SEPARATOR_CHAR);

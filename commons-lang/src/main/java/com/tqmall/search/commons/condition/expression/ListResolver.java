@@ -18,12 +18,10 @@ import java.util.Map;
  *
  * @author xing
  */
-class InResolver extends AbstractResolver<List<Object>> {
-
-    static final InResolver INSTANCE = new InResolver();
+abstract class ListResolver extends AbstractResolver<List<Object>> {
 
     @Override
-    Map.Entry<StrValueConvert, List<Object>> resolveValue(String value) throws ResolveExpressionException {
+    final Map.Entry<StrValueConvert, List<Object>> resolveValue(String value) throws ResolveExpressionException {
         String[] values = SearchStringUtils.splitTrim(value, ',');
         int clsType = -1;
         for (String v : values) {
@@ -42,14 +40,37 @@ class InResolver extends AbstractResolver<List<Object>> {
         return CommonsUtils.newImmutableMapEntry(convert, list);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    @Override
-    FieldCondition createFieldCondition(String field, Map.Entry<StrValueConvert, List<Object>> value) {
-        return Conditions.in(field, value.getValue(), value.getKey());
+    static final class In extends ListResolver {
+
+        static final In INSTANCE = new In();
+
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        @Override
+        FieldCondition createFieldCondition(String field, Map.Entry<StrValueConvert, List<Object>> value) {
+            return Conditions.in(field, value.getValue(), value.getKey());
+        }
+
+        @Override
+        public boolean supportOp(Operator op) {
+            return Operator.IN == op;
+        }
     }
 
-    @Override
-    public boolean supportOp(Operator op) {
-        return Operator.IN == op || Operator.NIN == op;
+    static final class Nin extends ListResolver {
+
+        static final Nin INSTANCE = new Nin();
+
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        @Override
+        FieldCondition createFieldCondition(String field, Map.Entry<StrValueConvert, List<Object>> value) {
+            return Conditions.nin(field, value.getValue(), value.getKey());
+        }
+
+        @Override
+        public boolean supportOp(Operator op) {
+            return Operator.NIN == op;
+        }
     }
 }
+
+

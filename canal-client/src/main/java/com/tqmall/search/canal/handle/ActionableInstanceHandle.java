@@ -91,7 +91,7 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     protected final List<RowChangedData> changedDataParse(CanalEntry.RowChange rowChange) {
-        List<RowChangedData> dataList = RowChangedData.build(rowChange, currentTable.getColumns());
+        List<RowChangedData> dataList = RowChangedData.build(rowChange, currentTable.getRowDataColumns());
         if (CommonsUtils.isEmpty(dataList)) return null;
         ConditionContainer columnCondition;
         if (currentEventType != CanalEntry.EventType.UPDATE
@@ -100,7 +100,7 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
             //对于DELETE类型的记录更新, 如果条件判断没有通过, 可以认为该数据删除之前就不关心, 那这次删除我们更不关心了~~~
             Iterator<RowChangedData> it = dataList.iterator();
             while (it.hasNext()) {
-                if (!columnCondition.validation(it.next())) {
+                if (!columnCondition.verify(it.next())) {
                     it.remove();
                 }
             }

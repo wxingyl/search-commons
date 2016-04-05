@@ -19,11 +19,16 @@ public abstract class FieldCondition<T> implements Condition, Serializable {
     private final String field;
 
     private final StrValueConvert<T> valueConvert;
+    /**
+     * 是否为非条件
+     */
+    private final boolean isNo;
 
-    public FieldCondition(String field, StrValueConvert<T> valueConvert) {
+    public FieldCondition(String field, StrValueConvert<T> valueConvert, boolean isNo) {
         Objects.requireNonNull(field);
         this.field = field;
         this.valueConvert = valueConvert;
+        this.isNo = isNo;
     }
 
     @Override
@@ -32,15 +37,34 @@ public abstract class FieldCondition<T> implements Condition, Serializable {
     }
 
     @Override
-    public final boolean validation(Function<String, String> values) {
-        return validation(valueConvert == null ? null : valueConvert.convert(values.apply(field)));
+    public final boolean verify(Function<String, String> values) {
+        return verify(valueConvert == null ? null : valueConvert.convert(values.apply(field)));
     }
 
-    public abstract boolean validation(T value);
+    /**
+     * 执行具体的verify操作, 不考虑是否为非条件
+     */
+    abstract boolean doVerify(T value);
+
+    public final boolean verify(T value) {
+        return isNo != doVerify(value);
+    }
+
+    public final String getField() {
+        return field;
+    }
+
+    public final boolean isNo() {
+        return isNo;
+    }
+
+    public final StrValueConvert<T> getValueConvert() {
+        return valueConvert;
+    }
 
     @Override
     public String toString() {
-        return "field = " + field;
+        return field;
     }
 
     @Override
@@ -51,7 +75,6 @@ public abstract class FieldCondition<T> implements Condition, Serializable {
         FieldCondition<?> that = (FieldCondition<?>) o;
 
         return field.equals(that.field);
-
     }
 
     @Override

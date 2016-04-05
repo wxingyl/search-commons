@@ -1,5 +1,6 @@
 package com.tqmall.search.commons.condition;
 
+import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.utils.CommonsUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,46 +16,52 @@ import java.util.Map;
 public class ConditionTest {
 
     @Test
-    public void conditionContainerTest() {
+    public void fieldConditionTest() {
         EqualCondition<Integer> equalCondition = Conditions.equal("id", 4);
-        Assert.assertTrue(equalCondition.validation(4));
-        Assert.assertFalse(equalCondition.validation(5));
+        Assert.assertTrue(equalCondition.verify(4));
+        Assert.assertFalse(equalCondition.verify(5));
 
         RangeCondition<BigDecimal> rangeCondition = Conditions.range("price", "1~10", BigDecimal.class);
-        Assert.assertTrue(rangeCondition.validation(BigDecimal.ONE));
-        Assert.assertTrue(rangeCondition.validation(BigDecimal.TEN));
-        Assert.assertTrue(rangeCondition.validation(BigDecimal.valueOf(2.0)));
-        Assert.assertFalse(rangeCondition.validation(BigDecimal.valueOf(-1.0)));
+        Assert.assertTrue(rangeCondition.verify(BigDecimal.ONE));
+        Assert.assertTrue(rangeCondition.verify(BigDecimal.TEN));
+        Assert.assertTrue(rangeCondition.verify(BigDecimal.valueOf(2.0)));
+        Assert.assertFalse(rangeCondition.verify(BigDecimal.valueOf(-1.0)));
 
         InCondition<String> inCondition = Conditions.in("name", String.class, "xing", "wang", "yan", "lin");
         Assert.assertNotNull(inCondition);
-        Assert.assertTrue(inCondition.validation("xing"));
-        Assert.assertTrue(inCondition.validation("yan"));
-        Assert.assertFalse(inCondition.validation("Xing"));
+        Assert.assertTrue(inCondition.verify("xing"));
+        Assert.assertTrue(inCondition.verify("yan"));
+        Assert.assertFalse(inCondition.verify("Xing"));
+    }
 
-        ModifiableConditionContainer conditionContainer = new ModifiableConditionContainer()
-                .addMust(equalCondition)
-                .addMust(rangeCondition)
-                .add(Condition.Type.SHOULD, inCondition);
+    @Test
+    public void conditionContainerTest() {
+        ModifiableConditionContainer conditionContainer = Conditions.modifiableContainer()
+                .addMust(Conditions.equal("id", 4))
+                .addMust(Conditions.range("price", "1~10", BigDecimal.class))
+                .addShould(Conditions.in("name", String.class, "xing", "wang", "yan", "lin"));
 
         Map<String, String> dataMap = new HashMap<>();
+        final Function<String, String> dataFun = CommonsUtils.convertToFunction(dataMap);
+
         dataMap.put("id", "3");
         dataMap.put("price", "3.0");
         dataMap.put("value", "4");
         dataMap.put("name", "yan");
-        Assert.assertFalse(conditionContainer.validation(CommonsUtils.convertToFunction(dataMap)));
+
+        Assert.assertFalse(conditionContainer.verify(dataFun));
 
         dataMap.put("id", "4");
-        Assert.assertTrue(conditionContainer.validation(CommonsUtils.convertToFunction(dataMap)));
+        Assert.assertTrue(conditionContainer.verify(dataFun));
         dataMap.put("value", "2");
         conditionContainer.minimumShouldMatch(2);
-        Assert.assertFalse(conditionContainer.validation(CommonsUtils.convertToFunction(dataMap)));
+        Assert.assertFalse(conditionContainer.verify(dataFun));
 
         conditionContainer.minimumShouldMatch(1);
-        Assert.assertTrue(conditionContainer.validation(CommonsUtils.convertToFunction(dataMap)));
+        Assert.assertTrue(conditionContainer.verify(dataFun));
 
-        conditionContainer.add(Condition.Type.MUST_NOT, equalCondition);
-        Assert.assertFalse(conditionContainer.validation(CommonsUtils.convertToFunction(dataMap)));
+        conditionContainer.addMust(Conditions.nEqual("id", 4));
+        Assert.assertFalse(conditionContainer.verify(dataFun));
     }
 
     /**

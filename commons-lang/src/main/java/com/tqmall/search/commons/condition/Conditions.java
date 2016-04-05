@@ -37,6 +37,22 @@ public final class Conditions {
         return new InCondition<>(field, values, convert);
     }
 
+    public static <T> InCondition<T> nin(String field, Class<T> cls, List<T> values) {
+        if (CommonsUtils.isEmpty(values)) return null;
+        return new InCondition<>(field, values, StrValueConverts.getConvert(cls), true);
+    }
+
+    @SafeVarargs
+    public static <T> InCondition<T> nin(String field, Class<T> cls, T... values) {
+        if (values.length == 0) return null;
+        return new InCondition<>(field, Arrays.asList(values), StrValueConverts.getConvert(cls), true);
+    }
+
+    public static <T> InCondition<T> nin(String field, List<T> values, StrValueConvert<T> convert) {
+        if (CommonsUtils.isEmpty(values)) return null;
+        return new InCondition<>(field, values, convert, true);
+    }
+
     /**
      * @param value 不可以为null
      */
@@ -57,6 +73,29 @@ public final class Conditions {
      */
     public static <T> EqualCondition<T> equal(String field, T value, StrValueConvert<T> convert) {
         return new EqualCondition<>(field, value, convert);
+    }
+
+    /**
+     * @param value 不可以为null
+     */
+    @SuppressWarnings({"rawstype", "unchecked"})
+    public static <T> EqualCondition<T> nEqual(String field, T value) {
+        return new EqualCondition<>(field, value,
+                StrValueConverts.getBasicConvert((Class<T>) value.getClass()), true);
+    }
+
+    /**
+     * @param value 可以为null
+     */
+    public static <T> EqualCondition<T> nEqual(String field, T value, Class<T> cls) {
+        return new EqualCondition<>(field, value, StrValueConverts.getBasicConvert(cls), true);
+    }
+
+    /**
+     * @param value 可以为null
+     */
+    public static <T> EqualCondition<T> nEqual(String field, T value, StrValueConvert<T> convert) {
+        return new EqualCondition<>(field, value, convert, true);
     }
 
     public static <T extends Comparable<T>> RangeCondition.Builder<T> range(String field) {
