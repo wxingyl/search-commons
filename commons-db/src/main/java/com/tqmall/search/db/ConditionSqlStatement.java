@@ -37,7 +37,7 @@ class ConditionSqlStatement {
 
     void appendConditionContainer(StringBuilder sql, ConditionContainer container) {
         List<Condition> must = container.getMust(), should = container.getShould();
-        if (CommonsUtils.isEmpty(must) || CommonsUtils.isEmpty(should)) return;
+        if (CommonsUtils.isEmpty(must) && CommonsUtils.isEmpty(should)) return;
         ContainerResolve.append(this, sql, must, should);
     }
 

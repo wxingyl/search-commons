@@ -1,5 +1,8 @@
 package com.tqmall.search.db;
 
+import com.tqmall.search.commons.condition.ConditionContainer;
+import com.tqmall.search.commons.condition.Conditions;
+
 /**
  * Created by xing on 16/4/5.
  * sql query 构造工具类
@@ -7,6 +10,13 @@ package com.tqmall.search.db;
  * @author xing
  */
 public final class Queries {
+
+    /**
+     * 默认的只包含`is_deleted` = 'N' 的条件容器
+     */
+    public static final ConditionContainer DEFAULT_DELETED_CONTAINER = Conditions.unmodifiableContainer()
+            .mustCondition(Conditions.equal("is_deleted", "N"))
+            .create();
 
     private Queries() {
     }

@@ -81,9 +81,9 @@ public abstract class QueryParam {
         appendSqlStatementOfFields(sql);
         sql.append(" FROM ");
         if (schema != null) {
-            sql.append(schema).append('.');
+            SqlStatements.appendField(sql, schema).append('.');
         }
-        sql.append(table);
+        SqlStatements.appendField(sql, table);
         if (queryCondition != null) {
             sql.append(" WHERE ");
             SqlStatements.appendContainer(sql, queryCondition);
