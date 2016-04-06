@@ -1,5 +1,7 @@
 package com.tqmall.search.db;
 
+import com.tqmall.search.db.param.BeanQueryParam;
+import com.tqmall.search.db.param.QueryParam;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;

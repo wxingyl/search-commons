@@ -1,4 +1,4 @@
-package com.tqmall.search.db;
+package com.tqmall.search.db.param;
 
 import com.tqmall.search.commons.condition.*;
 import com.tqmall.search.commons.utils.CommonsUtils;

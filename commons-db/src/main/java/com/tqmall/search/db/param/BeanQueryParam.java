@@ -1,4 +1,4 @@
-package com.tqmall.search.db;
+package com.tqmall.search.db.param;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;

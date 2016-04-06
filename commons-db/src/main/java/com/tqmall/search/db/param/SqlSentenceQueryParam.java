@@ -1,4 +1,4 @@
-package com.tqmall.search.db;
+package com.tqmall.search.db.param;
 
 import com.tqmall.search.commons.utils.SearchStringUtils;
 
@@ -14,7 +14,7 @@ public class SqlSentenceQueryParam extends QueryParam {
 
     private final String sqlSentence;
 
-    protected SqlSentenceQueryParam(String schema, String table, int size, String sqlSentence) {
+    public SqlSentenceQueryParam(String schema, String table, int size, String sqlSentence) {
         super(schema, table, size);
         this.sqlSentence = SearchStringUtils.filterString(sqlSentence);
         Objects.requireNonNull(this.sqlSentence);

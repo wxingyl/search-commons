@@ -2,11 +2,12 @@ package com.tqmall.search.db;
 
 import com.tqmall.search.commons.condition.ConditionContainer;
 import com.tqmall.search.commons.condition.Conditions;
+import com.tqmall.search.db.param.*;
 import org.apache.commons.dbutils.BasicRowProcessor;
 import org.apache.commons.dbutils.RowProcessor;
 import org.apache.commons.dbutils.handlers.*;
 
-import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
@@ -36,7 +37,46 @@ public final class Queries {
 
     private static final Queries INSTANCE = new Queries();
 
+    private final ArrayHandler arrayHandler = new ArrayHandler();
+
+    private final ArrayListHandler arrayListHandler = new ArrayListHandler();
+
+    private final MapHandler mapHandler = new MapHandler();
+
+    private final MapListHandler mapListHandler = new MapListHandler();
+
+    private volatile WeakReference<Constructor<BeanMapHandler>> beanMapHandleConstructor;
+
     private Queries() {
+    }
+
+    private Constructor<BeanMapHandler> getBeanMapHandleConstructor() {
+        WeakReference<Constructor<BeanMapHandler>> beanMapHandleConstructor = this.beanMapHandleConstructor;
+        if (beanMapHandleConstructor != null && beanMapHandleConstructor.get() != null) {
+            return beanMapHandleConstructor.get();
+        } else {
+            try {
+                Constructor<BeanMapHandler> constructor = BeanMapHandler.class.getDeclaredConstructor(Class.class, RowProcessor.class, Integer.TYPE, String.class);
+                constructor.setAccessible(true);
+                this.beanMapHandleConstructor = new WeakReference<>(constructor);
+                return constructor;
+            } catch (NoSuchMethodException e) {
+                throw new IllegalStateException("get " + BeanMapHandler.class + " constructor have exception", e);
+            }
+        }
+    }
+
+    /**
+     * 没办法, 通过反射创建对象吧
+     * 创建失败抛出{@link IllegalStateException}
+     */
+    @SuppressWarnings({"rawstypes", "unchecked"})
+    private <K, V> BeanMapHandler<K, V> newBeanMapHandlerInstance(Class<V> cls, int columnIndex, String columnName) {
+        try {
+            return getBeanMapHandleConstructor().newInstance(cls, DEFAULT_ROW_PROCESSOR, columnIndex, columnName);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new IllegalStateException("create BeanMapHandler object by invoke instance have exception", e);
+        }
     }
 
     public static AllQueryParam allParam(String table) {
@@ -146,60 +186,22 @@ public final class Queries {
         return new BeanMapHandler<>(cls, DEFAULT_ROW_PROCESSOR);
     }
 
-
-    private volatile SoftReference<Constructor<BeanMapHandler>> beanMapHandleConstructor;
-
-    private Constructor<BeanMapHandler> getBeanMapHandleConstructor() {
-        SoftReference<Constructor<BeanMapHandler>> beanMapHandleConstructor = this.beanMapHandleConstructor;
-        if (beanMapHandleConstructor != null && beanMapHandleConstructor.get() != null) {
-            return beanMapHandleConstructor.get();
-        } else {
-            try {
-                Constructor<BeanMapHandler> constructor = BeanMapHandler.class.getDeclaredConstructor(Class.class, RowProcessor.class, Integer.TYPE, String.class);
-                constructor.setAccessible(true);
-                beanMapHandleConstructor = new SoftReference<>(constructor);
-                this.beanMapHandleConstructor = beanMapHandleConstructor;
-                return constructor;
-            } catch (NoSuchMethodException ignored) {
-                return null;
-            }
-        }
-    }
-
     /**
      * 查询结果: Map<K, Bean>
-     * 没办法, 通过反射创建对象吧
      *
      * @see #DEFAULT_ROW_PROCESSOR
      */
-    @SuppressWarnings({"rawstypes", "unchecked"})
     public static <K, V> BeanMapHandler<K, V> beanMapHandler(Class<V> cls, int columnIndex) {
-        try {
-            Constructor<BeanMapHandler> constructor = INSTANCE.getBeanMapHandleConstructor();
-            if (constructor != null) {
-                return constructor.newInstance(cls, DEFAULT_ROW_PROCESSOR, columnIndex, null);
-            }
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException ignored) {
-        }
-        return null;
+        return INSTANCE.newBeanMapHandlerInstance(cls, columnIndex, null);
     }
 
     /**
      * 查询结果: Map<K, Bean>
-     * 没办法, 通过反射创建对象吧
      *
      * @see #DEFAULT_ROW_PROCESSOR
      */
-    @SuppressWarnings({"rawstypes", "unchecked"})
     public static <K, V> BeanMapHandler<K, V> beanMapHandler(Class<V> cls, String columnName) {
-        try {
-            Constructor<BeanMapHandler> constructor = INSTANCE.getBeanMapHandleConstructor();
-            if (constructor != null) {
-                return constructor.newInstance(cls, DEFAULT_ROW_PROCESSOR, 1, columnName);
-            }
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException ignored) {
-        }
-        return null;
+        return INSTANCE.newBeanMapHandlerInstance(cls, 1, columnName);
     }
 
     /**
@@ -207,20 +209,6 @@ public final class Queries {
      */
     public static <T> ScalarHandler<T> scalarHandler(String columnName) {
         return new ScalarHandler<>(columnName);
-    }
-
-    /**
-     * 查询结果: Object[]
-     */
-    public static ArrayHandler arrayHandler() {
-        return new ArrayHandler();
-    }
-
-    /**
-     * 查询结果: List<Object[]>
-     */
-    public static ArrayListHandler arrayListHandler() {
-        return new ArrayListHandler();
     }
 
     /**
@@ -241,5 +229,35 @@ public final class Queries {
      */
     public static <T> ColumnListHandler<T> columnListHandler(String columnName) {
         return new ColumnListHandler<>(columnName);
+    }
+
+    /**
+     * 查询结果: Object[]
+     */
+    public static ArrayHandler arrayHandler() {
+        return INSTANCE.arrayHandler;
+    }
+
+    /**
+     * 查询结果: List<Object[]>
+     */
+    public static ArrayListHandler arrayListHandler() {
+        return INSTANCE.arrayListHandler;
+    }
+
+    /**
+     * 查询结果: Map<String, Object>
+     * 查询单条记录, 以Map形式返回, K 字段名, V 对应值
+     */
+    public static MapHandler mapHandler() {
+        return INSTANCE.mapHandler;
+    }
+
+    /**
+     * 查询结果: List<Map<String, Object>>
+     * 查询多条记录, 每条记录为Map, K 字段名, V 对应值
+     */
+    public static MapListHandler mapListHandler() {
+        return INSTANCE.mapListHandler;
     }
 }

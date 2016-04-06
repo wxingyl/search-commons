@@ -1,4 +1,4 @@
-package com.tqmall.search.db;
+package com.tqmall.search.db.param;
 
 /**
  * Created by xing on 16/4/5.

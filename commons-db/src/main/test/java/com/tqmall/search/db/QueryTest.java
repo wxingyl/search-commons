@@ -1,18 +1,33 @@
 package com.tqmall.search.db;
 
+import com.tqmall.search.db.param.BeanQueryParam;
+import com.tqmall.search.db.param.SqlStatements;
 import lombok.Data;
+import org.apache.commons.dbutils.handlers.BeanMapHandler;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 /**
  * Created by xing on 16/4/5.
  *
  * @author xing
  */
-public class QueryParamTest {
+public class QueryTest {
 
     @Test
     public void beanQueryTest() {
         beanQuery(SaintCustomerJoinAudit.class);
+        BeanMapHandler<Integer, SaintCustomerJoinAudit> beanMapHandler = Queries.beanMapHandler(SaintCustomerJoinAudit.class, "id");
+        int[] a = new int[1024 * 1024 * 8];
+        Arrays.fill(a, -1);
+        a = new int[1024 * 1024 * 8];
+        Arrays.fill(a, -3);
+        beanMapHandler = null;
+        a = new int[1024 * 1024 * 8];
+        Arrays.fill(a, -5);
+        System.gc();
+        System.out.println("");
     }
 
     private <T> void beanQuery(Class<T> cls) {

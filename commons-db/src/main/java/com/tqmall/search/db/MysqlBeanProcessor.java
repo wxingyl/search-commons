@@ -1,5 +1,6 @@
 package com.tqmall.search.db;
 
+import com.tqmall.search.db.param.SqlStatements;
 import org.apache.commons.dbutils.BeanProcessor;
 
 import java.beans.PropertyDescriptor;
