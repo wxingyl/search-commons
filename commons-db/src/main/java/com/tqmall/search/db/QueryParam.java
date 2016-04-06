@@ -26,7 +26,9 @@ public abstract class QueryParam {
     private final String schema;
 
     private final String table;
-
+    /**
+     * 大于0 添加的sql语句中
+     */
     private final int size;
 
     private int start;
@@ -95,7 +97,9 @@ public abstract class QueryParam {
             }
             sql.delete(sql.length() - 2, sql.length());
         }
-        sql.append(" LIMIT ").append(start).append(", ").append(size);
+        if (size > 0) {
+            sql.append(" LIMIT ").append(start).append(", ").append(size);
+        }
         return sql.toString();
     }
 

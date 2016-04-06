@@ -16,7 +16,7 @@ public class QueryParamTest {
     }
 
     private <T> void beanQuery(Class<T> cls) {
-        BeanQueryParam<T> param = Queries.bean(SqlStatements.toUnderscoreCase(cls.getSimpleName()), cls);
+        BeanQueryParam<T> param = Queries.beanParam(SqlStatements.toUnderscoreCase(cls.getSimpleName()), cls);
         param.setQueryCondition(Queries.DEFAULT_DELETED_CONTAINER);
         System.out.println(param.sqlStatement());
     }

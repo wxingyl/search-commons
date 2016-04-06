@@ -41,7 +41,7 @@ public class SqlStatements {
     }
 
     /**
-     * 将驼峰命名转换成下划线
+     * 将驼峰命名转换成下划线, 该代码来自elasticsearch中的Strings.java
      *
      * @param value 驼峰命名格式的名称
      * @return 下划线命名规范的名称
@@ -68,10 +68,36 @@ public class SqlStatements {
                     }
                     sb.append(Character.toLowerCase(c));
                 }
-            } else {
-                if (changed) {
-                    sb.append(c);
+            } else if (changed) {
+                sb.append(c);
+            }
+        }
+        return changed ? sb.toString() : value;
+    }
+
+    /**
+     * 下划线命名转驼峰, 该代码来自elasticsearch中的Strings.java
+     */
+    public static String toCamelCase(String value) {
+        StringBuilder sb = null;
+        boolean changed = false;
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            //e.g. _name stays as-is, _first_name becomes _firstName
+            if (c == '_' && i > 0) {
+                if (!changed) {
+                    sb = new StringBuilder(value.length());
+                    // copy it over here
+                    for (int j = 0; j < i; j++) {
+                        sb.append(value.charAt(j));
+                    }
+                    changed = true;
                 }
+                if (i < value.length() - 1) {
+                    sb.append(Character.toUpperCase(value.charAt(++i)));
+                }
+            } else if (changed) {
+                sb.append(c);
             }
         }
         return changed ? sb.toString() : value;

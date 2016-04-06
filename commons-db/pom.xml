@@ -13,6 +13,10 @@
     <artifactId>commons-db</artifactId>
     <packaging>jar</packaging>
 
+    <properties>
+        <commons-dbutils-version>1.6</commons-dbutils-version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.tqmall.search</groupId>
@@ -22,17 +26,18 @@
         <dependency>
             <groupId>commons-dbutils</groupId>
             <artifactId>commons-dbutils</artifactId>
-            <version>1.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-dbcp2</artifactId>
-            <version>2.1.1</version>
+            <version>${commons-dbutils-version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-dbcp2</artifactId>
+            <version>2.1.1</version>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>

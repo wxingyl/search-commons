@@ -2,6 +2,14 @@ package com.tqmall.search.db;
 
 import com.tqmall.search.commons.condition.ConditionContainer;
 import com.tqmall.search.commons.condition.Conditions;
+import org.apache.commons.dbutils.BasicRowProcessor;
+import org.apache.commons.dbutils.RowProcessor;
+import org.apache.commons.dbutils.handlers.*;
+
+import java.lang.ref.SoftReference;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.sql.ResultSet;
 
 /**
  * Created by xing on 16/4/5.
@@ -18,77 +26,220 @@ public final class Queries {
             .mustCondition(Conditions.equal("is_deleted", "N"))
             .create();
 
+    /**
+     * 默认的{@link RowProcessor}对象
+     * {@link ResultSet}转为Bean时使用{@link MysqlBeanProcessor}
+     *
+     * @see MysqlBeanProcessor
+     */
+    private static final RowProcessor DEFAULT_ROW_PROCESSOR = new BasicRowProcessor(new MysqlBeanProcessor());
+
+    private static final Queries INSTANCE = new Queries();
+
     private Queries() {
     }
 
-    public static AllColumnsQueryParam allColumns(String table) {
-        return new AllColumnsQueryParam(null, table, QueryParam.DEFAULT_SIZE);
+    public static AllQueryParam allParam(String table) {
+        return new AllQueryParam(null, table, QueryParam.DEFAULT_SIZE);
     }
 
-    public static AllColumnsQueryParam allColumns(String schema, String table) {
-        return new AllColumnsQueryParam(schema, table, QueryParam.DEFAULT_SIZE);
+    public static AllQueryParam allParam(String schema, String table) {
+        return new AllQueryParam(schema, table, QueryParam.DEFAULT_SIZE);
     }
 
-    public static AllColumnsQueryParam allColumns(String table, int size) {
-        return new AllColumnsQueryParam(null, table, size);
+    public static AllQueryParam allParam(String table, int size) {
+        return new AllQueryParam(null, table, size);
     }
 
-    public static AllColumnsQueryParam allColumns(String schema, String table, int size) {
-        return new AllColumnsQueryParam(schema, table, size);
+    public static AllQueryParam allParam(String schema, String table, int size) {
+        return new AllQueryParam(schema, table, size);
     }
 
-    public static ColumnsQueryParam columns(String table) {
+    public static ColumnsQueryParam columnsParam(String table) {
         return new ColumnsQueryParam(null, table, QueryParam.DEFAULT_SIZE);
     }
 
-    public static ColumnsQueryParam columns(String schema, String table) {
+    public static ColumnsQueryParam columnsParam(String schema, String table) {
         return new ColumnsQueryParam(schema, table, QueryParam.DEFAULT_SIZE);
     }
 
-    public static ColumnsQueryParam columns(String table, int size) {
+    public static ColumnsQueryParam columnsParam(String table, int size) {
         return new ColumnsQueryParam(null, table, size);
     }
 
-    public static ColumnsQueryParam columns(String schema, String table, int size) {
+    public static ColumnsQueryParam columnsParam(String schema, String table, int size) {
         return new ColumnsQueryParam(schema, table, size);
     }
 
-    public static <T> BeanQueryParam<T> bean(String table, Class<T> cls) {
+    public static <T> BeanQueryParam<T> beanParam(String table, Class<T> cls) {
         return new BeanQueryParam<>(null, table, QueryParam.DEFAULT_SIZE, cls);
     }
 
-    public static <T> BeanQueryParam<T> bean(String schema, String table, Class<T> cls) {
+    public static <T> BeanQueryParam<T> beanParam(String schema, String table, Class<T> cls) {
         return new BeanQueryParam<>(schema, table, QueryParam.DEFAULT_SIZE, cls);
     }
 
-    public static <T> BeanQueryParam<T> bean(String table, int size, Class<T> cls) {
+    public static <T> BeanQueryParam<T> beanParam(String table, int size, Class<T> cls) {
         return new BeanQueryParam<>(null, table, size, cls);
     }
 
-    public static <T> BeanQueryParam<T> bean(String schema, String table, int size, Class<T> cls) {
+    public static <T> BeanQueryParam<T> beanParam(String schema, String table, int size, Class<T> cls) {
         return new BeanQueryParam<>(schema, table, size, cls);
     }
 
-    public static SqlSentenceQueryParam sqlSentence(String table, String sqlSentence) {
+    public static SqlSentenceQueryParam sqlSentenceParam(String table, String sqlSentence) {
         return new SqlSentenceQueryParam(null, table, QueryParam.DEFAULT_SIZE, sqlSentence);
     }
 
-    public static SqlSentenceQueryParam sqlSentence(String schema, String table, int size, String sqlSentence) {
+    public static SqlSentenceQueryParam sqlSentenceParam(String schema, String table, int size, String sqlSentence) {
         return new SqlSentenceQueryParam(schema, table, size, sqlSentence);
     }
 
     /**
      * sql返回结果重名民为total
      */
-    public static SqlSentenceQueryParam count(String table) {
-        return new SqlSentenceQueryParam(null, table, 1, "COUNT(1) as total");
+    public static SqlSentenceQueryParam countParam(String table) {
+        return new SqlSentenceQueryParam(null, table, -1, "COUNT(1) as total");
     }
 
     /**
      * sql返回结果重名民为total
      */
-    public static SqlSentenceQueryParam count(String schema, String table) {
-        return new SqlSentenceQueryParam(schema, table, 1, "COUNT(1) as total");
+    public static SqlSentenceQueryParam countParam(String schema, String table) {
+        return new SqlSentenceQueryParam(schema, table, -1, "COUNT(1) as total");
     }
 
+    /**
+     * 默认的{@link RowProcessor}对象
+     * {@link ResultSet}转为Bean时使用{@link MysqlBeanProcessor}
+     *
+     * @see MysqlBeanProcessor
+     */
+    public static RowProcessor defaultRowProcessor() {
+        return DEFAULT_ROW_PROCESSOR;
+    }
+
+    /**
+     * 查询结果: 单个Bean
+     *
+     * @see #DEFAULT_ROW_PROCESSOR
+     */
+    public static <T> BeanHandler<T> beanHandler(Class<T> cls) {
+        return new BeanHandler<>(cls, DEFAULT_ROW_PROCESSOR);
+    }
+
+    /**
+     * 查询结果: List<Bean>
+     *
+     * @see #DEFAULT_ROW_PROCESSOR
+     */
+    public static <T> BeanListHandler<T> beanListHandler(Class<T> cls) {
+        return new BeanListHandler<>(cls, DEFAULT_ROW_PROCESSOR);
+    }
+
+    /**
+     * 查询结果: Map<K, Bean>
+     *
+     * @see #DEFAULT_ROW_PROCESSOR
+     */
+    public static <K, V> BeanMapHandler<K, V> beanMapHandler(Class<V> cls) {
+        return new BeanMapHandler<>(cls, DEFAULT_ROW_PROCESSOR);
+    }
+
+
+    private volatile SoftReference<Constructor<BeanMapHandler>> beanMapHandleConstructor;
+
+    private Constructor<BeanMapHandler> getBeanMapHandleConstructor() {
+        SoftReference<Constructor<BeanMapHandler>> beanMapHandleConstructor = this.beanMapHandleConstructor;
+        if (beanMapHandleConstructor != null && beanMapHandleConstructor.get() != null) {
+            return beanMapHandleConstructor.get();
+        } else {
+            try {
+                Constructor<BeanMapHandler> constructor = BeanMapHandler.class.getDeclaredConstructor(Class.class, RowProcessor.class, Integer.TYPE, String.class);
+                constructor.setAccessible(true);
+                beanMapHandleConstructor = new SoftReference<>(constructor);
+                this.beanMapHandleConstructor = beanMapHandleConstructor;
+                return constructor;
+            } catch (NoSuchMethodException ignored) {
+                return null;
+            }
+        }
+    }
+
+    /**
+     * 查询结果: Map<K, Bean>
+     * 没办法, 通过反射创建对象吧
+     *
+     * @see #DEFAULT_ROW_PROCESSOR
+     */
+    @SuppressWarnings({"rawstypes", "unchecked"})
+    public static <K, V> BeanMapHandler<K, V> beanMapHandler(Class<V> cls, int columnIndex) {
+        try {
+            Constructor<BeanMapHandler> constructor = INSTANCE.getBeanMapHandleConstructor();
+            if (constructor != null) {
+                return constructor.newInstance(cls, DEFAULT_ROW_PROCESSOR, columnIndex, null);
+            }
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException ignored) {
+        }
+        return null;
+    }
+
+    /**
+     * 查询结果: Map<K, Bean>
+     * 没办法, 通过反射创建对象吧
+     *
+     * @see #DEFAULT_ROW_PROCESSOR
+     */
+    @SuppressWarnings({"rawstypes", "unchecked"})
+    public static <K, V> BeanMapHandler<K, V> beanMapHandler(Class<V> cls, String columnName) {
+        try {
+            Constructor<BeanMapHandler> constructor = INSTANCE.getBeanMapHandleConstructor();
+            if (constructor != null) {
+                return constructor.newInstance(cls, DEFAULT_ROW_PROCESSOR, 1, columnName);
+            }
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException ignored) {
+        }
+        return null;
+    }
+
+    /**
+     * 查询结果: 单个对象 T, 一般都是基本类型了, 比如{@link String}, {@link Integer}, {@link java.util.Date}等
+     */
+    public static <T> ScalarHandler<T> scalarHandler(String columnName) {
+        return new ScalarHandler<>(columnName);
+    }
+
+    /**
+     * 查询结果: Object[]
+     */
+    public static ArrayHandler arrayHandler() {
+        return new ArrayHandler();
+    }
+
+    /**
+     * 查询结果: List<Object[]>
+     */
+    public static ArrayListHandler arrayListHandler() {
+        return new ArrayListHandler();
+    }
+
+    /**
+     * 查询结果: List<T>
+     *
+     * @param columnIndex 从1开始
+     * @param <T>         基本数据类型, 比如 String, {@link java.math.BigDecimal}等
+     */
+    public static <T> ColumnListHandler<T> columnListHandler(int columnIndex) {
+        return new ColumnListHandler<>(columnIndex);
+    }
+
+    /**
+     * 查询结果: List<T>
+     *
+     * @param columnName 查询字段名
+     * @param <T>        基本数据类型, 比如 String, {@link java.math.BigDecimal}等
+     */
+    public static <T> ColumnListHandler<T> columnListHandler(String columnName) {
+        return new ColumnListHandler<>(columnName);
+    }
 }
