@@ -7,7 +7,6 @@ import org.apache.commons.dbutils.BasicRowProcessor;
 import org.apache.commons.dbutils.RowProcessor;
 import org.apache.commons.dbutils.handlers.*;
 
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
@@ -45,25 +44,9 @@ public final class Queries {
 
     private final MapListHandler mapListHandler = new MapListHandler();
 
-    private volatile WeakReference<Constructor<BeanMapHandler>> beanMapHandleConstructor;
+    private volatile Constructor<BeanMapHandler> beanMapHandleConstructor;
 
     private Queries() {
-    }
-
-    private Constructor<BeanMapHandler> getBeanMapHandleConstructor() {
-        WeakReference<Constructor<BeanMapHandler>> beanMapHandleConstructor = this.beanMapHandleConstructor;
-        if (beanMapHandleConstructor != null && beanMapHandleConstructor.get() != null) {
-            return beanMapHandleConstructor.get();
-        } else {
-            try {
-                Constructor<BeanMapHandler> constructor = BeanMapHandler.class.getDeclaredConstructor(Class.class, RowProcessor.class, Integer.TYPE, String.class);
-                constructor.setAccessible(true);
-                this.beanMapHandleConstructor = new WeakReference<>(constructor);
-                return constructor;
-            } catch (NoSuchMethodException e) {
-                throw new IllegalStateException("get " + BeanMapHandler.class + " constructor have exception", e);
-            }
-        }
     }
 
     /**
@@ -72,8 +55,21 @@ public final class Queries {
      */
     @SuppressWarnings({"rawstypes", "unchecked"})
     private <K, V> BeanMapHandler<K, V> newBeanMapHandlerInstance(Class<V> cls, int columnIndex, String columnName) {
+        if (beanMapHandleConstructor == null) {
+            synchronized (this) {
+                if (beanMapHandleConstructor == null) {
+                    try {
+                        Constructor<BeanMapHandler> constructor = BeanMapHandler.class.getDeclaredConstructor(Class.class, RowProcessor.class, Integer.TYPE, String.class);
+                        constructor.setAccessible(true);
+                        this.beanMapHandleConstructor = constructor;
+                    } catch (NoSuchMethodException e) {
+                        throw new IllegalStateException("get " + BeanMapHandler.class + " constructor have exception", e);
+                    }
+                }
+            }
+        }
         try {
-            return getBeanMapHandleConstructor().newInstance(cls, DEFAULT_ROW_PROCESSOR, columnIndex, columnName);
+            return beanMapHandleConstructor.newInstance(cls, DEFAULT_ROW_PROCESSOR, columnIndex, columnName);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new IllegalStateException("create BeanMapHandler object by invoke instance have exception", e);
         }
