@@ -7,6 +7,7 @@ import java.util.Objects;
 /**
  * Created by xing on 16/4/5.
  * sql语句查询, 比如count, sum等自定义查询等
+ * {@link #sqlSentence} 会添加到"SELECT " 和 "FROM"中间
  *
  * @author xing
  */
