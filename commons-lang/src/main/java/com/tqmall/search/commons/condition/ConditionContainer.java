@@ -74,6 +74,18 @@ public abstract class ConditionContainer implements Condition, Serializable {
         return true;
     }
 
+    public List<Condition> getMust() {
+        return must == null ? null : Collections.unmodifiableList(must);
+    }
+
+    public List<Condition> getShould() {
+        return should == null ? null : Collections.unmodifiableList(should);
+    }
+
+    public final int getMinimumShouldMatch() {
+        return minimumShouldMatch;
+    }
+
     /**
      * only user for test
      */

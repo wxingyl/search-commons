@@ -15,9 +15,29 @@ public class UnmodifiableConditionContainer extends ConditionContainer {
     public UnmodifiableConditionContainer(Collection<? extends Condition> must,
                                           Collection<? extends Condition> should,
                                           int minimumShouldMatch) {
-        if (!CommonsUtils.isEmpty(must)) this.must = Collections.unmodifiableList(new ArrayList<>(must));
-        if (!CommonsUtils.isEmpty(should)) this.should = Collections.unmodifiableList(new ArrayList<>(should));
+        int size = 0;
+        if (!CommonsUtils.isEmpty(must)) {
+            this.must = Collections.unmodifiableList(new ArrayList<>(must));
+            size += must.size();
+        }
+        if (!CommonsUtils.isEmpty(should)) {
+            this.should = Collections.unmodifiableList(new ArrayList<>(should));
+            size += should.size();
+        }
+        if (size == 0) {
+            throw new IllegalArgumentException("condition num is 0");
+        }
         if (minimumShouldMatch > 1) this.minimumShouldMatch = minimumShouldMatch;
+    }
+
+    @Override
+    public List<Condition> getMust() {
+        return must;
+    }
+
+    @Override
+    public List<Condition> getShould() {
+        return should;
     }
 
     @Override

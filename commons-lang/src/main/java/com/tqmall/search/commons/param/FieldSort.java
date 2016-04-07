@@ -42,6 +42,21 @@ public class FieldSort implements Serializable {
         return "SortCondition{" + super.toString() + ", asc = " + asc;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof FieldSort)) return false;
+
+        FieldSort fieldSort = (FieldSort) o;
+
+        return field.equals(fieldSort.field);
+    }
+
+    @Override
+    public int hashCode() {
+        return field.hashCode();
+    }
+
     /**
      * 识别Sort排序字符串, 返回的list保留字符串中的顺序
      */

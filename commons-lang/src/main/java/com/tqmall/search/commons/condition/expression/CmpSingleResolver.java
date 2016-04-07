@@ -24,7 +24,7 @@ class CmpSingleResolver extends AbstractResolver<Comparable> {
         if (cmpOp == Operator.GT || cmpOp == Operator.GE || cmpOp == Operator.LT || cmpOp == Operator.LE) {
             this.cmpOp = cmpOp;
         } else {
-            throw new IllegalStateException(cmpOp + " is not single comparable operator");
+            throw new IllegalArgumentException(cmpOp + " is not single comparable operator");
         }
     }
 

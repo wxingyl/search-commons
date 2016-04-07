@@ -36,19 +36,19 @@ public abstract class Param implements Serializable {
      */
     private int uid;
 
-    public String getSource() {
+    public final String getSource() {
         return source;
     }
 
-    public int getUid() {
+    public final int getUid() {
         return uid;
     }
 
-    public void setSource(String source) {
+    public final void setSource(String source) {
         this.source = source;
     }
 
-    public void setUid(Integer uid) {
+    public final void setUid(Integer uid) {
         this.uid = uid;
     }
 

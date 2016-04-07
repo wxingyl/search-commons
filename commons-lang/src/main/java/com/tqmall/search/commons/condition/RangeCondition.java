@@ -59,6 +59,14 @@ public class RangeCondition<T extends Comparable<T>> extends FieldCondition<T> {
         return start;
     }
 
+    public boolean isExcludeUpper() {
+        return excludeUpper;
+    }
+
+    public boolean isExcludeLower() {
+        return excludeLower;
+    }
+
     @Override
     boolean doVerify(T value) {
         if (value == null) return false;
