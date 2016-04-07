@@ -26,7 +26,7 @@ public class MysqlBeanProcessor extends BeanProcessor {
         final int cols = rsmd.getColumnCount();
         final int[] columnToProperty = new int[cols + 1];
         Arrays.fill(columnToProperty, PROPERTY_NOT_FOUND);
-        for (int col = 0; col < cols; col++) {
+        for (int col = 1; col <= cols; col++) {
             String columnName = rsmd.getColumnLabel(col);
             if (null == columnName || 0 == columnName.length()) {
                 columnName = rsmd.getColumnName(col);

@@ -43,7 +43,7 @@ public interface MysqlQueryRunner {
     <T> T query(BeanQueryParam<T> param, BeanHandler<T> handler);
 
     /**
-     * bean list query
+     * List<Bean> query
      *
      * @param handler bean处理器, 通过{@link Queries#beanListHandler(Class)}获取
      * @param <T>     bean class type

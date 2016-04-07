@@ -31,6 +31,9 @@ public class DefaultQueryRunner implements MysqlQueryRunner {
     }
 
     private <T> T query(String sql, ResultSetHandler<T> rsh) {
+        if (log.isDebugEnabled()) {
+            log.debug(sql);
+        }
         try {
             return queryRunner.query(sql, rsh);
         } catch (SQLException e) {

@@ -198,21 +198,21 @@ class ConditionSqlStatement {
         static void append(ConditionSqlStatement conditionSqlStatement, StringBuilder sql, List<Condition> must, List<Condition> should) {
             final boolean haveMust = !CommonsUtils.isEmpty(must);
             if (haveMust) {
-                for (Condition c : must) {
-                    conditionSqlStatement.appendCondition(sql, c);
-                    sql.append(" AND");
+                Iterator<Condition> it = must.iterator();
+                conditionSqlStatement.appendCondition(sql, it.next());
+                while (it.hasNext()) {
+                    sql.append(" AND ");
+                    conditionSqlStatement.appendCondition(sql, it.next());
                 }
             }
-            if (CommonsUtils.isEmpty(should)) {
-                //这儿must肯定有元素, 前面已经判断了2者都为空直接return
-                sql.delete(sql.length() - 4, sql.length());
-            } else {
-                if (haveMust) sql.append(" (");
-                for (Condition c : should) {
-                    conditionSqlStatement.appendCondition(sql, c);
-                    sql.append(" OR");
+            if (!CommonsUtils.isEmpty(should)) {
+                if (haveMust) sql.append(" AND (");
+                Iterator<Condition> it = should.iterator();
+                conditionSqlStatement.appendCondition(sql, it.next());
+                while (it.hasNext()) {
+                    sql.append(" OR ");
+                    conditionSqlStatement.appendCondition(sql, it.next());
                 }
-                sql.delete(sql.length() - 3, sql.length());
                 if (haveMust) sql.append(')');
             }
         }
@@ -222,7 +222,7 @@ class ConditionSqlStatement {
             try {
                 ConditionContainer container = containerStack.getLast();
                 List<Condition> must = container.getMust(), should = container.getShould();
-                if (CommonsUtils.isEmpty(must) || CommonsUtils.isEmpty(should)) return;
+                if (CommonsUtils.isEmpty(must) && CommonsUtils.isEmpty(should)) return;
                 sql.append('(');
                 append(conditionSqlStatement, sql, must, should);
                 sql.append(')');
