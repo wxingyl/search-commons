@@ -16,17 +16,17 @@ import java.util.List;
  */
 public abstract class AbstractCanalCache<K, V> extends AbstractStrongCache<K, V> implements EventTypeAction {
 
-    protected final String keyFiled;
+    protected final String keyField;
 
     protected final StrValueConvert<K> keyConvert;
 
-    protected AbstractCanalCache(String keyFiled, Class<K> keyCls) {
-        this.keyFiled = keyFiled;
+    protected AbstractCanalCache(String keyField, Class<K> keyCls) {
+        this.keyField = keyField;
         this.keyConvert = StrValueConverts.getBasicConvert(keyCls);
     }
 
-    protected AbstractCanalCache(String keyFiled, StrValueConvert<K> keyConvert) {
-        this.keyFiled = keyFiled;
+    protected AbstractCanalCache(String keyField, StrValueConvert<K> keyConvert) {
+        this.keyField = keyField;
         this.keyConvert = keyConvert;
     }
 
@@ -36,11 +36,11 @@ public abstract class AbstractCanalCache<K, V> extends AbstractStrongCache<K, V>
     public void onUpdateAction(List<RowChangedData.Update> updatedData) {
         if (initialized()) {
             for (RowChangedData.Update update : updatedData) {
-                if (update.isChanged(keyFiled)) {
+                if (update.isChanged(keyField)) {
                     //如果key修改, 那先remove, 再add
-                    updateValue(update.getBefore(keyFiled, keyConvert), null);
+                    updateValue(update.getBefore(keyField, keyConvert), null);
                 }
-                updateValue(update.getAfter(keyFiled, keyConvert), initValue(update.getAfters()));
+                updateValue(update.getAfter(keyField, keyConvert), initValue(update.getAfters()));
             }
         }
     }
@@ -49,7 +49,7 @@ public abstract class AbstractCanalCache<K, V> extends AbstractStrongCache<K, V>
     public void onInsertAction(List<RowChangedData.Insert> insertedData) {
         if (initialized()) {
             for (RowChangedData.Insert insert : insertedData) {
-                updateValue(keyConvert.convert(insert.apply(keyFiled)), initValue(insert));
+                updateValue(keyConvert.convert(insert.apply(keyField)), initValue(insert));
             }
         }
     }
@@ -58,7 +58,7 @@ public abstract class AbstractCanalCache<K, V> extends AbstractStrongCache<K, V>
     public void onDeleteAction(List<RowChangedData.Delete> deletedData) {
         if (initialized()) {
             for (RowChangedData.Delete delete : deletedData) {
-                updateValue(keyConvert.convert(delete.apply(keyFiled)), null);
+                updateValue(keyConvert.convert(delete.apply(keyField)), null);
             }
         }
     }

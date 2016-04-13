@@ -59,7 +59,7 @@ public abstract class AbstractSyncCanalCache<K, V> extends AbstractCanalCache<K,
         super.onDeleteAction(deletedData);
         if (!initialized()) {
             for (RowChangedData.Delete delete : deletedData) {
-                updateKeyRecords.add(delete.apply(keyFiled));
+                updateKeyRecords.add(delete.apply(keyField));
             }
         }
         sendNotify();
@@ -70,7 +70,7 @@ public abstract class AbstractSyncCanalCache<K, V> extends AbstractCanalCache<K,
         super.onInsertAction(insertedData);
         if (!initialized()) {
             for (RowChangedData.Insert insert : insertedData) {
-                updateKeyRecords.add(insert.apply(keyFiled));
+                updateKeyRecords.add(insert.apply(keyField));
             }
         }
         sendNotify();
@@ -81,10 +81,10 @@ public abstract class AbstractSyncCanalCache<K, V> extends AbstractCanalCache<K,
         super.onUpdateAction(updatedData);
         if (!initialized()) {
             for (RowChangedData.Update update : updatedData) {
-                if (update.isChanged(keyFiled)) {
-                    updateKeyRecords.add(update.getBefore(keyFiled));
+                if (update.isChanged(keyField)) {
+                    updateKeyRecords.add(update.getBefore(keyField));
                 }
-                updateKeyRecords.add(update.getAfter(keyFiled));
+                updateKeyRecords.add(update.getAfter(keyField));
             }
         }
         sendNotify();
