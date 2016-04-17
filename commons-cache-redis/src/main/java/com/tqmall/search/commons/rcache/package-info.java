@@ -4,4 +4,4 @@
  *
  * @author xing
  */
-package com.tqmall.search.rcache;
+package com.tqmall.search.commons.rcache;

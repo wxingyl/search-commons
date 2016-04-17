@@ -1,6 +1,7 @@
 package com.tqmall.search.commons.result;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Created by xing on 15/12/4.
@@ -18,12 +19,13 @@ public class Result<T> implements Serializable {
 
     private T data;
 
-    protected Result(){
+    protected Result() {
     }
 
     /**
      * 成功的返回结构
-     * @param data  数据
+     *
+     * @param data 数据
      */
     public Result(T data) {
         success = true;
@@ -55,6 +57,16 @@ public class Result<T> implements Serializable {
 
     public boolean isSuccess() {
         return success;
+    }
+
+    /**
+     * 与{@link ErrorCode}对象比较是否相等, 同方法{@link ResultUtils#equals(Result, ErrorCode)}
+     *
+     * @param errorCode 具体的errorCode对象
+     * @see ResultUtils#equals(Result, ErrorCode)
+     */
+    public final boolean isEquals(ErrorCode errorCode) {
+        return Objects.equals(code, errorCode.getCode());
     }
 
     protected void setCode(String code) {

@@ -1,6 +1,7 @@
 package com.tqmall.search.commons.result;
 
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Created by xing on 15/12/13.
@@ -35,6 +36,16 @@ public final class ResultUtils {
         }
     };
 
+
+    /**
+     * errorCode与result比较code值是否相同
+     *
+     * @see Result#isEquals(ErrorCode)
+     */
+    public static boolean equals(Result<?> result, ErrorCode errorCode) {
+        return Objects.equals(result.getCode(), errorCode.getCode());
+    }
+
     /**
      * 将一个Result对应输出
      */
@@ -46,8 +57,9 @@ public final class ResultUtils {
 
     /**
      * 构建成功的, 拥有返回数据的{@link Result}对象
+     *
      * @param data 返回数据
-     * @param <T> 返回数据对应的类型
+     * @param <T>  返回数据对应的类型
      * @return 成功的, 拥有返回数据的{@link Result}对象
      */
     public static <T> Result<T> result(T data) {
@@ -56,8 +68,9 @@ public final class ResultUtils {
 
     /**
      * 构建错误的{@link Result}对象
+     *
      * @param errorCode 错误码
-     * @param <T> 没有意义, 只是为了调用的时候少点警告而已
+     * @param <T>       没有意义, 只是为了调用的时候少点警告而已
      * @return 错误的{@link Result}对象
      */
     @SuppressWarnings({"rawstype", "unchecked"})
@@ -67,8 +80,9 @@ public final class ResultUtils {
 
     /**
      * 构建错误的{@link Result}对象, 错误Message中有参数
+     *
      * @param errorCode 错误码
-     * @param <T> 没有意义, 只是为了调用的时候少点警告而已
+     * @param <T>       没有意义, 只是为了调用的时候少点警告而已
      * @return 错误的{@link Result}对象
      */
     @SuppressWarnings({"rawstype", "unchecked"})
@@ -77,16 +91,16 @@ public final class ResultUtils {
     }
 
     /**
-     * @see #result(Object)
      * @return PageResult类型
+     * @see #result(Object)
      */
     public static <T> PageResult<T> pageResult(Collection<T> data, long total) {
         return new PageResult<>(data, total);
     }
 
     /**
-     * @see #result(ErrorCode)
      * @return PageResult类型
+     * @see #result(ErrorCode)
      */
     @SuppressWarnings({"rawstype", "unchecked"})
     public static <T> PageResult<T> pageResult(ErrorCode errorCode) {
@@ -94,8 +108,8 @@ public final class ResultUtils {
     }
 
     /**
-     * @see #result(ErrorCode, Object...)
      * @return PageResult类型
+     * @see #result(ErrorCode, Object...)
      */
     @SuppressWarnings({"rawstype", "unchecked"})
     public static <T> PageResult<T> pageResult(ErrorCode errorCode, Object... args) {
@@ -103,16 +117,16 @@ public final class ResultUtils {
     }
 
     /**
-     * @see #result(Object)
      * @return MapResult类型
+     * @see #result(Object)
      */
     public static MapResult mapResult() {
         return new MapResult();
     }
 
     /**
-     * @see #result(Object)
      * @return MapResult类型
+     * @see #result(Object)
      */
     public static MapResult mapResult(String key, Object val) {
         MapResult mapResult = new MapResult();
@@ -121,16 +135,16 @@ public final class ResultUtils {
     }
 
     /**
-     * @see #result(ErrorCode)
      * @return MapResult类型
+     * @see #result(ErrorCode)
      */
     public static MapResult mapResult(ErrorCode errorCode) {
         return wrapError(errorCode, MAP_RESULT_BUILD);
     }
 
     /**
-     * @see #result(ErrorCode, Object...)
      * @return MapResult类型
+     * @see #result(ErrorCode, Object...)
      */
     public static MapResult mapResult(ErrorCode errorCode, Object... args) {
         return wrapError(errorCode, MAP_RESULT_BUILD, args);
@@ -138,9 +152,10 @@ public final class ResultUtils {
 
     /**
      * 留给外部接口自定义使用
+     *
      * @param errorCode 具体的errorCode
-     * @param build Result构造自定义
-     * @param <T> 具体的Result类型
+     * @param build     Result构造自定义
+     * @param <T>       具体的Result类型
      * @return 构造的Result
      */
     public static <T extends Result> T wrapError(ErrorCode errorCode, ResultBuild<T> build) {
@@ -149,6 +164,7 @@ public final class ResultUtils {
 
     /**
      * error message中带有参数的构造
+     *
      * @see #wrapError(ErrorCode, ResultBuild)
      */
     public static <T extends Result> T wrapError(ErrorCode errorCode, ResultBuild<T> build, Object... args) {
@@ -180,6 +196,7 @@ public final class ResultUtils {
 
     /**
      * 构造Result返回类型接口定义, 可以自定义Result类型
+     *
      * @param <T> 具体的Result类型
      */
     public interface ResultBuild<T extends Result> {

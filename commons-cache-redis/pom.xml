@@ -24,14 +24,38 @@
             <version>${lang.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j-version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.tqmall.search</groupId>
             <artifactId>canal-client</artifactId>
             <version>${canal-client.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.tqmall.search</groupId>
+                    <artifactId>commons-lang</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.tqmall.search</groupId>
+                    <artifactId>commons-lang</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.tqmall.search</groupId>
+            <artifactId>commons-component</artifactId>
+            <version>${component.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.tqmall.search</groupId>
+                    <artifactId>commons-lang</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>redis.clients</groupId>

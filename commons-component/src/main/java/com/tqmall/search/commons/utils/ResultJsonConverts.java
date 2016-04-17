@@ -11,6 +11,7 @@ import java.util.Map;
 /**
  * Created by xing on 15/12/27.
  * Http调用, 以json格式的Result返回需要转换,该工具类提供转换实现
+ * 返回的{@link Result}格式的json, 这儿会自动处理拿到{@link Result#data}部分
  */
 public final class ResultJsonConverts {
 

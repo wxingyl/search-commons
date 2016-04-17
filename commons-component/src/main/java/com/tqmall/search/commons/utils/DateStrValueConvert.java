@@ -1,5 +1,6 @@
 package com.tqmall.search.commons.utils;
 
+import com.tqmall.search.commons.lang.SmallDateFormat;
 import com.tqmall.search.commons.lang.StrValueConvert;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.slf4j.Logger;
@@ -12,7 +13,7 @@ import java.util.Date;
  * Created by xing on 16/1/5.
  * {@link Date} 的{@link StrValueConvert}实现
  */
-public class DateStrValueConvert implements StrValueConvert<Date> {
+public class DateStrValueConvert implements SmallDateFormat {
 
     private static final Logger log = LoggerFactory.getLogger(DateStrValueConvert.class);
 
@@ -64,6 +65,7 @@ public class DateStrValueConvert implements StrValueConvert<Date> {
      * @param date 日期对象
      * @return 对应格式的字符串
      */
+    @Override
     public String format(Date date) {
         return dateFormat.format(date);
     }
