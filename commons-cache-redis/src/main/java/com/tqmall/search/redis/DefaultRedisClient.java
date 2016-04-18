@@ -1,14 +1,14 @@
 package com.tqmall.search.redis;
 
+import com.tqmall.search.commons.utils.CommonsUtils;
 import com.tqmall.search.commons.utils.StrValueConverts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.util.Pool;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -64,6 +64,17 @@ public class DefaultRedisClient<J extends Jedis> extends BaseRedisClient<J> {
             val = null;
         }
         return val;
+    }
+
+    private <T> List<T> convertToList(String key, Class<T> valueCls, List<byte[]> bys) {
+        if (CommonsUtils.isEmpty(bys)) return Collections.emptyList();
+        else {
+            List<T> list = new ArrayList<>(bys.size());
+            for (byte[] bs : bys) {
+                list.add(initValue(key, bs, valueCls));
+            }
+            return list;
+        }
     }
 
     @Override
@@ -153,4 +164,98 @@ public class DefaultRedisClient<J extends Jedis> extends BaseRedisClient<J> {
             }
         });
     }
+
+    @Override
+    public <T> boolean hSet(final String key, final String field, final T value) {
+        Objects.requireNonNull(value);
+        return runTask(new Task<J, Boolean>() {
+            @Override
+            public Boolean run(J jedis) {
+                Long ret = jedis.hset(STR_BC.toBytes(key), STR_BC.toBytes(field), bytesConvert(value));
+                return ret != null && ret != 0;
+            }
+        });
+    }
+
+    @Override
+    public <T> T hGet(final String key, final String field, final Class<T> valueCls) {
+        return runTask(new Task<J, T>() {
+            @Override
+            public T run(J jedis) {
+                return initValue(key, jedis.hget(STR_BC.toBytes(key),
+                        STR_BC.toBytes(field)), valueCls);
+            }
+        });
+    }
+
+    @Override
+    public <T> boolean hSetnx(final String key, final String field, final T value) {
+        Objects.requireNonNull(value);
+        return runTask(new Task<J, Boolean>() {
+            @Override
+            public Boolean run(J jedis) {
+                Long ret = jedis.hset(STR_BC.toBytes(key), STR_BC.toBytes(field), bytesConvert(value));
+                return ret != null && ret != 0;
+            }
+        });
+    }
+
+    @Override
+    public <T> boolean hmSet(final String key, final Map<String, T> valueMap) {
+        if (CommonsUtils.isEmpty(valueMap)) return false;
+        return runTask(new Task<J, Boolean>() {
+            @Override
+            public Boolean run(J jedis) {
+                Map<byte[], byte[]> valueBys = new HashMap<>(valueMap.size());
+                for (Map.Entry<String, T> e : valueMap.entrySet()) {
+                    valueBys.put(STR_BC.toBytes(e.getKey()), bytesConvert(e.getValue()));
+                }
+                jedis.hmset(STR_BC.toBytes(key), valueBys);
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public <T> List<T> hmGet(final String key, final Class<T> valueCls, final String... fields) {
+        if (fields.length == 0) return Collections.emptyList();
+        return runTask(new Task<J, List<T>>() {
+            @Override
+            public List<T> run(J jedis) {
+                List<byte[]> bys = jedis.hmget(STR_BC.toBytes(key), getBytes(fields));
+                return convertToList(key, valueCls, bys);
+            }
+        });
+    }
+
+    @Override
+    public <T> List<T> hVals(final String key, final Class<T> valueCls) {
+        return runTask(new Task<J, List<T>>() {
+            @Override
+            public List<T> run(J jedis) {
+                List<byte[]> bys = jedis.hvals(STR_BC.toBytes(key));
+                return convertToList(key, valueCls, bys);
+            }
+        });
+    }
+
+    @Override
+    public <T> Map<String, T> hGetAll(final String key, final Class<T> valueCls) {
+        return runTask(new Task<J, Map<String, T>>() {
+            @Override
+            public Map<String, T> run(J jedis) {
+                Map<byte[], byte[]> mapBys = jedis.hgetAll(STR_BC.toBytes(key));
+                if (CommonsUtils.isEmpty(mapBys)) return Collections.emptyMap();
+                else {
+                    Map<String, T> map = new HashMap<>(mapBys.size());
+                    for (Map.Entry<byte[], byte[]> e : mapBys.entrySet()) {
+                        map.put(new String(e.getKey(), StandardCharsets.UTF_8),
+                                initValue(key, e.getValue(), valueCls));
+                    }
+                    return map;
+                }
+            }
+        });
+    }
+
 }

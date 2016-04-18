@@ -1,8 +1,13 @@
 package com.tqmall.search.redis;
 
+import com.tqmall.search.commons.utils.CommonsUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.util.Pool;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -31,7 +36,7 @@ public abstract class BaseRedisClient<J extends Jedis> extends JedisTask<J> impl
             @Override
             public Boolean run(J jedis) {
                 Long num = jedis.del(STR_BC.toBytes(key));
-                return !(num == null || num == 0);
+                return num != null && num != 0;
             }
         });
     }
@@ -108,7 +113,7 @@ public abstract class BaseRedisClient<J extends Jedis> extends JedisTask<J> impl
                 } else {
                     ret = jedis.pexpire(STR_BC.toBytes(key), time);
                 }
-                return ret == null || 0 == ret;
+                return ret != null && 1 == ret;
             }
         });
     }
@@ -139,7 +144,7 @@ public abstract class BaseRedisClient<J extends Jedis> extends JedisTask<J> impl
             @Override
             public Boolean run(J jedis) {
                 Long ret = jedis.persist(STR_BC.toBytes(key));
-                return ret == null || ret == 0;
+                return ret != null && ret == 1;
             }
         });
     }
@@ -194,4 +199,74 @@ public abstract class BaseRedisClient<J extends Jedis> extends JedisTask<J> impl
         });
     }
 
+    @Override
+    public long hIncrBy(final String key, final String field, final long value) {
+        return runTask(new Task<J, Long>() {
+            @Override
+            public Long run(J jedis) {
+                return jedis.hincrBy(STR_BC.toBytes(key), STR_BC.toBytes(field), value);
+            }
+        });
+    }
+
+    @Override
+    public double hIncrByFloat(final String key, final String field, final double value) {
+        return runTask(new Task<J, Double>() {
+            @Override
+            public Double run(J jedis) {
+                return jedis.hincrByFloat(STR_BC.toBytes(key), STR_BC.toBytes(field), value);
+            }
+        });
+    }
+
+    @Override
+    public boolean hExist(final String key, final String field) {
+        return runTask(new Task<J, Boolean>() {
+            @Override
+            public Boolean run(J jedis) {
+                return jedis.hexists(STR_BC.toBytes(key), STR_BC.toBytes(field));
+            }
+        });
+    }
+
+    @Override
+    public boolean hDel(final String key, final String... fields) {
+        if (fields.length == 0) return false;
+        return runTask(new Task<J, Boolean>() {
+            @Override
+            public Boolean run(J jedis) {
+                Long ret = jedis.hdel(STR_BC.toBytes(key), getBytes(fields));
+                return ret != null && ret == 1;
+            }
+        });
+    }
+
+    @Override
+    public long hLen(final String key) {
+        return runTask(new Task<J, Long>() {
+            @Override
+            public Long run(J jedis) {
+                return jedis.hlen(STR_BC.toBytes(key));
+            }
+        });
+    }
+
+    @Override
+    public Set<String> hKeys(final String key) {
+        return runTask(new Task<J, Set<String>>() {
+            @Override
+            public Set<String> run(J jedis) {
+                Set<byte[]> sets = jedis.hkeys(STR_BC.toBytes(key));
+                if (CommonsUtils.isEmpty(sets)) {
+                    return Collections.emptySet();
+                } else {
+                    Set<String> strSet = new HashSet<>(sets.size());
+                    for (byte[] bs : sets) {
+                        strSet.add(new String(bs, StandardCharsets.UTF_8));
+                    }
+                    return strSet;
+                }
+            }
+        });
+    }
 }

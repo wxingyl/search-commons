@@ -1,5 +1,8 @@
 package com.tqmall.search.redis;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -129,5 +132,54 @@ public interface RedisClient {
     long setRange(String key, long offset, String value);
 
     String getRange(String key, long startOffset, long endOffset);
+
+    long hIncrBy(String key, String field, long value);
+
+    double hIncrByFloat(String key, String field, double value);
+
+    boolean hExist(String key, String field);
+
+    /**
+     * @return 删除是否成功
+     */
+    boolean hDel(String key, String... fields);
+
+    long hLen(String key);
+
+    Set<String> hKeys(String key);
+
+    /**
+     * @return true 表示添加, false 表示更新
+     */
+    <T> boolean hSet(String key, String field, T value);
+
+    <T> T hGet(String key, String field, Class<T> valueCls);
+
+    /**
+     * 只有key.field不存在的时候设置
+     *
+     * @return true 表示设置成功, false 表示设置不成功, 原先已经存在了
+     */
+    <T> boolean hSetnx(String key, String field, T value);
+
+    /**
+     * 批量设定hash值
+     *
+     * @param key      key值
+     * @param valueMap field value mapm
+     * @return 设置是否成功
+     */
+    <T> boolean hmSet(String key, Map<String, T> valueMap);
+
+    /**
+     * 批量获取制定fields的值
+     *
+     * @param valueCls value的class type
+     */
+    <T> List<T> hmGet(String key, Class<T> valueCls, String... fields);
+
+    <T> List<T> hVals(String key, Class<T> valueCls);
+
+    <T> Map<String, T> hGetAll(String key, Class<T> valueCls);
 
 }
