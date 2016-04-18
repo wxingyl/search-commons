@@ -189,7 +189,7 @@ public class DefaultRedisClient<J extends Jedis> extends BaseRedisClient<J> {
     }
 
     @Override
-    public <T> boolean hSetnx(final String key, final String field, final T value) {
+    public <T> boolean hSetNx(final String key, final String field, final T value) {
         Objects.requireNonNull(value);
         return runTask(new Task<J, Boolean>() {
             @Override
@@ -254,6 +254,124 @@ public class DefaultRedisClient<J extends Jedis> extends BaseRedisClient<J> {
                     }
                     return map;
                 }
+            }
+        });
+    }
+
+    @Override
+    public <T> long rPush(final String key, final T value) {
+        Objects.requireNonNull(value);
+        return runTask(new Task<J, Long>() {
+            @Override
+            public Long run(J jedis) {
+                return jedis.rpush(STR_BC.toBytes(key), bytesConvert(value));
+            }
+        });
+    }
+
+    @Override
+    public <T> long rPush(final String key, final List<T> values) {
+        if (CommonsUtils.isEmpty(values)) return -1;
+        return runTask(new Task<J, Long>() {
+            @Override
+            public Long run(J jedis) {
+                byte[][] valBytes = new byte[values.size()][];
+                int i = 0;
+                for (T v : values) {
+                    valBytes[i++] = bytesConvert(v);
+                }
+                return jedis.rpush(STR_BC.toBytes(key), valBytes);
+            }
+        });
+    }
+
+    @Override
+    public <T> long lPush(final String key, final T value) {
+        Objects.requireNonNull(value);
+        return runTask(new Task<J, Long>() {
+            @Override
+            public Long run(J jedis) {
+                return jedis.lpush(STR_BC.toBytes(key), bytesConvert(value));
+            }
+        });
+    }
+
+    @Override
+    public <T> long lPush(final String key, final List<T> values) {
+        if (CommonsUtils.isEmpty(values)) return -1;
+        return runTask(new Task<J, Long>() {
+            @Override
+            public Long run(J jedis) {
+                byte[][] valBytes = new byte[values.size()][];
+                int i = 0;
+                for (T v : values) {
+                    valBytes[i++] = bytesConvert(v);
+                }
+                return jedis.lpush(STR_BC.toBytes(key), valBytes);
+            }
+        });
+    }
+
+    @Override
+    public <T> List<T> lRange(final String key, final Class<T> cls, final long start, final long end) {
+        return runTask(new Task<J, List<T>>() {
+            @Override
+            public List<T> run(J jedis) {
+                List<byte[]> bytesList = jedis.lrange(STR_BC.toBytes(key), start, end);
+                return convertToList(key, cls, bytesList);
+            }
+        });
+    }
+
+    @Override
+    public <T> T lIndex(final String key, final Class<T> cls, final long index) {
+        return runTask(new Task<J, T>() {
+            @Override
+            public T run(J jedis) {
+                return initValue(key, jedis.lindex(STR_BC.toBytes(key), index), cls);
+            }
+        });
+    }
+
+    @Override
+    public <T> boolean lSet(final String key, final long index, final T value) {
+        Objects.requireNonNull(value);
+        return runTask(new Task<J, Boolean>() {
+            @Override
+            public Boolean run(J jedis) {
+                return StrValueConverts.boolConvert(jedis.lset(STR_BC.toBytes(key), index, bytesConvert(value)));
+            }
+        });
+    }
+
+    @Override
+    public <T> long lRem(final String key, final long count, final T value) {
+        Objects.requireNonNull(value);
+        return runTask(new Task<J, Long>() {
+            @Override
+            public Long run(J jedis) {
+                Long ret = jedis.lrem(STR_BC.toBytes(key), count, bytesConvert(value));
+                return ret == null || ret < 0 ? -1 : ret;
+            }
+        });
+    }
+
+    @Override
+    public <T> T lPop(final String key, final Class<T> valueCls) {
+        return runTask(new Task<J, T>() {
+            @Override
+            public T run(J jedis) {
+                return initValue(key, jedis.lpop(STR_BC.toBytes(key)), valueCls);
+            }
+        });
+    }
+
+    @Override
+    public <T> T rPop(final String key, final Class<T> valueCls) {
+        return runTask(new Task<J, T>() {
+            @Override
+            public T run(J jedis) {
+                return initValue(key, jedis.rpop(STR_BC.toBytes(key)), valueCls);
             }
         });
     }

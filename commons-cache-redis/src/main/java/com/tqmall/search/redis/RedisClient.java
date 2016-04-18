@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
  * 类似{@link redis.clients.jedis.JedisCommands}, 只不过涉及到值相关的通过泛型T 来搞定
  * redis命令文档地址: http://redis.io/commands
  * 有个中文版: http://www.redis.cn/commands.html
- * 这儿没有实现所有的redis命令, 只是一些常用的, 其他如果需要, 通过{@link JedisTask}自己去实现吧
+ * 这儿没有实现所有的redis命令, 包括基本的指令, bit运算, hash操作和list操作指令. 其他如果需要, 通过{@link JedisTask}自己去实现吧
  *
  * @author 尚辰
  */
@@ -119,10 +119,65 @@ public interface RedisClient {
 
     /**
      * @return 在offset位置原来的值
+     * @see java.util.BitSet
      */
     boolean setBit(String key, long offset, boolean value);
 
+    /**
+     * @see java.util.BitSet
+     */
     boolean getBit(String key, long offset);
+
+    /**
+     * 统计bit串中为1的位数, eg:
+     * SET flag "\x00\xff\xf0"
+     * BITCOUNT flag  ---> 返回 12
+     *
+     * @return 位数为1的数目
+     * @see java.util.BitSet
+     */
+    long bitCount(String key);
+
+    /**
+     * 统计bit串指定区间中为1的位数, eg:
+     * SET flag "\x00\xff\xf0"
+     * BITCOUNT flag 1 1 ---> 返回 8
+     * BITCOUNT flag 2 2 ---> 返回 4
+     * BITCOUNT flag 1 2 ---> 返回 12
+     * 注意: 这儿byteStart是以字节为单位的开始位置, 并不是bit的offset, 如上面的1就表示第2个字节位置, 也就是[8, 16)区间的bits
+     *
+     * @param byteStart 开始字节位置
+     * @param byteEnd   结束字节位置
+     * @return 指定区间中为1的位数
+     * @see java.util.BitSet
+     */
+    long bitCount(String key, long byteStart, long byteEnd);
+
+    /**
+     * 获取bit串第一个匹配的bit位置, eg:
+     * SET flag "\x00\xff\xf0"
+     * BITPOS flag 1   ---> 返回 8
+     * BITPOS flag 0   ---> 返回 0
+     *
+     * @param value true 匹配bit = 1的首位置, false 匹配bit = 0的首位置
+     * @return 匹配到的bit位置, -1 表示不存在, 没有匹配
+     * @see java.util.BitSet
+     */
+    long bitPos(String key, boolean value);
+
+    /**
+     * 获取bit串第一个匹配的bit位置, eg:
+     * SET flag "\x00\xff\xf0"
+     * BITPOS flag 1 1 2  ---> 返回 8
+     * BITPOS flag 0 2 2  ---> 返回 20
+     *
+     * @param value     true 匹配bit = 1的首位置, false 匹配bit = 0的首位置
+     * @param byteStart 开始字节位置
+     * @param byteEnd   结束字节位置, 如果 < 0, 则表示不做结束位置限制
+     * @return 匹配到的bit位置, -1 表示不存在, 没有匹配
+     * @see java.util.BitSet
+     */
+    long bitPos(String key, boolean value, long byteStart, long byteEnd);
 
     /**
      * 如果offset比当前key对应string还要长，那这个string前面补0以达到offset
@@ -132,6 +187,8 @@ public interface RedisClient {
     long setRange(String key, long offset, String value);
 
     String getRange(String key, long startOffset, long endOffset);
+
+    //hash 相关操作接口
 
     long hIncrBy(String key, String field, long value);
 
@@ -160,7 +217,7 @@ public interface RedisClient {
      *
      * @return true 表示设置成功, false 表示设置不成功, 原先已经存在了
      */
-    <T> boolean hSetnx(String key, String field, T value);
+    <T> boolean hSetNx(String key, String field, T value);
 
     /**
      * 批量设定hash值
@@ -181,5 +238,65 @@ public interface RedisClient {
     <T> List<T> hVals(String key, Class<T> valueCls);
 
     <T> Map<String, T> hGetAll(String key, Class<T> valueCls);
+
+    //list相关操作接口
+
+    long lLen(String key);
+
+    boolean lTrim(String key, long start, long end);
+
+    /**
+     * 往list尾插入元素
+     *
+     * @return 插入之后list的长度, 返回 -1 表示操作出错, 比如指定的key并不是list, 或者values为空
+     */
+    <T> long rPush(String key, T value);
+
+    /**
+     * 往list尾插入元素
+     *
+     * @return 插入之后list的长度, 返回 -1 表示操作出错, 比如指定的key并不是list, 或者values为空
+     */
+    <T> long rPush(String key, List<T> values);
+
+    /**
+     * 往list头插入元素
+     *
+     * @return 插入之后list的长度, 返回 -1 表示操作出错, 比如指定的key并不是list, 或者values为空
+     */
+    <T> long lPush(String key, T value);
+
+    /**
+     * 往list头插入元素
+     *
+     * @return 插入之后list的长度, 返回 -1 表示操作出错, 比如指定的key并不是list, 或者values为空
+     */
+    <T> long lPush(String key, List<T> values);
+
+    <T> List<T> lRange(String key, Class<T> cls, long start, long end);
+
+    <T> T lIndex(String key, Class<T> cls, long index);
+
+    <T> boolean lSet(String key, long index, T value);
+
+    /**
+     * count > 0: 从头往尾移除值为 value 的元素
+     * count < 0: 从尾往头移除值为 value 的元素
+     * count = 0: 移除所有值为 value 的元素
+     *
+     * @param value 不能为null
+     * @return 被移除的元素个数
+     */
+    <T> long lRem(String key, long count, T value);
+
+    /**
+     * 移除并返回存于 key 的 list 的第一个元素
+     */
+    <T> T lPop(String key, Class<T> valueCls);
+
+    /**
+     * 移除并返回存于 key 的 list 的最后一个元素
+     */
+    <T> T rPop(String key, Class<T> valueCls);
 
 }

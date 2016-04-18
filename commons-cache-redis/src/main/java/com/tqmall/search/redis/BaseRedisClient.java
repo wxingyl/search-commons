@@ -1,6 +1,8 @@
 package com.tqmall.search.redis;
 
 import com.tqmall.search.commons.utils.CommonsUtils;
+import com.tqmall.search.commons.utils.StrValueConverts;
+import redis.clients.jedis.BitPosParams;
 import redis.clients.jedis.Jedis;
 import redis.clients.util.Pool;
 
@@ -180,6 +182,51 @@ public abstract class BaseRedisClient<J extends Jedis> extends JedisTask<J> impl
     }
 
     @Override
+    public long bitCount(final String key) {
+        return runTask(new Task<J, Long>() {
+            @Override
+            public Long run(J jedis) {
+                return jedis.bitcount(STR_BC.toBytes(key));
+            }
+        });
+    }
+
+    @Override
+    public long bitCount(final String key, final long byteStart, final long byteEnd) {
+        return runTask(new Task<J, Long>() {
+            @Override
+            public Long run(J jedis) {
+                return jedis.bitcount(STR_BC.toBytes(key), byteStart, byteEnd);
+            }
+        });
+    }
+
+    @Override
+    public long bitPos(final String key, final boolean value) {
+        return runTask(new Task<J, Long>() {
+            @Override
+            public Long run(J jedis) {
+                Long ret = jedis.bitpos(STR_BC.toBytes(key), value);
+                if (ret == null || ret < 0) return -1L;
+                else return ret;
+            }
+        });
+    }
+
+    @Override
+    public long bitPos(final String key, final boolean value, final long byteStart, final long byteEnd) {
+        return runTask(new Task<J, Long>() {
+            @Override
+            public Long run(J jedis) {
+                BitPosParams params = byteEnd < 0 ? new BitPosParams(byteStart) : new BitPosParams(byteStart, byteEnd);
+                Long ret = jedis.bitpos(key, value, params);
+                if (ret == null || ret < 0) return -1L;
+                else return ret;
+            }
+        });
+    }
+
+    @Override
     public long setRange(final String key, final long offset, final String value) {
         return runTask(new Task<J, Long>() {
             @Override
@@ -266,6 +313,27 @@ public abstract class BaseRedisClient<J extends Jedis> extends JedisTask<J> impl
                     }
                     return strSet;
                 }
+            }
+        });
+    }
+
+    @Override
+    public long lLen(final String key) {
+        return runTask(new Task<J, Long>() {
+            @Override
+            public Long run(J jedis) {
+                Long ret = jedis.llen(STR_BC.toBytes(key));
+                return ret == null ? 0 : ret;
+            }
+        });
+    }
+
+    @Override
+    public boolean lTrim(final String key, final long start, final long end) {
+        return runTask(new Task<J, Boolean>() {
+            @Override
+            public Boolean run(J jedis) {
+                return StrValueConverts.boolConvert(jedis.ltrim(STR_BC.toBytes(key), start, end));
             }
         });
     }
