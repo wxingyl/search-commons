@@ -2,7 +2,6 @@ package com.tqmall.search.commons.mcache;
 
 import com.google.common.cache.LoadingCache;
 import com.tqmall.search.commons.exception.MemoryCacheInitException;
-import com.tqmall.search.commons.lang.Cache;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,7 +18,7 @@ import java.util.concurrent.ConcurrentMap;
  * 通过Map做基本的缓存, 为强引用类型, GC无法回收的, 所以只缓存数据比较小的对象
  * 日后可以考虑弱类型缓存, 通过guava的{@link LoadingCache}实现
  */
-public abstract class AbstractStrongCache<K, V> implements Cache<K, V> {
+public abstract class AbstractStrongCache<K, V> implements DataSourceCache<K, V> {
 
     private volatile ConcurrentMap<K, V> cache;
 
@@ -63,7 +62,10 @@ public abstract class AbstractStrongCache<K, V> implements Cache<K, V> {
         if (keys == null) return null;
         Map<K, V> hitValues = new HashMap<>();
         for (K k : keys) {
-            hitValues.put(k, getValue(k));
+            V v = getValue(k);
+            if (v != null) {
+                hitValues.put(k, getValue(k));
+            }
         }
         return hitValues;
     }

@@ -1,5 +1,8 @@
 package com.tqmall.search.redis;
 
+import redis.clients.jedis.ScanParams;
+import redis.clients.jedis.ScanResult;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
