@@ -41,11 +41,11 @@ public abstract class AbstractCanalCache<K, V> extends AbstractStrongCache<K, V>
         if (initialized()) {
             for (RowChangedData.Update update : updatedData) {
                 String k;
-                if (update.isChanged(keyFiled) && (k = update.getBefore(keyFiled)) != null) {
+                if (update.isChanged(keyField) && (k = update.getBefore(keyField)) != null) {
                     //如果key修改, 那先remove, 再add
                     updateValue(keyConvert.convert(k), null);
                 }
-                if ((k = update.getAfter(keyFiled)) != null) {
+                if ((k = update.getAfter(keyField)) != null) {
                     updateValue(keyConvert.convert(k), initValue(update.getAfters()));
                 }
             }
@@ -57,7 +57,7 @@ public abstract class AbstractCanalCache<K, V> extends AbstractStrongCache<K, V>
         if (initialized()) {
             for (RowChangedData.Insert insert : insertedData) {
                 String k;
-                if ((k = insert.apply(keyFiled)) != null) {
+                if ((k = insert.apply(keyField)) != null) {
                     updateValue(keyConvert.convert(k), initValue(insert));
                 }
             }
@@ -69,7 +69,7 @@ public abstract class AbstractCanalCache<K, V> extends AbstractStrongCache<K, V>
         if (initialized()) {
             for (RowChangedData.Delete delete : deletedData) {
                 String k;
-                if ((k = delete.apply(keyFiled)) != null) {
+                if ((k = delete.apply(keyField)) != null) {
                     updateValue(keyConvert.convert(k), null);
                 }
             }
