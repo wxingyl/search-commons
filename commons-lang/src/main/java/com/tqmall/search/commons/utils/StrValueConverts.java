@@ -1,6 +1,7 @@
 package com.tqmall.search.commons.utils;
 
 import com.tqmall.search.commons.lang.Defaultable;
+import com.tqmall.search.commons.lang.SmallDateFormat;
 import com.tqmall.search.commons.lang.StrValueConvert;
 
 import java.lang.reflect.Field;
@@ -70,7 +71,7 @@ public final class StrValueConverts {
      * @see #getConvert(Class)
      */
     public static <T> StrValueConvert<T> getBasicConvert(Class<T> cls) {
-        StrValueConvert<T> convert = StrValueConverts.getConvert(cls);
+        StrValueConvert<T> convert = getConvert(cls);
         if (convert == null) {
             throw new IllegalArgumentException("can not find basic StrValueConvert instance of " + cls);
         }
@@ -106,6 +107,9 @@ public final class StrValueConverts {
         };
     }
 
+    public static boolean boolConvert(String input) {
+        return BoolStrValueConvert.INSTANCE.convert(input);
+    }
     /**
      * @return have error will return {@link IntStrValueConvert#defaultValue()}
      */
@@ -159,6 +163,10 @@ public final class StrValueConverts {
         return DateStrValueConvert.INSTANCE.convert(input);
     }
 
+    public static String dateFormat(Date date) {
+        return DateStrValueConvert.INSTANCE.format(date);
+    }
+
     public static <T extends Comparable<T>> T convert(final String input, final T defaultValue, final Class<T> cls) {
         StrValueConvert<T> convert = getConvert(cls, defaultValue);
         if (convert == null) {
@@ -205,7 +213,7 @@ public final class StrValueConverts {
         @Override
         protected Boolean innerConvert(String str) {
             return str.equals("1") || str.equalsIgnoreCase("true") || str.equalsIgnoreCase("on") ||
-                    str.equalsIgnoreCase("yes") || str.equalsIgnoreCase("y");
+                    str.equalsIgnoreCase("yes") || str.equalsIgnoreCase("y") || str.equalsIgnoreCase("ok");
         }
 
         @Override
@@ -297,13 +305,16 @@ public final class StrValueConverts {
      * 使用JDK 自代的{@link SimpleDateFormat}实现, 通过{@link #dateFormats}做缓存, 效率一般
      * 对于StrValueConvert<Date>, 模块commons-component中class: com.tqmall.search.commons.utils.DateStrValueConvert是更好的实现,
      * 其内部通过Apache commons组件中的FastDateFormat实现, 效率更好~~~建议使用com.tqmall.search.commons.utils.DateStrValueConvert, 如果有的话
+     *
+     * @see CommonsUtils#dateFormat()
+     * @see SmallDateFormat
      */
-    static class DateStrValueConvert implements StrValueConvert<Date> {
+    static class DateStrValueConvert implements SmallDateFormat {
 
-        final static StrValueConvert<Date> INSTANCE;
+        final static SmallDateFormat INSTANCE;
 
         static {
-            StrValueConvert<Date> convert = getUtilsDateStrValueConvert();
+            SmallDateFormat convert = getUtilsDateStrValueConvert();
             INSTANCE = convert == null ? new DateStrValueConvert() : convert;
         }
 
@@ -313,12 +324,12 @@ public final class StrValueConverts {
          * @return com.tqmall.search.commons.utils.DateStrValueConvert 不存在返回null
          */
         @SuppressWarnings({"rawtypes", "unchecked"})
-        private static StrValueConvert<Date> getUtilsDateStrValueConvert() {
+        private static SmallDateFormat getUtilsDateStrValueConvert() {
             try {
                 Class dataConvertCls = Class.forName("com.tqmall.search.commons.utils.DateStrValueConvert");
                 Field field = dataConvertCls.getField("INSTANCE");
                 if (field != null) {
-                    return (StrValueConvert<Date>) field.get(null);
+                    return (SmallDateFormat) field.get(null);
                 }
             } catch (Throwable ignored) {
             }
@@ -340,6 +351,11 @@ public final class StrValueConverts {
             } catch (ParseException e) {
                 return null;
             }
+        }
+
+        @Override
+        public String format(Date date) {
+            return dateFormats.get().format(date);
         }
     }
 }

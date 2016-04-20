@@ -21,6 +21,7 @@ public class PyTest {
     /**
      * 获取所有的简体中文字, 保存到文件simple.txt中
      */
+    @Test
     @Ignore
     public void setAllZhCnCharacter() {
         List<Character> simpleList = new ArrayList<>();

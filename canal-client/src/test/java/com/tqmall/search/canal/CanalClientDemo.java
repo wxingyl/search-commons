@@ -6,6 +6,7 @@ import com.tqmall.search.canal.handle.*;
 import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.condition.Conditions;
 import org.junit.Ignore;
+import org.junit.Test;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -38,6 +39,7 @@ public class CanalClientDemo {
      */
     private final static SocketAddress LOCAL_ADDRESS = new InetSocketAddress(AddressUtils.getHostAddress(), CANAL_PORT);
 
+    @Test
     @Ignore
     public void runCanalInstanceTest() {
         ActionFactory<TableAction> actionFactory = new SingleSchemaActionFactory<>(Schemas.buildSchema("autoparts", TableAction.class)

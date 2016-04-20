@@ -1,6 +1,7 @@
 package com.tqmall.search.commons.utils;
 
 import com.tqmall.search.commons.lang.Function;
+import com.tqmall.search.commons.lang.SmallDateFormat;
 
 import java.util.*;
 
@@ -123,5 +124,9 @@ public final class CommonsUtils {
 
     public static <K, V> Map.Entry<K, V> newImmutableMapEntry(K k, V v) {
         return new AbstractMap.SimpleImmutableEntry<>(k, v);
+    }
+
+    public static SmallDateFormat dateFormat() {
+        return StrValueConverts.DateStrValueConvert.INSTANCE;
     }
 }
