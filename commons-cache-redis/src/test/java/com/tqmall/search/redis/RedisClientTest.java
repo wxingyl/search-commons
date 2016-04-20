@@ -14,20 +14,18 @@ public class RedisClientTest {
 
     private static RedisClient redisClient;
 
-    //    @BeforeClass
-    @Ignore
+    @BeforeClass
     public static void init() {
         JedisPool jedisPool = new JedisPool("127.0.0.1", 6379);
         redisClient = new DefaultRedisClient<>(jedisPool);
     }
 
-    //    @AfterClass
-    @Ignore
+    @AfterClass
     public static void destroy() {
         redisClient.close();
     }
 
-    //    @Test
+    @Test
     @Ignore
     public void redisSet() {
         redisClient.set("name", "wxingyl");

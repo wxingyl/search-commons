@@ -62,6 +62,7 @@ public class QueryTest {
         result.setLength(0);
     }
 
+    @Test
     @Ignore
     public void beanQueryTest() {
         BeanQueryParam<Country> beanQueryParam = Queries.beanParam("tqdb_base", "db_country", Country.class);
