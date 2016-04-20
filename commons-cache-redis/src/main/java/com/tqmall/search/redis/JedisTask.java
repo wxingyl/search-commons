@@ -35,6 +35,10 @@ public class JedisTask<J extends Jedis> {
         }
     }
 
+    public void close() {
+        jedisPool.close();
+    }
+
     //下面都是一些static 方法
 
     //task定义

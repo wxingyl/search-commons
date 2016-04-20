@@ -1,8 +1,5 @@
 package com.tqmall.search.redis;
 
-import redis.clients.jedis.ScanParams;
-import redis.clients.jedis.ScanResult;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,7 +15,9 @@ import java.util.concurrent.TimeUnit;
  *
  * @author 尚辰
  */
-public interface RedisClient {
+public interface RedisClient extends AutoCloseable {
+
+    void close();
 
     /**
      * @param value not null
