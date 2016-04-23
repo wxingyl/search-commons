@@ -38,9 +38,11 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
 
     /**
      * 轮询获取变更数据的时间间隔, 默认500ms, 如果对于实时性要求较高可以设置小一些
+     *
      * @see #fetchInterval()
      */
     private long fetchInterval = 500L;
+
     /**
      * @param address     canal服务器地址
      * @param destination canal实例名称
@@ -73,7 +75,7 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
     }
 
     @Override
-    public final void connect() {
+    public void connect() {
         log.info("canal instance: " + instanceName + " start connect");
         //canal中对于Connector中的用户名和密码不做校验, 所以设置也没有意义
         canalConnector = CanalConnectors.newSingleConnector(address, instanceName, null, null);
@@ -179,6 +181,7 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
 
     /**
      * 轮询获取变更数据的时间间隔, 默认500ms, 如果对于实时性要求较高可以设置小一些
+     *
      * @see #fetchInterval()
      */
     public void setFetchInterval(long fetchInterval) {
