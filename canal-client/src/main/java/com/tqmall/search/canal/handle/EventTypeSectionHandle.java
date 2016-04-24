@@ -1,5 +1,6 @@
 package com.tqmall.search.canal.handle;
 
+import com.alibaba.otter.canal.client.CanalConnector;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.canal.RowChangedData;
 import com.tqmall.search.canal.Schema;
@@ -45,11 +46,11 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
     private final List<RowChangedData> rowChangedDataList = new LinkedList<>();
 
     /**
-     * @param address     canal服务器地址
-     * @param destination canal实例名称
+     * @param connectorFactory {@link CanalConnector}构造器
+     * @param destination      canal实例名称
      */
-    public EventTypeSectionHandle(SocketAddress address, String destination, ActionFactory<EventTypeAction> schemaTables) {
-        super(address, destination, schemaTables);
+    public EventTypeSectionHandle(String destination, ConnectorFactory connectorFactory, ActionFactory<EventTypeAction> schemaTables) {
+        super(destination, connectorFactory, schemaTables);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

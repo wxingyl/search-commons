@@ -52,12 +52,12 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
     private boolean userLocalTableFilter = true;
 
     /**
-     * @param address       canal服务器地址
-     * @param destination   canal实例名称
-     * @param actionFactory table对应action实例
+     * @param connectorFactory {@link CanalConnector}构造器
+     * @param destination      canal实例名称
+     * @param actionFactory    table对应action实例
      */
-    public ActionableInstanceHandle(SocketAddress address, String destination, ActionFactory<T> actionFactory) {
-        super(address, destination);
+    public ActionableInstanceHandle(String destination, ConnectorFactory connectorFactory, ActionFactory<T> actionFactory) {
+        super(destination, connectorFactory);
         this.actionFactory = actionFactory;
     }
 

@@ -4,6 +4,9 @@ import com.alibaba.otter.canal.client.CanalConnector;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.alibaba.otter.canal.protocol.Message;
 
+import java.net.SocketAddress;
+import java.util.List;
+
 /**
  * Created by xing on 16/2/22.
  * 对{@link CanalConnector} 实例操作的封装
@@ -83,4 +86,17 @@ public interface CanalInstanceHandle {
      * @see #rowChangeHandle(CanalEntry.RowChange)
      */
     void finishMessageHandle();
+
+    /**
+     * 提供{@link CanalConnector}实例, 只是提供实例, 不需要做{@link CanalConnector#connect()}等操作
+     *
+     * @see com.tqmall.search.canal.Schemas#singleConnector(SocketAddress)
+     * @see com.tqmall.search.canal.Schemas#clusterConnector(List)
+     * @see com.tqmall.search.canal.Schemas#zkClusterConnector(String)
+     */
+    interface ConnectorFactory {
+
+        CanalConnector create(String instanceName);
+
+    }
 }

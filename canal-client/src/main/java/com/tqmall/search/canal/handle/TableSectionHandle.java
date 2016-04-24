@@ -38,8 +38,8 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
      */
     private final List<RowChangedData> rowChangedDataList = new LinkedList<>();
 
-    public TableSectionHandle(SocketAddress address, String destination, ActionFactory<TableAction> schemaTables) {
-        super(address, destination, schemaTables);
+    public TableSectionHandle(String destination, ConnectorFactory connectorFactory, ActionFactory<TableAction> schemaTables) {
+        super(destination, connectorFactory, schemaTables);
     }
 
     private void runLastRowChangeAction() {

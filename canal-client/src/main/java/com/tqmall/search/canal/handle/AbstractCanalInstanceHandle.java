@@ -4,6 +4,7 @@ import com.alibaba.otter.canal.client.CanalConnector;
 import com.alibaba.otter.canal.client.CanalConnectors;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.alibaba.otter.canal.protocol.Message;
+import com.alibaba.otter.canal.protocol.exception.CanalClientException;
 import com.tqmall.search.canal.CanalExecutor;
 import com.tqmall.search.canal.RowChangedData;
 import com.tqmall.search.commons.utils.CommonsUtils;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -25,7 +27,7 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
 
     protected CanalConnector canalConnector;
 
-    private final SocketAddress address;
+    private final ConnectorFactory connectorFactory;
 
     protected final String instanceName;
 
@@ -44,12 +46,13 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
     private long fetchInterval = 500L;
 
     /**
-     * @param address     canal服务器地址
-     * @param destination canal实例名称
+     * @param destination      canal实例名称
+     * @param connectorFactory {@link CanalConnector}构造器
      */
-    public AbstractCanalInstanceHandle(SocketAddress address, String destination) {
-        this.address = address;
+    public AbstractCanalInstanceHandle(String destination, ConnectorFactory connectorFactory) {
+        Objects.requireNonNull(connectorFactory);
         this.instanceName = destination;
+        this.connectorFactory = connectorFactory;
     }
 
     protected abstract void doConnect();
@@ -78,7 +81,7 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
     public void connect() {
         log.info("canal instance: " + instanceName + " start connect");
         //canal中对于Connector中的用户名和密码不做校验, 所以设置也没有意义
-        canalConnector = CanalConnectors.newSingleConnector(address, instanceName, null, null);
+        canalConnector = connectorFactory.create(instanceName);
         doConnect();
         log.info("canal instance: " + instanceName + " connect succeed");
     }
@@ -89,8 +92,12 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
         try {
             canalConnector.unsubscribe();
         } finally {
-            canalConnector.disconnect();
-            log.info("canal instance: " + instanceName + " disConnect succeed");
+            try {
+                canalConnector.disconnect();
+                log.info("canal instance: " + instanceName + " disConnect succeed");
+            } catch (CanalClientException e) {
+                log.error("canal instance: " + instanceName + " disConnect failed", e);
+            }
         }
     }
 

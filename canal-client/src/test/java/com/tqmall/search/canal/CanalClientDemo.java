@@ -54,7 +54,7 @@ public class CanalClientDemo {
                         .columns("id", "goods_id", "goods_number")
                         .columnCondition(Schemas.DEFAULT_DELETE_COLUMN_CONDITION))
                 .create());
-        CANAL_EXECUTOR.addInstanceHandle(new TableSectionHandle(LOCAL_ADDRESS, "shop", actionFactory));
+        CANAL_EXECUTOR.addInstanceHandle(new TableSectionHandle("shop", Schemas.singleConnector(LOCAL_ADDRESS), actionFactory));
         ActionFactory<EventTypeAction> eventTypeFactory = new SingleSchemaActionFactory<>(Schemas.buildSchema("autoparts", EventTypeAction.class)
                 .addTable(Schemas.buildTable("db_goods")
                         .action(new EventTypeAction() {
@@ -79,7 +79,7 @@ public class CanalClientDemo {
                                 .mustCondition(Conditions.equal("seller_id", 1))
                                 .create()))
                 .create());
-        CANAL_EXECUTOR.addInstanceHandle(new EventTypeSectionHandle(LOCAL_ADDRESS, "shop_goods", eventTypeFactory));
+        CANAL_EXECUTOR.addInstanceHandle(new EventTypeSectionHandle("shop_goods", Schemas.singleConnector(LOCAL_ADDRESS), eventTypeFactory));
         CANAL_EXECUTOR.startAllInstance(0L);
         try {
             TimeUnit.MINUTES.sleep(100);
@@ -95,7 +95,7 @@ public class CanalClientDemo {
         //canal实例名称
         String instanceName = "legend-instance-section";
 
-        InstanceSectionHandle instanceSectionHandle = new InstanceSectionHandle(LOCAL_ADDRESS, new AbstractInstanceAction(instanceName) {
+        InstanceSectionHandle instanceSectionHandle = new InstanceSectionHandle(Schemas.singleConnector(LOCAL_ADDRESS), new AbstractInstanceAction(instanceName) {
             @Override
             public void onAction(List<? extends InstanceRowChangedData> rowChangedData) {
                 //do some work or call some function~~~
@@ -183,7 +183,7 @@ public class CanalClientDemo {
 
         //canal实例名称
         String instanceName = "legend-table-section";
-        TableSectionHandle tableSectionHandle = new TableSectionHandle(LOCAL_ADDRESS, instanceName, new MultiSchemaActionFactory<>(schemas));
+        TableSectionHandle tableSectionHandle = new TableSectionHandle(instanceName, Schemas.singleConnector(LOCAL_ADDRESS), new MultiSchemaActionFactory<>(schemas));
 
         //下面是异常处理以及canal连接的一些参数设置, 都有默认值, 需要设置之~~~
         tableSectionHandle.setExceptionHandleFunction(new Function<HandleExceptionContext, Boolean>() {
@@ -293,7 +293,8 @@ public class CanalClientDemo {
 
         //canal实例名称
         String instanceName = "legend-event-type-section";
-        EventTypeSectionHandle eventTypeSectionHandle = new EventTypeSectionHandle(LOCAL_ADDRESS, instanceName, actionFactory);
+        EventTypeSectionHandle eventTypeSectionHandle = new EventTypeSectionHandle(instanceName, Schemas.singleConnector(LOCAL_ADDRESS),
+                actionFactory);
 
         //下面是异常处理以及canal连接的一些参数设置, 都有默认值, 需要设置之~~~
         eventTypeSectionHandle.setExceptionHandleFunction(new Function<HandleExceptionContext, Boolean>() {

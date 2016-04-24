@@ -1,12 +1,17 @@
 package com.tqmall.search.canal;
 
+import com.alibaba.otter.canal.client.CanalConnector;
+import com.alibaba.otter.canal.client.CanalConnectors;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.canal.action.*;
+import com.tqmall.search.canal.handle.CanalInstanceHandle;
 import com.tqmall.search.commons.condition.ConditionContainer;
 import com.tqmall.search.commons.condition.Conditions;
 import com.tqmall.search.commons.condition.EqualCondition;
 import com.tqmall.search.commons.utils.CommonsUtils;
+import com.tqmall.search.commons.utils.SearchStringUtils;
 
+import java.net.SocketAddress;
 import java.util.*;
 
 /**
@@ -46,6 +51,67 @@ public final class Schemas {
 
     public static TableBuilder buildTable(String tableName) {
         return new TableBuilder(tableName);
+    }
+
+    public static CanalInstanceHandle.ConnectorFactory singleConnector(SocketAddress address) {
+        return new SingleConnectorFactory(address);
+    }
+
+    public static CanalInstanceHandle.ConnectorFactory clusterConnector(List<SocketAddress> addresses) {
+        return new ClusterConnectorFactory(addresses);
+    }
+
+    public static CanalInstanceHandle.ConnectorFactory zkClusterConnector(String zkServers) {
+        return new ZkClusterConnectorFactory(zkServers);
+    }
+
+    static class SingleConnectorFactory implements CanalInstanceHandle.ConnectorFactory {
+
+        private final SocketAddress address;
+
+        SingleConnectorFactory(SocketAddress address) {
+            Objects.requireNonNull(address);
+            this.address = address;
+        }
+
+        @Override
+        public CanalConnector create(String instanceName) {
+            return CanalConnectors.newSingleConnector(address, instanceName, null, null);
+        }
+    }
+
+    static class ClusterConnectorFactory implements CanalInstanceHandle.ConnectorFactory {
+
+        private final List<SocketAddress> addresses;
+
+        ClusterConnectorFactory(List<SocketAddress> addresses) {
+            if (CommonsUtils.isEmpty(addresses)) {
+                throw new IllegalArgumentException("addresses can not empty");
+            }
+            this.addresses = addresses;
+        }
+
+        @Override
+        public CanalConnector create(String instanceName) {
+            return CanalConnectors.newClusterConnector(addresses, instanceName, null, null);
+        }
+    }
+
+    static class ZkClusterConnectorFactory implements CanalInstanceHandle.ConnectorFactory {
+
+        private final String zkServers;
+
+        ZkClusterConnectorFactory(String zkServers) {
+            if (SearchStringUtils.isEmpty(zkServers)) {
+                throw new IllegalArgumentException("zkServers string value is empty");
+            }
+            this.zkServers = zkServers;
+        }
+
+        @Override
+        public CanalConnector create(String instanceName) {
+            return CanalConnectors.newClusterConnector(zkServers, instanceName, null, null);
+        }
     }
 
     /**

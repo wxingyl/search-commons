@@ -11,7 +11,6 @@
 5. 表的处理支持多条件筛选
 6. 执行自定义处理函数时发生RuntimeException，提供异常处理扩展接口
 
-目前不支持通过zk连接canal, 后续考虑添加
 ##主要类介绍
 
 ###CanalExecutor

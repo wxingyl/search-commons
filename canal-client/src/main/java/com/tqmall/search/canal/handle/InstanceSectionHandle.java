@@ -1,5 +1,6 @@
 package com.tqmall.search.canal.handle;
 
+import com.alibaba.otter.canal.client.CanalConnector;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.tqmall.search.canal.RowChangedData;
 import com.tqmall.search.canal.action.InstanceAction;
@@ -54,11 +55,11 @@ public class InstanceSectionHandle extends AbstractCanalInstanceHandle {
     private CanalEntry.EventType currentEventType;
 
     /**
-     * @param address        canal服务器地址
-     * @param instanceAction canalInstance实例对应的处理Action
+     * @param connectorFactory {@link CanalConnector}构造器
+     * @param instanceAction   canalInstance实例对应的处理Action
      */
-    public InstanceSectionHandle(SocketAddress address, InstanceAction instanceAction) {
-        super(address, instanceAction.instanceName());
+    public InstanceSectionHandle(ConnectorFactory connectorFactory, InstanceAction instanceAction) {
+        super(instanceAction.instanceName(), connectorFactory);
         this.instanceAction = instanceAction;
         setMessageBatchSize(100);
     }
