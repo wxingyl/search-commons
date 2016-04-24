@@ -18,27 +18,28 @@
 com.tqmall.search.canal.CanalExecutor, canal实例执行器，管理各个canal实例。每个canal实例运行都在单独的后台线程运行，循环获取数据, 进行处理，该线程的创建通过构造函数中的`ThreadFactory`创建,在启动canal实例是执行线程创建~~~
 
 ```java
-    private static final AtomicInteger EXECUTOR_NUMBER = new AtomicInteger(1);
+        public CanalExecutor(ThreadFactory threadFactory) {
+        final int order = EXECUTOR_NUMBER.incrementAndGet();
+        if (threadFactory == null) {
+            threadFactory = new ThreadFactory() {
+                private final ThreadFactory defaultFactory = Executors.defaultThreadFactory();
+                private final AtomicInteger threadNumber = new AtomicInteger(1);
+                private String namePrefix;
 
-    public CanalExecutor() {
-        this(new ThreadFactory() {
-            private final ThreadFactory defaultFactory = Executors.defaultThreadFactory();
-            private final AtomicInteger threadNumber = new AtomicInteger(1);
-            private final String namePrefix = "canal-" + EXECUTOR_NUMBER.getAndIncrement() + "-thread-";
-
-            @Override
-            public Thread newThread(Runnable r) {
-                Thread thread = defaultFactory.newThread(r);
-                thread.setName(namePrefix + threadNumber.getAndIncrement());
-                return thread;
-            }
-        });
-    }
-
-    public CanalExecutor(ThreadFactory threadFactory) {
+                @Override
+                public Thread newThread(Runnable r) {
+                    if (namePrefix == null) {
+                        namePrefix = "canal-" + order + "-thread-";
+                    }
+                    Thread thread = defaultFactory.newThread(r);
+                    thread.setName(namePrefix + threadNumber.getAndIncrement());
+                    return thread;
+                }
+            };
+        }
         this.threadFactory = threadFactory;
         //jvm退出时执行hook
-        Runtime.getRuntime().addShutdownHook(threadFactory.newThread(new Runnable() {
+        Runtime.getRuntime().addShutdownHook(this.threadFactory.newThread(new Runnable() {
             @Override
             public void run() {
                 stopAll();
@@ -124,10 +125,10 @@ public void setFetchInterval(long fetchInterval)
 1. `InstanceSectionHandle`异常处理扩展接口：
 
    ```java
-   /**
-    * @param exceptionHandleFunction 异常处理方法, 返回结果表示是否忽略, 如果返回null 则为false, 即不忽略, 默认不忽略
-    */
-   public void setExceptionHandleFunction(Function<ExceptionContext, Boolean> exceptionHandleFunction)
+     /**
+      * @param exceptionHandleFunction 异常处理方法, 返回结果表示是否忽略, 如果返回null 则为false, 即不忽略, 默认不忽略
+      */
+     public void setExceptionHandleFunction(Function<ExceptionContext, Boolean> exceptionHandleFunction)
    ```
 
 2. `TableSectionHandle` 和 `EventTypeSectionHandle` 异常处理扩展接口：
@@ -229,11 +230,11 @@ pom依赖
 1. 该jar包依赖了搜索的commons-lang, commons-lang里面没有任何依赖:
 
    ```xml
-   <dependency>
-       <groupId>com.tqmall.search</groupId>
-       <artifactId>commons-lang</artifactId>
-       <version>1.0-SNAPSHOT</version>
-   </dependency>
+     <dependency>
+         <groupId>com.tqmall.search</groupId>
+         <artifactId>commons-lang</artifactId>
+         <version>1.1.1</version>
+     </dependency>
    ```
 
 2. 使用的canal.client版本是1.0.21: 
