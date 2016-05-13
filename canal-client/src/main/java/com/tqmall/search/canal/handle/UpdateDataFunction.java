@@ -22,7 +22,7 @@ import com.tqmall.search.commons.lang.Function;
  *
  * @see RowChangedData.Update
  */
-public final class UpdateDataFunction {
+final class UpdateDataFunction {
 
     private final static ThreadLocal<UpdateDataFunction> INSTANCE = new ThreadLocal<UpdateDataFunction>() {
         @Override

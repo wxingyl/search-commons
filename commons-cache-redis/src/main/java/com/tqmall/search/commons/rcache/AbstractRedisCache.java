@@ -46,7 +46,7 @@ public abstract class AbstractRedisCache<K, V> implements Cache<K, V> {
     protected V loadValue(K key) {
         String fieldKey = mapField(key);
         Map<String, V> map = loadValue(Collections.singleton(fieldKey));
-        return map.get(fieldKey);
+        return map == null ? null : map.get(fieldKey);
     }
 
     /**

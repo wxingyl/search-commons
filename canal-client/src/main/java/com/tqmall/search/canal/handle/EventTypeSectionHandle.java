@@ -117,14 +117,14 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
                     if (lastType == -1) {
                         lastType = curType;
                     } else if (lastType != curType) {
-                        runLastEventTypeOfAction(lastType, rowChangedDataList.subList(0, i));
+                        runLastEventTypeOfAction(lastType, rowChangedDataList.subList(0, i - 1));
                         //从头开始
                         it = rowChangedDataList.listIterator();
-                        i = 0;
+                        i = 1;
                         lastType = curType;
                     }
                 }
-                if (i > 0) {
+                if (!rowChangedDataList.isEmpty()) {
                     runLastEventTypeOfAction(lastType, rowChangedDataList);
                 }
             } finally {
