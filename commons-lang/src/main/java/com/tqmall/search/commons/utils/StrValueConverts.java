@@ -329,7 +329,7 @@ public final class StrValueConverts {
         public Date convert(String str) {
             try {
                 return dateFormats.get().parse(str);
-            } catch (ParseException e) {
+            } catch (Throwable e) {
                 return null;
             }
         }
