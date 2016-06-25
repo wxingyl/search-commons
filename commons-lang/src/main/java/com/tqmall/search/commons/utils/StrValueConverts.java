@@ -346,9 +346,10 @@ public final class StrValueConverts {
 
         @Override
         public Date convert(String str) {
+            if (str == null) return null;
             try {
                 return dateFormats.get().parse(str);
-            } catch (Throwable e) {
+            } catch (ParseException e) {
                 return null;
             }
         }
