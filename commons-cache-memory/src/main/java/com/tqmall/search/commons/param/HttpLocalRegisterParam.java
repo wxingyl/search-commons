@@ -1,5 +1,7 @@
 package com.tqmall.search.commons.param;
 
+import com.tqmall.search.commons.utils.HttpMethod;
+
 import java.util.Map;
 
 /**
@@ -18,7 +20,7 @@ public class HttpLocalRegisterParam extends LocalRegisterParam {
     /**
      * 说明那中Http方法,目前只支持GET, POST, PUT, DELETE
      */
-    private String httpMethod;
+    private HttpMethod httpMethod;
 
     public Map<String, String> requestHeaders;
 
@@ -27,7 +29,7 @@ public class HttpLocalRegisterParam extends LocalRegisterParam {
         return notifyUrlPath;
     }
 
-    public String getHttpMethod() {
+    public HttpMethod getHttpMethod() {
         return httpMethod;
     }
 
@@ -39,7 +41,7 @@ public class HttpLocalRegisterParam extends LocalRegisterParam {
         this.notifyUrlPath = notifyUrlPath;
     }
 
-    public void setHttpMethod(String httpMethod) {
+    public void setHttpMethod(HttpMethod httpMethod) {
         this.httpMethod = httpMethod;
     }
 

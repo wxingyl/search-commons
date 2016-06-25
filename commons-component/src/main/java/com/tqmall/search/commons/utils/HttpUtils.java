@@ -348,7 +348,7 @@ public final class HttpUtils {
             addHeader("Connection", "keep-alive");
         }
 
-        public abstract String getMethod();
+        public abstract HttpMethod getMethod();
 
         protected abstract void doHttpURLConnection(HttpURLConnection httpUrlConnection) throws IOException;
 
@@ -420,7 +420,7 @@ public final class HttpUtils {
                 responseCode = -1;
                 //都是使用的http协议调用,所以可以直接强转
                 httpConnection = (HttpURLConnection) url.openConnection();
-                httpConnection.setRequestMethod(getMethod());
+                httpConnection.setRequestMethod(getMethod().name());
                 for (Map.Entry<String, String> e : headerMap.entrySet()) {
                     httpConnection.addRequestProperty(e.getKey(), e.getValue());
                 }
@@ -479,8 +479,8 @@ public final class HttpUtils {
     public static class GetRequest extends Request {
 
         @Override
-        public String getMethod() {
-            return GET_METHOD;
+        public HttpMethod getMethod() {
+            return HttpMethod.GET;
         }
 
         @Override
@@ -563,8 +563,8 @@ public final class HttpUtils {
     public static class PostRequest extends HandleBodyRequest {
 
         @Override
-        public final String getMethod() {
-            return POST_METHOD;
+        public final HttpMethod getMethod() {
+            return HttpMethod.POST;
         }
 
     }
@@ -574,8 +574,8 @@ public final class HttpUtils {
      */
     public static class PutRequest extends HandleBodyRequest {
         @Override
-        public final String getMethod() {
-            return PUT_METHOD;
+        public final HttpMethod getMethod() {
+            return HttpMethod.PUT;
         }
     }
 
@@ -584,8 +584,8 @@ public final class HttpUtils {
      */
     public static class DeleteRequest extends HandleBodyRequest {
         @Override
-        public final String getMethod() {
-            return DELETE_METHOD;
+        public final HttpMethod getMethod() {
+            return HttpMethod.DELETE;
         }
     }
 

@@ -41,10 +41,8 @@ public class HttpRtCacheNotify extends AbstractRtCacheNotify<HttpSlaveHostInfo> 
     protected HttpSlaveHostInfo createSlaveInfo(LocalRegisterParam param) {
         HttpLocalRegisterParam httpParam = (HttpLocalRegisterParam) param;
         //只是检查Http Method是否OK
-        if (httpParam.getHttpMethod() != null) {
-            HttpMethod.valueOf(httpParam.getHttpMethod());
-        } else {
-            httpParam.setHttpMethod(HttpUtils.GET_METHOD);
+        if (httpParam.getHttpMethod() == null) {
+            httpParam.setHttpMethod(HttpMethod.GET);
         }
         return HttpSlaveHostInfo.build(param.getSlaveHost())
                 .notifyUrlPath(httpParam.getNotifyUrlPath())
@@ -58,8 +56,8 @@ public class HttpRtCacheNotify extends AbstractRtCacheNotify<HttpSlaveHostInfo> 
         String getParam = null;
         for (final HttpSlaveHostInfo info : slaves) {
             try {
-                final HttpUtils.Request request = HttpMethod.valueOf(info.getHttpMethod()).build();
-                if (HttpUtils.GET_METHOD.equals(info.getHttpMethod())) {
+                final HttpUtils.Request request = info.getHttpMethod().build();
+                if (HttpMethod.GET == info.getHttpMethod()) {
                     if (getParam == null) {
                         getParam = String.format("cacheKey=%s&keys=%s&source=%s", param.getCacheKey(),
                                 SearchStringUtils.join(param.getKeys(), ','), param.getSource());

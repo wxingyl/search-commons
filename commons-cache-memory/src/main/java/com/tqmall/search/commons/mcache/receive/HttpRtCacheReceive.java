@@ -75,7 +75,7 @@ public class HttpRtCacheReceive extends AbstractRtCacheReceive<HttpMasterHostInf
     protected boolean doMasterRegister(HostInfo localHost, HttpMasterHostInfo masterHostInfo,
                                        List<String> cacheKeys) {
         HttpLocalRegisterParam bodyBean = new HttpLocalRegisterParam();
-        bodyBean.setHttpMethod(HttpUtils.POST_METHOD);
+        bodyBean.setHttpMethod(HttpMethod.POST);
         bodyBean.setSlaveHost(new HostInfoObj(localHost));
         bodyBean.setNotifyUrlPath(buildFullUrlPath(notifyChangePath == null ?
                 HttpCacheManager.MASTER_DEFAULT_NOTIFY_PATH : notifyChangePath));

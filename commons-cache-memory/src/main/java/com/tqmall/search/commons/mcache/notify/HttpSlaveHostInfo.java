@@ -2,6 +2,7 @@ package com.tqmall.search.commons.mcache.notify;
 
 import com.tqmall.search.commons.lang.HostInfo;
 import com.tqmall.search.commons.utils.CommonsUtils;
+import com.tqmall.search.commons.utils.HttpMethod;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,7 +22,7 @@ public class HttpSlaveHostInfo extends AbstractSlaveHostInfo {
     /**
      * 说明那中Http方法,目前只支持GET, POST, PUT, DELETE
      */
-    private String httpMethod;
+    private HttpMethod httpMethod;
 
     public Map<String, String> requestHeaders;
 
@@ -29,7 +30,7 @@ public class HttpSlaveHostInfo extends AbstractSlaveHostInfo {
         super(slaveHost);
     }
 
-    public String getHttpMethod() {
+    public HttpMethod getHttpMethod() {
         return httpMethod;
     }
 
@@ -49,7 +50,9 @@ public class HttpSlaveHostInfo extends AbstractSlaveHostInfo {
 
         private HostInfo slaveHost;
 
-        private String notifyUrlPath, httpMethod;
+        private String notifyUrlPath;
+
+        private HttpMethod httpMethod;
 
         private Map<String, String> requestHeaders = new HashMap<>();
 
@@ -62,7 +65,7 @@ public class HttpSlaveHostInfo extends AbstractSlaveHostInfo {
             return this;
         }
 
-        public Build httpMethod(String httpMethod) {
+        public Build httpMethod(HttpMethod httpMethod) {
             this.httpMethod = httpMethod;
             return this;
         }
