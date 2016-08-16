@@ -1,5 +1,7 @@
 package com.tqmall.search.commons.result;
 
+import com.tqmall.search.commons.utils.StrValueConverts;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -45,6 +47,15 @@ public class Result<T> implements Serializable {
 
     public String getCode() {
         return code;
+    }
+
+    /**
+     * 将错误码转换成int返回
+     *
+     * @return 如果转换出现异常返回0
+     */
+    public int codeConvertToInt() {
+        return StrValueConverts.intConvert(code);
     }
 
     public T getData() {

@@ -58,7 +58,7 @@ public class CjkAnalyzerTest {
         System.out.println();
     }
 
-    public void runSegment(Function<String, List<Hit<TokenType>>> function) {
+    private void runSegment(Function<String, List<Hit<TokenType>>> function) {
         String text = "北京大学";
         List<Hit<TokenType>> list;
         list = function.apply(text);
@@ -84,6 +84,30 @@ public class CjkAnalyzerTest {
         text = "商品共和服";
         list = function.apply(text);
         printHits(text, list);
+        text = "严守一把手机关了";
+        printHits(text, function.apply(text));
+        text = "吉林省长春药店";
+        printHits(text, function.apply(text));
+        text = "代表北大的人大代表，代表人大的北大博士";
+        printHits(text, function.apply(text));
+        text = "江阴毛纺织厂";
+        printHits(text, function.apply(text));
+        text = "薄熙来到重庆";
+        printHits(text, function.apply(text));
+        text = "周杰轮周杰伦，范伟骑范玮琪";
+        printHits(text, function.apply(text));
+        text = "结婚的和尚未结婚的";
+        printHits(text, function.apply(text));
+        text = "北京大学生前来应聘";
+        printHits(text, function.apply(text));
+        text = "高数学起来很难";
+        printHits(text, function.apply(text));
+        text = "博观是什么时候加入阿里的？";
+        printHits(text, function.apply(text));
+        text = "蚂蚁金服的员工都分布在哪些工作地点？";
+        printHits(text, function.apply(text));
+        text = "北京大学生前来应聘";
+        printHits(text, function.apply(text));
     }
 
     private void printHits(String text, List<Hit<TokenType>> list) {

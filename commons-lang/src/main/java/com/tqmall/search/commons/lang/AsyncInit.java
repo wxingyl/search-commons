@@ -12,14 +12,14 @@ import java.util.concurrent.Executors;
  */
 public class AsyncInit<T> implements Supplier<T> {
 
-    public static final long DEFAULT_WAIT_TIMEOUT = 100L;
+    public static final long DEFAULT_WAIT_TIMEOUT = 1000L;
 
     private final Object lock = new Object();
 
     private T instance = null;
 
     /**
-     * 单位毫秒, 等待初始化的超时时间, 默认100ms
+     * 单位毫秒, 等待初始化的超时时间, 默认1000ms
      */
     private final long waitTimeOut;
 
@@ -61,7 +61,6 @@ public class AsyncInit<T> implements Supplier<T> {
             synchronized (lock) {
                 while (instance == null) {
                     try {
-                        //顶多等100ms
                         lock.wait(waitTimeOut);
                     } catch (InterruptedException ignored) {
                     }

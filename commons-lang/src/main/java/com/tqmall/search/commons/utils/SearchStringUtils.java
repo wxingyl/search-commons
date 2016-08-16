@@ -39,7 +39,7 @@ public final class SearchStringUtils {
      * 不是自己原创, 是人家Apache的
      * <p/>
      * 重要的事情至少说3变
-     * 当然自己有做了微小改动
+     * 当然自己有做微小改动
      * <p/>
      * <p/>
      * 下面的文档也是人家的:
@@ -103,7 +103,7 @@ public final class SearchStringUtils {
      * 不是自己原创, 参考人家Apache
      * <p/>
      * 重要的事情至少说3变
-     * 当然自己有了做了微小改动
+     * 当然自己有做微小改动
      */
     public static String join(final Object[] array, final char separator) {
         if (array == null) return null;

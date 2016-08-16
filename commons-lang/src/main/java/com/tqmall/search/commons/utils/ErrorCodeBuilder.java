@@ -40,6 +40,9 @@ public class ErrorCodeBuilder {
         return buildCode(ErrorCode.Level.WARN, exceptionCode);
     }
 
+    /**
+     * 错误吗各个字段长度配置, 提供默认的配置{@link Config#DEFAULT}
+     */
     public static class Config {
         /**
          * 系统码长度

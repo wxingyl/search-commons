@@ -5,7 +5,7 @@
     <parent>
         <artifactId>commons</artifactId>
         <groupId>com.tqmall.search</groupId>
-        <version>2.0.2</version>
+        <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -15,7 +15,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <guava.version>19.0</guava.version>
+        <guava.version>18.0</guava.version>
         <commons-lang3.version>3.4</commons-lang3.version>
         <fastjson.version>1.2.8</fastjson.version>
     </properties>

@@ -3,6 +3,8 @@ package com.tqmall.search.commons.result;
 /**
  * Created by xing on 15/12/13.
  * 错误码接口
+ *
+ * @see com.tqmall.search.commons.utils.ErrorCodeBuilder errorCode对象创建器
  */
 public interface ErrorCode {
 
