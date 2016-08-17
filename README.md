@@ -6,13 +6,11 @@
 
 另外还封装了作为搜索参数和简单返回结果的工具包，比如RangeFilter，Sort等。
 
-目前最新版本1.1.1
 
 ##canal-client
 
 基于阿里 [Canal](https://github.com/alibaba/canal) mysql数据库binlog的增量订阅&消费组件，封装其基本使用，统一维护canal instance运行，自定义实例，表，行改动的事件处理以及改动的数据过滤, 具体使用参见[文档](canal-client/docs)
 
-目前最新版本1.1.1
 
 ## commons-component
 
@@ -22,7 +20,7 @@
 <dependency>
     <groupId>com.google.guava</groupId>
     <artifactId>guava</artifactId>
-    <version>19.0</version>
+    <version>18.0</version>
 </dependency>
 <dependency>
     <groupId>org.apache.commons</groupId>
@@ -68,7 +66,6 @@
 
 是不是很人性化~~~~~~
 
-目前最新版本1.0.1
 
 ## commons-cache-memory
 
@@ -76,13 +73,11 @@
 
 封装了notify/receive,多台机器，多系统之间实现消息逐个通知，类似广播的概念。目前搜索内存缓存少量数据使用到，实时索引在masterHost修改，将改动notify到注册的slaveHost机器, 完成数据同步修改。
 
-目前最新版本1.0.1
 
 ## commons-cache-redis
 
 通过redis实现cache操作，实现了`commons-lang`中的[Cache.java](commons-lang/src/main/java/com/tqmall/search/commons/lang/Cache.java)，同时通过`jedis`封装了redis的访问，方便jedis的使用, 具体见[RedisClient.java](commons-cache-redis/src/main/java/com/tqmall/search/redis/RedisClient.java)
 
-目前最新版本1.0
 
 ## commons-nlp
 
@@ -119,24 +114,15 @@ public enum SegmentType {
 }
 ```
 
-目前最新版本1.0，基于该版本实现了ElasticSearch的分词，汉子繁体转简体以及汉子转拼音，具体见项目[elasticsearch-analysis-benz](https://github.com/wxingyl/elasticsearch-analysis-benz)
+基于该模块实现了ElasticSearch的分词，汉子繁体转简体以及汉子转拼音，具体见项目[elasticsearch-analysis-benz](https://github.com/wxingyl/elasticsearch-analysis-benz)
 
 ## commons-db
 
 封装数据库常用操作，主要使用datasource链接数据库，通过db-utils操作。
 
-最新版本1.0
-
-
 
 
 更多内容，不断添加~~~~~~
-
-## 版本
-
-### rc版本
-
-rc版本为预发版本，未达到上线标准，能用，但是存在很多已知或者未知的bug，以及部分功能没有实现，所以外部线上环境不要使用所有的rc版本。
 
 
 ### pom依赖
