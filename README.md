@@ -138,9 +138,6 @@ public enum SegmentType {
 
 rc版本为预发版本，未达到上线标准，能用，但是存在很多已知或者未知的bug，以及部分功能没有实现，所以外部线上环境不要使用所有的rc版本。
 
-### 特殊说明
-
-1. 原先项目只有commons-lang和commons-core两个模块，这两个模块目前已经删除，被commons-lang和其他几个功能模块代替，建议不要再使用~~~
 
 ### pom依赖
 
