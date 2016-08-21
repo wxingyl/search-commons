@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
@@ -40,7 +41,7 @@ public final class NlpUtils {
      *
      * @return 如果是全角, 则返回对应字符, 如果不是全角则返回自身
      */
-    public static char fullwidthConvert(char c) {
+    public static char fullWidthConvert(char c) {
         //空格特殊处理
         if (c == '\u3000') {
             return '\u0020';
@@ -98,7 +99,11 @@ public final class NlpUtils {
      */
     public static Path getPathOfClass(Class cls, String filename) {
         URL uri = cls.getResource(filename);
-        return uri == null ? null : Paths.get(uri.getFile());
+        try {
+            return uri == null ? null : Paths.get(uri.toURI());
+        } catch (URISyntaxException e) {
+           return null;
+        }
     }
 
     /**

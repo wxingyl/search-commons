@@ -10,6 +10,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -22,7 +23,7 @@ public class CjkAnalyzerTest {
 
     @BeforeClass
     public static void init() {
-        cjkLexicon = new CjkLexicon(RootNodeType.CJK, NlpUtils.getPathOfClass(CjkAnalyzerTest.class, "/segment.txt"));
+        cjkLexicon = new CjkLexicon(RootNodeType.CJK, NlpUtils.getPathOfClass(CjkAnalyzerTest.class,  "/segment.txt"));
     }
 
     @AfterClass
