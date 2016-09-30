@@ -3,26 +3,26 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>com.tqmall.search</groupId>
         <artifactId>commons</artifactId>
+        <groupId>com.tqmall.search</groupId>
         <version>1.0.0</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>commons-nlp</artifactId>
+    <artifactId>redis-client</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
-
     <dependencies>
         <dependency>
             <groupId>com.tqmall.search</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+            <groupId>com.tqmall.search</groupId>
+            <artifactId>commons-component</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
         </dependency>
     </dependencies>
-
 </project>

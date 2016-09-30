@@ -7,40 +7,28 @@
         <groupId>com.tqmall.search</groupId>
         <artifactId>commons</artifactId>
         <version>1.0.0</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>commons-cache-memory</artifactId>
-    <version>1.0</version>
+    <artifactId>commons-cache</artifactId>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>com.tqmall.search</groupId>
             <artifactId>commons-lang</artifactId>
-            <version>${lang.version}</version>
         </dependency>
         <dependency>
             <groupId>com.tqmall.search</groupId>
             <artifactId>canal-client</artifactId>
-            <version>${canal-client.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.tqmall.search</groupId>
-                    <artifactId>commons-lang</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.tqmall.search</groupId>
             <artifactId>commons-component</artifactId>
-            <version>${component.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.tqmall.search</groupId>
-                    <artifactId>commons-lang</artifactId>
-                </exclusion>
-            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.tqmall.search</groupId>
+            <artifactId>redis-client</artifactId>
         </dependency>
     </dependencies>
 

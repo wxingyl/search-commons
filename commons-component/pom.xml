@@ -6,45 +6,33 @@
         <artifactId>commons</artifactId>
         <groupId>com.tqmall.search</groupId>
         <version>1.0.0</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>commons-component</artifactId>
-    <version>1.0</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
-
-    <properties>
-        <guava.version>18.0</guava.version>
-        <commons-lang3.version>3.4</commons-lang3.version>
-        <fastjson.version>1.2.8</fastjson.version>
-    </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.tqmall.search</groupId>
             <artifactId>commons-lang</artifactId>
-            <version>${lang.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${commons-lang3.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${slf4j-version}</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>${fastjson.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -9,31 +9,23 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <version>1.0</version>
+    <version>1.0.0</version>
     <artifactId>commons-db</artifactId>
     <packaging>jar</packaging>
-
-    <properties>
-        <commons-dbutils-version>1.6</commons-dbutils-version>
-    </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.tqmall.search</groupId>
             <artifactId>commons-lang</artifactId>
-            <version>${lang.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${slf4j-version}</version>
         </dependency>
         <dependency>
             <groupId>commons-dbutils</groupId>
             <artifactId>commons-dbutils</artifactId>
-            <version>${commons-dbutils-version}</version>
         </dependency>
-
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
