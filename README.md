@@ -41,42 +41,19 @@
 
 这4个jar包基本上是每个项目都需要的，所以这儿单独拿出来，并且基于这些第三库封装了一些工具类。
 
-如果需要排除这些引入的jar包，避免冲突，如下直接拷贝拿去：
 
-``` xml
-<exclusions>
-    <exclusion>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-    </exclusion>
-    <exclusion>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-    </exclusion>
-    <exclusion>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-    </exclusion>
-    <exclusion>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-    </exclusion>
-</exclusions>
-```
-
-是不是很人性化~~~~~~
-
-
-## commons-cache-memory
+## commons-cache
 
 依赖`commons-component`, `canal-client`，少量数据内存缓存，该模块封装实现了简单的缓存，支持动态实时修改(需要外部程序支持，比如canal等)，同时支持多机器互发通知更新缓存。
 
 封装了notify/receive,多台机器，多系统之间实现消息逐个通知，类似广播的概念。目前搜索内存缓存少量数据使用到，实时索引在masterHost修改，将改动notify到注册的slaveHost机器, 完成数据同步修改。
 
+也可以通过redis缓存，无需实时通知变更，只需要通过canal更新redis缓存内容即可
 
-## commons-cache-redis
 
-通过redis实现cache操作，实现了`commons-lang`中的[Cache.java](commons-lang/src/main/java/com/tqmall/search/commons/lang/Cache.java)，同时通过`jedis`封装了redis的访问，方便jedis的使用, 具体见[RedisClient.java](commons-cache-redis/src/main/java/com/tqmall/search/redis/RedisClient.java)
+## redis-client
+
+基于`jedis`封装了redis的访问，方便jedis的使用，另外基于redis实现了`commons-lang`中的[Cache.java](commons-lang/src/main/java/com/tqmall/search/commons/lang/Cache.java), 具体见[RedisClient.java](commons-cache-redis/src/main/java/com/tqmall/search/redis/RedisClient.java)
 
 
 ## commons-nlp
