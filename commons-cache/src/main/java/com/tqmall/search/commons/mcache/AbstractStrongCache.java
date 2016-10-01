@@ -39,6 +39,7 @@ public abstract class AbstractStrongCache<K, V> implements DataSourceCache<K, V>
      * 如果是更新操作, 看原先两者是不是{@link Objects#equals(Object, Object)}
      */
     protected boolean updateValue(K key, V val) {
+        if (cache == null) return false;
         V before;
         if (val == null) {
             before = cache.remove(key);
@@ -97,7 +98,28 @@ public abstract class AbstractStrongCache<K, V> implements DataSourceCache<K, V>
 
     @Override
     public synchronized void clear() {
+        if (cache != null) {
+            cache.clear();
+        }
         cache = null;
+    }
+
+    @Override
+    public final boolean invalid(K key) {
+        return cache != null && cache.remove(key) != null;
+    }
+
+    @Override
+    public final int invalid(Iterable<K> keys) {
+        if (keys == null || cache == null) return 0;
+        int count = 0;
+        for (K key : keys) {
+            if (cache == null) break;
+            if (cache.remove(key) != null) {
+                count++;
+            }
+        }
+        return count;
     }
 
     private synchronized int init() {

@@ -5,6 +5,7 @@ import com.tqmall.search.canal.action.Actions;
 import com.tqmall.search.canal.action.EventTypeAction;
 import com.tqmall.search.canal.action.TableAction;
 import com.tqmall.search.commons.lang.Function;
+import com.tqmall.search.redis.AbstractRedisCache;
 import com.tqmall.search.redis.RedisClient;
 
 import java.util.ArrayList;

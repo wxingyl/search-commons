@@ -1,9 +1,8 @@
-package com.tqmall.search.commons.rcache;
+package com.tqmall.search.redis;
 
 import com.tqmall.search.commons.lang.Cache;
 import com.tqmall.search.commons.utils.CommonsUtils;
 import com.tqmall.search.commons.utils.SearchStringUtils;
-import com.tqmall.search.redis.RedisClient;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -117,5 +116,22 @@ public abstract class AbstractRedisCache<K, V> implements Cache<K, V> {
     @Override
     public void clear() {
         client.del(mapKey);
+    }
+
+    @Override
+    public final boolean invalid(K key) {
+        return key != null && client.hDel(mapKey, mapField(key));
+    }
+
+    @Override
+    public final int invalid(Iterable<K> keys) {
+        if (keys == null) return 0;
+        int count = 0;
+        for (K key : keys) {
+            if (client.hDel(mapKey, mapField(key))) {
+                count++;
+            }
+        }
+        return count;
     }
 }
