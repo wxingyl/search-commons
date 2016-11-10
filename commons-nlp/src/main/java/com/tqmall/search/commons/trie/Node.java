@@ -59,6 +59,11 @@ public abstract class Node<V> {
     public abstract void clear();
 
     /**
+     * 给叶子节点数组瘦身
+     */
+    public abstract void trimChildNodes();
+
+    /**
      * 获取所有child的词
      * Note: root节点不支持该方法调用, 如果调用抛出{@link UnsupportedOperationException}
      *

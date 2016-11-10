@@ -3,6 +3,8 @@ package com.tqmall.search.commons.trie;
 import com.tqmall.search.commons.utils.CommonsUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +18,9 @@ public class NormalNode<V> extends Node<V> {
      * 默认数组扩展大小
      */
     protected static final int DEFAULT_INFLATE_SIZE = 8;
-
+    /**
+     * 叶子节点数目, 包括已经删除的节点, {@link #children}每次增加 * 2, 创建完成后可以通过{@link #trimChildNodes()} 给叶子节点瘦身
+     */
     protected int childCount;
 
     protected Node<?>[] children;
@@ -45,13 +49,13 @@ public class NormalNode<V> extends Node<V> {
     }
 
     /**
-     * 扩展children数组, 每次扩展DEFAULT_INFLATE_SIZE
+     * 扩展children数组, 每次扩展DEFAULT_INFLATE_SIZE, 树的叶子节点不会很多, 一次加一丢丢
      */
     private void inflateChildrenArray() {
         if (children == null) {
             children = new Node[DEFAULT_INFLATE_SIZE];
         } else {
-            Node[] newChildren = new Node[children.length + DEFAULT_INFLATE_SIZE];
+            Node[] newChildren = new Node[children.length * 2];
             System.arraycopy(children, 0, newChildren, 0, children.length);
             children = newChildren;
         }
@@ -179,6 +183,19 @@ public class NormalNode<V> extends Node<V> {
         }
         childCount = 0;
         children = null;
+    }
+
+    @Override
+    public void trimChildNodes() {
+        if (children == null) return;
+        if (children.length != childCount) {
+            Node[] newChildren = new Node[childCount];
+            System.arraycopy(children, 0, newChildren, 0, childCount);
+            children = newChildren;
+        }
+        for (Node e : children) {
+            e.trimChildNodes();
+        }
     }
 
     private final static int HASH_CODE_FACTOR = NormalNode.class.getSimpleName().hashCode();

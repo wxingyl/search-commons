@@ -30,7 +30,7 @@ public class SegmentTest {
         Supplier<CjkLexicon> cjkLexicon = CjkLexicon.createAsyncSupplier(RootNodeType.CJK,
                 NlpUtils.getPathOfClass(SegmentTest.class, "/segment.txt"));
         fullSegment = Segment.build("full")
-                .segmentFilter(SegmentFilters.hitsFilter())
+                .segmentFilter(SegmentFilters.textFilter())
                 .asciiAnalyzer(AsciiAnalyzer.build()
                         .enMixAppend(true)
                         .create())
@@ -84,6 +84,8 @@ public class SegmentTest {
             System.out.println("fullSegment: " + Hits.valueOf(array, fullSegment.match(array, 0, array.length)));
             System.out.println("maxSegment: " + Hits.valueOf(array, maxSegment.match(array, 0, array.length)));
             System.out.println("minSegment: " + Hits.valueOf(array, minSegment.match(array, 0, array.length)));
+            break;
         }
     }
+
 }

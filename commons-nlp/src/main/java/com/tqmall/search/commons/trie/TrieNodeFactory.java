@@ -2,7 +2,7 @@ package com.tqmall.search.commons.trie;
 
 /**
  * Created by xing on 16/1/28.
- * Node节点生成接口
+ * 树种的Node节点生成接口
  */
 public interface TrieNodeFactory<V> {
 

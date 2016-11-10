@@ -5,8 +5,15 @@ import com.tqmall.search.commons.nlp.NlpUtils;
 import com.tqmall.search.commons.trie.BinaryTrie;
 import com.tqmall.search.commons.trie.Node;
 import com.tqmall.search.commons.trie.NodeChildHandle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -18,11 +25,15 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class AcBinaryTrie<V> extends AbstractAcTrie<V> {
 
+    private static final Logger log = LoggerFactory.getLogger(AcBinaryTrie.class);
+
     /**
      * failed字段构造读写锁, 构造failed字段时不能执行匹配操作
      */
     private ReadWriteLock failedRwLock = new ReentrantReadWriteLock();
-
+    /**
+     * 避免自旋锁, 如果正在够高, 立即返回
+     */
     private volatile boolean buildingFailed = false;
 
     private final Node<V> trieRoot;
@@ -61,6 +72,7 @@ public class AcBinaryTrie<V> extends AbstractAcTrie<V> {
     @Override
     public boolean buildFailed() {
         if (buildingFailed) return false;
+        long startTime = System.currentTimeMillis();
         failedRwLock.writeLock().lock();
         buildingFailed = true;
         try {
@@ -81,6 +93,7 @@ public class AcBinaryTrie<V> extends AbstractAcTrie<V> {
         } finally {
             failedRwLock.writeLock().unlock();
             buildingFailed = false;
+            log.info("build failed time cost: " + (System.currentTimeMillis() - startTime) + "ms");
         }
     }
 

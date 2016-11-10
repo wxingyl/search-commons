@@ -108,6 +108,15 @@ public class BigRootNode<V> extends Node<V> {
         }
     }
 
+    @Override
+    public void trimChildNodes() {
+        for (int i = 0; i < children.length; i++) {
+            if (children[i] != null) {
+                children[i].trimChildNodes();
+            }
+        }
+    }
+
     private final static int HASH_CODE_FACTOR = BigRootNode.class.getSimpleName().hashCode();
 
     @Override

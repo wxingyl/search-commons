@@ -68,6 +68,7 @@ public class CjkLexicon {
      * @see AcTrieNodeFactory
      */
     public CjkLexicon(RootNodeType rootNodeType, Collection<Path> lexiconPaths) {
+        log.info("cjkLexicon init start");
         matchReverseBinaryTrie = new MatchBinaryReverseTrie<>(rootNodeType.<TokenType>defaultTrie());
         long startTime = System.currentTimeMillis();
         quantifiers = new HashSet<>();
@@ -95,6 +96,7 @@ public class CjkLexicon {
                 return true;
             }
         }, lexiconPaths);
+        matchReverseBinaryTrie.getRoot().trimChildNodes();
         acTrie = acBuilder.create(rootNodeType.<TokenType>defaultAcTrie());
         log.info("load cjk lexicon finish, total load " + lineCount + " words, total cost: " + (System.currentTimeMillis() - startTime) + "ms");
 
@@ -105,6 +107,7 @@ public class CjkLexicon {
                 return true;
             }
         });
+        log.info("cjkLexicon init end");
     }
 
     /**

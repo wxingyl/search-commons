@@ -119,11 +119,13 @@ public class BinaryTrie<V> implements Trie<V> {
         root.clear();
     }
 
+    @Override
+    public Node<V> getRoot() {
+        return root;
+    }
+
     public TrieNodeFactory<V> getNodeFactory() {
         return nodeFactory;
     }
 
-    public Node<V> getRoot() {
-        return root;
-    }
 }

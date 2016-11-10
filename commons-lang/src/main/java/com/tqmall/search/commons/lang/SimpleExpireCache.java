@@ -4,15 +4,15 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
- * date 16/8/16 上午9:41
- * 简单的时间过期cache, 只能用于小对象的cache
+ * date 16/8/16 涓婂崍9:41
+ * 绠�鍗曠殑鏃堕棿杩囨湡cache, 鍙兘鐢ㄤ簬灏忓璞＄殑cache
  *
- * @author 尚辰
+ * @author 灏氳景
  */
 public class SimpleExpireCache<T> {
 
     /**
-     * 初始化之后过期的时间, 单位毫秒ms
+     * 鍒濆鍖栦箣鍚庤繃鏈熺殑鏃堕棿, 鍗曚綅姣ms
      */
     private final long expireAfterInit;
 

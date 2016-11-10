@@ -50,4 +50,9 @@ public interface Trie<V> {
      * 执行clear操作, 删除所有节点数据
      */
     void clear();
+
+    /**
+     * 获取根节点
+     */
+    Node<V> getRoot();
 }

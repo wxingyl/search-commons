@@ -14,6 +14,9 @@ public final class TrieNodeFactories {
     private TrieNodeFactories() {
     }
 
+    /**
+     * 默认的Trie树节点生成器, 所有的叶子节点, 普通节点都是{@link NormalNode}
+     */
     static class Trie<V> implements TrieNodeFactory<V> {
 
         private final Node<V> root;
@@ -38,6 +41,9 @@ public final class TrieNodeFactories {
         }
     }
 
+    /**
+     * 默认的AcTrie树节点生成器, 所有的叶子节点, 普通节点都是{@link AcNormalNode}
+     */
     static class AcTrie<V> implements AcTrieNodeFactory<V> {
 
         private final Node<V> root;

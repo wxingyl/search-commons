@@ -86,11 +86,13 @@ public class AcNormalNode<V> extends NormalNode<V> {
         if (children != null) {
             for (int i = 0; i < childCount; i++) {
                 AcNormalNode acNode = (AcNormalNode) children[i];
-                acNode.parent = this;
-                acNode.failed = null;
-                outputSb.append(acNode.c);
-                acNode.initChildParent(outputSb);
-                outputSb.deleteCharAt(outputSb.length() - 1);
+                if (acNode.status != Status.DELETE) {
+                    acNode.parent = this;
+                    acNode.failed = null;
+                    outputSb.append(acNode.c);
+                    acNode.initChildParent(outputSb);
+                    outputSb.deleteCharAt(outputSb.length() - 1);
+                }
             }
         }
     }
@@ -166,7 +168,9 @@ public class AcNormalNode<V> extends NormalNode<V> {
         for (int i = 0; i < childCount; i++) {
             @SuppressWarnings({"rawtypes", "unchecked"})
             AcNormalNode<V> acNode = (AcNormalNode<V>) children[i];
-            deque.push(acNode);
+            if (acNode.status != Status.DELETE) {
+                deque.push(acNode);
+            }
         }
     }
 

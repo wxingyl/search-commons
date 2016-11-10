@@ -64,4 +64,8 @@ public abstract class AbstractAcTrie<V> extends AbstractTextMatch<V> implements 
         trie.clear();
     }
 
+    @Override
+    public Node<V> getRoot() {
+        return trie.getRoot();
+    }
 }

@@ -112,11 +112,11 @@ public final class NlpUtils {
      * @throws LoadLexiconException 加载词库, 读取文件时发生{@link IOException}, 则抛出{@link LoadLexiconException}, 其为{@link RuntimeException}, 包装了{@link IOException}
      */
     public static int loadClassPathLexicon(Class cls, String filename, Function<String, Boolean> lineHandle) {
-        log.info("start load class: " + cls + " path lexicon file: " + filename);
+        log.debug("start load class: " + cls + " path lexicon file: " + filename);
         long start = System.currentTimeMillis();
         try (InputStream in = cls.getResourceAsStream(filename)) {
             int lineCount = loadLexicon(lineHandle, in);
-            log.info("load class: " + cls + " path lexicon file: " + filename + " finish, total load " + lineCount + " lines"
+            log.debug("load class: " + cls + " path lexicon file: " + filename + " finish, total load " + lineCount + " lines"
                     + ", cost: " + (System.currentTimeMillis() - start) + "ms");
             return lineCount;
         } catch (IOException e) {
