@@ -20,6 +20,14 @@ public final class SearchStringUtils {
         return str == null || str.isEmpty();
     }
 
+    public static boolean isBlank(String str) {
+        if (str == null) return true;
+        for (int i = str.length() - 1; i >= 0; i--) {
+            if ((!Character.isWhitespace(str.charAt(i)))) return false;
+        }
+        return true;
+    }
+
     /**
      * 过滤String, 返回的String是trim过的
      * 关键字不能为null, 不能为空, 并且trim后不能为空
@@ -167,5 +175,5 @@ public final class SearchStringUtils {
         }
         return array;
     }
-    
+
 }
