@@ -26,7 +26,7 @@ public abstract class FieldCondition<T> implements Condition, Serializable {
 
     public FieldCondition(String field, StrValueConvert<T> valueConvert, boolean isNo) {
         Objects.requireNonNull(field);
-        this.field = field;
+        this.field = field.trim();
         this.valueConvert = valueConvert;
         this.isNo = isNo;
     }

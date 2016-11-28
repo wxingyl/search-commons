@@ -124,7 +124,10 @@ public class Schema<T extends Actionable> implements Iterable<Schema<T>.Table> {
                 this.columns = null;
                 this.rowDataColumns = null;
             } else {
-                Set<String> columnSet = new HashSet<>(columns);
+                Set<String> columnSet = new HashSet<>();
+                for(String s : columns) {
+                    columnSet.add(s.trim());
+                }
                 this.columns = Collections.unmodifiableSet(columnSet);
                 if (columnCondition == null) {
                     this.rowDataColumns = this.columns;

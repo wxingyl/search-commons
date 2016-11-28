@@ -242,26 +242,14 @@ public final class Schemas {
 
         public TableBuilder columns(String... columns) {
             if (columns.length > 0) {
-                for (String element : columns) {
-                    if (StringUtils.isBlank(element)) {
-                        continue;
-                    }
-                    this.columns.add(element.trim());
-                }
-//                Collections.addAll(this.columns, columns);
+                Collections.addAll(this.columns, columns);
             }
             return this;
         }
 
         public TableBuilder columns(Collection<String> columns) {
             if (!CommonsUtils.isEmpty(columns)) {
-//                this.columns.addAll(columns);
-                for (String element : columns) {
-                    if (StringUtils.isBlank(element)) {
-                        continue;
-                    }
-                    this.columns.add(element.trim());
-                }
+                this.columns.addAll(columns);
             }
             return this;
         }
