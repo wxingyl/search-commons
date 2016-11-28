@@ -8,6 +8,7 @@ import java.util.*;
 /**
  * Created by xing on 16/4/5.
  * mysql 条件sql语句解析
+ * 注意: 解析过程并不是线程安全的, 所以不要通过全局单例来使用, 类似于{@link java.text.SimpleDateFormat}
  *
  * @author xing
  */
@@ -35,10 +36,20 @@ class ConditionSqlStatement {
         resolves.add(new RangeConditionResolve());
     }
 
-    void appendConditionContainer(StringBuilder sql, ConditionContainer container) {
+    /**
+     * 将条件容器转换为sql语句
+     * @param sql sql build
+     * @param container 条件容器
+     */
+    public void appendConditionContainer(StringBuilder sql, ConditionContainer container) {
         List<Condition> must = container.getMust(), should = container.getShould();
         if (CommonsUtils.isEmpty(must) && CommonsUtils.isEmpty(should)) return;
         ContainerResolve.append(this, sql, must, should);
+    }
+
+    public static void appendSqlConditionContainer(StringBuilder sql, ConditionContainer container) {
+        ConditionSqlStatement sqlStatement = new ConditionSqlStatement();
+        sqlStatement.appendConditionContainer(sql, container);
     }
 
     final void appendCondition(StringBuilder sql, Condition condition) {

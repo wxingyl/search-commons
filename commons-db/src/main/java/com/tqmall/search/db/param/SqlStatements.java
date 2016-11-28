@@ -10,16 +10,9 @@ import com.tqmall.search.commons.condition.ConditionContainer;
  */
 public class SqlStatements {
 
-    private static final ThreadLocal<ConditionSqlStatement> CONDITION_RESOLVE = new ThreadLocal<ConditionSqlStatement>() {
-        @Override
-        protected ConditionSqlStatement initialValue() {
-            return new ConditionSqlStatement();
-        }
-    };
-
     public static StringBuilder appendContainer(StringBuilder sql, ConditionContainer container) {
         if (container != null) {
-            CONDITION_RESOLVE.get().appendConditionContainer(sql, container);
+            ConditionSqlStatement.appendSqlConditionContainer(sql, container);
         }
         return sql;
     }
