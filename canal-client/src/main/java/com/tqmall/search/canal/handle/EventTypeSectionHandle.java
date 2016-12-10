@@ -50,7 +50,12 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
      * @param destination      canal实例名称
      */
     public EventTypeSectionHandle(String destination, ConnectorFactory connectorFactory, ActionFactory<EventTypeAction> schemaTables) {
-        super(destination, connectorFactory, schemaTables);
+        super(destination, connectorFactory, schemaTables, NormalSchemaTableNameAdapter.INSTANCE);
+    }
+
+    public EventTypeSectionHandle(String destination, ConnectorFactory connectorFactory, ActionFactory<EventTypeAction> schemaTables,
+                                  SchemaTableNameAdapter schemaTableNameAdapter) {
+        super(destination, connectorFactory, schemaTables, schemaTableNameAdapter);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

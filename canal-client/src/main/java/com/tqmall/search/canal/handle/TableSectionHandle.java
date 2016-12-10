@@ -39,7 +39,12 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
     private final List<RowChangedData> rowChangedDataList = new LinkedList<>();
 
     public TableSectionHandle(String destination, ConnectorFactory connectorFactory, ActionFactory<TableAction> schemaTables) {
-        super(destination, connectorFactory, schemaTables);
+        super(destination, connectorFactory, schemaTables, NormalSchemaTableNameAdapter.INSTANCE);
+    }
+
+    public TableSectionHandle(String destination, ConnectorFactory connectorFactory, ActionFactory<TableAction> schemaTables,
+                              SchemaTableNameAdapter schemaTableNameAdapter) {
+        super(destination, connectorFactory, schemaTables, schemaTableNameAdapter);
     }
 
     private void runLastRowChangeAction() {
@@ -97,7 +102,6 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
                     }
                 }
             } finally {
-                //要记得清楚掉, 避免内存泄露
                 UpdateDataFunction.setUpdateData(null);
             }
         }

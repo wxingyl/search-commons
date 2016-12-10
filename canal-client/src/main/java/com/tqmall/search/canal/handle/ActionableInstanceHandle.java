@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by xing on 16/2/22.
@@ -38,6 +40,8 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
 
     private final ActionFactory<T> actionFactory;
 
+    private final SchemaTableNameAdapter schemaTableNameAdapter;
+
     /**
      * 当前这在处理的schema.table
      * 每个canalHandle都是单个线程负责调用, 所以这儿也就不用考虑多线程, 如果以后添加了多线程处理, 引入{@link ThreadLocal}
@@ -51,13 +55,18 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
     private volatile boolean userLocalTableFilter = true;
 
     /**
-     * @param connectorFactory {@link CanalConnector}构造器
-     * @param destination      canal实例名称
-     * @param actionFactory    table对应action实例
+     * @param connectorFactory       {@link CanalConnector}构造器
+     * @param destination            canal实例名称
+     * @param actionFactory          table对应action实例
+     * @param schemaTableNameAdapter 库, 表名称适配器
      */
-    public ActionableInstanceHandle(String destination, ConnectorFactory connectorFactory, ActionFactory<T> actionFactory) {
+    public ActionableInstanceHandle(String destination, ConnectorFactory connectorFactory, ActionFactory<T> actionFactory,
+                                    SchemaTableNameAdapter schemaTableNameAdapter) {
         super(destination, connectorFactory);
+        Objects.requireNonNull(actionFactory);
+        Objects.requireNonNull(schemaTableNameAdapter);
         this.actionFactory = actionFactory;
+        this.schemaTableNameAdapter = schemaTableNameAdapter;
     }
 
     protected abstract HandleExceptionContext buildHandleExceptionContext(RuntimeException exception);
@@ -68,9 +77,13 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
         if (userLocalTableFilter) {
             StringBuilder sb = new StringBuilder();
             for (Schema<T> s : actionFactory) {
-                String schemaName = s.getSchemaName();
                 for (Schema<T>.Table t : s) {
-                    sb.append(schemaName).append('.').append(t.getTableName()).append(',');
+                    Map<String, List<String>> nameMap = schemaTableNameAdapter.getRealName(s.getSchemaName(), t.getTableName());
+                    for (String schemaName : nameMap.keySet()) {
+                        for (String tableName : nameMap.get(schemaName)) {
+                            sb.append(schemaName).append('.').append(tableName).append(',');
+                        }
+                    }
                 }
             }
             sb.deleteCharAt(sb.length() - 1);
@@ -156,7 +169,8 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
     @Override
     public boolean startHandle(CanalEntry.Header header) {
         currentEventType = header.getEventType();
-        currentTable = actionFactory.getTable(header.getSchemaName(), header.getTableName());
+        Map.Entry<String, String> virtualName = schemaTableNameAdapter.getVirtualName(header.getSchemaName(), header.getTableName());
+        currentTable = actionFactory.getTable(virtualName.getKey(), virtualName.getValue());
         if (currentTable == null) return false;
         //排除事件类型过滤, 对于UPDATE类型, 如果存在条件判断, 在这儿没有办法执行排除
         if ((RowChangedData.getEventTypeFlag(currentEventType) & currentTable.getForbidEventType()) != 0
@@ -170,6 +184,10 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
         return true;
     }
 
+    protected final SchemaTableNameAdapter getSchemaTableNameAdapter() {
+        return schemaTableNameAdapter;
+    }
+
     protected final ActionFactory<T> getActionFactory() {
         return actionFactory;
     }
@@ -181,4 +199,5 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
     protected CanalEntry.EventType getCurrentEventType() {
         return currentEventType;
     }
+
 }
