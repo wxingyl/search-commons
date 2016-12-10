@@ -66,12 +66,13 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
     @Override
     protected void doRowChangeHandle(List<RowChangedData> changedData) {
         //尽量集中处理
+        Schema<TableAction>.Table currentTable = getCurrentTable();
         if (!currentTable.equals(lastTable)) {
             runLastRowChangeAction();
             lastTable = currentTable;
         }
         ConditionContainer columnCondition;
-        if (currentEventType == CanalEntry.EventType.UPDATE
+        if (getCurrentEventType() == CanalEntry.EventType.UPDATE
                 && (columnCondition = currentTable.getColumnCondition()) != null) {
             ListIterator<RowChangedData> it = changedData.listIterator();
             final Function<String, String> beforeFunction = UpdateDataFunction.before();
@@ -114,7 +115,7 @@ public class TableSectionHandle extends ActionableInstanceHandle<TableAction> {
     protected boolean exceptionHandle(RuntimeException exception, boolean inFinishHandle) {
         try {
             if (super.exceptionHandle(exception, inFinishHandle)) {
-                lastTable = currentTable;
+                lastTable = getCurrentTable();
                 return true;
             } else {
                 return false;

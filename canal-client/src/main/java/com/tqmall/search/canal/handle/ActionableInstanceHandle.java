@@ -7,13 +7,12 @@ import com.tqmall.search.canal.Schema;
 import com.tqmall.search.canal.action.ActionFactory;
 import com.tqmall.search.canal.action.Actionable;
 import com.tqmall.search.canal.action.CurrentHandleTable;
-import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.condition.ConditionContainer;
+import com.tqmall.search.commons.lang.Function;
 import com.tqmall.search.commons.utils.CommonsUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.SocketAddress;
 import java.util.Iterator;
 import java.util.List;
 
@@ -35,9 +34,9 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
      * 是否忽略处理异常, 默认忽略
      * 优先处理{@link #handleExceptionFunction}
      */
-    private boolean ignoreHandleException = true;
+    private volatile boolean ignoreHandleException = true;
 
-    protected final ActionFactory<T> actionFactory;
+    private final ActionFactory<T> actionFactory;
 
     /**
      * 当前这在处理的schema.table
@@ -45,11 +44,11 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
      *
      * @see #startHandle(CanalEntry.Header)
      */
-    protected Schema<T>.Table currentTable;
+    private Schema<T>.Table currentTable;
 
-    protected CanalEntry.EventType currentEventType;
+    private CanalEntry.EventType currentEventType;
 
-    private boolean userLocalTableFilter = true;
+    private volatile boolean userLocalTableFilter = true;
 
     /**
      * @param connectorFactory {@link CanalConnector}构造器
@@ -169,5 +168,17 @@ public abstract class ActionableInstanceHandle<T extends Actionable> extends Abs
             ((CurrentHandleTable<T>) action).setCurrentTable(currentTable);
         }
         return true;
+    }
+
+    protected final ActionFactory<T> getActionFactory() {
+        return actionFactory;
+    }
+
+    protected Schema<T>.Table getCurrentTable() {
+        return currentTable;
+    }
+
+    protected CanalEntry.EventType getCurrentEventType() {
+        return currentEventType;
     }
 }

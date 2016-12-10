@@ -139,6 +139,8 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
     @Override
     protected void doRowChangeHandle(List<RowChangedData> changedData) {
         //尽量集中处理
+        Schema<EventTypeAction>.Table currentTable = getCurrentTable();
+        CanalEntry.EventType currentEventType = getCurrentEventType();
         if (!currentTable.equals(lastTable) || currentEventType != lastEventType) {
             runLastRowChangeAction();
             lastTable = currentTable;
@@ -159,8 +161,8 @@ public class EventTypeSectionHandle extends ActionableInstanceHandle<EventTypeAc
     protected boolean exceptionHandle(RuntimeException exception, boolean inFinishHandle) {
         try {
             if (super.exceptionHandle(exception, inFinishHandle)) {
-                lastTable = currentTable;
-                lastEventType = currentEventType;
+                lastTable = getCurrentTable();
+                lastEventType = getCurrentEventType();
                 return true;
             } else {
                 return false;
