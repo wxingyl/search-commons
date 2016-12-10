@@ -9,7 +9,6 @@ import com.tqmall.search.commons.utils.CommonsUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.SocketAddress;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;

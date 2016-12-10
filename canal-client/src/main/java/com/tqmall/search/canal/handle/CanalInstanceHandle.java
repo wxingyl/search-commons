@@ -45,7 +45,7 @@ public interface CanalInstanceHandle {
     void ack(long batchId);
 
     /**
-     * 在本地canal实例线程不断轮询获取数据{@link Message}, 该接口确定轮询的时间间隔, 避免给canal服务器较大压力,
+     * 在本地canal实例线程不断轮询获取数据{@link Message}, 该接口确定轮询的时间间隔, 避免给canal服务器较大压力
      *
      * @return 轮询获取变更数据的时间间隔, 时间单位为ms
      */

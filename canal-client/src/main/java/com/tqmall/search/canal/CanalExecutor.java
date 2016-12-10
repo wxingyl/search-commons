@@ -34,7 +34,15 @@ public class CanalExecutor {
     /**
      * 运行的canal 获取数据异常之后等待的时间, 单位ms, 默认2s
      */
-    private long retryFetchInterval = 2000L;
+    private volatile long retryFetchInterval = 2000L;
+
+    /**
+     * 从canal server 不断获取Message，{@link CanalInstanceHandle#fetchInterval()} 指定了轮训周期，拿到消息之后处理该，如果所耗费时间小于轮训周期时间，
+     * 当前线程sleep-time = {@link CanalInstanceHandle#fetchInterval()} - timeCost, 但是当sleep-time 很小， 比如1ms等此时Sleep没有意义了，该值用来
+     * 控制最小的sleep-time, 默认10ms
+     * @see CanalInstanceHandle#fetchInterval()
+     */
+    private volatile long minSleepTimeOfFetchInterval = 10L;
 
     /**
      * 记录当前CanalExecutor对象实例个数, 每次创建, 在构造函数中增加1
@@ -130,6 +138,10 @@ public class CanalExecutor {
      */
     public void setRetryFetchInterval(long retryFetchInterval) {
         this.retryFetchInterval = retryFetchInterval;
+    }
+
+    public void setMinSleepTimeOfFetchInterval(long minSleepTimeOfFetchInterval) {
+        this.minSleepTimeOfFetchInterval = minSleepTimeOfFetchInterval;
     }
 
     /**
@@ -404,8 +416,7 @@ public class CanalExecutor {
                         consumerMessage(message);
                     }
                     long sleepTime = nextFetchTime - System.currentTimeMillis();
-                    //超过20ms那我们就先sleep一下~~~
-                    if (sleepTime > 20L) {
+                    if (sleepTime > minSleepTimeOfFetchInterval) {
                         try {
                             Thread.sleep(sleepTime);
                         } catch (InterruptedException ignored) {

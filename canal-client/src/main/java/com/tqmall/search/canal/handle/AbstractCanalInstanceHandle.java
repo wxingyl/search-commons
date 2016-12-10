@@ -31,19 +31,19 @@ public abstract class AbstractCanalInstanceHandle implements CanalInstanceHandle
 
     protected final String instanceName;
 
-    private int messageBatchSize = 1000;
+    private volatile int messageBatchSize = 1000;
 
     /**
      * {@link CanalConnector#getWithoutAck(int, Long, TimeUnit)}中的时间参数是Long的, 避免频繁的自动装箱,砸门还是直接定义成{@link Long}
      */
-    private Long messageTimeout = 1000L;
+    private volatile Long messageTimeout = 1000L;
 
     /**
      * 轮询获取变更数据的时间间隔, 默认500ms, 如果对于实时性要求较高可以设置小一些
      *
      * @see #fetchInterval()
      */
-    private long fetchInterval = 500L;
+    private volatile long fetchInterval = 100L;
 
     /**
      * @param destination      canal实例名称
