@@ -129,11 +129,11 @@ public final class ResultJsonConverts {
      */
     private static JsonSimpleResult parseData(String json) {
         if (SearchStringUtils.isEmpty(json)) {
-            return buildErrorSimpleResult("Json string is empty");
+            return buildErrorSimpleResult("json string is empty");
         }
         int dataIndex = json.indexOf("\"data\"");
         if (dataIndex < 0) {
-            return buildErrorSimpleResult("Can not find data field");
+            return buildErrorSimpleResult("can not find data field");
         }
         int i = dataIndex - 1;
         //找data前面的位置
@@ -174,7 +174,7 @@ public final class ResultJsonConverts {
         }
         JsonSimpleResult simpleResult = JsonUtils.parseObject(simpleJson, JsonSimpleResult.class);
         if (simpleResult == null) {
-            return buildErrorSimpleResult("String: " + simpleJson + " is not format of com.tqmall.search.common.result.Result class");
+            return buildErrorSimpleResult("String: " + simpleJson + " is not format of " + Result.class);
         }
         if (dataValue != null) {
             simpleResult.setData(dataValue);
@@ -187,7 +187,7 @@ public final class ResultJsonConverts {
      * 该Bean从Json返回串解析并不是解析所有字段, 只解析total, code, message, success 4个fields, data是在后面程序自己搞进去的
      */
     @SuppressWarnings("serial")
-    final static class JsonSimpleResult extends Result<String> implements ErrorCode {
+    private final static class JsonSimpleResult extends Result<String> implements ErrorCode {
 
         private long total;
 
@@ -225,6 +225,7 @@ public final class ResultJsonConverts {
             super.setSuccess(success);
         }
 
+        //仅仅是为了兼容一些接口返回success 写成 succeed
         public void setSucceed(boolean succeed) {
             super.setSuccess(succeed);
         }

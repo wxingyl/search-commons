@@ -23,14 +23,14 @@ public interface ErrorCode {
     String getMessage();
 
     enum Level {
-        FATAL(1),
-        ERROR(2),
-        WARN(3);
+        FATAL,
+        ERROR,
+        WARN;
 
-        private int code;
+        private final int code;
 
-        Level(int code) {
-            this.code = code;
+        Level() {
+            this.code = this.ordinal() + 1;
         }
 
         public int getCode() {
