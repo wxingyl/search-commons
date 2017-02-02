@@ -51,6 +51,8 @@ public final class StrValueConverts {
             ret = LongStrValueConvert.INSTANCE;
         } else if (cls == Double.class || cls == Double.TYPE) {
             ret = DoubleStrValueConvert.INSTANCE;
+        } else if (cls == Float.class || cls == Float.TYPE) {
+            ret = FloatStrValueConvert.INSTANCE;
         } else if (cls == BigInteger.class) {
             ret = BigIntegerStrValueConvert.INSTANCE;
         } else if (cls == BigDecimal.class) {
@@ -141,6 +143,16 @@ public final class StrValueConverts {
 
     public static double doubleConvert(String input, double defaultValue) {
         return convert(input, defaultValue, Double.TYPE);
+    }
+    /**
+     * @return have error will return {@link FloatStrValueConvert#defaultValue()}
+     */
+    public static float floatConvert(String input) {
+        return FloatStrValueConvert.INSTANCE.convert(input);
+    }
+
+    public static float floatConvert(String input, float defaultValue) {
+        return convert(input, defaultValue, Float.TYPE);
     }
 
     /**
@@ -252,6 +264,22 @@ public final class StrValueConverts {
             return 0L;
         }
 
+    }
+
+    static class FloatStrValueConvert extends  AbstractDefaultableStrValueConvert<Float> {
+
+        final static FloatStrValueConvert INSTANCE = new FloatStrValueConvert();
+
+        final static Float DEFAULT_VALUE = 0.0F;
+        @Override
+        public Float defaultValue() {
+            return DEFAULT_VALUE;
+        }
+
+        @Override
+        protected Float innerConvert(String str) {
+            return Float.valueOf(str);
+        }
     }
 
     static class DoubleStrValueConvert extends AbstractDefaultableStrValueConvert<Double> {

@@ -4,6 +4,7 @@ import com.tqmall.search.commons.utils.CommonsUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.util.Pool;
 
+import java.io.Closeable;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -16,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * @see redis.clients.jedis.JedisSentinelPool
  * @see redis.clients.jedis.ShardedJedisPool
  */
-public class JedisTask<J extends Jedis> {
+public class JedisTask<J extends Jedis> implements Closeable {
 
     private final Pool<J> jedisPool;
 
@@ -35,6 +36,7 @@ public class JedisTask<J extends Jedis> {
         }
     }
 
+    @Override
     public void close() {
         jedisPool.close();
     }
