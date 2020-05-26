@@ -50,7 +50,7 @@
         <jedis-version>2.9.0</jedis-version>
         <guava.version>19.0</guava.version>
         <commons-lang3.version>3.4</commons-lang3.version>
-        <fastjson.version>1.2.8</fastjson.version>
+        <fastjson.version>1.2.25</fastjson.version>
     </properties>
 
     <dependencies>
